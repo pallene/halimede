@@ -378,8 +378,13 @@ local function initialisePackageConfiguration(config)
 	
 	local configuration = {}
 	
+	-- Lua 5.2 / 5.3 have an extra line!
+	local maximumKnownLines = #packageConfigurationMapping
 	local index = 1
 	for line in config:gmatch('([^\n]+)') do
+		if index > maximumKnownLines then
+			break
+		end
 		configuration[packageConfigurationMapping[index]] = line
 		index = index + 1
 	end
