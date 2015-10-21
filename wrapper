@@ -1,0 +1,241 @@
+#!/usr/bin/env sh
+# This file is part of halimede. It is subject to the licence terms in the COPYRIGHT file found in the top-level directory of this distribution and at https://raw.githubusercontent.com/pallene/halimede/master/COPYRIGHT. No part of halimede, including this file, may be copied, modified, propagated, or distributed except according to the terms contained in the COPYRIGHT file.
+# Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/pallene/halimede/master/COPYRIGHT.
+
+
+# Strictly speaking, this script belongs in libexec/pallene
+set -e
+set -u
+set -f
+
+_program_path_find()
+{
+	if [ "${0%/*}" = "$0" ]; then
+
+		# We've been invoked by the interpreter as, say, bash program
+		if [ -r "$0" ]; then
+			pwd -P
+		# Clutching at straws; probably run via a download, anonymous script, etc, weird execve, etc
+		else
+			printf '\n'
+		fi
+		
+	else
+	
+		# We've been invoked with a relative or absolute path (also when invoked via PATH in a shell)
+		
+		_program_path_find_parentPath()
+		{
+			parentPath="${scriptPath%/*}"
+			if [ -z "$parentPath" ]; then
+				parentPath='/'
+			fi
+			cd "$parentPath" 1>/dev/null
+		}
+		
+		# pdksh / mksh have problems with unsetting a variable that was never set...
+		if [ "${CDPATH+set}" = 'set' ]; then
+			unset CDPATH
+		fi
+		
+		if command -v realpath 1>/dev/null 2>/dev/null; then
+			(
+				scriptPath="$(realpath "$0")"
+				
+				_program_path_find_parentPath
+				pwd -P
+			)
+		elif command -v readlink 1>/dev/null 2>/dev/null; then
+			(
+				scriptPath="$0"
+				
+				while [ -L "$scriptPath" ]
+				do
+					_program_path_find_parentPath
+					scriptPath="$(readlink "$scriptPath")"
+				done
+
+				_program_path_find_parentPath
+				pwd -P
+			)
+		else
+			# This approach will failure in corner cases where the script itself is a symlink in a path not parallel with the concrete script
+			(
+				scriptPath="$0"
+				
+				_program_path_find_parentPath
+				pwd -P
+			)
+		fi
+		
+	fi
+}
+_program_path="$(_program_path_find)"
+
+_program_rootPath_find()
+{
+	# Assumes we are in lib/pallene/modules/<moduleName>
+	cd "${_program_path}/../../../.." 1>/dev/null 2>/dev/null
+		pwd -P
+	cd - 1>/dev/null 2>/dev/null
+}
+_program_rootPath="$(_program_rootPath_find)"
+
+_program_modulesPath_find()
+{
+	# Assumes we are in <modulesPath>/halimede
+	cd "${_program_path}/.." 1>/dev/null 2>/dev/null
+		pwd -P
+	cd - 1>/dev/null 2>/dev/null
+}
+_program_modulesPath="$(_program_modulesPath_find)"
+
+_program_name_find()
+{
+	printf '%s' "${0##*/}"
+}
+_program_name="$(_program_name_find)"
+
+_program_replaceSeparator()
+{
+	local value="$1"
+	local separator="$2"
+	local replacement="$3"
+	local result=''
+	
+	local split
+	local remainder="$value"
+	while [ ${#remainder} -ne 0 ]
+	do
+		IFS="$separator" read -r split remainder <<-EOF
+			${remainder}
+		EOF
+		if [ -n "$result" ]; then
+			result="${result}${replacement}"
+		fi
+		result="${result}${split}"
+	done
+	
+	printf '%s' "$result"
+}
+
+_program_luaScript=''
+_program_luaScript_find()
+{
+	local pathedProgramName="$(_program_replaceSeparator "$_program_name" '-' '/')"
+	local lastPartOfProgramName="${_program_name##*.}"
+	
+	local relativePath
+	for relativePath in "$_program_name".lua "$pathedProgramName".lua "$pathedProgramName"/main.lua "$pathedProgramName"/init.lua "$_program_name"/"$lastPartOfProgramName".lua
+	do
+		local absoluteScriptPath="$_program_rootPath"/lib/pallene/modules/"$relativePath"
+		if [ -r "$absoluteScriptPath" ]; then
+			_program_luaScript="$absoluteScriptPath"
+			return 0
+		fi
+	done
+	
+	printf '%s\n' "Could not find a Lua script to execute"
+	exit 1
+}
+_program_luaScript_find
+
+_program_lua_interpreter=''
+_program_lua_interpreter_find()
+{
+	# Also kahlua.sh, luaj
+	local interpreter
+	for interpreter in luajit-2.0.4 luajit lua-5.3 lua5.3 lua-5.2 lua5.2 lua-5.1 lua5.1 lua
+	do
+		if command -v "$interpreter" 1>/dev/null 2>/dev/null; then
+			_program_lua_interpreter="$(command -v "$interpreter")"
+			return 0
+		fi
+	done
+	
+	printf '%s\n' "Could not find a Lua interpreter on the PATH ('$PATH')" 1>&2
+	exit 1
+}
+_program_lua_interpreter_find
+
+_program_cleanEnvironment()
+{
+	# pdksh / mksh have problems with unsetting a variable that was never set...
+	if [ "${LUA_PATH+set}" = 'set' ]; then
+		unset LUA_PATH
+	fi
+	if [ "${LUA_CPATH+set}" = 'set' ]; then
+		unset LUA_CPATH
+	fi
+	if [ "${LUA_INIT+set}" = 'set' ]; then
+		unset LUA_INIT
+	fi
+	# Seems there isn't a LUA_INIT_5_1
+	if [ "${LUA_INIT_5_2+set}" = 'set' ]; then
+		unset LUA_INIT_5_2
+	fi
+	if [ "${LUA_INIT_5_3+set}" = 'set' ]; then
+		unset LUA_INIT_5_3
+	fi
+	
+	export LUA_PATH=';;'
+	export LUA_CPATH=';;'
+}
+
+_program_modulePathLuaSingleQuoteEscaped="$(_program_replaceSeparator "$_program_modulesPath" "'" "''")"
+
+# We can not set LUA_PATH and LUA_CPATH as we do not know how Lua was configured for things like ';' and '?'
+_program_prepareScript="local _program_modulesPath='${_program_modulePathLuaSingleQuoteEscaped}'"'
+local function initialisePackageConfiguration()
+	
+	local packageConfigurationMapping = {
+		"folderSeparator", -- eg "/" on POSIX
+		"pathSeparator", -- usually ";" (even on POSIX)
+		"substitutionPoint", -- usually "?"
+		"executableDirectory",  -- usually "!" (only works on Windows)
+		"markToIgnoreTestWhenBuildLuaOpen" -- usually "-"
+	}
+	
+	local configuration = {}
+	
+	-- Lua 5.2 / 5.3 have an extra line!
+	local maximumKnownLines = #packageConfigurationMapping
+	local index = 1
+	for line in package.config:gmatch("([^\n]+)") do
+		if index > maximumKnownLines then
+			break
+		end
+		configuration[packageConfigurationMapping[index]] = line
+		index = index + 1
+	end
+	
+	return configuration
+end
+
+local packageConfiguration = initialisePackageConfiguration()
+local folderSeparator = packageConfiguration.folderSeparator
+local substitutionPoint = packageConfiguration.substitutionPoint
+local pathSeparator = packageConfiguration.pathSeparator
+
+local function toPath(...)
+	return table.concat({...}, folderSeparator)
+end
+
+local function toPaths(fileExtension, paths)
+	if #paths == 0 then
+		return ""
+	end
+	local ending = "." .. fileExtension
+	return table.concat(paths, ending .. pathSeparator) .. ending
+end
+
+local paths = {
+	toPath(_program_modulesPath, substitutionPoint),
+	toPath(_program_modulesPath, substitutionPoint, "init")
+}
+
+package.path = toPaths("lua", paths)
+package.cpath = toPaths("so", paths)
+'
+
+exec "$_program_lua_interpreter" -e "$_program_prepareScript" "$_program_luaScript" "$@"
