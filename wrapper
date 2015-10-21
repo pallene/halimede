@@ -222,7 +222,7 @@ local function toPath(...)
 	return table.concat({...}, folderSeparator)
 end
 
-local function toPaths(fileExtension, paths)
+local function toPaths(paths, fileExtension)
 	if #paths == 0 then
 		return ""
 	end
@@ -235,8 +235,8 @@ local paths = {
 	toPath(_program_modulesPath, substitutionPoint, "init")
 }
 
-package.path = toPaths("lua", paths)
-package.cpath = toPaths("so", paths)
+package.path = toPaths(paths, "lua")
+package.cpath = toPaths(paths, "so")
 '
 
 exec "$_program_lua_interpreter" -e "$_program_prepareScript" "$_program_luaScript" "$@"
