@@ -125,8 +125,9 @@ _program_luaScript_find()
 	local pathedProgramName="$(_program_replaceSeparator "$_program_name" '-' '/')"
 	local lastPartOfProgramName="${_program_name##*.}"
 	
+	set -- "$_program_name".lua "$pathedProgramName".lua "$pathedProgramName"/main.lua "$pathedProgramName"/init.lua "$_program_name"/"$lastPartOfProgramName".lua
 	local relativePath
-	for relativePath in "$_program_name".lua "$pathedProgramName".lua "$pathedProgramName"/main.lua "$pathedProgramName"/init.lua "$_program_name"/"$lastPartOfProgramName".lua
+	for relativePath in "$@"
 	do
 		local absoluteScriptPath="$_program_rootPath"/lib/pallene/modules/"$relativePath"
 		if [ -r "$absoluteScriptPath" ]; then
@@ -135,7 +136,7 @@ _program_luaScript_find()
 		fi
 	done
 	
-	printf '%s\n' "Could not find a Lua script to execute"
+	printf '%s\n' "Could not find a Lua script to execute in $@" 1>&2
 	exit 1
 }
 _program_luaScript_find
