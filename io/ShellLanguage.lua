@@ -67,7 +67,7 @@ local function toShellCommand(quoteArgument, ...)
 	return commandBuffer:concat(' ')
 end
 
-local function redirectOutput(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	local redirection
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
@@ -78,40 +78,38 @@ local function redirectOutput(quoteArgument, fileDescriptor, filePathOrFileDescr
 	return fileDescriptor .. '>' .. redirection
 end
 
-local POSIX = {
-	standardOut = 1,
-	standardError = 2,
-	pathSeparator = ':',
-	silenced = '/dev/null',
-	redirectOutput = function(fileDescriptor, filePathOrFileDescriptor)
-		return redirectOutput(quotePosixArgument, fileDescriptor, filePathOrFileDescriptor)
-	end,
-	silenceStandardError = function()
-		return POSIX.redirectOutput(POSIX.standardError, POSIX.silenced)
-	end,
-	toShellCommand = function(...)
-		return toShellCommand(quotePosixArgument, ...)
+local function newShellLanguage(pathSeparator, silenced, quoteArgument, toShellCommand)
+	
+	local function redirectQuoted(fileDescriptor, filePathOrFileDescriptor)
+		return redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	end
-}
+	
+	local standardOut = 1
+	local standardError = 2
+	
+	local functions = {
+		standardOut = standardOut,
+		standardError = standardError,
+		pathSeparator = pathSeparator,
+		silenced = silenced,
+		redirect = redirectQuoted,
+		silenceStandardOut = redirectQuoted(standardOut, silenced),
+		silenceStandardError = redirectQuoted(standardError, silenced),
+		toShellCommand =  toShellCommand
+	}
+	
+	return functions
+end
+
+local POSIX = newShellLanguage(':', '/dev/null', quotePosixArgument, function(...)
+	return toShellCommand(quotePosixArgument, ...)
+end)
 module.POSIX = POSIX
 
-local Windows = {
-	standardOut = 1,
-	standardError = 2,
-	pathSeparator = ';',
-	silenced = 'NUL',  -- Windows, sadly, has many special files: NUL, AUX, COM[n], LPT[n] and PRN
-	redirectOutput = function(fileDescriptor, filePathOrFileDescriptor)
-		return redirectOutput(quoteWindowsArgument, fileDescriptor, filePathOrFileDescriptor)
-	end,
-	silenceStandardError = function()
-		return Windows.redirectOutput(Windows.standardError, Windows.silenced)
-	end,
-	toShellCommand = function(...)
-		-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
-		return toShellCommand(quoteWindowsArgument, 'type NUL &&', ...)
-	end
-}
-module.Windows = Windows
+local Windows = newShellLanguage(';', 'NUL', quoteWindowsArgument, function(...)
+	-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
+	return toShellCommand(quoteWindowsArgument, 'type NUL &&', ...)
+end)
 
 if halimede.operatingSystemDetails.isPosix then
 	module.Default = module.POSIX
