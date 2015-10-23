@@ -400,7 +400,7 @@ assert.globalTableHasChieldFieldOfTypeString('package', 'config')
 ourModule.packageConfiguration = initialisePackageConfiguration()
 local packageConfiguration = ourModule.packageConfiguration
 
-local function detectOperatingSystemSettings()
+local function detectOperatingSystemDetails()
 	
 	local operatingSystemDetailsPOSIX = {
 		isPosix = true,
