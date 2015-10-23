@@ -13,7 +13,7 @@ local exception = require('halimede.exception')
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
-local function quotePosixArgument(filePath)
+local function quotePosixArgument(argument)
 	return "'" .. argument:gsub("'", "''") .. "'"
 end
 
