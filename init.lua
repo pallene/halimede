@@ -129,6 +129,7 @@ local function multipleTypesObject(name1, name2)
 	end)
 end
 typeModule.isTableOrUserdata = multipleTypesObject('table', 'userdata')
+typeModule.isNumberOrString = multipleTypesObject('number', 'string')
 
 function typeModule.hasPackageChildFieldOfType(isOfType, name, ...)
 	assertModule.parameterTypeIsTable(isOfType)
@@ -251,6 +252,10 @@ end
 
 function assertModule.parameterTypeIsTableOrUserdata(value)
 	return parameterTypeIs(value, typeModule.isTableOrUserdata)
+end
+
+function assertModule.parameterTypeIsNumberOrString(value)
+	return parameterTypeIs(value, typeModule.IsNumberOrString)
 end
 
 local function globalTypeIs(isOfType, ...)

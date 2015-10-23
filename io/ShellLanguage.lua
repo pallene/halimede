@@ -4,30 +4,20 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local assert = require('halimede.assert')
+local type = require('halimede').type
+local assert = require('halimede').assert
 local tabelize = require('halimede.tabelize').tabelize
 local operatingSystemDetails = require('halimede').operatingSystemDetails
 local exception = require('halimede.exception').exception
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
-module.POSIX = {
-	pathSeparator = ':',
-	toShellCommand = function(...)
-		local arguments = {...}
-	
-		local commandBuffer = tabelize()
-		
-		for _, argument in ipairs(arguments) do
-			assert.parameterTypeIsString(argument)
-			commandBuffer:insert("'" .. argument:gsub("'", "''") .. "'")
-		end
-	
-		return commandBuffer:concat(' ')
-	end
-}
+local function quotePosixArgument(filePath)
+	return "'" .. argument:gsub("'", "''") .. "'"
+end
 
 local slash = '\\'
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'rep')
 local function windowsEscaperA(capture1, capture2)
   return slash:rep(2 * #capture1 - 1) .. (capture2 or slash)
 end
@@ -42,6 +32,7 @@ local function windowsEscaperB(value)
 end
 
 -- Quoting is a mess in Windows; these rules only work for cmd.exe /C (it's a per-program thing)
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
 local function quoteWindowsArgument(argument)
 	assert.parameterTypeIsString(argument)
 	
@@ -63,24 +54,63 @@ local function quoteWindowsArgument(argument)
    return '"' .. argument .. '"'
 end
 
-module.Windows = {
-	pathSeparator = ';',
-	toShellCommand = function(...)
+local function toShellCommand(quoteArgument, ...)
+	local arguments = {...}
 
-		local arguments = {...}
+	local commandBuffer = tabelize()
 	
-		local commandBuffer = tabelize()
-		
-		-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
-		commandBuffer:insert('type NUL && ')
+	for _, argument in ipairs(arguments) do
+		commandBuffer:insert(quotePosixArgument(argument))
+	end
+
+	return commandBuffer:concat(' ')
+end
+
+local function redirectOutput(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+	local redirection
+	if type.isNumber(filePathOrFileDescriptor) then
+		redirection = '&' .. filePathOrFileDescriptor
+	else
+		redirection = quotePosixArgument(filePath)
+	end
 	
-		for _, argument in ipairs(arguments) do
-			commandBuffer:insert(quoteWindowsArgument(argument))
-		end
-		
-		return commandBuffer:concat(' ')
+	return fileDescriptor .. '>' .. redirection
+end
+
+local POSIX = {
+	standardOut = 1,
+	standardError = 2,
+	pathSeparator = ':',
+	silenced = '/dev/null',
+	redirectOutput = function(fileDescriptor, filePathOrFileDescriptor)
+		return redirectOutput(quotePosixArgument, fileDescriptor, filePathOrFileDescriptor)
+	end,
+	silenceStandardError = function()
+		return POSIX.redirectOutput(POSIX.standardError, POSIX.silenced)
+	end,
+	toShellCommand = function(...)
+		return toShellCommand(quotePosixArgument, ...)
 	end
 }
+module.POSIX = POSIX
+
+local Windows = {
+	standardOut = 1,
+	standardError = 2,
+	pathSeparator = ';',
+	silenced = 'NUL',  -- Windows, sadly, has many special files: NUL, AUX, COM[n], LPT[n] and PRN
+	redirectOutput = function(fileDescriptor, filePathOrFileDescriptor)
+		return redirectOutput(quoteWindowsArgument, fileDescriptor, filePathOrFileDescriptor)
+	end,
+	silenceStandardError = function()
+		return Windows.redirectOutput(Windows.standardError, Windows.silenced)
+	end,
+	toShellCommand = function(...)
+		-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
+		return toShellCommand(quoteWindowsArgument, 'type NUL &&', ...)
+	end
+}
+module.Windows = Windows
 
 if operatingSystemDetails.isPOSIX then
 	module.Default = module.POSIX

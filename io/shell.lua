@@ -10,7 +10,7 @@ local assert = require('halimede.assert')
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'popen')
 local function openShellCommand(mode, shellLanguage, ...)
-	local command = shellLanguage.toShellCommand(...)
+	local command = shellLanguage.toShellCommand(shellLanguage.silentPath, shellLanguage.silentPath, ...)
 	local fileHandle = io.popen(command, mode)
 	if fileHandle == nil then
 		exception.throw('Could not open shell for command "%s"', command)

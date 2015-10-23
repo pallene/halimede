@@ -12,7 +12,7 @@ assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
 function module.execute(shellLanguage, ...)
 	assert.parameterTypeIsFunctionOrCall(shellLanguage)
 	
-	local command = shellLanguage.toShellCommand(...)
+	local command = shellLanguage.toShellCommand(shellLanguage.silentPath, shellLanguage.silentPath, ...)
 	return os.execute(command)
 end
 
