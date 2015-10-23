@@ -78,11 +78,53 @@ local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	return fileDescriptor .. '>' .. redirection
 end
 
-local function newShellLanguage(pathSeparator, silenced, quoteArgument, toShellCommand)
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
+local function newShellLanguage(pathSeparator, silenced, searchesCurrentPath, quoteArgument, toShellCommand)
 	
 	local function redirectQuoted(fileDescriptor, filePathOrFileDescriptor)
 		return redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	end
+	
+	local function iteratePath(path)
+		if path == nil then
+			return nil
+		end
+		
+		local paths = path:split(pathSeparator)
+		local index = 0
+		local count = #paths
+		return function()
+			index = index + 1
+			if index > count then
+				return nil
+			end
+			return paths[index]
+		end
+	end
+	
+	local function findBinarySearchPath()
+		local PATH
+		local searchPaths
+		
+		if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'getenv') then
+			-- Can be nil
+			PATH = os.getenv('PATH')
+		else
+			PATH = nil
+		end
+	
+		-- In Windows, the current working directory is considered a part of the path
+		if searchesCurrentPath then
+			if PATH == nil then
+				return '.'
+			else
+				return '.' .. pathSeparator .. PATH
+			end
+		else
+			return PATH
+		end
+	end
+	local binarySearchPath = findBinarySearchPath()
 	
 	local standardOut = 1
 	local standardError = 2
@@ -95,18 +137,19 @@ local function newShellLanguage(pathSeparator, silenced, quoteArgument, toShellC
 		redirect = redirectQuoted,
 		silenceStandardOut = redirectQuoted(standardOut, silenced),
 		silenceStandardError = redirectQuoted(standardError, silenced),
-		toShellCommand =  toShellCommand
+		toShellCommand =  toShellCommand,
+		binarySearchPath = binarySearchPath
 	}
 	
 	return functions
 end
 
-local POSIX = newShellLanguage(':', '/dev/null', quotePosixArgument, function(...)
+local POSIX = newShellLanguage(':', '/dev/null', false, quotePosixArgument, function(...)
 	return toShellCommand(quotePosixArgument, ...)
 end)
 module.POSIX = POSIX
 
-local Windows = newShellLanguage(';', 'NUL', quoteWindowsArgument, function(...)
+local Windows = newShellLanguage(';', 'NUL', true, quoteWindowsArgument, function(...)
 	-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
 	return toShellCommand(quoteWindowsArgument, 'type NUL &&', ...)
 end)

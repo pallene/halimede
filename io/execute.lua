@@ -4,31 +4,32 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local halimede = require('halimede')
+local type = halimede.type
+local assert = halimede.assert
 local exception = require('halimede.exception')
 local toShellCommand = requireSibling('toShellCommand').toShellCommand
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
 function module.execute(shellLanguage, ...)
-	assert.parameterTypeIsFunctionOrCall(shellLanguage)
+	assert.parameterTypeIsTable(shellLanguage)
 	
 	local command = shellLanguage.toShellCommand(shellLanguage.silentPath, shellLanguage.silentPath, ...)
-	return os.execute(command)
+	
+	-- Lua 5.1: returns an exit code
+	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
+	local exitCodeOrBoolean, terminationKind, exitCode = os.execute(command)
+	if type.isNil(exitCodeOrBoolean) then
+		return false, terminationKind, exitCode
+	elseif type.isBoolean(exitCodeOrBoolean) then
+		return exitCodeOrBoolean, terminationKind, exitCode
+	else
+		return exitCodeOrBoolean == 0, 'exit', exitCodeOrBoolean
+	end
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
 function module.shellIsAvailable()
 	return os.execute()
-end
-
-assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
-function module.commandIsAvailable(shellLanguage)
-	
-	-- Walk the variable 'PATH' (can be misnamed on Windows as both path and Path)
-	-- Split on : (POSIX) or ; (Windows)
-	
-	-- 1>/dev/null 2>/dev/null
-	--
-	--
-	-- 1 > NUL 2 > NUL
 end
