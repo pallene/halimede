@@ -8,7 +8,7 @@ local type = require('halimede').type
 local assert = require('halimede').assert
 local tabelize = require('halimede.tabelize').tabelize
 local operatingSystemDetails = require('halimede').operatingSystemDetails
-local exception = require('halimede.exception').exception
+local exception = require('halimede.exception')
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
