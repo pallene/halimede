@@ -61,7 +61,7 @@ local function toShellCommand(quoteArgument, ...)
 	local commandBuffer = tabelize()
 	
 	for _, argument in ipairs(arguments) do
-		commandBuffer:insert(quotePosixArgument(argument))
+		commandBuffer:insert(quoteArgument(argument))
 	end
 
 	return commandBuffer:concat(' ')
@@ -72,7 +72,7 @@ local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
 	else
-		redirection = quotePosixArgument(filePath)
+		redirection = quoteArgument(filePath)
 	end
 	
 	return fileDescriptor .. '>' .. redirection
