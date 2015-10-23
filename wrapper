@@ -183,7 +183,7 @@ _program_cleanEnvironment()
 	export LUA_CPATH=';;'
 }
 
-_program_modulePathLuaSingleQuoteEscaped="$(_program_replaceSeparator "$_program_modulesPath" "'" "''")"
+_program_modulePathLuaSingleQuoteEscaped="$(_program_replaceSeparator "$_program_modulesPath" "'" "'\''")"
 
 # We can not set LUA_PATH and LUA_CPATH as we do not know how Lua was configured for things like ';' and '?'
 _program_prepareScript="local _program_modulesPath='${_program_modulePathLuaSingleQuoteEscaped}'"'
