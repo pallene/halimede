@@ -9,17 +9,27 @@ local tabelize = require('halimede.tabelize').tabelize
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
-function module.toShellCommand(...)
+module.POSIX = {
+	toShellCommand = function(...)
+		local arguments = {...}
 	
-	local arguments = {...}
+		local commandBuffer = tabelize()
 	
-	local commandBuffer = tabelize()
 	
-	for _, argument in ipairs(arguments) do
-		assert.parameterTypeIsString(argument)
-		commandBuffer:insert("'" .. argument:gsub("'", "''") .. "'")
+		-- Windows: add  "type NUL && "
+	
+		for _, argument in ipairs(arguments) do
+			assert.parameterTypeIsString(argument)
+			commandBuffer:insert("'" .. argument:gsub("'", "''") .. "'")
+		end
+	
+		local command = commandBuffer:concat(' ')
+		return command
 	end
-	
-	local command = commandBuffer:concat(' ')
-	return command
-end
+}
+
+module.Windows = {
+	toShellCommand = function(...)
+		
+	end
+}

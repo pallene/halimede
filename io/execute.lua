@@ -9,12 +9,22 @@ local toShellCommand = requireSibling('toShellCommand').toShellCommand
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
-function module.execute(...)
-	local command = toShellCommand(...)
+function module.execute(shellLanguage, ...)
+	assert.parameterTypeIsFunctionOrCall(shellLanguage)
+	
+	local command = shellLanguage.toShellCommand(...)
 	return os.execute(command)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
 function module.shellIsAvailable()
 	return os.execute()
+end
+
+assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
+function module.commandIsAvailable()
+	1>/dev/null 2>/dev/null
+	
+	
+	1 > NUL 2 > NUL
 end

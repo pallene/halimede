@@ -5,33 +5,30 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local exception = require('halimede.exception')
-local toShellCommand = requireSibling('toShellCommand').toShellCommand
 local read = requireSibling('read')
 local assert = require('halimede.assert')
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'popen')
-local function openShellCommand(mode, ...)
-	local command = toShellCommand(...)
-	local fileHandle = io.popen(command, 'r')
+local function openShellCommand(mode, shellLanguage, ...)
+	local command = shellLanguage.toShellCommand(...)
+	local fileHandle = io.popen(command, mode)
 	if fileHandle == nil then
 		exception.throw('Could not open shell for command "%s"', command)
 	end
 	return fileHandle
 end
 
-function module.openShellCommandReadingStandardIn(...)
-	return openShellCommand('r', ...)
+function module.openShellCommandReadingStandardIn(shellLanguage, ...)
+	return openShellCommand('r', shellLanguage, ...)
 end
+local openShellCommandReadingStandardIn = module.openShellCommandReadingStandardIn
 
-function module.openShellCommandWritingStandardOut(...)
-	return openShellCommand('w', ...)
+function module.openShellCommandWritingStandardOut(shellLanguage, ...)
+	return openShellCommand('w', shellLanguage, ...)
 end
+local openShellCommandWritingStandardOut = module.openShellCommandWritingStandardOut
 
-function module.executeInShellAndReadAllFromStandardIn(...)
-	local command = toShellCommand(...)
-	local fileHandle = io.popen(command, 'r')
-	if fileHandle == nil then
-		exception.throw('Could not open shell for command "%s"', command)
-	end
+function module.executeInShellAndReadAllFromStandardIn(shellLanguage, ...)
+	local fileHandle = openShellCommandReadingStandardIn(shellLanguage, ...)
 	return read.allContentsInTextModeFromFileHandleAndClose(fileHandle)
 end

@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
---- Hmmm, how about we go for luadist.org? Seems to be designed to include third-party dependencies
-
 local halimede = require('halimede')
 local assert = require('halimede.assert')
 local type = require('halimede').type
