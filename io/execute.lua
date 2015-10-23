@@ -23,8 +23,8 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
 function module.commandIsAvailable()
-	1>/dev/null 2>/dev/null
-	
-	
-	1 > NUL 2 > NUL
+	-- 1>/dev/null 2>/dev/null
+	--
+	--
+	-- 1 > NUL 2 > NUL
 end
