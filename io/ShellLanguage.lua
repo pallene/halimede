@@ -113,7 +113,7 @@ local Windows = {
 }
 module.Windows = Windows
 
-io.stderr:write(halimede.operatingSystemDetails.name)
+io.stderr:write(halimede.operatingSystemDetails.name .. ' ' .. tostring(halimede.operatingSystemDetails.isPOSIX) .. '\n')
 if halimede.operatingSystemDetails.isPOSIX then
 	module.Default = module.POSIX
 elseif halimede.operatingSystemDetails.isWindows then
