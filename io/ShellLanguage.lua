@@ -72,7 +72,7 @@ local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
 	else
-		redirection = quoteArgument(filePath)
+		redirection = quoteArgument(filePathOrFileDescriptor)
 	end
 	
 	return fileDescriptor .. '>' .. redirection
