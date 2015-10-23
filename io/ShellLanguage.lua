@@ -17,19 +17,51 @@ module.POSIX = {
 		local arguments = {...}
 	
 		local commandBuffer = tabelize()
-	
-	
-		-- Windows: add  "type NUL && "
-	
+		
 		for _, argument in ipairs(arguments) do
 			assert.parameterTypeIsString(argument)
 			commandBuffer:insert("'" .. argument:gsub("'", "''") .. "'")
 		end
 	
-		local command = commandBuffer:concat(' ')
-		return command
+		return commandBuffer:concat(' ')
 	end
 }
+
+local slash = '\\'
+local function windowsEscaperA(capture1, capture2)
+  return slash:rep(2 * #capture1 - 1) .. (capture2 or slash)
+end
+
+local windowsCharactersToEscape = {
+  ['%'] = '%%',
+  ['"'] = '\\"',
+}
+
+local function windowsEscaperB(value)
+   return value .. value .. '"%"'
+end
+
+-- Quoting is a mess in Windows; these rules only work for cmd.exe /C (it's a per-program thing)
+local function quoteWindowsArgument(argument)
+	assert.parameterTypeIsString(argument)
+	
+	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
+    if argument:match('^[%.a-zA-Z]?:?[\\/]')  then
+       argument = argument:gsub('/', '\\')
+    end
+	
+	-- Special handling for CHDIR with \
+	if argument == '\\' then
+		return argument
+	end
+	
+	-- Quoting for URLs
+   argument = argument:gsub('(\\+)(")', windowsEscaperA)
+   argument = argument:gsub('(\\+)$', windowsEscaperA)
+   argument = argument:gsub('[%%"]', windowsCharactersToEscape)
+   argument = argument:gsub('(\\*)%%', windowsEscaperB)
+   return '"' .. argument .. '"'
+end
 
 module.Windows = {
 	pathSeparator = ';',
@@ -42,15 +74,11 @@ module.Windows = {
 		-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
 		commandBuffer:insert('type NUL && ')
 	
-		-- Windows: add  "type NUL && "
-	
 		for _, argument in ipairs(arguments) do
-			assert.parameterTypeIsString(argument)
-			commandBuffer:insert("'" .. argument:gsub("'", "'\\''") .. "'")
+			commandBuffer:insert(quoteWindowsArgument(argument))
 		end
-	
-		local command = commandBuffer:concat(' ')
-		return command
+		
+		return commandBuffer:concat(' ')
 	end
 }
 

@@ -22,7 +22,11 @@ function module.shellIsAvailable()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
-function module.commandIsAvailable()
+function module.commandIsAvailable(shellLanguage)
+	
+	-- Walk the variable 'PATH' (can be misnamed on Windows as both path and Path)
+	-- Split on : (POSIX) or ; (Windows)
+	
 	-- 1>/dev/null 2>/dev/null
 	--
 	--

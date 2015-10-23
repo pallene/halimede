@@ -366,7 +366,7 @@ function string.split(value, separator)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
-local function initialisePackageConfiguration(config)
+local function initialisePackageConfiguration()
 	
 	local packageConfigurationMapping = {
 		'folderSeparator', -- eg '/' on POSIX
@@ -381,7 +381,7 @@ local function initialisePackageConfiguration(config)
 	-- Lua 5.2 / 5.3 have an extra line!
 	local maximumKnownLines = #packageConfigurationMapping
 	local index = 1
-	for line in config:gmatch('([^\n]+)') do
+	for line in package.config:gmatch('([^\n]+)') do
 		if index > maximumKnownLines then
 			break
 		end
@@ -392,8 +392,51 @@ local function initialisePackageConfiguration(config)
 	return configuration
 end
 assert.globalTableHasChieldFieldOfTypeString('package', 'config')
-ourModule.packageConfiguration = initialisePackageConfiguration(package.config)
+ourModule.packageConfiguration = initialisePackageConfiguration()
 local packageConfiguration = ourModule.packageConfiguration
+
+local function detectOperatingSystemSettings()
+	
+	local operatingSystemDetailsPOSIX = {
+		isPosix = true,
+		isWindows = false,
+		name = 'POSIX',
+		sharedLibraryExtension = 'so',
+		luaSharedLibraryExtension = 'so',
+		sharedLibraryPrefix = 'lib'
+	}
+	
+	local operatingSystemDetailsWindows = {
+		isPosix = false,
+		isWindows = true,
+		name = 'Windows',
+		sharedLibraryExtension = 'dll',
+		luaSharedLibraryExtension = 'dll',
+		sharedLibraryPrefix = ''
+	}
+	
+	if not type.hasPackageChildFieldOfTypeString('jit', 'os') then
+		if packageConfiguration.folderSeparator == '\\' then
+			return operatingSystemDetailsWindows
+		else
+			return operatingSystemDetailsPOSIX
+		end
+	end
+	
+	-- Windows, Linux, OSX, BSD, POSIX, Other
+	local name = jit.os
+	if name == 'Windows' then
+		return operatingSystemDetailsWindows
+	else
+		operatingSystemDetailsPOSIX.name = name
+		if name == 'OSX' then
+			operatingSystemDetailsPOSIX.sharedLibraryExtension = 'dylib'
+		end
+		return operatingSystemDetailsPOSIX
+	end
+end
+ourModule.operatingSystemDetails = detectOperatingSystemDetails()
+local operatingSystemDetails = ourModule.operatingSystemDetails
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub')
 function ourModule.dirname(path)
@@ -455,36 +498,6 @@ local function findOurFolderPath()
 	return dirname(findArg0())
 end
 
-local function determineLuaLibraryFileExtension(folderSeparator)
-	
-	local dll = 'dll'
-	local so = 'so'
-	local dylib = 'dylib'
-	
-	-- Running under LuaJIT makes life so much easier
-	if type.hasPackageChildFieldOfTypeString('jit', 'os') then
-		
-		local knownOperatingSystemsMapping = setmetatable({
-			Windows = dll,
-			Linux = so,
-			OSX = dylib,
-			BSD = so,
-			POSIX = so,
-			Other = so
-		}, {__index = function(_, key)
-			return so
-		end})
-		
-		return knownOperatingSystemsMapping[jit.os]
-	end
-	
-	if folderSeparator == '\\' then
-		return dll
-	end
-	
-	return so
-end
-
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
 function ourModule.parentModuleNameFromModuleName(moduleName)
@@ -541,7 +554,7 @@ local function initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
 	
 	local mappings = {
 		path = 'lua',
-		cpath = determineLuaLibraryFileExtension(folderSeparator)
+		cpath = operatingSystemDetails.luaSharedLibraryExtension
 	}	
 	
 	for key, fileExtension in pairs(mappings) do
