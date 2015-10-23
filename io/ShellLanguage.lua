@@ -112,9 +112,9 @@ local Windows = {
 }
 module.Windows = Windows
 
-if operatingSystemDetails.isPOSIX then
+if halimede.operatingSystemDetails.isPOSIX then
 	module.Default = module.POSIX
-elseif operatingSystemDetails.isWindows then
+elseif halimede.operatingSystemDetails.isWindows then
 	module.Default = module.Windows
 else
 	exception.throw('Could not determine ShellLanguage')
