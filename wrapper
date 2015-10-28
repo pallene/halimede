@@ -124,8 +124,9 @@ _program_luaScript_find()
 {
 	local pathedProgramName="$(_program_replaceSeparator "$_program_name" '-' '/')"
 	local lastPartOfProgramName="${_program_name##*.}"
+	local firstPartOfProgramName="${_program_name%%.*}"
 	
-	set -- "$_program_name".lua "$pathedProgramName".lua "$pathedProgramName"/main.lua "$pathedProgramName"/init.lua "$_program_name"/"$lastPartOfProgramName".lua
+	set -- "$_program_name".lua "$pathedProgramName".lua "$pathedProgramName"/main.lua "$pathedProgramName"/init.lua "$pathedProgramName"/"$lastPartOfProgramName".lua "$firstPartOfProgramName"/"$pathedProgramName".lua
 	local relativePath
 	for relativePath in "$@"
 	do
