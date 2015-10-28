@@ -6,19 +6,29 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local type = halimede.type
 local shellLanguage = require('halimede.io.SearchLanguage').Default
 local concatenateToPath = halimede.concatenateToPath
 local openTextModeForReading = require('halimede.io.read').openTextModeForReading
 
 
+local function shellIsAvailable()
+	if not type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
+		return false
+	end
+	return os.execute()
+end
+module.shellIsAvailable = shellIsAvailable()
+local shellIsAvailable = module.shellIsAvailable
+local noShellIsAvailable = not shellIsAvailable
+
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
-assert.globalTableHasChieldFieldOfTypeFunction('os', 'getenv', 'execute')
 function module.commandIsOnPath(command)
 	assert.parameterTypeIsString(command)
 	
 	for path in shellLanguage.iteratePath(shellLanguage.binarySearchPath) do
-		local pathToBinary = concatenateToPath(path, command)
+		local pathToBinary = concatenateToPath({path, command})
 		
 		local ok, fileHandleOrError = pcall(openTextModeForReading, absolutePath, command)
 		if ok then
@@ -29,4 +39,16 @@ function module.commandIsOnPath(command)
 	end
 	
 	return false, nil
+end
+local commandIsOnPath = module.commandIsOnPath
+
+function module.commandIsOnPathAndShellIsAvaiableToUseIt(command)
+
+	assert.parameterTypeIsString(command)
+	
+	if noShellIsAvailable then
+		return false
+	end
+	
+	return commandIsOnPath(command)
 end

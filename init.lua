@@ -370,6 +370,14 @@ function string.split(value, separator)
 	return result
 end
 
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
+function string.isEmpty(value)
+	assert.parameterTypeIsString(value)
+	
+	return value:len() == 0
+end
+	
+
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
 local function initialisePackageConfiguration()
 	
@@ -481,20 +489,33 @@ function ourModule.findArg0()
 end
 local findArg0 = ourModule.findArg0
 
+-- Please note the absolute path '/' is modelled as ''
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat')
-function ourModule.concatenateToPath(parentPath, ...)
-	assert.parameterTypeIsString(parentPath)
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty')
+assert.globalTypeIsFunction('ipairs')
+function ourModule.concatenateToPath(folders)
+	assert.parameterTypeIsTable(folders)
 	
-	local subFolders = {...}
 	local folderSeparator = packageConfiguration.folderSeparator
 	
-	local rootPath
-	if #subFolders == 0 then
-		return parentPath
+	local path = ''
+	for index, folder in ipairs(folders) do
+		assert.parameterTypeIsString(folder)
+		
+		if folder:isEmpty() then
+			if index == 1 then
+				path = folderSeparator
+			else
+				error(("Folder name at index '%s' is an empty string; only that at index 1 may be on POSIX systems"):format(index))
+			end
+		elseif folder:match('\0') ~= nil then
+			error(("Folder name at index '%s' contains ASCII NUL"):format(index))
+		else
+			path = path .. folderSeparator .. folder
+		end
 	end
 	
-	local relativeSubFoldersPath = table.concat(subFolders, folderSeparator)
-	return parentPath .. folderSeparator .. relativeSubFoldersPath
+	return path
 end
 local concatenateToPath = ourModule.concatenateToPath
 
@@ -565,7 +586,7 @@ local function initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
 	for key, fileExtension in pairs(mappings) do
 		local paths = {}
 		for _, searchPathGenerator in ipairs(searchPathGenerators) do
-			table.insert(paths, concatenateToPath(modulesRootPath, searchPathGenerator(moduleNameLocal)) .. '.' .. fileExtension)
+			table.insert(paths, concatenateToPath({modulesRootPath, searchPathGenerator(moduleNameLocal)) .. '.' .. fileExtension})
 		end
 		package[key] = table.concat(paths, pathSeparator)
 	end
@@ -630,7 +651,7 @@ local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator
 	
 	loaded[moduleNameLocal] = nil
 	resetModuleGlobals()
-	error(string.format("Could not load module '%s' ", moduleNameLocal))
+	error(("Could not load module '%s' "):format(moduleNameLocal))
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
@@ -656,7 +677,7 @@ end
 -- Support being require'd ourselves
 if moduleName == '' then
 	
-	modulesRootPath = concatenateToPath(findOurFolderPath(), '..')
+	modulesRootPath = concatenateToPath({findOurFolderPath(), '..'})
 	
 	package.loaded[ourModuleName] = ourModule
 	local halimedeTrace = require(ourModuleName .. '.trace')

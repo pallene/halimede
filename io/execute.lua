@@ -8,7 +8,6 @@ local halimede = require('halimede')
 local type = halimede.type
 local assert = halimede.assert
 local exception = require('halimede.exception')
-local toShellCommand = requireSibling('toShellCommand').toShellCommand
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
@@ -21,15 +20,18 @@ function module.execute(shellLanguage, ...)
 	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
 	local exitCodeOrBoolean, terminationKind, exitCode = os.execute(command)
 	if type.isNil(exitCodeOrBoolean) then
-		return false, terminationKind, exitCode
+		return false, terminationKind, exitCode, command
 	elseif type.isBoolean(exitCodeOrBoolean) then
-		return exitCodeOrBoolean, terminationKind, exitCode
+		return exitCodeOrBoolean, terminationKind, exitCode, command
 	else
-		return exitCodeOrBoolean == 0, 'exit', exitCodeOrBoolean
+		return exitCodeOrBoolean == 0, 'exit', exitCodeOrBoolean, command
 	end
 end
+local execute = module.execute
 
-assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
-function module.shellIsAvailable()
-	return os.execute()
+function module.executeSilentlyExpectingSuccess(shellLanguage, ...)
+	local success, terminationKind, exitCode, command = execute(shellLanguage, ...)
+	if not success then
+		exception.throwWithLevelIncrement(1, 'Could not execute shell command [%s]', command)
+	end
 end

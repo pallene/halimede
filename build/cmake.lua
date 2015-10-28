@@ -46,7 +46,7 @@ function module.cmakebuild(rockspec, rockspecFilePath)
 		local cmakeListsContent = build.cmake
 		if type.isString(cmakeListsContent) then
 			-- Ought to be $(pwd)/; not necessarily path to rockspec...
-			local cmakeListsFilePath = halimede.concatenateToPath(halimede.dirname(rockspecFilePath), 'CMakeLists.txt')
+			local cmakeListsFilePath = halimede.concatenateToPath({halimede.dirname(rockspecFilePath), 'CMakeLists.txt'})
 			writeToFileAllContentsInTextMode(cmakeListsFilePath, 'CMakeLists file', cmakeListsContent)
 		end
 	end
