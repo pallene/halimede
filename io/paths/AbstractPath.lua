@@ -20,6 +20,7 @@ AbstractPath.static.fail = function(syscallName, path, becauseOfReason)
 	exception.throwWithLevelIncrement(2, "Could not %s path '%s' because %s", syscallName, path, becauseOfReason)
 end
 
+assert.globalTypeIsFunction('ipairs')
 function AbstractPath:initialize(isRelative, initialPathPrefix, ...)
 	assert.parameterTypeIsBoolean(isRelative)
 	assert.parameterTypeIsString(initialPathPrefix)

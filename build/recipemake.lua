@@ -127,19 +127,19 @@ return {
 						INCLUDEDIR = quotedStringDefine(concatenateToPath(sysrootPath, 'share/local'))
 						HAVE_CONFIG_H = true,
 					},
-					sources = toCFiles(sources)
+					sources = toCFiles(basefilenames)
 				},
 				-- Auto-add paths for -L from dependencies and from earlier compilation units?
 				-- Is this static or dynamic ?
 				compilerDriverLinkExecutable = {
 					linkerFlags = {
 						'-rdynamic'
-					}	
-					basename = 'make',
-					objects = toObjects(sources),
+					},
+					objects = toObjects(basefilenames),
 					-- eg pthread, m, etc => -lpthread, -lm, etc
 					linkerAdditionalLibraries = {
-					}
+					},
+					basename = 'make'
 				}
 			}
 		}

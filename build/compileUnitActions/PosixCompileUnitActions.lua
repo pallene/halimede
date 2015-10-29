@@ -14,8 +14,8 @@ local ShellLanguage = require('halimede.io.ShellLanguage')
 
 local PosixCompileUnitActions = class('PosixCompileUnitActions', CompileUnitActions)
 
-function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, compilerDriver)
-	AbstractCompileUnitActions.initialise(self, ShellLanguage.POSIX, sourcePath, sysrootPath, compilerDriver)
+function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
+	AbstractCompileUnitActions.initialise(self, ShellLanguage.POSIX, sourcePath, sysrootPath, toolchain)
 end
 
 function PosixCompileUnitActions:_initialBuildScript()
@@ -29,6 +29,15 @@ end
 
 function PosixCompileUnitActions:_finalBuildScript()
 	return
+end
+
+function PosixCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
+	self:appendCommandLineToBuildScript('unset', variableName)
+end
+
+function PosixCompileUnitActions:actionSetPath(paths)
+	self:actionUnsetEnvironmentVariable('PATH')
+	self:appendCommandLineToBuildScript('export', 'PATH=' .. paths.paths)
 end
 
 function PosixCompileUnitActions:actionChangeDirectory(abstractPath)
@@ -51,3 +60,5 @@ function PosixCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath)
 	
 	self:appendCommandLineToBuildScript('rm', '-rf', abstractPath.path)
 end
+
+return PosixCompileUnitActions

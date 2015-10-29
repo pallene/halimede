@@ -61,13 +61,16 @@ local function toShellCommand(quoteArgument, ...)
 	local commandBuffer = tabelize()
 	
 	for _, argument in ipairs(arguments) do
-		commandBuffer:insert(quoteArgument(argument))
+		if argument ~= nil then
+			assert.parameterTypeIsString(argument)
+			commandBuffer:insert(quoteArgument(argument))
+		end
 	end
 
 	return commandBuffer:concat(' ')
 end
 
-local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
@@ -75,14 +78,26 @@ local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 		redirection = quoteArgument(filePathOrFileDescriptor)
 	end
 	
-	return fileDescriptor .. '>' .. redirection
+	return fileDescriptor .. symbol .. redirection
+end
+
+local function redirectInput(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+	return redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor, '<')
+end
+
+local function redirectOutput(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+	return redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
 local function newShellLanguage(pathSeparator, newline, shellScriptFileExtensionIncludingLeadingPeriod, silenced, searchesCurrentPath, quoteArgument, toShellCommand)
 	
-	local function redirectQuoted(fileDescriptor, filePathOrFileDescriptor)
-		return redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+	local function redirectInputQuoted(fileDescriptor, filePathOrFileDescriptor)
+		return redirectInput(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
+	end
+	
+	local function redirectOutputQuoted(fileDescriptor, filePathOrFileDescriptor)
+		return redirectOutput(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 	end
 	
 	local function iteratePath(path)
@@ -126,19 +141,23 @@ local function newShellLanguage(pathSeparator, newline, shellScriptFileExtension
 	end
 	local binarySearchPath = findBinarySearchPath()
 	
+	local standardIn = 0
 	local standardOut = 1
 	local standardError = 2
 	
 	local functions = {
+		standardIn = standardIn,
 		standardOut = standardOut,
 		standardError = standardError,
 		pathSeparator = pathSeparator,
 		newline = newline,
 		shellScriptFileExtensionIncludingLeadingPeriod = shellScriptFileExtensionIncludingLeadingPeriod,
 		silenced = silenced,
-		redirect = redirectQuoted,
-		silenceStandardOut = redirectQuoted(standardOut, silenced),
-		silenceStandardError = redirectQuoted(standardError, silenced),
+		redirectInput = redirectInputQuoted,
+		redirectOutput = redirectOutputQuoted,
+		silenceStandardIn = redirectInputQuoted(standardIn, silenced),
+		silenceStandardOut = redirectOutputQuoted(standardOut, silenced),
+		silenceStandardError = redirectOutputQuoted(standardError, silenced),
 		toShellCommand =  toShellCommand,
 		toShellCommandLine = function(...)
 			return toShellCommand(...) .. newline

@@ -17,8 +17,8 @@ local ShellLanguage = require('halimede.io.ShellLanguage')
 
 local WindowsCompileUnitActions = class('WindowsCompileUnitActions', CompileUnitActions)
 
-function WindowsCompileUnitActions:initialize(sourcePath, sysrootPath, compilerDriver)
-	AbstractCompileUnitActions.initialise(self, ShellLanguage.Windows, sourcePath, sysrootPath, compilerDriver)
+function WindowsCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
+	AbstractCompileUnitActions.initialise(self, ShellLanguage.Windows, sourcePath, sysrootPath, toolchain)
 end
 
 function WindowsCompileUnitActions:_initialBuildScript()
@@ -32,6 +32,16 @@ assert.globalTypeIsFunction('unpack')
 function WindowsCompileUnitActions:_finalBuildScript()
 	return
 		'ENDLOCAL'
+end
+
+function WindowsCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
+	self:appendCommandLineToBuildScript('SET', variableName .. '=')
+end
+
+-- http://ss64.com/nt/path.html
+function WindowsCompileUnitActions:actionSetPath(paths)
+	self:appendCommandLineToBuildScript('PATH', ';')
+	self:appendCommandLineToBuildScript('PATH', paths.paths)
 end
 
 function WindowsCompileUnitActions:actionChangeDirectory(abstractPath)
@@ -60,3 +70,5 @@ function WindowsCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath
 	
 	self:appendCommandLineToBuildScript('RD', '/S', '/Q', abstractPath.path)
 end
+
+return WindowsCompileUnitActions
