@@ -5,11 +5,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local assert = require('halimede.assert')
-local syscall = require('syscall')
-local exception = require('halimede.exception')
-local tabelize = require('halimede.tabelize')
-local helpers = require('syscall.helpers')
+local type = require('halimede').type
+local assert = halimede.assert
 
--- syscall.umask('0000')
+-- Now we have a working require, we can augment assert to work with middleclass' class system
+local class = require('halimede.middleclass')
+local Object = class.Object
 
+assertModule.globalTypeIsFunction('tostring')
+function assert.parameterTypeIsInstanceOf(value, Class)
+	if not Object.isInstanceOf(value, Class) then
+		assert.withLevel(isOfType(value), parameterIsNotMessage(tostring(Class)), 3)
+	end
+end

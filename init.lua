@@ -209,8 +209,13 @@ function assertModule.withLevel(booleanResult, message, level)
 end
 local withLevel = assertModule.withLevel
 
+assertModule.parameterIsNotATemplate = "Parameter is not a "
+function assertModule.parameterIsNotMessage(name)
+	return "Parameter is not a " .. name
+end
+
 local function parameterTypeIs(value, isOfType)
-	withLevel(isOfType(value), "Parameter is not a " .. isOfType.name, 4)
+	withLevel(isOfType(value), parameterIsNotMessage(isOfType.name), 4)
 end
 
 -- Would be a bit odd to use this
@@ -661,6 +666,18 @@ local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator
 	error(("Could not load module '%s' "):format(moduleNameLocal))
 end
 
+-- Lua 5.1 / 5.2 compatibility
+local searchers = package.searchers
+if searchers == nil then
+	searchers = package.loaders
+end
+if searchers == nil then
+	error("Please ensure 'package.searchers' or 'package.loaders' exists")
+end
+
+local loaded = package.loaded
+local folderSeparator = packageConfiguration.folderSeparator
+
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
 function require(modname)
@@ -670,15 +687,7 @@ function require(modname)
 		error("Please supply a modname to require() that isn't empty")
 	end
 	
-	-- Lua 5.1 / 5.2 compatibility
-	local searchers = package.searchers
-	if searchers == nil then
-		searchers = package.loaders
-	end
-	if searchers == nil then
-		error("Please ensure 'package.searchers' or 'package.loaders' exists")
-	end
-	return usefulRequire(modname, package.loaded, searchers, packageConfiguration.folderSeparator)
+	return usefulRequire(modname, loaded, searchers, packageConfiguration)
 end
 
 
@@ -688,12 +697,8 @@ if moduleName ~= '' then
 end
 
 modulesRootPath = concatenateToPath({findOurFolderPath(), '..'})
-
 package.loaded[ourModuleName] = ourModule
-local halimedeTrace = require(ourModuleName .. '.trace')
-local halimedeRequireChild = require(ourModuleName .. '.requireChild')
-local halimedeRequireSibling = require(ourModuleName .. '.requireSibling')
-
--- Now we have a working require, we can augment assert to work with middleclass' class system
-local class = require('halimede.middleclass')
-
+require(ourModuleName .. '.init.trace')
+require(ourModuleName .. '.init.requireChild')
+require(ourModuleName .. '.init.requireSibling')
+require(ourModuleName .. '.init.augmentAssertWithMiddleclass')

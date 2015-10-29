@@ -36,3 +36,7 @@ function AbsolutePath:initialize(driveOrUncPrefixIfWindows, ...)
 	
 	self.driveOrUncPrefixIfWindows = driveOrUncPrefixIfWindows
 end
+
+function AbsolutePath:_construct(...)
+	return AbsolutePath:new(self.driveOrUncPrefixIfWindows, ...)
+end

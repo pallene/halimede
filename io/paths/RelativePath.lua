@@ -8,8 +8,8 @@ local class = require('middleclass')
 local AbstractPath = requireSibling('AbstractPath')
 local halimede = require('halimede')
 local assert = halimede.assert
+local tabelize = require('halimede.table.tabelize').tabelize
 local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
-local Object = class.Object
 
 local RelativePath = class('RelativePath', AbstractPath)
 
@@ -17,16 +17,12 @@ function RelativePath:initialize(...)
 	AbstractPath.initialize(self, true, '', ...)
 end
 
-function RelativePath:appendRelativePathOf(relativePath)
-	assert.parameterTypeIsTable(absoluteOrRelativePath)
-	if not Object.isInstanceOf(relativePath, RelativePath) then
-		
-	end
+function RelativePath:_appendSubFolders(childFoldersTable)
 	
-	local parentFolders = shallowCopy(self.folders)
-	for _, childFolder in ipairs(relativePath.folders) do
-		parentFolders:insert(childFolder)
+	local folders = tabelize(shallowCopy(self.folders))
+	for _, childFolder in ipairs(childFoldersTable) do
+		folders:insert(childFolder)
 	end
-	
-	if absoluteOrRelativePath.isRelative then
+
+	return RelativePath:new(unpack(folders))
 end

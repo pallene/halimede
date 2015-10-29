@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local class = require('middleclass')
-local tabelize = require('halimede.tabelize').tabelize
+local tabelize = require('halimede.tabel.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
 local syscall = require('syscall')
@@ -40,6 +40,27 @@ function AbstractPath:initialize(isRelative, initialPathPrefix, ...)
 	self.isAbsolute = not isRelative
 	self.initialPathPrefix = initialPathPrefix
 	self.path = initialPathPrefix .. folders:concat(AbstractClass.folderSeparator)
+end
+
+assertModule.globalTypeIsFunction('ipairs', 'unpack')
+function AbsolutePath:_appendSubFolders(childFoldersTable)
+	
+	local folders = tabelize(shallowCopy(self.folders))
+	for _, childFolder in ipairs(childFoldersTable) do
+		folders:insert(childFolder)
+	end
+	
+	return self:_construct(unpack(folders))
+end
+
+function AbstractPath:appendSubFolders(...)
+	return self:_appendSubFolders(tabelize({...}))
+end
+
+function AbstractPath:appendRelativePathOf(relativePath)
+	assert.parameterTypeIsInstanceOf(relativePath, RelativePath)
+	
+	return self:_appendSubFolders(relativePath.folders)
 end
 
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device
