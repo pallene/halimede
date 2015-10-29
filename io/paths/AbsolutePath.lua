@@ -40,3 +40,5 @@ end
 function AbsolutePath:_construct(...)
 	return AbsolutePath:new(self.driveOrUncPrefixIfWindows, ...)
 end
+
+return AbsolutePath

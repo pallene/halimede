@@ -26,3 +26,5 @@ function RelativePath:_appendSubFolders(childFoldersTable)
 
 	return RelativePath:new(unpack(folders))
 end
+
+return RelativePath

@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local class = require('middleclass')
+local Object = class.Object
 local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
@@ -42,7 +43,21 @@ function AbstractPath:initialize(isRelative, initialPathPrefix, ...)
 	self.path = initialPathPrefix .. folders:concat(AbstractClass.folderSeparator)
 end
 
-assertModule.globalTypeIsFunction('ipairs', 'unpack')
+function AbsolutePath:__tostring()
+	return self.class.name .. '(' .. self.path .. ')'
+end
+
+function AbstractPath:__eq(right)
+	if right == nil then
+		return false
+	end
+	if not Object.isInstanceOf(value, self.class) then
+		return false
+	end
+	return self.path == right.path
+end
+
+assert.globalTypeIsFunction('ipairs', 'unpack')
 function AbsolutePath:_appendSubFolders(childFoldersTable)
 	
 	local folders = tabelize(shallowCopy(self.folders))
@@ -325,3 +340,5 @@ function AbstractPath:mkdirParents(mode, initialPathPrefix)
 		end
 	end
 end
+
+return AbstractPath

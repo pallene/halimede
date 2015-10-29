@@ -79,7 +79,7 @@ local function redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
-local function newShellLanguage(pathSeparator, silenced, searchesCurrentPath, quoteArgument, toShellCommand)
+local function newShellLanguage(pathSeparator, newline, shellScriptFileExtensionIncludingLeadingPeriod, silenced, searchesCurrentPath, quoteArgument, toShellCommand)
 	
 	local function redirectQuoted(fileDescriptor, filePathOrFileDescriptor)
 		return redirect(quoteArgument, fileDescriptor, filePathOrFileDescriptor)
@@ -133,23 +133,28 @@ local function newShellLanguage(pathSeparator, silenced, searchesCurrentPath, qu
 		standardOut = standardOut,
 		standardError = standardError,
 		pathSeparator = pathSeparator,
+		newline = newline,
+		shellScriptFileExtensionIncludingLeadingPeriod = shellScriptFileExtensionIncludingLeadingPeriod,
 		silenced = silenced,
 		redirect = redirectQuoted,
 		silenceStandardOut = redirectQuoted(standardOut, silenced),
 		silenceStandardError = redirectQuoted(standardError, silenced),
 		toShellCommand =  toShellCommand,
+		toShellCommandLine = function(...)
+			return toShellCommand(...) .. newline
+		end,
 		binarySearchPath = binarySearchPath
 	}
 	
 	return functions
 end
 
-local POSIX = newShellLanguage(':', '/dev/null', false, quotePosixArgument, function(...)
+local POSIX = newShellLanguage(':', '\n', '', '/dev/null', false, quotePosixArgument, function(...)
 	return toShellCommand(quotePosixArgument, ...)
 end)
 module.POSIX = POSIX
 
-local Windows = newShellLanguage(';', 'NUL', true, quoteWindowsArgument, function(...)
+local Windows = newShellLanguage(';', '\r\n', '.bat', 'NUL', true, quoteWindowsArgument, function(...)
 	-- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
 	return toShellCommand(quoteWindowsArgument, 'type NUL &&', ...)
 end)
