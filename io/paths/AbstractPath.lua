@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local class = require('middleclass')
-local tabelize = require('halimede.tabel.tabelize').tabelize
+local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
 local syscall = require('syscall')
