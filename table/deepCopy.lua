@@ -9,7 +9,7 @@ local type = require('halimede').type
 local isTable = type.isTable
 
 
-assert.globalTypeIsFunction('type', 'setmetatable', 'getmetatable', 'next')
+assert.globalTypeIsFunction('setmetatable', 'getmetatable', 'next')
 local function deepCopyWithState(original, encountered)
 	if not isTable(original) then
 		return original

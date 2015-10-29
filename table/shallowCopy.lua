@@ -4,12 +4,23 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
 local assert = require('halimede.assert')
-local syscall = require('syscall')
-local exception = require('halimede.exception')
-local tabelize = require('halimede.tabelize')
-local helpers = require('syscall.helpers')
+local type = require('halimede').type
+local isTable = type.isTable
 
--- syscall.umask('0000')
 
+assert.globalTypeIsFunction('setmetatable', 'getmetatable', 'next')
+function module.shallowCopy(original)
+	if not isTable(original) then
+		return original
+	end
+	
+	local copy = {}
+
+	for key, value in next, original do
+		copy[key] = value
+	end
+	setmetatable(copy, getmetatable(original))
+	
+	return copy
+end

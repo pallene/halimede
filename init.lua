@@ -681,15 +681,19 @@ function require(modname)
 	return usefulRequire(modname, package.loaded, searchers, packageConfiguration.folderSeparator)
 end
 
+
 -- Support being require'd ourselves
-if moduleName == '' then
-	
-	modulesRootPath = concatenateToPath({findOurFolderPath(), '..'})
-	
-	package.loaded[ourModuleName] = ourModule
-	local halimedeTrace = require(ourModuleName .. '.trace')
-	local halimedeRequireChild = require(ourModuleName .. '.requireChild')
-	local halimedeRequireSibling = require(ourModuleName .. '.requireSibling')
-else
+if moduleName ~= '' then
 	return ourModule
 end
+
+modulesRootPath = concatenateToPath({findOurFolderPath(), '..'})
+
+package.loaded[ourModuleName] = ourModule
+local halimedeTrace = require(ourModuleName .. '.trace')
+local halimedeRequireChild = require(ourModuleName .. '.requireChild')
+local halimedeRequireSibling = require(ourModuleName .. '.requireSibling')
+
+-- Now we have a working require, we can augment assert to work with middleclass' class system
+local class = require('halimede.middleclass')
+
