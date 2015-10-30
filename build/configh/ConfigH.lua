@@ -12,25 +12,13 @@ local tabelize = require('halimede.table.tabelize').tabelize
 
 local ConfigH = class('ConfigH')
 
--- In many ways, large parts of this are per toolchain
 function ConfigH:initialize()
 	self.defines = {}
 	self.ensureDefinitions = {}
-	
-	--[[
-
-
-
-
-
-
-	
-	]]--
-	
 end
 
 
-error('ENABLE_NLS is from what?')
+error('ENABLE_NLS is set by what in autoconf / automate / auto*?')
 -- TODO: Build Variant
 -- Define to 1 if translation of program messages to the user's native language is requested.
 function ConfigH:ENABLE_NLS(enable)
@@ -743,80 +731,9 @@ function ConfigH:gid_t(enable)
 	self:_defineIfMissing('gid_t', enable, 'int')
 end
 
-
--- Mac Laptop OS X 10.9
-local ConfigHMacOsX = ConfigH:new()
-ConfigHMacOsX:HAVE_ALLOCA(true)
-ConfigHMacOsX:HAVE_ALLOCA_H(true)
-ConfigHMacOsX:HAVE_ATEXIT(true)
-ConfigHMacOsX:HAVE_CFLOCALECOPYCURRENT(true)
-ConfigHMacOsX:HAVE_CFPREFERENCESCOPYAPPVALUE(true)
-ConfigHMacOsX:HAVE_DECL_BSD_SIGNAL(true)
-ConfigHMacOsX:HAVE_DIRENT_H(true)
-ConfigHMacOSX:HAVE_DUP(true)
-ConfigHMacOSX:HAVE_DUP2(true)
-ConfigHMacOSX:HAVE_FDOPEN(true)
-ConfigHMacOSX:HAVE_FILENO(true)
-ConfigHMacOSX:HAVE_GETCWD(true)
-ConfigHMacOSX:HAVE_GETGROUPS(true)
-ConfigHMacOSX:HAVE_GETLOADAVG(true)
-ConfigHMacOSX:HAVE_GETRLIMIT(true)
-ConfigHMacOSX:HAVE_FCNTL_H(true)
-ConfigHMacOSX:HAVE_INTTYPES_H(true)
-ConfigHMacOSX:HAVE_ISATTY(true)
-ConfigHMacOSX:HAVE_LIMITS_H(true)
-ConfigHMacOSX:HAVE_LOCALE_H(true)
-ConfigHMacOSX:HAVE_LSTAT(true)
-ConfigHMacOSX:HAVE_MEMORY_H(true)
-ConfigHMacOSX:HAVE_MKSTEMP(true)
-ConfigHMacOSX:HAVE_MKTEMP(true)
-ConfigHMacOSX:HAVE_PIPE(true)
-ConfigHMacOSX:HAVE_READLINK(true)
-ConfigHMacOSX:HAVE_REALPATH(true)
-ConfigHMacOSX:HAVE_SETEGID(true)
-ConfigHMacOSX:HAVE_SETEUID(true)
-ConfigHMacOSX:HAVE_SETLINEBUF(true)
-ConfigHMacOSX:HAVE_SETREGID(true)
-ConfigHMacOSX:HAVE_SETREUID(true)
-ConfigHMacOSX:HAVE_SETRLIMIT(true)
-ConfigHMacOSX:HAVE_SETVBUF(true)
-ConfigHMacOSX:HAVE_SIGACTION(true)
-ConfigHMacOSX:HAVE_SIGSETMASK(true)
-ConfigHMacOSX:HAVE_STDINT_H(true)
-ConfigHMacOSX:HAVE_STDLIB_H(true)
-ConfigHMacOSX:HAVE_STRCASECMP(true)
-ConfigHMacOSX:HAVE_STRCOLL(true)
-ConfigHMacOSX:HAVE_STRDUP(true)
-ConfigHMacOSX:HAVE_STRERROR(true)
-ConfigHMacOSX:HAVE_STRINGS_H(true)
-ConfigHMacOSX:HAVE_STRING_H(true)
-ConfigHMacOSX:HAVE_STRNCASECMP(true)
-ConfigHMacOSX:HAVE_STRNDUP(true)
-ConfigHMacOSX:HAVE_STRSIGNAL(true)
-ConfigHMacOSX:HAVE_SYS_PARAM_H(true)
-ConfigHMacOSX:HAVE_SYS_RESOURCE_H(true)
-ConfigHMacOSX:HAVE_SYS_STAT_H(true)
-ConfigHMacOSX:HAVE_SYS_TIMEB_H(true)
-ConfigHMacOSX:HAVE_SYS_TIME_H(true)
-ConfigHMacOSX:HAVE_SYS_TYPES_H(true)
-ConfigHMacOSX:HAVE_SYS_WAIT_H(true)
-ConfigHMacOSX:HAVE_TTYNAME(true)
-ConfigHMacOSX:HAVE_UNISTD_H(true)
-ConfigHMacOSX:HAVE_WAIT3(true)
-ConfigHMacOSX:HAVE_WAITPID(true)
-ConfigHMacOSX:PATH_SEPARATOR_CHAR(':')
-ConfigHMacOSX:RETSIGTYPE(requireSibling('RETSIGTYPE').void)
-ConfigHMacOSX:ST_MTIM_NSEC(requireSibling('ST_MTIM_NSEC')['st_mtimespec.tv_nsec'])
-ConfigHMacOSX:STDC_HEADERS(true)
-ConfigHMacOSX:TIME_WITH_SYS_TIME(true)
-ConfigHMacOSX:_DARWIN_USE_64_BIT_INODE(true)
-
-
--- Stuff like HAVE_XXXXX_H is from AC_CHECK_HEADERS(sys/timeb.h) => HAVE_SYS_TIMEB_H
--- Although some are so common as standardised, eg AC_HEADER_* such as AC_HEADER_DIRENT
--- Likewise AC_CHECK_FUNCS
--- TODO: AC_SEARCH_LIBS
-
+function ConfigH:WITH_DMALLOC(enable)
+	self:_boolean('WITH_DMALLOC', enable)
+end
 
 -- Make-code-specific (all were enabled on Mac OS X)
 
@@ -953,10 +870,6 @@ end
 -- Define uintmax_t if not defined in <stdint.h> or <inttypes.h>.
 function MakeConfigH:uintmax_t(enable)
 	self:_defineIfMissing('uintmax_t', enable, 'unsigned long long')
-end
-
-function ConfigH:WITH_DMALLOC(enable)
-	self:_boolean('WITH_DMALLOC', enable)
 end
 
 -- Build host information.
