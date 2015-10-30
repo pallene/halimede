@@ -34,7 +34,7 @@ return buildVariants = {
 			-- doesn't work for gentoo, arch, MirBSD and other rolling releases
 			['linux-ubuntu-trusty'] = {
 			},
-			-- TODO: Problems arise when mixing compilation units
+			-- TODO: Problems arise when we have multiple compilation units
 		}
 	},
 	debug = {

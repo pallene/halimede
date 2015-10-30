@@ -20,7 +20,18 @@ local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptSta
 	'BASH_ENV',
 	'ENV',
 	'MAIL',
-	'MAILPATH'
+	'MAILPATH',
+	
+	'GCC_EXEC_PREFIX',
+	'COMPILER_PATH',
+	'LIBRARY_PATH',
+	'LANG', -- actually wants a value to match C source
+	'CPATH',
+	'C_INCLUDE_PATH',
+	'CPLUS_INCLUDE_PATH',
+	'OBJC_INCLUDE_PATH',
+	'DEPENDENCIES_OUTPUT',
+	'SUNPRO_DEPENDENCIES'
 }
 
 function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
@@ -30,7 +41,7 @@ end
 assert.globalTypeIsFunction('ipairs')
 function PosixCompileUnitActions:_initialBuildScript()
 	
-	-- TODO: Options to suppress zsh and MKS sh
+	-- TODO: TMPDIR, COMPILER_PATH, LIBRARY_PATH, more ... http://linux.die.net/man/1/gcc
 	
 	-- Can't use a multiline string because the new line terminator is wrong if this file is edited by some Windows programs
 	-- NOTE: We don't try to support ancient non-POSIX shells that don't like export VAR=VALUE syntax
@@ -41,6 +52,8 @@ function PosixCompileUnitActions:_initialBuildScript()
 		'set -f',
 		'IFS=" $(printf \'\\t\')$(printf \'\\n\')"',  -- Space, Tab, Newline
 		'export LC_ALL=C',
+		'export LC_CTYPE=C',
+		'export LC_MESSAGES=C',
 		'export LANGUAGE=C',
 		"PS1='$ '",
 		"PS2='> '",

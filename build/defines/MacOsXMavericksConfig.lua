@@ -79,3 +79,4 @@ function MacOsXMavericksConfigH:initialize(...)
 	
 end
 
+return MacOsXMavericksConfigH

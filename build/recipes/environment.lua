@@ -26,7 +26,8 @@ dynamicLibraryExtension = '.so' -- might be .dylib on Mac OS X but might not be 
 
 sysrootPath = '/opt'
 destinationPath = '/opt/package/version'  -- Where version is, say, 2.0.4-lua-5.2 and package is luarocks
-
+CStandard = require('halimede.build.recipes.CStandard')  -- Allows toolchains to update deprecated aliases
+Defines = require('halimede.build.defines.Defines')
 
 function quotedStringDefine(value)
 	return '"' .. value .. '"'
@@ -63,6 +64,40 @@ function toCFiles(...)
 	return addFileExtensionToFileNames('.c', ...)
 end
 
+function toCPlusPlusFiles(...)
+	return addFileExtensionToFileNames('.cxx', ...)
+end
+
 function toObjects(...)
 	return addFileExtensionToFileNames(objectExtension, ...)
+end
+
+function toObjectsWithoutPaths(...)
+	local result = {}
+	for _, pathPrefixedFileName in ipairs(toObjects(...)) do
+		table.insert(result, halimede.basename(pathPrefixedFileName))
+	end
+	return result
+end
+
+function mergeFlags(...)
+	
+	local result = {}
+	for _, flagSet in ipairs({...}) do
+		if type(flagSet) == 'string' then
+			table:insert(result, flagSet)
+		elseif type(flagSet) == 'table' then
+			for _, flag in ipairs(flagSet) then
+				if type(flag) ~= 'string' then
+					error('Argument to mergeFlags can either be string or table of strings (array)')
+				end
+				table:insert(flag)
+			end
+		else
+			error('Argument to mergeFlags can either be string or table of strings (array)')
+		end
+	end
+	
+	return result
+	
 end

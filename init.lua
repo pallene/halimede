@@ -457,10 +457,13 @@ ourModule.operatingSystemDetails = detectOperatingSystemDetails()
 local operatingSystemDetails = ourModule.operatingSystemDetails
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub')
-function ourModule.dirname(path)
+function ourModule.dirname(path, folderSeparator)
 	assert.parameterTypeIsString(path)
-	
-	local folderSeparator = packageConfiguration.folderSeparator
+	if folderSeparator == nil then
+		folderSeparator = packageConfiguration.folderSeparator
+	else
+		assert.parameterTypeIsString(folderSeparator)
+	end
 	
 	local regexSeparator
 	if folderSeparator == '\\' then
@@ -477,6 +480,29 @@ function ourModule.dirname(path)
 	end
 end
 local dirname = ourModule.dirname
+
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
+function ourModule.basename(path, folderSeparator)
+	assert.parameterTypeIsString(path)
+	if folderSeparator == nil then
+		folderSeparator = packageConfiguration.folderSeparator
+	else
+		assert.parameterTypeIsString(folderSeparator)
+	end
+	
+	local regexSeparator
+	if folderSeparator == '\\' then
+		regexSeparator = '\\\\'
+	else
+		regexSeparator = folderSeparator
+	end
+	
+	if path:match('.-' .. regexSeparator .. '.-') then
+		return path:gsub('(.*' .. regexSeparator .. ')(.*)', '%2')
+	else
+		return path
+	end
+end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'sub')
 function ourModule.findArg0()
