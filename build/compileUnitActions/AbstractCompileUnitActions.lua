@@ -30,7 +30,7 @@ function AbstractCompileUnitActions:initialize(shellLanguage, sourcePath, sysroo
 	self.compilerDriver = toolchain.compilerDriver
 	
 	self.script = tabelize({})
-	self:appendLinesToBuildScript(self._initialBuildScript())
+	self._initialBuildScript()
 	self.actionChangeDirectory(sourcePath)
 end
 

@@ -22,24 +22,29 @@ function WindowsCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain
 end
 
 function WindowsCompileUnitActions:_initialBuildScript()
+	
 	-- Can't use a multiline string because the new line terminator is then wrong
-	return
+	self:appendLinesToBuildScript(
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions'
+	)
 end
 
 assert.globalTypeIsFunction('unpack')
 function WindowsCompileUnitActions:_finalBuildScript()
-	return
-		'ENDLOCAL'
+	self:appendLinesToBuildScript('ENDLOCAL')
 end
 
 function WindowsCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
+	assert.parameterTypeIsString(variableName)
+	
 	self:appendCommandLineToBuildScript('SET', variableName .. '=')
 end
 
 -- http://ss64.com/nt/path.html
 function WindowsCompileUnitActions:actionSetPath(paths)
+	assert.parameterTypeIsInstanceOf(paths, Paths)
+	
 	self:appendCommandLineToBuildScript('PATH', ';')
 	self:appendCommandLineToBuildScript('PATH', paths.paths)
 end

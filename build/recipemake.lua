@@ -62,6 +62,71 @@ function toObjects(...)
 	return addFileExtension(objectExtension, ...)
 end
 
+
+-- Typically affect dependencies (in this case, adds customs and dmalloc)
+local buildVariants = {
+	default = {
+		conflicts = {
+			'customs',
+			'debug'
+		},
+		arguments = {
+			REMOTE = 'stub'
+		}
+	},
+	debug = {
+		conflicts = {
+			'dmalloc'
+		},
+		compilerDriverFlags = {
+			'-g'
+		},
+	},
+	caseInsensitiveFileSystem = {
+		conflicts = {},
+		defines = {},
+		configHDefines = {
+			HAVE_CASE_INSENSITIVE_FS = true
+		}
+	},
+	customs = {
+		conflicts = {
+			'default'
+		},
+		arguments = {
+			REMOTE = 'cstms',
+		},
+		-- Affects CPPFLAGS
+		includePaths = {'-Ixxx/include/customs'},
+		libraryPaths = {'-Lxxx/lib'},
+		libs = {'-lcustoms'}
+	},
+	dmalloc = {
+		conflicts = {
+			'debug'
+		},
+		compilerDriverFlags = {
+			'-g'
+		},
+		configHDefines = {
+			WITH_DMALLOC = true
+		},
+		libraryPaths = {'-Lwherever-dmalloc-is'},
+		libs = {'-ldmalloc'}
+	},
+	-- Uses pkg-config --cflags etc
+	guile = {
+		compilerDriverFlags = {
+			-- ?
+		},
+		configHDefines = {
+			HAVE_GUILE = true
+		},
+		libraryPaths = {'-Lwherever-guile-is'},
+		libs = {'-lguile'}
+	}	
+}
+
 local basefilenames = {
 	'ar',
 	'arscan',
@@ -90,7 +155,7 @@ local basefilenames = {
 	'version',
 	'vpath',
 	'hash',
-	'remote-${REMOTE}', -- Varies depending on remote choice; requires expansion
+	'remote-${REMOTE}', -- Varies depending on remote choice; requires expansion; see the lines starting   AC_SUBST([REMOTE]) REMOTE=stub  in configure.ac (affects flags, etc)
 	concatenateToPath('glob', 'fnmatch'), -- Need if things missing; auto-add 'glob' as an include path
 	concatenateToPath('glob', 'glob'), -- Need if things missing
 	-- Also alloca support may be needed (all modern platforms have this)
@@ -133,7 +198,7 @@ return {
 				-- Is this static or dynamic ?
 				compilerDriverLinkExecutable = {
 					linkerFlags = {
-						'-rdynamic'
+						'-rdynamic'  -- or -Wl,--export-dynamic
 					},
 					objects = toObjects(basefilenames),
 					-- eg pthread, m, etc => -lpthread, -lm, etc

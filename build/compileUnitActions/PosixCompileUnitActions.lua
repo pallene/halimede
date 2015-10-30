@@ -9,33 +9,72 @@ local assert = halimede.assert
 local class = require('middleclass')
 local CompileUnitActions = requireSibling('CompileUnitActions')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Paths = require('halimede.io.paths.Paths')
 local ShellLanguage = require('halimede.io.ShellLanguage')
 
 
 local PosixCompileUnitActions = class('PosixCompileUnitActions', CompileUnitActions)
 
+local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptStart = {
+	'CDPATH',
+	'BASH_ENV',
+	'ENV',
+	'MAIL',
+	'MAILPATH'
+}
+
 function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
 	AbstractCompileUnitActions.initialise(self, ShellLanguage.POSIX, sourcePath, sysrootPath, toolchain)
 end
 
+assert.globalTypeIsFunction('ipairs')
 function PosixCompileUnitActions:_initialBuildScript()
+	
+	-- TODO: Options to suppress zsh and MKS sh
+	
 	-- Can't use a multiline string because the new line terminator is wrong if this file is edited by some Windows programs
-	return
+	-- NOTE: We don't try to support ancient non-POSIX shells that don't like export VAR=VALUE syntax
+	self:appendLinesToBuildScript(
 		'#!/usr/bin/env sh',
 		'set -e',
 		'set -u',
-		'set -f'
+		'set -f',
+		'IFS=" $(printf \'\\t\')$(printf \'\\n\')"',  -- Space, Tab, Newline
+		'export LC_ALL=C',
+		'export LANGUAGE=C',
+		"PS1='$ '",
+		"PS2='> '",
+		"PS4='+ '",
+		'export DUALCASE=1',  -- For MKS Shell
+		'if [ -n "${ZSH_VERSION+set}" ]; then',  -- For zsh
+		'    emulate sh',
+		'    NULLCMD=:',
+		'    # Pre-4.2 versions of Zsh (superceded as of 2004-03-19) do word splitting on ${1+"$[@]"}, which is not wanted',
+		[[    alias -g '${1+"$[@]"}'='"$[@]"']],
+		'    setopt NO_GLOB_SUBST',
+		'fi',
+		'(set -o posix) 1>/dev/null 2>/dev/null && set -o posix'  -- For bash
+		'PATH_SEPARATOR="' .. Paths.pathSeparator .. '"'
+	)
+	for _, environmentVariableToUnsetAtBuildScriptStart in ipairs(environmentVariablesToUnsetAtBuildScriptStart) do
+		self:actionUnsetEnvironmentVariable(environmentVariableToUnsetAtBuildScriptStart)
+	end
 end
 
 function PosixCompileUnitActions:_finalBuildScript()
-	return
 end
 
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function PosixCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
-	self:appendCommandLineToBuildScript('unset', variableName)
+	assert.parameterTypeIsString(variableName)
+	
+	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)
+	self:appendCommandLineToBuildScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))
 end
 
 function PosixCompileUnitActions:actionSetPath(paths)
+	assert.parameterTypeIsInstanceOf(paths, Paths)
+	
 	self:actionUnsetEnvironmentVariable('PATH')
 	self:appendCommandLineToBuildScript('export', 'PATH=' .. paths.paths)
 end
@@ -48,8 +87,6 @@ end
 
 function PosixCompileUnitActions:actionMakeDirectoryParent(abstractPath, mode)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
-	assert.parameterTypeIsString(mode)
-
 	assert.parameterTypeIsString(mode)
 	
 	self:appendCommandLineToBuildScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
