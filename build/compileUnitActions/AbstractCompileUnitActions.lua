@@ -96,6 +96,7 @@ function AbstractCompileUnitActions:writeConfigH(configH)
 	writeToFileAllContentsInTextMode(concatenateToPath(self.sourcePath, 'config.h'), 'config.h', configH:toCPreprocessorText())
 end
 
+-- TODO: Mac OS X / Brew, sysroot, etc
 assert.globalTypeIsFunction('unpack')
 function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
 	assert.parameterTypeIsBoolean(crossCompile)
@@ -138,7 +139,7 @@ end
 
 -- TODO: Need to add '-L' switches; there's a horrible interaction between sysroot and what gets embedded in the dynamic linker... and RPATH
 -- eg pthread, m => several libraries from one compilation unit (c lib on Linux)
-assert.globalTypeIsFunction('unpack', 'pairs')
+assert.globalTypeIsFunction('unpack')
 function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, additionalLinkedLibraries, baseName)
 	assert.parameterTypeIsBoolean(crossCompile)
 	assert.parameterTypeIsTable(compilerDriverFlags)
@@ -150,9 +151,9 @@ function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, 
 	local compilerDriver = self:_chooseCCompilerDriver(crossCompile)
 	
 	local argments = self._prepareCompilerDriver(compilerDriver, compilerDriverFlags)
-	addFlags(arguments, mergeFlags(compilerDriver.linkerFlags, self.dependencies.linkerFlags, linkerFlags))
+	addFlags(arguments, compilerDriver:mergeFlags(compilerDriver.linkerFlags, self.dependencies.linkerFlags, linkerFlags))
 	addFlags(arguments, objects)
-	for _, linkedLibrary in ipairs(mergeFlags(compilerDriver.additionalLinkedLibraries, self.dependencies.additionalLinedLibraries, additionalLinkedLibraries)) do
+	for _, linkedLibrary in ipairs(compilerDriver:mergeFlags(compilerDriver.additionalLinkedLibraries, self.dependencies.additionalLinedLibraries, additionalLinkedLibraries)) do
 		arguments:insert('-l' .. linkedLibrary)
 	end
 	

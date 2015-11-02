@@ -5,17 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local assert = require('halimede.assert')
-local executeFromFile = require('halimede.luacode.executeFromFile')
 local exception = require('halimede.exception')
 local type = require('halimede').type
 local isTable = type.isTable
 
-function module.loadRockSpec(rockSpecFilePath)
-	assert.parameterTypeIsString(rockSpecFilePath)
-	
-	local environment = {}
-	local result = executeFromFile('rockspec file', rockSpecFilePath, environment)
-end
 
 assert.globalTypeIsFunction('setmetatable')
 local function wrapWithReadOnlyProxy(object)

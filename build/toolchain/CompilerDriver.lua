@@ -44,6 +44,28 @@ function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPr
 	self.includePathOption = '-I'
 end
 
+function CompilerDriver:mergeFlags(...)
+	
+	local result = {}
+	for _, flagSet in ipairs({...}) do
+		if type(flagSet) == 'string' then
+			table:insert(result, flagSet)
+		elseif type(flagSet) == 'table' then
+			for _, flag in ipairs(flagSet) then
+				if type(flag) ~= 'string' then
+					error('Argument to mergeFlags can either be string or table of strings (array)')
+				end
+				table:insert(flag)
+			end
+		else
+			error('Argument to mergeFlags can either be string or table of strings (array)')
+		end
+	end
+	
+	return result
+	
+end
+
 assert.globalTypeIsFunction('ipairs')
 local function addFlags(arguments, flags)
 	for _, flag in flags do
@@ -101,7 +123,7 @@ function CompilerDriver:addSystemIncludePaths(arguments, dependenciesSystemInclu
 	assert.parameterTypeIsTable(buildVariantSystemIncludePaths)
 	
 	local systemIncludePaths = {}
-	for _, systemIncludePath in ipairs(mergeFlags(compilerDriver.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
+	for _, systemIncludePath in ipairs(self:mergeFlags(compilerDriver.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
 		populateIncludePaths(systemIncludePaths, systemIncludePath)
 	end
 	

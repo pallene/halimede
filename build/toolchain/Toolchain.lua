@@ -10,6 +10,7 @@ local class = require('halimede.middleclass')
 local Platform = requireSibling('Platform')
 local CompilerDriver = requireSibling('CompilerDriver')
 local GnuTuple = requireSibling('GnuTuple')
+local tabelize = require('halimede.table.tabelize').tabelize
 
 
 local Toolchain = class('Toolchain')
@@ -33,27 +34,38 @@ function Toochain:initialize(name, crossPlatform, buildPlatform)
 		self.isCrossCompiling = true
 	end
 	
+	Toolchain.static[name] = self
 end
 
+Toolchain.static.addFileExtensionToFileNames = function(extensionWithLeadingPeriod, ...)
+	local asTable
+	if select('#', ...) == 1 then
+		if type(...) == 'table' then
+			asTable = select(1, ...)
+		else
+			asTable = {...}
+		end
+	else
+		asTable = {...}
+	end
+	
+	local result = tabelize()
+	for _, basefilename in ipairs(asTable) do
+		result:insert(basefilename .. extensionWithLeadingPeriod)
+	end
+	return result
+end
 
-Toolchain.MacOsXMavericks = Toolchain:new(
-	'Mac OS X Mavericks Homebrew with GCC 4.9 C and C++ compiler',
-	Platform:new(
-		'Mac OS X Mavericks Homebrew',
-		GnuTuple['x86_64-apple-darwin13.4.0'],
-		CompilerDriver.gcc49_systemNativeHostX86_64,
-		CompilerDriver.gccxx49_systemNativeHostX86_64
-	)
-)
+function Toolchain:toCFiles(...)
+	return Toolchain.addFileExtensionToFileNames('.c', ...)
+end
 
-Toolchain.MacOsXYosemite = Toolchain:new(
-	'Mac OS X Yosemite Homebrew with GCC 4.9 C and C++ compiler',
-	Platform:new(
-		'Mac OS X Yosemite Homebrew',
-		GnuTuple['x86_64-apple-darwin14'],
-		CompilerDriver.gcc49_systemNativeHostX86_64,
-		CompilerDriver.gccxx49_systemNativeHostX86_64
-	)
-)
+-- TODO: not necessarily .cxx; several variants, sadly
+function Toolchain:toCPlusPlusFiles(...)
+	return Toolchain.addFileExtensionToFileNames('.cxx', ...)
+end
+
+Toolchain:new('Mac OS X Mavericks GCC / G++ 4.9 Homebrew', Platform['Mac OS X Mavericks GCC / G++ 4.9 Homebrew'])
+Toolchain:new('Mac OS X Mavericks GCC / G++ 4.9 Homebrew', Platform['Mac OS X Yosemite GCC / G++ 4.9 Homebrew'])
 
 return Toolchain
