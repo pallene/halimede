@@ -6,9 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local dirname = halimede.dirname
 local basename = halimede.basename
-local class = require('middleclass')
+local class = require('halimede.middleclass')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
 local execute = require('halimede.io.execute')
@@ -16,6 +15,7 @@ local executeExpectingSuccess = execute.executeExpectingSuccess
 local noRedirection = execute.noRedirection
 local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
 local CStandard = require('halimede.build.defines.CStandard')
+local LegacyCandCPlusPlusStringLiteralEncoding = require('LegacyCandCPlusPlusStringLiteralEncoding')
 local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
 
 
@@ -67,12 +67,12 @@ local function addFlags(arguments, flags)
 	end
 end
 
-function AbstractCompileUnitActions:_chooseCompilerDriver(crossCompile)
+function AbstractCompileUnitActions:_chooseCCompilerDriver(crossCompile)
 	if crossCompile then
-		return self.toolchain.crossCompilerDriver
+		return self.toolchain.crossCCompilerDriver
 	else
 		-- Actually, this may end up being a bootstrap, etc
-		return self.toolchain.hostCompilerDriver
+		return self.toolchain.buildCCompilerDriver
 	end
 end
 
@@ -82,6 +82,7 @@ function AbstractCompileUnitActions:_prepareCompilerDriver(compilerDriver, compi
 	local arguments = tabelize({})
 	
 	-- eg 'gcc -march=native'
+	addFlags(arguments, compilerDriver.commandLineName)
 	addFlags(arguments, compilerDriver.commandLineFlags)
 	arguments:insert('--sysroot=' .. self.sysrootPath.path)
 	
@@ -95,51 +96,44 @@ function AbstractCompileUnitActions:writeConfigH(configH)
 	writeToFileAllContentsInTextMode(concatenateToPath(self.sourcePath, 'config.h'), 'config.h', configH:toCPreprocessorText())
 end
 
-assert.globalTypeIsFunction('unpack', 'pairs', 'ipairs')
-function AbstractCompileUnitActions:actionCompilerDriverCPreprocessAndCompile(crossCompile, compilerDriverFlags, standard, preprocessorFlags, defines, sources)
+assert.globalTypeIsFunction('unpack')
+function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
 	assert.parameterTypeIsBoolean(crossCompile)
 	assert.parameterTypeIsTable(compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf(standard, CStandard)
+	assert.parameterTypeIsInstanceOf(legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
 	assert.parameterTypeIsTable(preprocessorFlags)
 	assert.parameterTypeIsInstanceOf(defines, CommandLineDefines)
 	assert.parameterTypeIsTable(sources)
 	
-	local compilerDriver = self:_chooseCompilerDriver(crossCompile)
+	local compilerDriver = self:_chooseCCompilerDriver(crossCompile)
 	
 	local argments = self._prepareCompilerDriver(compilerDriver, compilerDriverFlags)
-	arguments:insert('-c')
-	arguments:insert('-std=' .. standard)
+	addFlags(arguments, compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
+	compilerDriver:addStandard(arguments, standard)
+	compilerDriver:useFileExtensionsToDetermineLanguageFlags(arguments)
 	addFlags(arguments, preprocessorFlags)
 	
-	defines:appendToCommandLineArguments(arguments)
-	
-	local function populateIncludePaths(includePaths, includePath)
-		if includePaths[includePath] == nil then
-			includePaths[includePath] = true
-		end
-	end
+	defines:appendToCommandLineArguments(compilerDriver, arguments)
 	
 	-- TODO: There's a complex interplay between build variants and dependencies (some dependencies are the result of build variants)
-	local systemIncludePaths = {}
-	for _, systemIncludePath in ipairs(mergeFlags(compilerDriver.systemIncludePaths, self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)) do
-		populateIncludePaths(systemIncludePaths, systemIncludePath)
-	end
-	for systemIncludePath, _ in pairs(systemIncludePaths) do
-		arguments:insert('-isystem' .. systemIncludePath)
-	end
+	compilerDriver:addSystemIncludePaths(arguments, self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
 	
 	-- TODO: There's a possibility a second compile in the same unit might want to access the headers in the source tree of a previous compile
-	local includePaths = {}
-	for _, sourceFileRelativePath in ipairs(sources) do
-		populateIncludePaths(includePaths, dirname(sourceFileRelativePath))
-	end
-	for includePath, _ in pairs(includePaths) do
-		arguments:insert('-I' .. includePath)
-	end
+	compilerDriver:addIncludePaths(arguments, sources)
 	
-	-- TODO: This is a toolchain / compilerDriver setting, really
-	self:actionUnsetEnvironmentVariable('GCC_EXEC_PREFIX')
+	-- TODO: We ought to use a subshell, but this isn't easy on Windows (cmd /C)
+	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
+		self:actionUnsetEnvironmentVariable(environmentVariableName)
+	end)
+	
+	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
+		self:actionExportEnvironmentVariable(environmentVariableName, environmentVariableValue)
+	end, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
+	
 	self:appendCommandLineToBuildScript(unpack(arguments))
+	
+	compilerDrive:endSubshell()
 end
 
 -- TODO: Need to add '-L' switches; there's a horrible interaction between sysroot and what gets embedded in the dynamic linker... and RPATH
@@ -153,7 +147,7 @@ function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, 
 	assert.parameterTypeIsTable(additionalLinkedLibraries)
 	assert.parameterTypeIsString(baseName)
 	
-	local compilerDriver = self:_chooseCompilerDriver(crossCompile)
+	local compilerDriver = self:_chooseCCompilerDriver(crossCompile)
 	
 	local argments = self._prepareCompilerDriver(compilerDriver, compilerDriverFlags)
 	addFlags(arguments, mergeFlags(compilerDriver.linkerFlags, self.dependencies.linkerFlags, linkerFlags))
@@ -162,7 +156,14 @@ function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, 
 		arguments:insert('-l' .. linkedLibrary)
 	end
 	
-	self:actionUnsetEnvironmentVariable('GCC_EXEC_PREFIX')
+	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
+		self:actionUnsetEnvironmentVariable(environmentVariableName)
+	end)
+	
+	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
+		self:actionExportEnvironmentVariable(environmentVariableName, environmentVariableValue)
+	end, {})
+	
 	self:appendCommandLineToBuildScript(unpack(arguments))
 end
 

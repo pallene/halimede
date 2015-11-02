@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('middleclass')
+local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local Defines = requireSibling('Defines')
 
@@ -22,18 +22,19 @@ function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacro
 end
 
 assert.globalTypeIsFunction('pairs', 'ipairs')
-function CommandLineDefines:appendToCommandLineArguments(arguments)
+function CommandLineDefines:appendToCommandLineArguments(compilerDriver, arguments)
 	assert.parameterTypeIsTable(arguments)
 	
 	if self.doNotPredefineSystemOrCompilerDriverMacros then
-		arguments:insert('-undef')
+		compilerDriver:doNotPredefineSystemOrCompilerDriverMacros(arguments)
 	end
 	
 	for defineName, _ in ipairs(self.explicitlyUndefine) do
-		arguments:insert('-U' .. defineName)
+		compilerDriver:undefinePreprocessorMacro(arguments, defineName)
 	end
+	
 	for defineName, defineValue in pairs(self.defines) do
-		arguments:insert('-D' .. defineName .. '=' .. defineValue)
+		compilerDriver:definePreprocessorMacro(arguments, defineName, defineValue)
 	end
 	
 	return arguments

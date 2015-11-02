@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('middleclass')
+local class = require('halimede.middleclass')
 local CompileUnitActions = requireSibling('CompileUnitActions')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 local Paths = require('halimede.io.paths.Paths')
@@ -55,6 +55,7 @@ function PosixCompileUnitActions:_initialBuildScript()
 		'export LC_CTYPE=C',
 		'export LC_MESSAGES=C',
 		'export LANGUAGE=C',
+		'export LANG=C',
 		"PS1='$ '",
 		"PS2='> '",
 		"PS4='+ '",
@@ -67,7 +68,7 @@ function PosixCompileUnitActions:_initialBuildScript()
 		'    setopt NO_GLOB_SUBST',
 		'fi',
 		'(set -o posix) 1>/dev/null 2>/dev/null && set -o posix'  -- For bash
-		'PATH_SEPARATOR="' .. Paths.pathSeparator .. '"'
+		'export PATH_SEPARATOR="' .. Paths.pathSeparator .. '"'
 	)
 	for _, environmentVariableToUnsetAtBuildScriptStart in ipairs(environmentVariablesToUnsetAtBuildScriptStart) do
 		self:actionUnsetEnvironmentVariable(environmentVariableToUnsetAtBuildScriptStart)
@@ -85,11 +86,18 @@ function PosixCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
 	self:appendCommandLineToBuildScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))
 end
 
+function PosixCompileUnitActions:actionExportEnvironmentVariable(variableName, variableValue)
+	assert.parameterTypeIsString(variableName)
+	assert.parameterTypeIsString(variableValue)
+
+	self:appendCommandLineToBuildScript('export', variableName .. '=' .. variableValue)
+end
+
 function PosixCompileUnitActions:actionSetPath(paths)
 	assert.parameterTypeIsInstanceOf(paths, Paths)
 	
 	self:actionUnsetEnvironmentVariable('PATH')
-	self:appendCommandLineToBuildScript('export', 'PATH=' .. paths.paths)
+	self:actionExportEnvironmentVariable('export', 'PATH=' .. paths.paths)
 end
 
 function PosixCompileUnitActions:actionChangeDirectory(abstractPath)

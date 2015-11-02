@@ -4,27 +4,23 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local class = require('halimede.middleclass')
-local AbstractPath = requireSibling('AbstractPath')
 local halimede = require('halimede')
 local assert = halimede.assert
-local tabelize = require('halimede.table.tabelize').tabelize
-local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
+local class = require('halimede.middleclass')
+local CompilerMetadata = requireSibling('CompilerMetadata')
 
-local RelativePath = class('RelativePath', AbstractPath)
 
-function RelativePath:initialize(...)
-	AbstractPath.initialize(self, true, '', ...)
-end
+local Platform = class('Platform')
 
-function RelativePath:_appendSubFolders(childFoldersTable)
+-- TODO: Mac OS X / Brew, sysroot, etc
+function Platform:initialize(name, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
+	assert.parameterTypeIsString(name)
+	assert.parameterTypeIsInstanceOf(gnuTuple, GnuTuple)
+	assert.parameterTypeIsInstanceOf(cCompilerDriver, CompilerDriver)
+	assert.parameterTypeIsInstanceOf(cPlusPlusCompilerDriver, CompilerDriver)
 	
-	local folders = tabelize(shallowCopy(self.folders))
-	for _, childFolder in ipairs(childFoldersTable) do
-		folders:insert(childFolder)
-	end
-
-	return RelativePath:new(unpack(folders))
+	self.name = name
+	self.gnuTuple = gnuTuple
+	self.cCompilerDriver = cCompilerDriver
+	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
 end
-
-return RelativePath

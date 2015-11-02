@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('middleclass')
+local class = require('halimede.middleclass')
 local Object = class.Object
 local CompileUnitActions = requireSibling('CompileUnitActions')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
@@ -38,7 +38,14 @@ end
 function WindowsCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
 	assert.parameterTypeIsString(variableName)
 	
-	self:appendCommandLineToBuildScript('SET', variableName .. '=')
+	self:appendCommandLineToBuildScript('UNSET', '/Q', variableName)
+end
+
+function PosixCompileUnitActions:actionExportEnvironmentVariable(variableName, variableValue)
+	assert.parameterTypeIsString(variableName)
+	assert.parameterTypeIsString(variableValue)
+	
+	self:appendCommandLineToBuildScript('SET', variableName .. '=' .. variableValue)
 end
 
 -- http://ss64.com/nt/path.html

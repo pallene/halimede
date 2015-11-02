@@ -15,144 +15,138 @@ end
 
 
 
-local function compile(compileUnitActions, packageName, packageVersion, buildVariant, configH)
-	
-	
-
-	-- Make-code-specific (all were enabled on Mac OS X)
-
-	local MakeConfigHMacOSX = configH
-	-- Hmmm, more just MacOSX specific (bar _GNU_SOURCE)
-	MakeConfigHMacOSX:_ALL_SOURCE(true)
-	MakeConfigHMacOSX:_GNU_SOURCE(true)
-	MakeConfigHMacOSX:_POSIX_PTHREAD_SEMANTICS(true)
-	MakeConfigHMacOSX:_TANDEM_SOURCE(true)
-	MakeConfigHMacOSX:__EXTENSIONS__(true)
-
-
+local function newConfigH(configH, packageOrganisation, packageName, packageVersion)
+	configH:PACKAGE(packageName)
+	configH:PACKAGE_BUGREPORT('bug-' .. packageName .. '@gnu.org')
+	configH:PACKAGE_NAME(packageOrganisation .. ' ' .. packageName)
+	configH:PACKAGE_STRING(packageOrganisation .. ' ' .. packageName .. ' ' .. packageVersion)
+	configH:PACKAGE_TARNAME(packageName)
+	configH:PACKAGE_URL('http://www.gnu.org/software/' .. packageName .. '/')
+	configH:PACKAGE_VERSION(packageVersion)
+	configH:VERSION(packageVersion)
 
 	-- Embed GNU Guile support
-	function MakeConfigHDefines:HAVE_GUILE(enable)
+	function configH:HAVE_GUILE(enable)
 		self:_boolean('HAVE_GUILE', enable)
 	end
 
 	-- Define to 1 to enable job server support in GNU make.
-	function MakeConfigHDefines:MAKE_JOBSERVER(enable)
+	function configH:MAKE_JOBSERVER(enable)
 		self:_boolean('MAKE_JOBSERVER', enable)
 	end
 
 	-- Enable only if HAVE_DECL_DLOPEN, HAVE_DECL_DLSYM, HAVE_DECL_DLERROR
 	-- Define to 1 to enable 'load' support in GNU make.
-	function MakeConfigHDefines:MAKE_LOAD(enable)
+	function configH:MAKE_LOAD(enable)
 		self:_boolean('MAKE_LOAD', enable)
 	end
 	
 	-- Define to 1 to enable symbolic link timestamp checking.
-	function MakeConfigHDefines:MAKE_SYMLINKS(enable)
+	function configH:MAKE_SYMLINKS(enable)
 		self:_boolean('MAKE_SYMLINKS', enable)
 	end
 
 	-- [detected by looking for *-*-mingw32 in $host in configure.ac]
 	-- Define to 1 if your system requires backslashes or drive specs in pathnames
-	function MakeConfigHDefines:HAVE_DOS_PATHS(enable)
+	function configH:HAVE_DOS_PATHS(enable)
 		self:_boolean('HAVE_DOS_PATHS', enable)
 	end
 
 	-- Use platform specific coding
-	function MakeConfigHDefines:WINDOWS32(enable)
+	function configH:WINDOWS32(enable)
 		self:_boolean('WINDOWS32', enable)
 	end
 
 	-- Use case insensitive file names
-	function MakeConfigHDefines:HAVE_CASE_INSENSITIVE_FS(enable)
+	function configH:HAVE_CASE_INSENSITIVE_FS(enable)
 		self:_boolean('HAVE_CASE_INSENSITIVE_FS', enable)
 	end
 
 	-- Use high resolution file timestamps if nonzero.
-	function MakeConfigHDefines:FILE_TIMESTAMP_HI_RES(enable)
+	function configH:FILE_TIMESTAMP_HI_RES(enable)
 		self:_boolean('FILE_TIMESTAMP_HI_RES', enable)
 	end
 
 	-- Define to 1 if you have a standard gettimeofday function
-	function MakeConfigHDefines:HAVE_GETTIMEOFDAY(enable)
+	function configH:HAVE_GETTIMEOFDAY(enable)
 		self:_boolean('HAVE_GETTIMEOFDAY', enable)
 	end
 
 	-- Define to 1 if struct nlist.n_name is a pointer rather than an array.
-	function MakeConfigHDefines:NLIST_STRUCT(enable)
+	function configH:NLIST_STRUCT(enable)
 		self:_boolean('NLIST_STRUCT', enable)
 	end
 
 	-- Mandatory
 	-- Define to 1 if you have the declaration of `dlerror', and to 0 if you don't.
-	function MakeConfigHDefines:HAVE_DECL_DLERROR(enable)
+	function configH:HAVE_DECL_DLERROR(enable)
 		self:_oneOrZero('HAVE_DECL_DLERROR', enable)
 	end
 
 	-- Mandatory
 	-- Define to 1 if you have the declaration of `dlopen', and to 0 if you don't.
-	function MakeConfigHDefines:HAVE_DECL_DLOPEN(enable)
+	function configH:HAVE_DECL_DLOPEN(enable)
 		self:_oneOrZero('HAVE_DECL_DLOPEN', enable)
 	end
 
 	-- Mandatory
 	-- Define to 1 if you have the declaration of `dlsym', and to 0 if you don't.
-	function MakeConfigHDefines:HAVE_DECL_DLSYM(enable)
+	function configH:HAVE_DECL_DLSYM(enable)
 		self:_oneOrZero('HAVE_DECL_DLSYM', enable)
 	end
 
 	-- Mandatory
 	-- Define to 1 if you have the declaration of `sys_siglist', and to 0 if you don't.
-	function MakeConfigHDefines:HAVE_DECL_SYS_SIGLIST(enable)
+	function configH:HAVE_DECL_SYS_SIGLIST(enable)
 		self:_oneOrZero('HAVE_DECL_SYS_SIGLIST', enable)
 	end
 
 	-- Mandatory
 	-- Define to 1 if you have the declaration of `_sys_siglist', and to 0 if you don't.
-	function MakeConfigHDefines:HAVE_DECL__SYS_SIGLIST(enable)
+	function configH:HAVE_DECL__SYS_SIGLIST(enable)
 		self:_oneOrZero('HAVE_DECL__SYS_SIGLIST', enable)
 	end
 
 	-- Mandatory
 	-- Define to 1 if you have the declaration of `__sys_siglist', and to 0 if you don't.
-	function MakeConfigHDefines:HAVE_DECL___SYS_SIGLIST(enable)
+	function configH:HAVE_DECL___SYS_SIGLIST(enable)
 		self:_oneOrZero('HAVE_DECL___SYS_SIGLIST', enable)
 	end
 
 	-- Define to 1 if you have the 'union wait' type in <sys/wait.h>.
-	function MakeConfigHDefines:HAVE_UNION_WAIT(enable)
+	function configH:HAVE_UNION_WAIT(enable)
 		self:_boolean('HAVE_UNION_WAIT', enable)
 	end
 
 	-- Define to 1 if <signal.h> defines the SA_RESTART constant.
-	function MakeConfigHDefines:HAVE_SA_RESTART(enable)
+	function configH:HAVE_SA_RESTART(enable)
 		self:_boolean('HAVE_SA_RESTART', enable)
 	end
 
 	-- Mandatory
 	-- Define to the name of the SCCS 'get' command.
-	function MakeConfigHDefines:SCCS_GET(command)
+	function configH:SCCS_GET(command)
 		self:_quotedNonEmptyString('SCCS_GET', command)
 	end
 
 	-- Define to 1 if the SCCS 'get' command understands the '-G<file>' option.
-	function MakeConfigHDefines:SCCS_GET_MINUS_G(enable)
+	function configH:SCCS_GET_MINUS_G(enable)
 		self:_boolean('SCCS_GET_MINUS_G', enable)
 	end
 	
 	-- Define to `int' if <sys/types.h> does not define.
-	function MakeConfigHDefines:pid_t(enable)
+	function configH:pid_t(enable)
 		self:_defineIfMissing('pid_t', enable, 'int')
 	end
 
 	-- Define to `unsigned int' if <sys/types.h> does not define.
-	function MakeConfigHDefines:size_t(enable)
+	function configH:size_t(enable)
 		self:_defineIfMissing('size_t', enable, 'unsigned int')
 	end
 
 	-- NOTE: There is a better test than this in autoconf AC_TYPE_UINTMAX_T
 	-- Define uintmax_t if not defined in <stdint.h> or <inttypes.h>.
-	function MakeConfigHDefines:uintmax_t(enable)
+	function configH:uintmax_t(enable)
 		self:_defineIfMissing('uintmax_t', enable, 'unsigned long long')
 	end
 
@@ -160,46 +154,33 @@ local function compile(compileUnitActions, packageName, packageVersion, buildVar
 	function ConfigHDefines:MAKE_HOST(stringToQuote)
 		self:_quotedNotEmptyString(stringToQuote)
 	end
+end
 
-	-- Make extra-checks
-	MakeConfigHMacOSX:FILE_TIMESTAMP_HI_RES(true)
-	MakeConfigHMacOSX:HAVE_GETTIMEOFDAY(true)
-	MakeConfigHMacOSX:HAVE_DECL_SYS_SIGLIST(true)
-	MakeConfigHMacOSX:HAVE_SA_RESTART(true)
-	MakeConfigHMacOSX:MAKE_JOBSERVER(true) -- OS/2 or MingGW or HAVE_PIPE && HAVE_SIGACTION && HAVE_SA_RESTART && ?WAIT_NOHANG?
-	MakeConfigHMacOSX:HAVE_DECL_DLERROR(true)
-	MakeConfigHMacOSX:HAVE_DECL_DLOPEN(true)
-	MakeConfigHMacOSX:HAVE_DECL_DLSYM(true)
-	MakeConfigHMacOSX:MAKE_LOAD(true) -- HAVE_DECL_DLERROR && HAVE_DECL_DLOPEN && HAVE_DECL_DLSYM
-	MakeConfigHMacOSX:MAKE_SYMLINKS(true)  -- HAVE_LSTAT and HAVE_READLINK
-	MakeConfigHMacOSX:MAKE_HOST("x86_64-apple-darwin13.4.0")  -- Toolchain target triple
-	MakeConfigHDefines:SCCS_GET('get')  -- Harcoded search for /usr/sccs/get, oh my... probably ought to set this to 'false'; used in default.c as one of the default make variables. Make really is disgusting.
 
-	local organisation = 'GNU'
 
-	-- Name of package
-	MakeConfigHDefines:PACKAGE(name)
-
-	-- Define to the address where bug reports for this package should be sent.
-	MakeConfigHDefines:PACKAGE_BUGREPORT('bug-' .. packageName .. '@gnu.org')
-
-	-- Define to the full name of this package.
-	MakeConfigHDefines:PACKAGE_NAME(organisation .. ' ' .. packageName)
-
-	-- Define to the full name and version of this package.
-	MakeConfigHDefines:PACKAGE_STRING(organisation .. ' ' .. packageName .. ' ' .. packageVersion)
-
-	-- Define to the one symbol short name of this package.
-	MakeConfigHDefines:PACKAGE_TARNAME(packageName)
-
-	-- Define to the home page for this package.
-	MakeConfigHDefines:PACKAGE_URL('http://www.gnu.org/software/' .. packageName .. '/')
-
-	-- Define to the version of this package.
-	MakeConfigHDefines:PACKAGE_VERSION(packageVersion)
-
-	-- Version number of package
-	MakeConfigHDefines:VERSION(packageVersion)
+local function compile(compileUnitActions, buildVariant, configH)
+	
+	-- Not-Make-specific, but depend on toolchain (apart from _GNU_SOURCE); given how common these are, we could just enable them regardless
+	configH:_ALL_SOURCE(true)
+	configH:_GNU_SOURCE(true)
+	configH:_POSIX_PTHREAD_SEMANTICS(true)
+	configH:_TANDEM_SOURCE(true)
+	configH:__EXTENSIONS__(true)
+	
+	-- Make-specific, but depend on toolchain
+	configH:FILE_TIMESTAMP_HI_RES(true)
+	configH:HAVE_GETTIMEOFDAY(true)
+	configH:HAVE_DECL_SYS_SIGLIST(true)
+	configH:HAVE_SA_RESTART(true)
+	configH:MAKE_JOBSERVER(true) -- OS/2 or MingGW or HAVE_PIPE && HAVE_SIGACTION && HAVE_SA_RESTART && ?WAIT_NOHANG?
+	configH:HAVE_DECL_DLERROR(true)
+	configH:HAVE_DECL_DLOPEN(true)
+	configH:HAVE_DECL_DLSYM(true)
+	configH:MAKE_LOAD(true) -- HAVE_DECL_DLERROR && HAVE_DECL_DLOPEN && HAVE_DECL_DLSYM
+	configH:MAKE_SYMLINKS(true)  -- HAVE_LSTAT and HAVE_READLINK
+	configH:MAKE_HOST("x86_64-apple-darwin13.4.0")  -- Toolchain target triple
+	configH:SCCS_GET('get')  -- Harcoded search for /usr/sccs/get, oh my... probably ought to set this to 'false'; used in default.c as one of the default make variables. Make really is disgusting.
+	
 	
 	compileUnitActions:writeConfigH()
 	
@@ -244,6 +225,8 @@ local function compile(compileUnitActions, packageName, packageVersion, buildVar
 	local crossCompile = true
 	local compilerDriverFlags = {}
 	local standard = CStandard.gnu90
+	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
+	local preprocessorFlags = {}
 	local defines = Defines:new(false)
 	defines:_quotedNonEmptyString('LOCALEDIR', concatenateToPath(sysrootPath, 'lib'))
 	defines:_quotedNonEmptyString('LIBDIR', concatenateToPath(sysrootPath, 'include'))
@@ -251,7 +234,7 @@ local function compile(compileUnitActions, packageName, packageVersion, buildVar
 	defines:_boolean('HAVE_CONFIG_H', true)
 	local sources = toCFiles(baseFileNames)
 	
-	compileUnitActions:actionCompilerDriverCPreprocessAndCompile(crossCompile, compilerDriverFlags, standard, defines, sources)
+	compileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
 	
 	
 	-- Do we want to name stuff, rather than use command line switches?
@@ -271,6 +254,12 @@ return {
 		--             => We use two sorts of versioning: compatible and incompatible, eg lua 5.2.3 and Lua 5.2.4 are considered the same, because we use a symlink to 5.2. This was if we WANT to be specific (eg tie to Lua 5.2.4, say, we can)
 		--             => It also lets us have build variants (eg debug or LuaJIT with different compatibility flags)
 	},
+	package = {
+		organisations = 'GNU'
+		name = 'make',
+		version = '4.1'
+	},
+	newConfigH = newConfigH,
 	compilationUnits = {
 		compile
 	}	
