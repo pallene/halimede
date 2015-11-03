@@ -5,9 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
-moduleclass('UnsetEnvironmentVariablePosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
+local AbstractPath = require('halimede.io.paths.AbstractPath')
 
 
 function module:initialize(shellScript)
@@ -15,9 +16,8 @@ function module:initialize(shellScript)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-function module:execute(variableName)
-	assert.parameterTypeIsString(variableName)
+function module:execute(abstractPath)
+	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 	
-	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)
-	self:_appendCommandLineToScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))
+	self:_appendCommandLineToBuildScript('rm', '-rf', abstractPath.path)
 end

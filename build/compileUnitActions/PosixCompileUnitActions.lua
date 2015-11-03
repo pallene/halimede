@@ -9,9 +9,6 @@ local PosixCompileUnitActions = moduleclass('PosixCompileUnitActions', CompileUn
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
-local Paths = require('halimede.io.paths.Paths')
-local ShellLanguage = require('halimede.io.ShellLanguage')
 
 
 local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptStart = {
@@ -19,18 +16,7 @@ local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptSta
 	'BASH_ENV',
 	'ENV',
 	'MAIL',
-	'MAILPATH',
-	
-	'GCC_EXEC_PREFIX',
-	'COMPILER_PATH',
-	'LIBRARY_PATH',
-	'LANG', -- actually wants a value to match C source
-	'CPATH',
-	'C_INCLUDE_PATH',
-	'CPLUS_INCLUDE_PATH',
-	'OBJC_INCLUDE_PATH',
-	'DEPENDENCIES_OUTPUT',
-	'SUNPRO_DEPENDENCIES'
+	'MAILPATH'
 }
 
 function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
@@ -39,9 +25,6 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function PosixCompileUnitActions:_initialBuildScript()
-	
-	-- TODO: TMPDIR, COMPILER_PATH, LIBRARY_PATH, more ... http://linux.die.net/man/1/gcc
-	
 	-- Can't use a multiline string because the new line terminator is wrong if this file is edited by some Windows programs
 	-- NOTE: We don't try to support ancient non-POSIX shells that don't like export VAR=VALUE syntax
 	self:_appendLinesToBuildScript(
@@ -74,45 +57,4 @@ function PosixCompileUnitActions:_initialBuildScript()
 end
 
 function PosixCompileUnitActions:_finalBuildScript()
-end
-
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-function PosixCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
-	assert.parameterTypeIsString(variableName)
-	
-	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)
-	self:_appendCommandLineToBuildScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))
-end
-
-function PosixCompileUnitActions:actionExportEnvironmentVariable(variableName, variableValue)
-	assert.parameterTypeIsString(variableName)
-	assert.parameterTypeIsString(variableValue)
-
-	self:_appendCommandLineToBuildScript('export', variableName .. '=' .. variableValue)
-end
-
-function PosixCompileUnitActions:actionSetPath(paths)
-	assert.parameterTypeIsInstanceOf(paths, Paths)
-	
-	self:actionUnsetEnvironmentVariable('PATH')
-	self:actionExportEnvironmentVariable('export', 'PATH=' .. paths.paths)
-end
-
-function PosixCompileUnitActions:actionChangeDirectory(abstractPath)
-	assert.parameterTypeIsInstanceOf(sourcePath, AbstractPath)
-	
-	self:_appendCommandLineToBuildScript('cd', abstractPath.path)
-end
-
-function PosixCompileUnitActions:actionMakeDirectoryParent(abstractPath, mode)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
-	assert.parameterTypeIsString(mode)
-	
-	self:_appendCommandLineToBuildScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
-end
-
-function PosixCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
-	
-	self:_appendCommandLineToBuildScript('rm', '-rf', abstractPath.path)
 end
