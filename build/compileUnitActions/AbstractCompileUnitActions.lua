@@ -4,6 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local AbstractCompileUnitActions = moduleclass('AbstractCompileUnitActions')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local basename = halimede.basename
@@ -20,10 +22,6 @@ local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
 local Arguments = require('halimede.build.toolchain.Arguments')
 local Toolchain = require('halimede.build.toolchain.Toolchain')
 
-
-local AbstractCompileUnitActions = class('AbstractCompileUnitActions')
-module = AbstractCompileUnitActions
-XXX: DOesn;t work - need to change contents of module for circular refs to work properly
 
 function AbstractCompileUnitActions:initialize(buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
 	assert.parameterTypeIsInstanceOf(buildToolchain, Toolchain)
