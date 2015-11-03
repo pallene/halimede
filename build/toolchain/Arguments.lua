@@ -4,14 +4,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Arguments = moduleclass('Arguments')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local type = halimede.type
-local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 
-
-local Arguments = class('Arguments')
 
 function Arguments:initialize()
 	self.arguments = tabelize()
@@ -42,6 +41,3 @@ function Arguments:useUnpacked(userFunction)
 	
 	return userFunction(unpack(self.arguments))
 end
-
-
-return Arguments

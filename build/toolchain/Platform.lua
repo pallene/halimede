@@ -4,17 +4,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Platform = moduleclass('Platform')
+
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local GnuTuple = requireSibling('GnuTuple')
 local CompilerDriver = requireSibling('CompilerDriver')
 local addFileExtensionToFileNames = requireSibling('Toolchain').addFileExtensionToFileNames
 local tabelize = require('halimede.table.tabelize').tabelize
 local ShellLanguage = require('halimede.io.ShellLanguage')
 
-
-local Platform = class('Platform')
 
 function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString(name)
@@ -105,5 +104,3 @@ Platform:new(
 	CompilerDriver.gcc49_systemNativeHostX86_64,
 	CompilerDriver.gccxx49_systemNativeHostX86_64
 )
-
-return Platform

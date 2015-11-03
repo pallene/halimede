@@ -4,6 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local BufferedShellScript = moduleclass('BufferedShellScript')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
@@ -13,8 +15,6 @@ local ShellLanguage = require('halimede.io.ShellLanguage')
 local ShellScriptExecutor = require('halimede.io.shellScript.ShellScriptExecutor')
 local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
 
-
-local BufferedShellScript = class('BufferedShellScript')
 
 function BufferedShellScript:initialize(shellLanguage)
 	assert.parameterTypeIsInstanceOf(shellLanguage, ShellLanguage)
@@ -46,6 +46,3 @@ function BufferedShellScript:executeScriptExpectingSuccess(shellScriptExecutor, 
 		shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 	end)
 end
-
-
-return BufferedShellScript

@@ -728,3 +728,17 @@ require(ourModuleName .. '.init.trace')
 require(ourModuleName .. '.init.requireChild')
 require(ourModuleName .. '.init.requireSibling')
 require(ourModuleName .. '.init.augmentAssertWithMiddleclass')
+
+local class = require(ourModuleName .. '.middleclass')
+assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')
+function moduleclass(...)
+	local newClass = class(...)
+	
+	local moduleClass = module
+	for key, value in pairs(newClass) do
+		moduleClass[key] = newClass[key]
+	end
+	setmetatable(moduleClass, getmetatable(newClass))
+	
+	return moduleClass
+end

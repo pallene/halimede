@@ -4,6 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local AbstractPath = moduleclass('AbstractPath')
+
 local class = require('halimede.middleclass')
 local Object = class.Object
 local tabelize = require('halimede.table.tabelize').tabelize
@@ -11,8 +13,6 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local syscall = require('syscall')
 
-
-local AbstractPath = class('AbstractPath')
 
 AbstractPath.static.folderSeparator = halimede.packageConfiguration.folderSeparator
 
@@ -341,5 +341,3 @@ function AbstractPath:mkdirParents(mode, initialPathPrefix)
 		end
 	end
 end
-
-return AbstractPath

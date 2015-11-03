@@ -4,18 +4,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local CompileUnitActions = requireSibling('CompileUnitActions')
+local WindowsCompileUnitActions = moduleclass('WindowsCompileUnitActions', CompileUnitActions)
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
 local Object = class.Object
-local CompileUnitActions = requireSibling('CompileUnitActions')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 local RelativePath = require('halimede.io.paths.RelativePath')
 local ShellLanguage = require('halimede.io.ShellLanguage')
 
-
-local WindowsCompileUnitActions = class('WindowsCompileUnitActions', CompileUnitActions)
 
 function WindowsCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
 	AbstractCompileUnitActions.initialise(self, ShellLanguage.Windows, sourcePath, sysrootPath, toolchain)
@@ -82,5 +82,3 @@ function WindowsCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath
 	
 	self:_appendCommandLineToBuildScript('RD', '/S', '/Q', abstractPath.path)
 end
-
-return WindowsCompileUnitActions

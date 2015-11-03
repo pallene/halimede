@@ -4,17 +4,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local CompilerMetadata = moduleclass('CompilerMetadata')
+
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local CompilerName = requireSibling('CompilerName')
 local gcc = CompilerName.gcc
 local gxx = CompilerName['g++']
 local clang = CompilerName.clang
 local clangxx = CompilerName['clang++']
 
-
-local CompilerMetadata = class('CompilerMetadata')
 
 function CompilerMetadata:initialize(unifiedName, name, version, supportsC, supportsCPlusPlus)
 	assert.parameterTypeIsInstanceOf(name, CompilerName)
@@ -34,5 +33,3 @@ CompilerMetadata:new(gcc, '4.9', true, false)
 CompilerMetadata:new(gxx, '4.9', false, true)
 CompilerMetadata:new(clang, '3.4', true, false)
 CompilerMetadata:new(clangxx, '3.4', false, true)
-
-return CompilerMetadata

@@ -44,5 +44,4 @@ CStandard.static['gnu1x'] = CStandard.static.gnu11
 CStandard.static['c++0x'] = CStandard.static['c++11']
 CStandard.static['gnu++0x'] = CStandard.static['gnu++11']
 
-
 return CStandard

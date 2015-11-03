@@ -4,18 +4,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local CompilerDriver = moduleclass('CompilerDriver')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
-local class = require('halimede.middleclass')
 local CompilerMetadata = requireSibling('CompilerMetadata')
 local CStandard = requireSibling('CStandard')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 local Arguments = requireSibling('Arguments')
 
 
-local CompilerDriver = class('CompilerDriver')
 
 function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
 	assert.parameterTypeIsInstanceOf(CompilerMetadata, compilerMetadata)
@@ -225,5 +225,3 @@ CompilerDriver.static.gcc49_systemNativeHostX86_64 = CompilerDriver:new(Compiler
 CompilerDriver.static.gccxx49_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['g++ 4.9'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
 CompilerDriver.static.clang34_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['clang 3.4'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
 CompilerDriver.static.clangxx34_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['clang++ 3.4'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-
-return CompilerDriver

@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local class = require('halimede.middleclass')
 local AbstractPath = requireSibling('AbstractPath')
+local RelativePath = moduleclass('RelativePath', AbstractPath)
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
 
-local RelativePath = class('RelativePath', AbstractPath)
 
 function RelativePath:initialize(...)
 	AbstractPath.initialize(self, true, '', ...)
@@ -26,5 +26,3 @@ function RelativePath:_appendSubFolders(childFoldersTable)
 
 	return RelativePath:new(unpack(folders))
 end
-
-return RelativePath

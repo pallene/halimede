@@ -4,16 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Defines = requireSibling('Defines')
+local CommandLineDefines = moduleclass('CommandLineDefines', Defines)
+
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
-local Defines = requireSibling('Defines')
 local CompilerDriverArguments = require('halimede.build.toolchain.CompilerDriverArguments')
 
-
-local CommandLineDefines = class('CommandLineDefines', Defines)
-module = CommandLineDefines
 
 function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros, ...)
 	assert.parameterTypeIsBoolean(doNotPredefineSystemOrCompilerDriverMacros)

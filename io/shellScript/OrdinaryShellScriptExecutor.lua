@@ -4,6 +4,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local ShellScriptExecutor = requireSibling('ShellScriptExecutor')
+local OrdinaryShellScriptExecutor = moduleclass('OrdinaryShellScriptExecutor', ShellScriptExecutor)
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
@@ -11,10 +14,6 @@ local deepCopy = require('halimede.table.deepCopy').deepCopy
 local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
 local noRedirection = execute.noRedirection
-local ShellScriptExecutor = requireSibling('ShellScriptExecutor')
-
-
-local OrdinaryShellScriptExecutor = class('OrdinaryShellScriptExecutor', ShellScriptExecutor)
 
 function OrdinaryShellScriptExecutor:initialize(...)
 	ShellScriptExecutor:initialize(self, ...)
@@ -28,5 +27,3 @@ end
 
 OrdinaryShellScriptExecutor.static.POSIX = OrdinaryShellScriptExecutor:new('sh')
 OrdinaryShellScriptExecutor.static.Windows = OrdinaryShellScriptExecutor:new('cmd', '/c', '/e:on', '/u')
-
-return ShellScriptExecutor

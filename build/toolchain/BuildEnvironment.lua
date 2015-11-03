@@ -4,14 +4,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local BuildEnvironment = moduleclass('BuildEnvironment')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
-local class = require('halimede.middleclass')
 local Toolchain = requireSibling('Toolchain')
 
-
-local BuildEnvironment = class('BuildEnvironment')
 
 function BuildEnvironment(buildToolchain, crossToolchain)
 	self.buildToolchain = crossToolchain
@@ -62,5 +61,3 @@ end
 function BuildEnvironment:toCPlusPlusFiles(...)
 	return BuildEnvironment.addFileExtensionToFileNames('.cxx', ...)
 end
-
-return BuildEnvironment

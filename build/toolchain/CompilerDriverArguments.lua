@@ -4,6 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local CompilerDriverArguments = moduleclass('CompilerDriverArguments')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local type = halimede.type
@@ -11,9 +13,6 @@ local class = require('halimede.middleclass')
 local CompilerDriver = requireSibling('CompilerDriver')
 local Arguments = requireSibling('Arguments')
 
-
-local CompilerDriverArguments = class('CompilerDriverArguments')
-module = CompilerDriverArguments
 
 function CompilerDriverArguments:initialize(compilerDriver, compilerDriverFlags, sysrootPath)
 	assert.parameterTypeIsInstanceOf(compilerDriver, CompilerDriver)

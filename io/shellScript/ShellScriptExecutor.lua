@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local ShellScriptExecutor = moduleclass('ShellScriptExecutor')
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
 
-
-local ShellScriptExecutor = class('ShellScriptExecutor')
 
 function ShellScriptExecutor:initialize(...)
 	self.shellScriptExecutionCommand = tabelize({...})
@@ -29,6 +29,3 @@ end
 function ShellScriptExecutor:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	exception.throw('Abstract Method')
 end
-
-
-return ShellScriptExecutor

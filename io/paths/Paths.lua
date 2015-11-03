@@ -4,16 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local class = require('halimede.middleclass')
-local Object = class.Object
+local Paths = moduleclass('Paths')
+
 local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractPath = requireSibling('AbstractPath')
 local shellLanguage = require('halimede.io.ShellLanguage').Default
 
-
-local Paths = class('Paths')
 
 Paths.static.pathSeparator = shellLanguage.pathSeparator
 
@@ -27,5 +25,3 @@ function Paths:initialize(...)
 	self.pathInstances = pathInstances
 	self.paths = pathInstances:concat(Paths.pathSeparator)
 end
-
-return Paths

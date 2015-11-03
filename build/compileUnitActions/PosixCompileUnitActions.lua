@@ -4,16 +4,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local CompileUnitActions = requireSibling('CompileUnitActions')
+local PosixCompileUnitActions = moduleclass('PosixCompileUnitActions', CompileUnitActions)
+
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
-local CompileUnitActions = requireSibling('CompileUnitActions')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 local Paths = require('halimede.io.paths.Paths')
 local ShellLanguage = require('halimede.io.ShellLanguage')
 
-
-local PosixCompileUnitActions = class('PosixCompileUnitActions', CompileUnitActions)
 
 local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptStart = {
 	'CDPATH',
@@ -63,12 +62,11 @@ function PosixCompileUnitActions:_initialBuildScript()
 		'if [ -n "${ZSH_VERSION+set}" ]; then',  -- For zsh
 		'    emulate sh',
 		'    NULLCMD=:',
-		'    # Pre-4.2 versions of Zsh (superceded as of 2004-03-19) do word splitting on ${1+"$[@]"}, which is not wanted',
+		'    # Pre-4.2 versions of Zsh (superseded as of 2004-03-19) do word splitting on ${1+"$[@]"}, which is not wanted',
 		[[    alias -g '${1+"$[@]"}'='"$[@]"']],
 		'    setopt NO_GLOB_SUBST',
 		'fi',
 		'(set -o posix) 1>/dev/null 2>/dev/null && set -o posix'  -- For bash
-		'export PATH_SEPARATOR="' .. Paths.pathSeparator .. '"'
 	)
 	for _, environmentVariableToUnsetAtBuildScriptStart in ipairs(environmentVariablesToUnsetAtBuildScriptStart) do
 		self:actionUnsetEnvironmentVariable(environmentVariableToUnsetAtBuildScriptStart)
@@ -118,5 +116,3 @@ function PosixCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath)
 	
 	self:_appendCommandLineToBuildScript('rm', '-rf', abstractPath.path)
 end
-
-return PosixCompileUnitActions

@@ -4,13 +4,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Defines = moduleclass('Defines')
+
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 
-
-local Defines = class('Defines')
 
 function Defines:initialize()
 	self.defines = {}
@@ -81,5 +80,3 @@ function Defines:_enumeration(defineName, constant)
 		self.defines[defineName] = constant.value
 	end
 end
-
-return Defines

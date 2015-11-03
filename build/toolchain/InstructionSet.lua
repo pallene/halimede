@@ -9,7 +9,7 @@ local stringEnumerationClass = require('halimede.enumeration').stringEnumeration
 
 -- Similar to Debian architecture but differs, as Debian architecture also includes syscall ABI (effectively, kernel type)
 -- Derived from this table https://wiki.debian.org/Multiarch/Tuples
-local InstructionSet = stringEnumerationClass('InstructionSet',
+return stringEnumerationClass('InstructionSet',
 	'ARC',
 	'Alpha', -- Dead
 	'ARM',
@@ -29,5 +29,3 @@ local InstructionSet = stringEnumerationClass('InstructionSet',
 	'SPARC64'
 	'x86_64', -- x86_64 (amd64) and x86_64 32-bit
 )
-
-return InstructionSet

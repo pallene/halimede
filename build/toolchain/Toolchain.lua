@@ -4,16 +4,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Toolchain = moduleclass('Toolchain')
+
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local Platform = requireSibling('Platform')
 local CompilerDriver = requireSibling('CompilerDriver')
 local GnuTuple = requireSibling('GnuTuple')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 
-
-local Toolchain = class('Toolchain')
 
 function Toolchain:initialize(platform, sysrootPath)
 	assert.parameterTypeIsInstanceOf(platform, Platform)
@@ -25,5 +24,3 @@ end
 
 --Toolchain:new(Platform['Mac OS X Mavericks GCC / G++ 4.9 Homebrew'], AbsolutePath:new())
 --Toolchain:new(Platform['Mac OS X Yosemite GCC / G++ 4.9 Homebrew'], AbsolutePath:new())
-
-return Toolchain

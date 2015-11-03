@@ -4,16 +4,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local ShellScriptExecutor = requireSibling('ShellScriptExecutor')
+local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScriptExecutor', ShellScriptExecutor)
+
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
-local ShellScriptExecutor = requireSibling('ShellScriptExecutor')
 
-
-local MacOsXHomebrewShellScriptExecutor = class('MacOsXHomebrewShellScriptExecutor', ShellScriptExecutor)
 
 function MacOsXHomebrewShellScriptExecutor:initialize()
 	ShellScriptExecutor:initialize(self, 'brew', 'sh')
@@ -24,7 +24,4 @@ function ShellScriptExecutor:_executeScriptExpectingSuccess(scriptFilePath, stan
 	executeExpectingSuccess(scriptFilePath, standardOut, standardError, unpack(arguments))
 end
 
-
 --local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
-
-return MacOsXHomebrewShellScriptExecutor:new()

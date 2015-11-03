@@ -9,7 +9,7 @@ local stringEnumerationClass = require('halimede.enumeration').stringEnumeration
 
 -- Some of these names will need translation to work on older GNU versions, eg c99 => c9x
 -- Accurate for gcc-4.9
-local LegacyCandCPlusPlusStringLiteralEncoding = stringEnumerationClass('LegacyCandCPlusPlusStringLiteralEncoding', 
+return stringEnumerationClass('LegacyCandCPlusPlusStringLiteralEncoding', 
 	'C',
 	'C-JIIS',
 	'C-SJIS',
