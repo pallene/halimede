@@ -5,30 +5,24 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
-moduleclass('MakeDirectoryRecursivelyPosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
 local AbstractPath = require('halimede.io.paths.AbstractPath')
-local class = require('halimede.middleclass')
-local Object = class.Object
 
 
 function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
-function module:execute(abstractPath, mode)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
-	assert.parameterTypeIsString(mode)
-
-	local path
-	if Object.isInstanceOf(abstractPath, AbsolutePath) then
-		path = abstractPath.path
-	else
-		path = '\\' .. abstractPath.path
-	end
+-- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
+function module:execute(abstractLinkContentsFilePath, abstractLinkFilePath, isDirectory)
+	assert.parameterTypeIsInstanceOf(abstractLinkContentsFilePath, AbstractPath)
+	assert.parameterTypeIsInstanceOf(abstractLinkFilePath, AbstractPath)
 	
-	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
-	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	self:_appendCommandLineToBuildScript('MD', path)
+	if isDirectory then
+		self:_appendCommandLineToBuildScript('MKLINK', '/D', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
+	else
+		self:_appendCommandLineToBuildScript('MKLINK', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
+	end
 end
