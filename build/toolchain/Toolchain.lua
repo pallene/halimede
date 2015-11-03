@@ -10,62 +10,20 @@ local class = require('halimede.middleclass')
 local Platform = requireSibling('Platform')
 local CompilerDriver = requireSibling('CompilerDriver')
 local GnuTuple = requireSibling('GnuTuple')
-local tabelize = require('halimede.table.tabelize').tabelize
+local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 
 
 local Toolchain = class('Toolchain')
 
--- Maybe replace compilerDriver with a 'platform'
--- http://wiki.osdev.org/Target_Triplet
--- We use build for the build platform, and host platform for the platform compiled code will run on (host == target)
-function Toochain:initialize(name, crossPlatform, buildPlatform)
-	assert.parameterTypeIsString(name)
-	assert.parameterTypeIsInstanceOf(crossPlatform, Platform)
+function Toolchain:initialize(platform, sysrootPath)
+	assert.parameterTypeIsInstanceOf(platform, Platform)
+	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
 	
-	self.name = name
-	self.crossPlatform = crossPlatform
-	
-	if buildPlatform == nil then
-		self.buildPlatform = crossPlatform
-		self.isCrossCompiling = false
-	else
-		assert.parameterTypeIsInstanceOf(buildPlatform, Platform)
-		self.buildPlatform = buildPlatform
-		self.isCrossCompiling = true
-	end
-	
-	Toolchain.static[name] = self
+	self.platform = platform
+	self.sysrootPath = sysrootPath
 end
 
-Toolchain.static.addFileExtensionToFileNames = function(extensionWithLeadingPeriod, ...)
-	local asTable
-	if select('#', ...) == 1 then
-		if type(...) == 'table' then
-			asTable = select(1, ...)
-		else
-			asTable = {...}
-		end
-	else
-		asTable = {...}
-	end
-	
-	local result = tabelize()
-	for _, basefilename in ipairs(asTable) do
-		result:insert(basefilename .. extensionWithLeadingPeriod)
-	end
-	return result
-end
-
-function Toolchain:toCFiles(...)
-	return Toolchain.addFileExtensionToFileNames('.c', ...)
-end
-
--- TODO: not necessarily .cxx; several variants, sadly
-function Toolchain:toCPlusPlusFiles(...)
-	return Toolchain.addFileExtensionToFileNames('.cxx', ...)
-end
-
-Toolchain:new('Mac OS X Mavericks GCC / G++ 4.9 Homebrew', Platform['Mac OS X Mavericks GCC / G++ 4.9 Homebrew'])
-Toolchain:new('Mac OS X Mavericks GCC / G++ 4.9 Homebrew', Platform['Mac OS X Yosemite GCC / G++ 4.9 Homebrew'])
+--Toolchain:new(Platform['Mac OS X Mavericks GCC / G++ 4.9 Homebrew'], AbsolutePath:new())
+--Toolchain:new(Platform['Mac OS X Yosemite GCC / G++ 4.9 Homebrew'], AbsolutePath:new())
 
 return Toolchain

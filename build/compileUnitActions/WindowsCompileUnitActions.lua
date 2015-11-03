@@ -24,7 +24,7 @@ end
 function WindowsCompileUnitActions:_initialBuildScript()
 	
 	-- Can't use a multiline string because the new line terminator is then wrong
-	self:appendLinesToBuildScript(
+	self:_appendLinesToBuildScript(
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions'
 	)
@@ -32,37 +32,37 @@ end
 
 assert.globalTypeIsFunction('unpack')
 function WindowsCompileUnitActions:_finalBuildScript()
-	self:appendLinesToBuildScript('ENDLOCAL')
+	self:_appendLinesToBuildScript('ENDLOCAL')
 end
 
 function WindowsCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
 	assert.parameterTypeIsString(variableName)
 	
-	self:appendCommandLineToBuildScript('UNSET', '/Q', variableName)
+	self:_appendCommandLineToBuildScript('UNSET', '/Q', variableName)
 end
 
 function PosixCompileUnitActions:actionExportEnvironmentVariable(variableName, variableValue)
 	assert.parameterTypeIsString(variableName)
 	assert.parameterTypeIsString(variableValue)
 	
-	self:appendCommandLineToBuildScript('SET', variableName .. '=' .. variableValue)
+	self:_appendCommandLineToBuildScript('SET', variableName .. '=' .. variableValue)
 end
 
 -- http://ss64.com/nt/path.html
 function WindowsCompileUnitActions:actionSetPath(paths)
 	assert.parameterTypeIsInstanceOf(paths, Paths)
 	
-	self:appendCommandLineToBuildScript('PATH', ';')
-	self:appendCommandLineToBuildScript('PATH', paths.paths)
+	self:_appendCommandLineToBuildScript('PATH', ';')
+	self:_appendCommandLineToBuildScript('PATH', paths.paths)
 end
 
 function WindowsCompileUnitActions:actionChangeDirectory(abstractPath)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 
 	if Object.isInstanceOf(abstractPath, AbsolutePath) then
-		self:appendCommandLineToBuildScript('CD', '/D', abstractPath.path)
+		self:_appendCommandLineToBuildScript('CD', '/D', abstractPath.path)
 	else
-		self:appendCommandLineToBuildScript('CD', abstractPath.path)
+		self:_appendCommandLineToBuildScript('CD', abstractPath.path)
 	end
 end
 
@@ -72,7 +72,7 @@ function WindowsCompileUnitActions:actionMakeDirectoryParent(abstractPath, mode)
 	assert.parameterTypeIsString(mode)
 	
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	self:appendCommandLineToBuildScript('MD', abstractPath.path)
+	self:_appendCommandLineToBuildScript('MD', abstractPath.path)
 end
 
 -- Lua has os.remove(), which is semantically the same as rmdir, but since we can't iterate the directory contents, how can we delete?
@@ -80,7 +80,7 @@ end
 function WindowsCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 	
-	self:appendCommandLineToBuildScript('RD', '/S', '/Q', abstractPath.path)
+	self:_appendCommandLineToBuildScript('RD', '/S', '/Q', abstractPath.path)
 end
 
 return WindowsCompileUnitActions

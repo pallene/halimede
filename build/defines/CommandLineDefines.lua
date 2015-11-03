@@ -9,9 +9,11 @@ local assert = halimede.assert
 local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local Defines = requireSibling('Defines')
+local CompilerDriverArguments = require('halimede.build.toolchain.CompilerDriverArguments')
 
 
 local CommandLineDefines = class('CommandLineDefines', Defines)
+module = CommandLineDefines
 
 function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros, ...)
 	assert.parameterTypeIsBoolean(doNotPredefineSystemOrCompilerDriverMacros)
@@ -21,20 +23,20 @@ function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacro
 	self.doNotPredefineSystemOrCompilerDriverMacros = doNotPredefineSystemOrCompilerDriverMacros
 end
 
-assert.globalTypeIsFunction('pairs', 'ipairs')
-function CommandLineDefines:appendToCommandLineArguments(compilerDriver, arguments)
-	assert.parameterTypeIsTable(arguments)
+assert.globalTypeIsFunction('pairs')
+function CommandLineDefines:appendToCompilerDriverArguments(compilerDriverArguments)
+	assert.parameterTypeIsInstfnceOd(compilerDriverArguments, CompilerDriverArguments)
 	
 	if self.doNotPredefineSystemOrCompilerDriverMacros then
-		compilerDriver:doNotPredefineSystemOrCompilerDriverMacros(arguments)
+		compilerDriverArguments:doNotPredefineSystemOrCompilerDriverMacros()
 	end
 	
-	for defineName, _ in ipairs(self.explicitlyUndefine) do
-		compilerDriver:undefinePreprocessorMacro(arguments, defineName)
+	for defineName, _ in pairs(self.explicitlyUndefine) do
+		compilerDriverArguments:undefinePreprocessorMacro(defineName)
 	end
 	
 	for defineName, defineValue in pairs(self.defines) do
-		compilerDriver:definePreprocessorMacro(arguments, defineName, defineValue)
+		compilerDriverArguments:definePreprocessorMacro(defineName, defineValue)
 	end
 	
 	return arguments

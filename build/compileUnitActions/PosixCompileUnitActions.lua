@@ -35,7 +35,7 @@ local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptSta
 }
 
 function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
-	AbstractCompileUnitActions.initialise(self, ShellLanguage.POSIX, sourcePath, sysrootPath, toolchain)
+	AbstractCompileUnitActions.initialise(self, sourcePath, sysrootPath, toolchain)
 end
 
 assert.globalTypeIsFunction('ipairs')
@@ -45,7 +45,7 @@ function PosixCompileUnitActions:_initialBuildScript()
 	
 	-- Can't use a multiline string because the new line terminator is wrong if this file is edited by some Windows programs
 	-- NOTE: We don't try to support ancient non-POSIX shells that don't like export VAR=VALUE syntax
-	self:appendLinesToBuildScript(
+	self:_appendLinesToBuildScript(
 		'#!/usr/bin/env sh',
 		'set -e',
 		'set -u',
@@ -83,14 +83,14 @@ function PosixCompileUnitActions:actionUnsetEnvironmentVariable(variableName)
 	assert.parameterTypeIsString(variableName)
 	
 	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)
-	self:appendCommandLineToBuildScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))
+	self:_appendCommandLineToBuildScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))
 end
 
 function PosixCompileUnitActions:actionExportEnvironmentVariable(variableName, variableValue)
 	assert.parameterTypeIsString(variableName)
 	assert.parameterTypeIsString(variableValue)
 
-	self:appendCommandLineToBuildScript('export', variableName .. '=' .. variableValue)
+	self:_appendCommandLineToBuildScript('export', variableName .. '=' .. variableValue)
 end
 
 function PosixCompileUnitActions:actionSetPath(paths)
@@ -103,20 +103,20 @@ end
 function PosixCompileUnitActions:actionChangeDirectory(abstractPath)
 	assert.parameterTypeIsInstanceOf(sourcePath, AbstractPath)
 	
-	self:appendCommandLineToBuildScript('cd', abstractPath.path)
+	self:_appendCommandLineToBuildScript('cd', abstractPath.path)
 end
 
 function PosixCompileUnitActions:actionMakeDirectoryParent(abstractPath, mode)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 	assert.parameterTypeIsString(mode)
 	
-	self:appendCommandLineToBuildScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
+	self:_appendCommandLineToBuildScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
 end
 
 function PosixCompileUnitActions:actionRemoveRecursivelyWithForce(abstractPath)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 	
-	self:appendCommandLineToBuildScript('rm', '-rf', abstractPath.path)
+	self:_appendCommandLineToBuildScript('rm', '-rf', abstractPath.path)
 end
 
 return PosixCompileUnitActions

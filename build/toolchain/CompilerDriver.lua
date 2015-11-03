@@ -6,9 +6,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local tabelize = require('halimede.table.tabelize').tabelize
+local exception = require('halimede.exception')
 local class = require('halimede.middleclass')
 local CompilerMetadata = requireSibling('CompilerMetadata')
 local CStandard = requireSibling('CStandard')
+local AbsolutePath = require('halimede.io.paths.AbsolutePath')
+local Arguments = requireSibling('Arguments')
 
 
 local CompilerDriver = class('CompilerDriver')
@@ -36,78 +40,85 @@ function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPr
 	-- Override for, say, 'cc' or 'gcc-4.8' or 'x86-pc-linux-musl-gcc-4.8'
 	self.commandLineName = self.compilerMetadata.name
 	
+	self.systemIncludePaths = {}
+	self.linkerFlags = {}
+	self.linkedLibraries = {}
+	
+	self.sysrootPathOption = '--sysroot='
 	self.standardOption = '-std='
 	self.undefOption = '-undef'
 	self.undefineOption = '-U'
 	self.defineOption = '-D'
 	self.systemIncludePathOption = '-isystem'
 	self.includePathOption = '-I'
+	self.linkedLibraryOption = '-l'
 end
 
-function CompilerDriver:mergeFlags(...)
-	
-	local result = {}
+assert.globalTypeIsFunction('type', 'ipairs')
+local function mergeFlags(...)
+	local result = tabelize()
 	for _, flagSet in ipairs({...}) do
 		if type(flagSet) == 'string' then
-			table:insert(result, flagSet)
+			result:insert(flagSet)
 		elseif type(flagSet) == 'table' then
 			for _, flag in ipairs(flagSet) then
 				if type(flag) ~= 'string' then
-					error('Argument to mergeFlags can either be string or table of strings (array)')
+					exception.throw('Argument to mergeFlags can either be string or table of strings (array)')
 				end
-				table:insert(flag)
+				result:insert(flag)
 			end
 		else
-			error('Argument to mergeFlags can either be string or table of strings (array)')
+			exception.throw('Argument to mergeFlags can either be string or table of strings (array)')
 		end
 	end
 	
-	return result
-	
+	return result	
 end
 
-assert.globalTypeIsFunction('ipairs')
-local function addFlags(arguments, flags)
-	for _, flag in flags do
-		assert.parameterTypeIsString(flag)
-		arguments:insert(flag)
-	end
+function CompilerDriver:newArguments(compilerDriverFlags, sysrootPath)
+	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath)
 end
 
--- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
 function CompilerDriver:useFileExtensionsToDetermineLanguageFlags(arguments)
-	assert.parameterTypeIsTable(arguments)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+
+	arguments:append(self.useFileExtensionsToDetermineLanguageFlags)
+end
+
+function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
 	
-	addFlags(arguments, self.useFileExtensionsToDetermineLanguageFlags)
+	arguments:append(self.sysrootPathOption .. sysrootPath.path)
 end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
 function CompilerDriver:addCStandard(arguments, cStandard)
-	assert.parameterTypeIsTable(arguments)
-	assert.parameterTypeIsInstanceOf(CStandard, cStandard)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+	assert.parameterTypeIsInstanceOf(cStandard, CStandard)
 	
-	arguments:insert(self.standardOption .. cStandard.value)
+	arguments:append(self.standardOption .. cStandard.value)
 end
 
 function CompilerDriver:doNotPredefineSystemOrCompilerDriverMacros(arguments)
-	assert.parameterTypeIsTable(arguments)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
 
-	arguments:insert(self.undefOption)
+	arguments:append(self.undefOption)
 end
 
 function CompilerDriver:undefinePreprocessorMacro(arguments, defineName)
-	assert.parameterTypeIsTable(arguments)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
 	assert.parameterTypeIsString(defineName)
 
-	arguments:insert(self.undefineOption .. defineName)
+	arguments:append(self.undefineOption .. defineName)
 end
 
 function CompilerDriver:definePreprocessorMacro(arguments, defineName, defineValue)
-	assert.parameterTypeIsTable(arguments)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
 	assert.parameterTypeIsString(defineName)
 	assert.parameterTypeIsString(defineValue)
 
-	arguments:insert(self.defineOption .. defineName .. '=' .. defineValue)
+	arguments:append(self.defineOption .. defineName .. '=' .. defineValue)
 end
 
 local function populateIncludePaths(includePaths, includePath)
@@ -118,24 +129,24 @@ end
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
 function CompilerDriver:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
-	assert.parameterTypeIsTable(arguments)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
 	assert.parameterTypeIsTable(dependenciesSystemIncludePaths)
 	assert.parameterTypeIsTable(buildVariantSystemIncludePaths)
 	
 	local systemIncludePaths = {}
-	for _, systemIncludePath in ipairs(self:mergeFlags(compilerDriver.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
+	for _, systemIncludePath in ipairs(mergeFlags(self.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
 		populateIncludePaths(systemIncludePaths, systemIncludePath)
 	end
 	
 	for systemIncludePath, _ in pairs(systemIncludePaths) do
-		arguments:insert(self.systemIncludePathOption .. systemIncludePath)
+		arguments:append(self.systemIncludePathOption .. systemIncludePath)
 	end	
 end
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
 local dirname = halimede.dirname
 function CompilerDriver:addIncludePaths(arguments, sources)
-	assert.parameterTypeIsTable(arguments)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
 	assert.parameterTypeIsTable(sources)
 	
 	local includePaths = {}
@@ -143,8 +154,32 @@ function CompilerDriver:addIncludePaths(arguments, sources)
 		populateIncludePaths(includePaths, dirname(sourceFileRelativePath))
 	end
 	for includePath, _ in pairs(includePaths) do
-		arguments:insert(self.includePathOption .. includePath)
+		arguments:append(self.includePathOption .. includePath)
 	end	
+end
+
+assert.globalTypeIsFunction('ipairs')
+function CompilerDriver:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+	assert.parameterTypeIsTable(dependenciesLinkerFlags)
+	assert.parameterTypeIsTable(buildVariantLinkerFlags)
+	assert.parameterTypeIsTable(otherLinkerFlags)
+	
+	for _, linkerFlag in ipairs(mergeFlags(self.linkerFlags, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)) do
+		arguments:append(linkerFlag)
+	end
+end
+
+assert.globalTypeIsFunction('ipairs')
+function CompilerDriverArguments:addLinkedLibraries(arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
+	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+	assert.parameterTypeIsTable(dependenciesLinkedLibraries)
+	assert.parameterTypeIsTable(buildVariantLinkedLibraries)
+	assert.parameterTypeIsTable(otherLinkedLibraries)
+	
+	for _, linkedLibrary in ipairs(mergeFlags(self.linkedLibraries, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)) do
+		arguments:append(self.linkedLibraryOption .. linkedLibrary)
+	end
 end
 
 assert.globalTypeIsFunction('ipairs')

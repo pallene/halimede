@@ -9,95 +9,85 @@ local assert = halimede.assert
 local basename = halimede.basename
 local class = require('halimede.middleclass')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
-local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
-local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
-local CStandard = require('halimede.build.defines.CStandard')
-local LegacyCandCPlusPlusStringLiteralEncoding = require('LegacyCandCPlusPlusStringLiteralEncoding')
+local writeToFileAllContentsInTextMode = require('halimede.io.write').writeToFileAllContentsInTextMode
+local execute = require('halimede.io.execute')
+local noRedirection = execute.noRedirection
+local CStandard = require('halimede.build.toolchain.CStandard')
+local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
+local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
+local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
 local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
+local Arguments = require('halimede.build.toolchain.Arguments')
+local Toolchain = require('halimede.build.toolchain.Toolchain')
 
 
 local AbstractCompileUnitActions = class('AbstractCompileUnitActions')
+module = AbstractCompileUnitActions
+XXX: DOesn;t work - need to change contents of module for circular refs to work properly
 
-function AbstractCompileUnitActions:initialize(shellLanguage, sourcePath, sysrootPath, toolchain, dependencies, buildVariant)
-	assert.parameterTypeIsTable(shellLanguage)
-	assert.parameterTypeIsInstanceOf(sourcePath, AbsolutePath)
-	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
-	assert.parameterTypeIsTable(toolchain)
+function AbstractCompileUnitActions:initialize(buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
+	assert.parameterTypeIsInstanceOf(buildToolchain, Toolchain)
+	assert.parameterTypeIsInstanceOf(crossToolchain, Toolchain)
 	assert.parameterTypeIsTable(dependencies)
 	assert.parameterTypeIsTable(buildVariant)
+	assert.parameterTypeIsInstanceOf(sourcePath, AbsolutePath)
 	
-	self.shellLanguage = shellLanguage
-	self.sourcePath = sourcePath
-	self.sysrootPath = sysrootPath
-	self.toolchain = toolchain
 	self.dependencies = dependencies
 	self.buildVariant = buildVariant
+	self.sourcePath = sourcePath
 	
-	self.script = tabelize({})
+	self.shellLanguage = ??? -- of the build platform
+	self.shellScriptExecutor = ???  -- of the build platform
+	
+	self.shellScript = BufferedShellScript:new(shellLanguage)
 	self._initialBuildScript()
 	self.actionChangeDirectory(sourcePath)
 end
 
-function AbstractCompileUnitActions:_addToScript(text)
-	self.script:insert(text)
+
+
+
+function AbstractCompileUnitActions:_appendLinesToBuildScript(...)
+	self.shellScript:appendLinesToScript(...)
 end
 
-assert.globalTypeIsFunction('ipairs')
-function AbstractCompileUnitActions:appendLinesToBuildScript(...)
-	local lines = {...}
-	for _, line in ipairs(lines) do
-		self:_addToScript(line)
-		self:_addToScript(self.shellLanguage.newline)
+function AbstractCompileUnitActions:_appendCommandLineToBuildScript(...)
+	self.shellScript:appendCommandLineToScript(...)
+end
+
+
+
+
+function AbstractCompileUnitActions:_chooseToolchain(crossCompile)
+	if crossCompile then
+		return self.crossToolchain
+	else
+		return self.buildToolchain
 	end
 end
 
-function AbstractCompileUnitActions:appendCommandLineToBuildScript(...)
-	self:_addToScript(self.shellLanguage.toShellCommandLine(...))
+function AbstractCompileUnitActions:_newCompilerDriverArguments(toolchain, compilerDriverFlags)
+	return toolchain.platform.cCompilerDeriver:newArguments(compilerDriverFlags, toolchain.sysrootPath)
 end
 
+
+
+
+
+
+
+-- TODO: More complex builds might need to control the path and file name of config.h
+-- TODO: Choose one way of doing it!
 function AbstractCompileUnitActions:actionWriteConfigH()
 	-- Do we write this ourselves, now, or do we embed it in the script? The latter has some advantages
-	self:appendCommandLineToBuildScript('printf', '%s', configH, self.shellLanguage.redirectOutput('config.h'))
+	self:_appendCommandLineToBuildScript('printf', '%s', configH, self.shellLanguage.redirectOutput('config.h'))
 end
-
-assert.globalTypeIsFunction('ipairs')
-local function addFlags(arguments, flags)
-	for _, flag in flags do
-		assert.parameterTypeIsString(flag)
-		arguments:insert(flag)
-	end
-end
-
-function AbstractCompileUnitActions:_chooseCCompilerDriver(crossCompile)
-	if crossCompile then
-		return self.toolchain.crossPlatform.cCompilerDriver
-	else
-		-- Actually, this may end up being a bootstrap, etc
-		return self.toolchain.buildPlatform.cCompilerDriver
-	end
-end
-
-function AbstractCompileUnitActions:_prepareCompilerDriver(compilerDriver, compilerDriverFlags)
+function AbstractCompileUnitActions:actionWriteConfigHDefines(configHDefines)
+	assert.parameterTypeIsInstanceOf(configHDefines, ConfigHDefines)
 	
-	-- The toolchain controls PATH, target, the need to unset GCC_EXEC_PREFIX, etc
-	local arguments = tabelize({})
-	
-	-- eg 'gcc -march=native'
-	addFlags(arguments, compilerDriver.commandLineName)
-	addFlags(arguments, compilerDriver.commandLineFlags)
-	arguments:insert('--sysroot=' .. self.sysrootPath.path)
-	
-	return arguments
-end
-
-local writeToFileAllContentsInTextMode = require('halimede.io.write').writeToFileAllContentsInTextMode
-
--- TODO: More complex builds might need to control the path and file name
-function AbstractCompileUnitActions:writeConfigH(configH)
 	writeToFileAllContentsInTextMode(concatenateToPath(self.sourcePath, 'config.h'), 'config.h', configH:toCPreprocessorText())
 end
 
-assert.globalTypeIsFunction('unpack')
 function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
 	assert.parameterTypeIsBoolean(crossCompile)
 	assert.parameterTypeIsTable(compilerDriverFlags)
@@ -107,23 +97,20 @@ function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAss
 	assert.parameterTypeIsInstanceOf(defines, CommandLineDefines)
 	assert.parameterTypeIsTable(sources)
 	
-	local compilerDriver = self:_chooseCCompilerDriver(crossCompile)
+	local toolchain = self:_chooseToolchain(crossCompile)
 	
-	local argments = self._prepareCompilerDriver(compilerDriver, compilerDriverFlags)
-	addFlags(arguments, compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
-	compilerDriver:addStandard(arguments, standard)
-	compilerDriver:useFileExtensionsToDetermineLanguageFlags(arguments)
-	addFlags(arguments, preprocessorFlags)
+	local compilerDriverArguments = self._newCompilerDriverArguments(toolchain, compilerDriverFlags)
+	compilerDriverArguments:append(compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
+	compilerDriverArguments:addStandard(standard)
+	compilerDriverArguments:useFileExtensionsToDetermineLanguageFlags()
+	compilerDriverArguments:append(preprocessorFlags)
+	defines:appendToCommandLineArguments(compilerDriverArguments)
+	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
+	compilerDriverArguments:addIncludePaths(sources)
+	compilerDriverArguments:append(sources)
 	
-	defines:appendToCommandLineArguments(compilerDriver, arguments)
+	local compilerDriver = compilerDriverArguments.compilerDriver
 	
-	-- TODO: There's a complex interplay between build variants and dependencies (some dependencies are the result of build variants)
-	compilerDriver:addSystemIncludePaths(arguments, self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
-	
-	-- TODO: There's a possibility a second compile in the same unit might want to access the headers in the source tree of a previous compile
-	compilerDriver:addIncludePaths(arguments, sources)
-	
-	-- TODO: We ought to use a subshell, but this isn't easy on Windows (cmd /C)
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
 		self:actionUnsetEnvironmentVariable(environmentVariableName)
 	end)
@@ -132,15 +119,15 @@ function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAss
 		self:actionExportEnvironmentVariable(environmentVariableName, environmentVariableValue)
 	end, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 	
-	self:appendCommandLineToBuildScript(unpack(arguments))
-	
-	compilerDrive:endSubshell()
+	compilerDriverArguments:useUnpacked(function(...)
+		self:_appendCommandLineToBuildScript(...)
+	end)
 end
 
 -- TODO: Need to add '-L' switches; there's a horrible interaction between sysroot and what gets embedded in the dynamic linker... and RPATH
 -- eg pthread, m => several libraries from one compilation unit (c lib on Linux)
-assert.globalTypeIsFunction('unpack')
-function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, additionalLinkedLibraries, baseName)
+assert.globalTypeIsFunction('ipairs')
+function AbstractCompileUnitActions:actionCompilerDriverLinkCExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
 	assert.parameterTypeIsBoolean(crossCompile)
 	assert.parameterTypeIsTable(compilerDriverFlags)
 	assert.parameterTypeIsTable(linkerFlags)
@@ -148,14 +135,14 @@ function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, 
 	assert.parameterTypeIsTable(additionalLinkedLibraries)
 	assert.parameterTypeIsString(baseName)
 	
-	local compilerDriver = self:_chooseCCompilerDriver(crossCompile)
+	local toolchain = self:_chooseToolchain(crossCompile)
 	
-	local argments = self._prepareCompilerDriver(compilerDriver, compilerDriverFlags)
-	addFlags(arguments, compilerDriver:mergeFlags(compilerDriver.linkerFlags, self.dependencies.linkerFlags, linkerFlags))
-	addFlags(arguments, objects)
-	for _, linkedLibrary in ipairs(compilerDriver:mergeFlags(compilerDriver.additionalLinkedLibraries, self.dependencies.additionalLinedLibraries, additionalLinkedLibraries)) do
-		arguments:insert('-l' .. linkedLibrary)
-	end
+	local compilerDriverArguments = self._newCompilerDriverArguments(toolchain, compilerDriverFlags)
+	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
+	compilerDriverArguments:append(objects)
+	compilerDriverArguments:addLinkedLibraries(self.dependencies.linkedLibraries, self.buildVariant.linkedLibraries, linkedLibraries)
+	
+	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
 		self:actionUnsetEnvironmentVariable(environmentVariableName)
@@ -165,21 +152,12 @@ function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, 
 		self:actionExportEnvironmentVariable(environmentVariableName, environmentVariableValue)
 	end, {})
 	
-	self:appendCommandLineToBuildScript(unpack(arguments))
-end
-
-function AbstractCompileUnitActions:executeScript()
-	self._finishBuildScript()
-	local script = self.script:concat()
-	
-	toTemporaryFileAllContentsInTextModeAndUse(script, function(temporaryFilePath)
-		
-		if self.toolchain.isMacOSX and commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
-			executeExpectingSuccess(temporaryFilePath, noRedirection, noRedirection, 'brew', 'sh')
-		else
-			executeExpectingSuccess(noRedirection, noRedirection, noRedirection, 'sh', temporaryFilePath)
-		end
+	compilerDriverArguments:useUnpacked(function(...)
+		self:_appendCommandLineToBuildScript(...)
 	end)
 end
 
-return AbstractCompileUnitActions
+function AbstractCompileUnitActions:executeScriptExpectingSuccess()
+	self._finishBuildScript()
+	self.shellScript:executeScriptExpectingSuccess(shellScriptExecutor, noRedirection, noRedirection)
+end

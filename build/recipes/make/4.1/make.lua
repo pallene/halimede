@@ -186,7 +186,7 @@ local function configHDefinesIsWindows(configHDefines, platform)
 	configH:FILE_TIMESTAMP_HI_RES(false)
 end
 
-local function compile(compileUnitActions, toolchain, buildPlatform, crossPlatform, buildVariant, configHDefines)
+local function compile(compileUnitActions, buildEnvironment, buildVariant, configHDefines)
 		
 	-- TODO:alloca support may be needed (all modern platforms have this)
 	-- TODO:Windows and VMS have different file lists
@@ -219,8 +219,8 @@ local function compile(compileUnitActions, toolchain, buildPlatform, crossPlatfo
 		'vpath',
 		'hash',
 		'remote-' .. buildVariant.arguments.REMOTE,
-		buildPlatform:concatenateToPath('glob', 'fnmatch'),
-		buildPlatform:concatenateToPath('glob', 'glob'),
+		buildEnvironment.buildToolchain.platform:concatenateToPath('glob', 'fnmatch'),
+		buildEnvironment.buildToolchain.platform:concatenateToPath('glob', 'glob'),
 	}
 	
 	
@@ -234,22 +234,22 @@ local function compile(compileUnitActions, toolchain, buildPlatform, crossPlatfo
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
 	local defines = Defines:new(false)
-	defines:_quotedNonEmptyString('LOCALEDIR', crossPlatform:concatenateToPath(sysrootPath, 'lib'))
-	defines:_quotedNonEmptyString('LIBDIR', crossPlatform:concatenateToPath(sysrootPath, 'include'))
-	defines:_quotedNonEmptyString('INCLUDEDIR', crossPlatform:concatenateToPath(sysrootPath, 'share', 'local'))
+	defines:_quotedNonEmptyString('LOCALEDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'lib'))
+	defines:_quotedNonEmptyString('LIBDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'include'))
+	defines:_quotedNonEmptyString('INCLUDEDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'share', 'local'))
 	defines:_boolean('HAVE_CONFIG_H', true)
-	local sources = toolchain:toCFiles(baseFileNames)
+	local sources = buildEnvironment:toCFiles(baseFileNames)
 	compileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
 	
 	
 	-- Do we want to name stuff, rather than use command line switches?
-	local linkerFlags = crossPlatform.compilerDriver:mergeFlags(buildVariant.linkerFlags, {
+	local linkerFlags = {
 		'-rdynamic'  -- or -Wl,--export-dynamic
 	}
-	local objects = crossPlatform:toObjectsWithoutPaths(baseFileNames)
-	local additionalLinkedLibraries = {}
+	local objects = buildEnvironment.crossToolchain.platform:toObjectsWithoutPaths(baseFileNames)
+	local linkedLibraries = {}
 	local baseName = 'make'
-	compileUnitActions:compilerDriverCLinkExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, additionalLinkedLibraries, baseName)
+	compileUnitActions:actionCompilerDriverLinkCExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
 end
 
 --[[

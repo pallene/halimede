@@ -33,19 +33,19 @@ function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuT
 	
 	self.name = name
 	self.folderSeparator = folderSeparator
-	self.pathSeparator = shellLanguage.pathSeparator
-
-	self.newLine = newLine
+	self.shellLanguage = shellLanguage
 	self.objectExtension = objectExtension
 	self.executableExtension = executableExtension
 	self.staticLibraryPrefix = staticLibraryPrefix
 	self.staticLibraryExtension = staticLibraryExtension
 	self.dynamicLibraryPrefix = dynamicLibraryPrefix
 	self.dynamicLibraryExtension = dynamicLibraryExtension
-	
 	self.gnuTuple = gnuTuple
 	self.cCompilerDriver = cCompilerDriver
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
+	
+	self.newLine = shellLanguage.newline
+	self.pathSeparator = shellLanguage.pathSeparator
 	
 	Platform.static[name] = self
 end
