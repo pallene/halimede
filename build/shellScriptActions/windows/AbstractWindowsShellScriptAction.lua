@@ -7,9 +7,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractShellScriptAction = require('halimede.build.shellScriptActions.AbstractShellScriptAction')
 moduleclass('AbstractPosixShellScriptAction', AbstractShellScriptAction)
 
-local assert = require('halimede').assert
-local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
-
 
 function module:initialize(shellScript)
 	AbstractShellScriptAction.initialize(self, shellScript)
