@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
-local executeFromFile = require('halimede.luacode.executeFromFile')
+local executeFromFile = require('halimede.luacode.executeFromFile').executeFromFile
 local exception = require('halimede.exception')
 local deepMerge = require('halimede.table.deepMerge').deepMerge
 
@@ -18,6 +18,7 @@ local CRAY_STACKSEG_END = require('halimede.build.defines.CRAY_STACKSEG_END')
 local RETSIGTYPE = require('halimede.build.defines.RETSIGTYPE')
 local ST_MTIM_NSEC = require('halimede.build.defines.ST_MTIM_NSEC')
 local STACK_DIRECTION = require('halimede.build.defines.STACK_DIRECTION')
+
 
 local function ensureTableExistsOrDefault(parent, fieldName)
 	local childTable = parent[fieldName]
@@ -184,7 +185,7 @@ function module.loadRecipe(recipeFilePath, chosenBuildVariantNames)
 		destinationPath = '/opt/package/version'  -- Where version is, say, 2.0.4-lua-5.2 and package is luarocks
 	}
 	
-	local result = executeFromFile('rockspec file', recipeFilePath, environment)
+	local result = executeFromFile('recipe file', recipeFilePath, environment)
 	
 	local dependencies = ensureTableExistsOrDefault(result, 'dependencies')
 	local package = ensureTableExistsOrDefault(result, 'package')

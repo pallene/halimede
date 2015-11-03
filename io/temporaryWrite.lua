@@ -9,21 +9,22 @@ local exception = require('halimede.exception')
 local write = requireSibling('write')
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'tmpname')
-function module.toTemporaryFileAllContentsInTextMode(contents)
+function module.toTemporaryFileAllContentsInTextMode(contents, fileSuffix)
 	assert.parameterTypeIsString(contents)
-
-	local temporaryFileToWrite = os.tmpname()
+	
+	-- fileSuffix is required when creating temporary .bat or .cmd files on Windows
+	local temporaryFileToWrite = os.tmpname() .. fileSuffix
 	write.writeToFileAllContentsInTextMode(temporaryFileToWrite, 'temporary file', contents)
 	return temporaryFileToWrite
 end
 local toTemporaryFileAllContentsInTextMode = module.toTemporaryFileAllContentsInTextMode
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'remove')
-function module.toTemporaryFileAllContentsInTextModeAndUse(contents, user)
+function module.toTemporaryFileAllContentsInTextModeAndUse(contents, fileSuffix, user)
 	assert.parameterTypeIsString(contents)
 	assert.parameterTypeIsFunction(user)
 
-	local temporaryFileToWrite = writeToTemporaryFileAllContentsInTextMode(contents)
+	local temporaryFileToWrite = writeToTemporaryFileAllContentsInTextMode(contents, fileSuffix)
 	local ok, result = pcall(user, temporaryFileToWrite)
 	os.remove(temporaryFileToWrite)
 	if not ok then

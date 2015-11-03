@@ -11,14 +11,15 @@ local GnuTuple = requireSibling('GnuTuple')
 local CompilerDriver = requireSibling('CompilerDriver')
 local addFileExtensionToFileNames = requireSibling('Toolchain').addFileExtensionToFileNames
 local tabelize = require('halimede.table.tabelize').tabelize
+local ShellLanguage = require('halimede.io.ShellLanguage')
 
 
 local Platform = class('Platform')
 
-function Platform:initialize(name, folderSeparator, pathSeparator, newLine, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
+function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString(name)
+	assert.parameterTypeIsTable(shellLanguage)
 	assert.parameterTypeIsString(folderSeparator)
-	assert.parameterTypeIsString(pathSeparator)
 	assert.parameterTypeIsString(newLine)
 	assert.parameterTypeIsString(objectExtension)
 	assert.parameterTypeIsString(executableExtension)
@@ -32,7 +33,7 @@ function Platform:initialize(name, folderSeparator, pathSeparator, newLine, gnuT
 	
 	self.name = name
 	self.folderSeparator = folderSeparator
-	self.pathSeparator = pathSeparator
+	self.pathSeparator = shellLanguage.pathSeparator
 
 	self.newLine = newLine
 	self.objectExtension = objectExtension
@@ -75,8 +76,8 @@ end
 
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
+	ShellLanguage.POSIX,
 	'/',
-	':',
 	'\n',
 	'.o',
 	'', -- eg .exe on Windows
@@ -91,8 +92,8 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
+	ShellLanguage.POSIX,
 	'/',
-	':',
 	'\n',
 	'.o',
 	'',

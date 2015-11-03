@@ -10,9 +10,6 @@ local basename = halimede.basename
 local class = require('halimede.middleclass')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
-local execute = require('halimede.io.execute')
-local executeExpectingSuccess = execute.executeExpectingSuccess
-local noRedirection = execute.noRedirection
 local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
 local CStandard = require('halimede.build.defines.CStandard')
 local LegacyCandCPlusPlusStringLiteralEncoding = require('LegacyCandCPlusPlusStringLiteralEncoding')
@@ -41,17 +38,21 @@ function AbstractCompileUnitActions:initialize(shellLanguage, sourcePath, sysroo
 	self.actionChangeDirectory(sourcePath)
 end
 
+function AbstractCompileUnitActions:_addToScript(text)
+	self.script:insert(text)
+end
+
 assert.globalTypeIsFunction('ipairs')
 function AbstractCompileUnitActions:appendLinesToBuildScript(...)
 	local lines = {...}
 	for _, line in ipairs(lines) do
-		self.script:insert(line)
-		self.script:insert(self.shellLanguage.shellScriptFileExtensionIncludingLeadingPeriod)
+		self:_addToScript(line)
+		self:_addToScript(self.shellLanguage.newline)
 	end
 end
 
 function AbstractCompileUnitActions:appendCommandLineToBuildScript(...)
-	self.script:insert(self.shellLanguage.toShellCommandLine(...))
+	self:_addToScript(self.shellLanguage.toShellCommandLine(...))
 end
 
 function AbstractCompileUnitActions:actionWriteConfigH()
@@ -69,10 +70,10 @@ end
 
 function AbstractCompileUnitActions:_chooseCCompilerDriver(crossCompile)
 	if crossCompile then
-		return self.toolchain.crossCCompilerDriver
+		return self.toolchain.crossPlatform.cCompilerDriver
 	else
 		-- Actually, this may end up being a bootstrap, etc
-		return self.toolchain.buildCCompilerDriver
+		return self.toolchain.buildPlatform.cCompilerDriver
 	end
 end
 
@@ -96,7 +97,6 @@ function AbstractCompileUnitActions:writeConfigH(configH)
 	writeToFileAllContentsInTextMode(concatenateToPath(self.sourcePath, 'config.h'), 'config.h', configH:toCPreprocessorText())
 end
 
--- TODO: Mac OS X / Brew, sysroot, etc
 assert.globalTypeIsFunction('unpack')
 function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
 	assert.parameterTypeIsBoolean(crossCompile)
@@ -169,7 +169,7 @@ function AbstractCompileUnitActions:compilerDriverLinkCExecutable(crossCompile, 
 end
 
 function AbstractCompileUnitActions:executeScript()
-	self:appendLinesToBuildScript(self._finishBuildScript())
+	self._finishBuildScript()
 	local script = self.script:concat()
 	
 	toTemporaryFileAllContentsInTextModeAndUse(script, function(temporaryFilePath)
