@@ -12,5 +12,5 @@ local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript
 
 
 function module:initialize(shellScript)
-	AbstractShellScriptAction.initialize(shellScript)
+	AbstractShellScriptAction.initialize(self, shellScript)
 end
