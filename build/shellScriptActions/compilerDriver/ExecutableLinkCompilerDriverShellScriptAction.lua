@@ -22,7 +22,7 @@ function module:execute(crossCompile, compilerDriverFlags, linkerFlags, objects,
 	
 	local toolchain = self:_chooseToolchain(crossCompile)
 	
-	local compilerDriverArguments = self._newCompilerDriverArguments(toolchain, compilerDriverFlags)
+	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:append(objects)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.linkedLibraries, self.buildVariant.linkedLibraries, linkedLibraries)
