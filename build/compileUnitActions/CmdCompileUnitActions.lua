@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local CompileUnitActions = requireSibling('CompileUnitActions')
-local WindowsCompileUnitActions = moduleclass('WindowsCompileUnitActions', CompileUnitActions)
+local CmdCompileUnitActions = moduleclass('CmdCompileUnitActions', CompileUnitActions)
 
 local halimede = require('halimede')
 local assert = halimede.assert
@@ -15,11 +15,11 @@ local RelativePath = require('halimede.io.paths.RelativePath')
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
-function WindowsCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
+function CmdCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
 	AbstractCompileUnitActions.initialise(self, ShellLanguage.Windows, sourcePath, sysrootPath, toolchain)
 end
 
-function WindowsCompileUnitActions:_initialBuildScript()
+function CmdCompileUnitActions:_initialBuildScript()
 	
 	-- Can't use a multiline string because the new line terminator is then wrong
 	self:_appendLinesToBuildScript(
@@ -29,6 +29,6 @@ function WindowsCompileUnitActions:_initialBuildScript()
 end
 
 assert.globalTypeIsFunction('unpack')
-function WindowsCompileUnitActions:_finalBuildScript()
+function CmdCompileUnitActions:_finalBuildScript()
 	self:_appendLinesToBuildScript('ENDLOCAL')
 end
