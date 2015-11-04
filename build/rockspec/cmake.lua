@@ -138,11 +138,6 @@ local function throwExceptionIfThereAreFailingMatches(line)
 	end
 end
 
--- Need to execute quietly...
--- 1>/dev/null 2>/dev/null   or   2> NUL 1> NUL (windows)
--- Also prefix   'type NUL && ' on Windows...
--- See also http://lua-users.org/lists/lua-l/2013-11/msg00367.html
--- call os.execute() and check return code
 local function programExists(....)
 	error("Implement me!")
 end

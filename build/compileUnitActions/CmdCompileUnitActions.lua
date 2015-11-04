@@ -16,11 +16,10 @@ local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
 function CmdCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
-	AbstractCompileUnitActions.initialise(self, ShellLanguage.Windows, sourcePath, sysrootPath, toolchain)
+	AbstractCompileUnitActions.initialise(self, ShellLanguage.Cmd, sourcePath, sysrootPath, toolchain)
 end
 
 function CmdCompileUnitActions:_initialBuildScript()
-	
 	-- Can't use a multiline string because the new line terminator is then wrong
 	self:_appendLinesToBuildScript(
 		'@ECHO OFF',

@@ -157,31 +157,31 @@ end
 ShellLanguage.static.POSIX = PosixShellLanguage:new()
 
 
-local WindowsShellLanguage = class('Windows', ShellLanguage)
+local CmdShellLanguage = class('Cmd', ShellLanguage)
 
-function WindowsShellLanguage:initialize()
-	ShellLanguage.initialize(self, ';', '\r\n', '.bat', 'NUL', true)
+function CmdShellLanguage:initialize()
+	ShellLanguage.initialize(self, ';', '\r\n', '.cmd', 'NUL', true)
 end
 
 local slash = '\\'
 
-local windowsCharactersToEscape = {
+local cmdCharactersToEscape = {
   ['%'] = '%%',
   ['"'] = '\\"',
 }
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'rep')
-local function windowsEscaperA(capture1, capture2)
+local function cmdEscaperA(capture1, capture2)
   return slash:rep(2 * #capture1 - 1) .. (capture2 or slash)
 end
 
-local function windowsEscaperB(value)
+local function cmdEscaperB(value)
    return value .. value .. '"%"'
 end
 
--- Quoting is a mess in Windows; these rules only work for cmd.exe /C (it's a per-program thing)
+-- Quoting is a mess in Cmd; these rules only work for cmd.exe /C (it's a per-program thing)
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
-function WindowsShellLanguage:quoteArgument(argument)
+function CmdShellLanguage:quoteArgument(argument)
 	assert.parameterTypeIsString(argument)
 	
 	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
@@ -195,28 +195,28 @@ function WindowsShellLanguage:quoteArgument(argument)
 	end
 	
 	-- Quoting for URLs
-   argument = argument:gsub('(\\+)(")', windowsEscaperA)
-   argument = argument:gsub('(\\+)$', windowsEscaperA)
-   argument = argument:gsub('[%%"]', windowsCharactersToEscape)
-   argument = argument:gsub('(\\*)%%', windowsEscaperB)
+   argument = argument:gsub('(\\+)(")', cmdEscaperA)
+   argument = argument:gsub('(\\+)$', cmdEscaperA)
+   argument = argument:gsub('[%%"]', cmdCharactersToEscape)
+   argument = argument:gsub('(\\*)%%', cmdEscaperB)
    
    return '"' .. argument .. '"'
 end
 
 -- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
-function WindowsShellLanguage:toShellCommand(...)
+function CmdShellLanguage:toShellCommand(...)
 	return ShellLanguage.toShellCommand(self, 'type NUL &&', ...)
 end
 
-ShellLanguage.static.Windows = WindowsShellLanguage:new()
+ShellLanguage.static.Cmd = CmdShellLanguage:new()
 
 
 local operatingSystemDetails = halimede.operatingSystemDetails
 local default
 if operatingSystemDetails.isPosix then
 	default = ShellLanguage.POSIX
-elseif halimede.operatingSystemDetails.isWindows then
-	default = ShellLanguage.Windows
+elseif halimede.operatingSystemDetails.isCmd then
+	default = ShellLanguage.Cmd
 else
 	exception.throw('Could not determine ShellLanguage')
 end
