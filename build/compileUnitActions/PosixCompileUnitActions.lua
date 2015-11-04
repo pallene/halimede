@@ -32,15 +32,7 @@ function PosixCompileUnitActions:_initialBuildScript()
 		'set -e',
 		'set -u',
 		'set -f',
-		'IFS=" $(printf \'\\t\')$(printf \'\\n\')"',  -- Space, Tab, Newline
-		'export LC_ALL=C',
-		'export LC_CTYPE=C',
-		'export LC_MESSAGES=C',
-		'export LANGUAGE=C',
-		'export LANG=C',
-		"PS1='$ '",
-		"PS2='> '",
-		"PS4='+ '",
+		'(set -o posix) 1>/dev/null 2>/dev/null && set -o posix',  -- For bash
 		'export DUALCASE=1',  -- For MKS Shell
 		'if [ -n "${ZSH_VERSION+set}" ]; then',  -- For zsh
 		'    emulate sh',
@@ -49,7 +41,12 @@ function PosixCompileUnitActions:_initialBuildScript()
 		[[    alias -g '${1+"$[@]"}'='"$[@]"']],
 		'    setopt NO_GLOB_SUBST',
 		'fi',
-		'(set -o posix) 1>/dev/null 2>/dev/null && set -o posix'  -- For bash
+		'IFS=" $(printf \'\\t\')$(printf \'\\n\')"',  -- Space, Tab, Newline
+		'export LC_ALL=C',
+		'export LC_CTYPE=C',
+		'export LC_MESSAGES=C',
+		'export LANGUAGE=C',
+		'export LANG=C'
 	)
 	for _, environmentVariableToUnsetAtBuildScriptStart in ipairs(environmentVariablesToUnsetAtBuildScriptStart) do
 		self:actionUnsetEnvironmentVariable(environmentVariableToUnsetAtBuildScriptStart)
