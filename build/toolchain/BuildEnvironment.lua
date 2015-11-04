@@ -11,34 +11,8 @@ local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local Toolchain = requireSibling('Toolchain')
 local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
+local noRedirection = require('halimede.io.execute').noRedirection
 
-
-function BuildEnvironment(buildToolchain, crossToolchain)
-	self.buildToolchain = buildToolchain
-	self.crossToolchain = crossToolchain
-	
-	if buildToolchain == crossToolchain then
-		isCrossCompiling = false
-	else
-		isCrossCompiling = true
-	end
-	self.isCrossCompiling = isCrossCompiling
-end
-
--- Are we expecting shell scripts to execute on the build or on the cross?
-function module:newShellScript(isForRunningOnCrossCompiledHost)
-	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
-	
-	local toolchain
-	if isForRunningOnCrossCompiledHost then
-		toolchain = self.crossToolchain
-	else
-		toolchain = self.buildToolchain
-	end
-	
-	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
-	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, toolchain)
-end
 
 assert.globalTypeIsFunction('select', 'type', 'ipairs')
 BuildEnvironment.static.addFileExtensionToFileNames = function(extensionWithLeadingPeriod, ...)
@@ -60,11 +34,79 @@ BuildEnvironment.static.addFileExtensionToFileNames = function(extensionWithLead
 	return result
 end
 
-function module:toCFiles(...)
-	return BuildEnvironment.addFileExtensionToFileNames('.c', ...)
+function BuildEnvironment(buildToolchain, crossToolchain)
+	self.buildToolchain = buildToolchain
+	self.crossToolchain = crossToolchain
+	
+	if buildToolchain == crossToolchain then
+		isCrossCompiling = false
+	else
+		isCrossCompiling = true
+	end
+	self.isCrossCompiling = isCrossCompiling
 end
 
--- TODO: not necessarily .cxx; several variants, sadly
-function module:toCPlusPlusFiles(...)
-	return BuildEnvironment.addFileExtensionToFileNames('.cxx', ...)
+function module:use(userFunction, isForRunningOnCrossCompiledHost, buildVariantArguments, configHDefines, sourcePath)
+	assert.parameterTypeIsFunctionOrCall(userFunction)
+	
+	
+	
+	
+	
+	TODO: Still need to pass    dependencies, buildVariant   to ctor of compiler driver actions
+	
+	
+	
+	
+	
+	local shellScript = self:_newShellScript(isForRunningOnCrossCompiledHost)
+	shellScript:newAction('StartScript')(sourcePath)
+	
+	local buildEnvironmentLight = {
+		
+		buildToolchain = self.buildToolchain,
+		
+		crossToolchain = self.crossToolchain,
+		
+		isCrossCompiling = self.isCrossCompiling,
+		
+		concatenateToPath = function(...)
+			self.buildToolchain:concatenateToPath(...)
+		end,
+		
+		addFileExtensionToFileNames = BuildEnvironment.addFileExtensionToFileNames,
+		
+		toCFiles = function(...)
+			return BuildEnvironment.addFileExtensionToFileNames('.c', ...)
+		end,
+
+		-- TODO: not necessarily .cxx; several variants, sadly
+		toCPlusPlusFiles = function(...)
+			return BuildEnvironment.addFileExtensionToFileNames('.cxx', ...)
+		end,
+		
+		action = function(name, namespace, ...)
+			shellScript:newAction(namespace, name):execute(...)
+		end
+	}
+	
+	userFunction(buildEnvironmentLight, buildVariantArguments, configHDefines)
+	
+	shellScript:newAction('EndScript')()
+	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
+end
+
+-- Are we expecting shell scripts to execute on the build or on the cross?
+function module:_newShellScript(isForRunningOnCrossCompiledHost)
+	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
+	
+	local toolchain
+	if isForRunningOnCrossCompiledHost then
+		toolchain = self.crossToolchain
+	else
+		toolchain = self.buildToolchain
+	end
+	
+	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
+	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, toolchain)
 end

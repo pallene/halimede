@@ -12,7 +12,6 @@ local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
-local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 
 

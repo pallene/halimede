@@ -186,8 +186,8 @@ local function configHDefinesIsWindows(configHDefines, platform)
 	configH:FILE_TIMESTAMP_HI_RES(false)
 end
 
-local function compile(compileUnitActions, buildEnvironment, buildVariant, configHDefines, sourcePath)
-		
+local function compile(buildEnvironmentLight, buildVariantArguments, configHDefines, sourcePath)
+	
 	-- TODO:alloca support may be needed (all modern platforms have this)
 	-- TODO:Windows and VMS have different file lists
 	local baseFileNames = {
@@ -218,45 +218,40 @@ local function compile(compileUnitActions, buildEnvironment, buildVariant, confi
 		'version',
 		'vpath',
 		'hash',
-		'remote-' .. buildVariant.arguments.REMOTE,
-		buildEnvironment.buildToolchain.platform:concatenateToPath('glob', 'fnmatch'),
-		buildEnvironment.buildToolchain.platform:concatenateToPath('glob', 'glob'),
+		'remote-' .. buildVariantArguments.REMOTE,
+		buildEnvironmentLight.concatenateToPath('glob', 'fnmatch'),
+		buildEnvironmentLight.concatenateToPath('glob', 'glob'),
 	}
 	
-	
-	local shellScript = buildEnvironment:newShellScript(false)
-	shellScript:newAction('StartScript'):execute(sourcePath)
-	
-	
-	configHDefines:MAKE_HOST(crossPlatform.gnuTuple.triplet)
-	shellScript:newAction('WriteConfigH'):execute(configHDefines)
+	local toolchain = buildEnvironmentLight.crossToolchain
+	local cCompilerDriverFlags = {}
+	local sysrootPath = toolchain.sysrootPath
 	
 	
-	local crossCompile = true
-	local compilerDriverFlags = {}
+	configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
+	buildEnvironmentLight.action(nil, 'WriteConfigH', configHDefines)
+	
+	
 	local standard = CStandard.gnu90
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
-	local defines = Defines:new(false)
-	defines:_quotedNonEmptyString('LOCALEDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'lib'))
-	defines:_quotedNonEmptyString('LIBDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'include'))
-	defines:_quotedNonEmptyString('INCLUDEDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'share', 'local'))
+	local defines = Defines(false)
+	defines:_quotedNonEmptyString('LOCALEDIR', toolchain:concatenateToPath(sysrootPath, 'lib'))
+	defines:_quotedNonEmptyString('LIBDIR', toolchain:concatenateToPath(sysrootPath, 'include'))
+	defines:_quotedNonEmptyString('INCLUDEDIR', toolchain:concatenateToPath(sysrootPath, 'share', 'local'))
 	defines:_boolean('HAVE_CONFIG_H', true)
-	local sources = buildEnvironment:toCFiles(baseFileNames)
-	shellScript:newAction('PreprocessCompileAndAssembleCompilerDriver', 'halimede.build.shellScriptActions.compilerDriver'):execute(buildEnvironment.crossToolchain, compilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
+	local sources = buildEnvironmentLight.toCFiles(baseFileNames)
+	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'PreprocessCompileAndAssembleCompilerDriver', toolchain, cCompilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
 	
 	
 	-- Do we want to name stuff, rather than use command line switches?
 	local linkerFlags = {
 		'-rdynamic'  -- or -Wl,--export-dynamic
 	}
-	local objects = buildEnvironment.crossToolchain.platform:toObjectsWithoutPaths(baseFileNames)
+	local objects = toolchain.platform:toObjectsWithoutPaths(baseFileNames)
 	local linkedLibraries = {}
 	local baseName = 'make'
-	shellScript:newAction('ExecutableLinkCompilerDriver', 'halimede.build.shellScriptActions.compilerDriver'):execute(buildEnvironment.crossToolchain, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
-
-	shellScript:newAction('EndScript'):execute()
-	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
+	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'ExecutableLinkCompilerDriver', toolchain, cCompilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
 end
 
 --[[

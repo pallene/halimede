@@ -9,14 +9,15 @@ local type = halimede.type
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
-local shellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
 module.silenced = shellLanguage.silenced
 module.noRedirection = false  -- Bizarre but works
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
-function module.execute(standardIn, standardOut, standardError, ...)
+function module.execute(shellLanguage, standardIn, standardOut, standardError, ...)
+	assert.parameterTypeIsInstanceOf(shellLanguage, ShellLanguage)
 	
 	local arguments = tabelize({...})
 	if standardIn then
@@ -44,8 +45,8 @@ function module.execute(standardIn, standardOut, standardError, ...)
 end
 local execute = module.execute
 
-function module.executeExpectingSuccess(standardIn, standardOut, standardError, ...)
-	local success, terminationKind, exitCode, command = execute(...)
+function module.executeExpectingSuccess(shellLanguage, standardIn, standardOut, standardError, ...)
+	local success, terminationKind, exitCode, command = execute(shellLanguage, standardIn, standardOut, standardError, ...)
 	if not success then
 		exception.throw("Could not execute shell command, returned exitCode '%s' for command [%s]", exitCode command)
 	end

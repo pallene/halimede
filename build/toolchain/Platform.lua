@@ -48,7 +48,6 @@ function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtensio
 	Platform.static[name] = self
 end
 
-
 function Platform:concatenateToPath(...)
 	return table.concat({...}, self.folderSeparator)
 end

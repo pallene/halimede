@@ -26,7 +26,7 @@ function module:initialize(shellScriptExecutor, toolchain)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-function module:newAction(actionName, namespace)
+function module:newAction(namespace, actionName)
 	assert.parameterTypeIsString(actionName)
 	
 	local actionNamespace

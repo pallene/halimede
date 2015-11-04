@@ -9,11 +9,21 @@ moduleclass('AbstractShellScriptAction')
 local assert = require('halimede').assert
 local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
 
+local exception = require('halimede.exception')
+
 
 function module:initialize(shellScript)
 	assert.parameterTypeIsInstanceOf(shellScript, BufferedShellScript)
 	
 	self.shellScript = shellScript
+end
+
+function module:__call(self, ...)
+	return self:execute(...)
+end
+
+function module:execute(...)
+	exception.throw('Abstract Method')
 end
 
 function module:_quoteArgument(argument)

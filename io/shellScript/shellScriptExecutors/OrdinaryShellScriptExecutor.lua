@@ -22,7 +22,7 @@ end
 assert.globalTypeIsFunction('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	arguments:insert(scriptFilePath.path)
-	executeExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))
+	executeExpectingSuccess(self.shellLanguage, noRedirection, standardOut, standardError, unpack(arguments))
 end
 
 OrdinaryShellScriptExecutor.static.Posix = OrdinaryShellScriptExecutor:new(ShellLanguage.Posix)
