@@ -4,28 +4,38 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ShellScriptExecutor = moduleclass('ShellScriptExecutor')
+moduleclass('AbstractShellScriptExecutor')
 
 local halimede = require('halimede')
 local assert = halimede.assert
 local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
+local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
+local AbstractPath = require('halimede.io.paths.AbstractPath')
 
 
-function ShellScriptExecutor:initialize(...)
+function module:initialize(shellLanguage, ...)
+	assert.parameterTypeIsInstanceOf(shellLanguage, ShellLanguage)
+	
+	self.shellLanguage = shellLanguage
 	self.shellScriptExecutionCommand = tabelize({...})
 end
 
+function module:newBufferedShellScript()
+	return BufferedShellScript:new(self.shellLanguage)	
+end
+
 assert.globalTypeIsFunction('unpack')
-function ShellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
-	assert.parameterTypeIsString(scriptFilePath)
+function module:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
+	assert.parameterTypeIsInstanceOf(scriptFilePath, AbstractPath)
 	
 	local arguments = deepCopy(self.shellScriptExecutionCommand)
 	
 	self:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 end
 
-function ShellScriptExecutor:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
+function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	exception.throw('Abstract Method')
 end

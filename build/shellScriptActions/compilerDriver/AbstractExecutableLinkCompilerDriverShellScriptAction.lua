@@ -5,11 +5,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
-moduleclass('ExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
+moduleclass('AbstractExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 
-function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
-	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
+function module:initialize(shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
+	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 end
 
 function module:execute(crossCompile, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)

@@ -4,8 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ShellScriptExecutor = requireSibling('ShellScriptExecutor')
-local OrdinaryShellScriptExecutor = moduleclass('OrdinaryShellScriptExecutor', ShellScriptExecutor)
+local AbstractShellScriptExecutor = requireSibling('AbstractShellScriptExecutor')
+moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local assert = halimede.assert
@@ -15,15 +15,15 @@ local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
 local noRedirection = execute.noRedirection
 
-function OrdinaryShellScriptExecutor:initialize(...)
-	ShellScriptExecutor:initialize(self, ...)
+function module:initialize(shellLanguage, ...)
+	ShellScriptExecutor:initialize(self, shellLanguage, shellLanguage.commandInterpreterName, ...)
 end
 
 assert.globalTypeIsFunction('unpack')
-function ShellScriptExecutor:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
-	arguments:insert(scriptFilePath)
+function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
+	arguments:insert(scriptFilePath.path)
 	executeExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))
 end
 
-OrdinaryShellScriptExecutor.static.Posix = OrdinaryShellScriptExecutor:new('sh')
-OrdinaryShellScriptExecutor.static.Cmd = OrdinaryShellScriptExecutor:new('cmd', '/c', '/e:on', '/u')
+OrdinaryShellScriptExecutor.static.Posix = OrdinaryShellScriptExecutor:new(ShellLanguage.Posix)
+OrdinaryShellScriptExecutor.static.Cmd = OrdinaryShellScriptExecutor:new(ShellLanguage.Cmd, '/c', '/e:on', '/u')

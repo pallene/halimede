@@ -33,14 +33,11 @@ function AbstractCompileUnitActions:initialize(buildToolchain, crossToolchain, d
 	self.buildVariant = buildVariant
 	self.sourcePath = sourcePath
 	
-	self.shellLanguage = ??? -- of the build platform
-	self.shellScriptExecutor = ???  -- of the build platform
+	-- from buildToolchain / Platform
+	self.shellLanguage = shellScriptExecutor.shellLanguage
+	self.shellScriptExecutor = shellScriptExecutor
 	
 	self.shellScript = BufferedShellScript:new(shellLanguage)
-	self._initialBuildScript()
-	
-	XXXXX: Need to fit this
-	self.actionChangeDirectory(sourcePath)
 end
 
 

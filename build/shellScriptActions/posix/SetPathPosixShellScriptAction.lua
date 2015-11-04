@@ -13,13 +13,16 @@ local UnsetEnvironmentVariablePosixShellScriptAction = requireSibling('UnsetEnvi
 local ExportEnvironmentVariablePosixShellScriptAction = requireSibling('ExportEnvironmentVariablePosixShellScriptAction')
 
 
-function module:initialize(shellScript, )
+function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
+	
+	self.unsetEnvironmentVariablePosixShellScriptAction = UnsetEnvironmentVariablePosixShellScriptAction:new(shellScript)
+	self.exportEnvironmentVariablePosixShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(shellScript)
 end
 
 function module:execute(paths)
 	assert.parameterTypeIsInstanceOf(paths, Paths)
 	
-	UnsetEnvironmentVariablePosixShellScriptAction.execute(self, 'PATH')
-	ExportEnvironmentVariablePosixShellScriptAction.execute(self, 'PATH', paths.paths)
+	self.unsetEnvironmentVariablePosixShellScriptAction:execute('PATH')
+	self.exportEnvironmentVariablePosixShellScriptAction:execute('PATH', paths.paths)
 end

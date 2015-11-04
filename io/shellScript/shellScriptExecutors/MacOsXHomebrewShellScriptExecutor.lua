@@ -4,8 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ShellScriptExecutor = requireSibling('ShellScriptExecutor')
-local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScriptExecutor', ShellScriptExecutor)
+local AbstractShellScriptExecutor = requireSibling('AbstractShellScriptExecutor')
+moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local assert = halimede.assert
@@ -13,15 +13,16 @@ local class = require('halimede.middleclass')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
-function MacOsXHomebrewShellScriptExecutor:initialize()
-	ShellScriptExecutor:initialize(self, 'brew', 'sh')
+function module:initialize()
+	ShellScriptExecutor:initialize(self, ShellLanguage.Posix, 'brew', 'sh')
 end
 
 assert.globalTypeIsFunction('unpack')
-function ShellScriptExecutor:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
-	executeExpectingSuccess(scriptFilePath, standardOut, standardError, unpack(arguments))
+function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
+	executeExpectingSuccess(scriptFilePath.path, standardOut, standardError, unpack(arguments))
 end
 
---local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
+MacOsXHomebrewShellScriptExecutor.static.MacOsXHomebrewShellScriptExecutor = MacOsXHomebrewShellScriptExecutor:new()

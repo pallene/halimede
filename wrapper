@@ -238,6 +238,12 @@ local paths = {
 
 package.path = toPaths(paths, "lua")
 package.cpath = toPaths(paths, "so")
+
+if os then
+	if os.setlocale then
+		os.setlocale("C")
+	end
+end	
 '
 
 exec "$_program_lua_interpreter" -e "$_program_prepareScript" "$_program_luaScript" "$@"

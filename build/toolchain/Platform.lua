@@ -8,18 +8,16 @@ local Platform = moduleclass('Platform')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local GnuTuple = requireSibling('GnuTuple')
-local CompilerDriver = requireSibling('CompilerDriver')
 local addFileExtensionToFileNames = requireSibling('Toolchain').addFileExtensionToFileNames
 local tabelize = require('halimede.table.tabelize').tabelize
-local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
+local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')
+local GnuTuple = requireSibling('GnuTuple')
+local CompilerDriver = requireSibling('CompilerDriver')
 
 
-function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
+function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString(name)
-	assert.parameterTypeIsTable(shellLanguage)
-	assert.parameterTypeIsString(folderSeparator)
-	assert.parameterTypeIsString(newLine)
+	assert.parameterTypeIsInstanceOf(shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString(objectExtension)
 	assert.parameterTypeIsString(executableExtension)
 	assert.parameterTypeIsString(staticLibraryPrefix)
@@ -31,8 +29,7 @@ function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuT
 	assert.parameterTypeIsInstanceOf(cPlusPlusCompilerDriver, CompilerDriver)
 	
 	self.name = name
-	self.folderSeparator = folderSeparator
-	self.shellLanguage = shellLanguage
+	self.shellScriptExecutor = shellScriptExecutor
 	self.objectExtension = objectExtension
 	self.executableExtension = executableExtension
 	self.staticLibraryPrefix = staticLibraryPrefix
@@ -43,10 +40,44 @@ function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuT
 	self.cCompilerDriver = cCompilerDriver
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
 	
-	self.newLine = shellLanguage.newline
+	local shellLanguage = self.shellScriptExecutor.shellLanguage
+	self.shellLanguage = shellLanguage
+	self.folderSeparator = shellLanguage.folderSeparator
 	self.pathSeparator = shellLanguage.pathSeparator
+	self.lowerCasedName = shellLanguage.lowerCasedName
+	self.titleCasedName = shellLanguage.titleCasedName
 	
 	Platform.static[name] = self
+end
+
+XXXX: shellScript
+
+-- Arguments are things like shellScript, etc...
+-- Doesn't work for the CompilerDriver actions like ExecutableLinkCompilerDriverShellScriptAction with unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator
+-- We could either have Windows and Posix variants (which is an ok idea), or have the class object declare 'actions' it needs populated
+-- Still unpleasant, as have to construct with arguments the client doesn't know
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
+function Platform:newAction(actionName, namespace, ...)
+	assert.parameterTypeIsString(actionName)
+	
+	local actionNamespace
+	if namespace == nil then
+		actionNamespace = 'halimide.build.shellScriptActions'
+	else
+		assert.parameterTypeIsString(namespace)
+		actionNamespace = namespace
+	end
+	
+	-- Try to see if there's a Posix, Cmd, etc variant
+	local potentialShellVariantModuleName = ('%s.%s.%s%sShellScriptAction'):format(actionNamespace, self.lowerCasedName, actionName, self.titleCasedName)
+	local ok, resultOrErrorMessage = pcall(require, potentialShellVariantModuleName)
+	if ok then
+		local ShellScriptActionClass = resultOrErrorMessage
+		return ShellScriptActionClass:new(...)
+	end
+	
+	local potentialModuleName = ('%s.%sShellScriptAction'):format(actionNamespace, actionName)
+	return require(potentialModuleName):new(...)
 end
 
 function Platform:concatenateToPath(...)
@@ -91,11 +122,18 @@ Unix POSIX platforms:-
 	MKS Toolkit
 ]]--
 
+local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
+local macOsXShellScriptExecutor
+if commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
+	macOsXShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor').MacOsXHomebrewShellScriptExecutor
+else
+	macOsXShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor').Posix
+end
+
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
-	ShellLanguage.Posix,
+	macOsXShellScriptExecutor,
 	'/',
-	'\n',
 	'.o',
 	'', -- eg .exe on Windows
 	'lib',
@@ -109,9 +147,8 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
-	ShellLanguage.Posix,
+	macOsXShellScriptExecutor,
 	'/',
-	'\n',
 	'.o',
 	'',
 	'lib',

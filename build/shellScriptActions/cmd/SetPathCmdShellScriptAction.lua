@@ -9,11 +9,9 @@ moduleclass('SetPathPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
 local Paths = require('halimede.io.paths.Paths')
-local UnsetEnvironmentVariablePosixShellScriptAction = requireSibling('UnsetEnvironmentVariablePosixShellScriptAction')
-local ExportEnvironmentVariablePosixShellScriptAction = requireSibling('ExportEnvironmentVariablePosixShellScriptAction')
 
 
-function module:initialize(shellScript, )
+function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
