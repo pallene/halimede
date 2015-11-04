@@ -73,7 +73,7 @@ end
 
 
 
-
+-- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- TODO: More complex builds might need to control the path and file name of config.h
 -- TODO: Choose one way of doing it!
 function AbstractCompileUnitActions:actionWriteConfigH()
@@ -84,75 +84,6 @@ function AbstractCompileUnitActions:actionWriteConfigHDefines(configHDefines)
 	assert.parameterTypeIsInstanceOf(configHDefines, ConfigHDefines)
 	
 	writeToFileAllContentsInTextMode(concatenateToPath(self.sourcePath, 'config.h'), 'config.h', configH:toCPreprocessorText())
-end
-
-function AbstractCompileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
-	assert.parameterTypeIsBoolean(crossCompile)
-	assert.parameterTypeIsTable(compilerDriverFlags)
-	assert.parameterTypeIsInstanceOf(standard, CStandard)
-	assert.parameterTypeIsInstanceOf(legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
-	assert.parameterTypeIsTable(preprocessorFlags)
-	assert.parameterTypeIsInstanceOf(defines, CommandLineDefines)
-	assert.parameterTypeIsTable(sources)
-	
-	local toolchain = self:_chooseToolchain(crossCompile)
-	
-	local compilerDriverArguments = self._newCompilerDriverArguments(toolchain, compilerDriverFlags)
-	compilerDriverArguments:append(compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
-	compilerDriverArguments:addStandard(standard)
-	compilerDriverArguments:useFileExtensionsToDetermineLanguageFlags()
-	compilerDriverArguments:append(preprocessorFlags)
-	defines:appendToCommandLineArguments(compilerDriverArguments)
-	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
-	compilerDriverArguments:addIncludePaths(sources)
-	compilerDriverArguments:append(sources)
-	
-	local compilerDriver = compilerDriverArguments.compilerDriver
-	
-	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
-		self:actionUnsetEnvironmentVariable(environmentVariableName)
-	end)
-	
-	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
-		self:actionExportEnvironmentVariable(environmentVariableName, environmentVariableValue)
-	end, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
-	
-	compilerDriverArguments:useUnpacked(function(...)
-		self:_appendCommandLineToBuildScript(...)
-	end)
-end
-
--- TODO: Need to add '-L' switches; there's a horrible interaction between sysroot and what gets embedded in the dynamic linker... and RPATH
--- eg pthread, m => several libraries from one compilation unit (c lib on Linux)
-assert.globalTypeIsFunction('ipairs')
-function AbstractCompileUnitActions:actionCompilerDriverLinkCExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
-	assert.parameterTypeIsBoolean(crossCompile)
-	assert.parameterTypeIsTable(compilerDriverFlags)
-	assert.parameterTypeIsTable(linkerFlags)
-	assert.parameterTypeIsTable(objects)
-	assert.parameterTypeIsTable(additionalLinkedLibraries)
-	assert.parameterTypeIsString(baseName)
-	
-	local toolchain = self:_chooseToolchain(crossCompile)
-	
-	local compilerDriverArguments = self._newCompilerDriverArguments(toolchain, compilerDriverFlags)
-	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
-	compilerDriverArguments:append(objects)
-	compilerDriverArguments:addLinkedLibraries(self.dependencies.linkedLibraries, self.buildVariant.linkedLibraries, linkedLibraries)
-	
-	local compilerDriver = compilerDriverArguments.compilerDriver
-	
-	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
-		self:actionUnsetEnvironmentVariable(environmentVariableName)
-	end)
-	
-	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
-		self:actionExportEnvironmentVariable(environmentVariableName, environmentVariableValue)
-	end, {})
-	
-	compilerDriverArguments:useUnpacked(function(...)
-		self:_appendCommandLineToBuildScript(...)
-	end)
 end
 
 function AbstractCompileUnitActions:executeScriptExpectingSuccess()

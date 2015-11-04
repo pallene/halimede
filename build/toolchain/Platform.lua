@@ -73,6 +73,24 @@ function Platform:toObjectsWithoutPaths(...)
 	return result
 end
 
+-- MinGW is a toolchain, but 32-bit
+-- MSYS is a colleciton of Unix utilities but with a toolchain for their creation
+-- See here for a Mac OS X / MinGW-w64 toolchain script for inspiration: https://gist.github.com/Drakulix/9881160
+-- DJGPP is legacy but active; v2.05 Released in Nov 2015
+
+--[[
+Unix utilities on Windows:-
+	MSYS (no functional FIFO)
+	GnuWin32 (no functional FIFO)
+	UnxUtils
+	UWIN (Korn)
+
+Unix POSIX platforms:-
+	Cygwin
+	Interix (Dead) (Last released for Windows 8) (Uses GCC 3.3, includes a GCC frontend compatible wrapper for MSVC)
+	MKS Toolkit
+]]--
+
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
 	ShellLanguage.POSIX,
