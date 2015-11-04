@@ -12,7 +12,7 @@ local assert = halimede.assert
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 local RelativePath = require('halimede.io.paths.RelativePath')
-local ShellLanguage = require('halimede.io.ShellLanguage')
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
 function WindowsCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)

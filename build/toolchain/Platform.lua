@@ -12,7 +12,7 @@ local GnuTuple = requireSibling('GnuTuple')
 local CompilerDriver = requireSibling('CompilerDriver')
 local addFileExtensionToFileNames = requireSibling('Toolchain').addFileExtensionToFileNames
 local tabelize = require('halimede.table.tabelize').tabelize
-local ShellLanguage = require('halimede.io.ShellLanguage')
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
 function Platform:initialize(name, shellLanguage, folderSeparator, newLine, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)

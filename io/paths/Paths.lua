@@ -10,7 +10,7 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractPath = requireSibling('AbstractPath')
-local shellLanguage = require('halimede.io.ShellLanguage').Default
+local shellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
 
 
 Paths.static.pathSeparator = shellLanguage.pathSeparator

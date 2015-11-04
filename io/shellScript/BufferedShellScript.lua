@@ -11,7 +11,7 @@ local assert = halimede.assert
 local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local deepCopy = require('halimede.table.deepCopy').deepCopy
-local ShellLanguage = require('halimede.io.ShellLanguage')
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 local ShellScriptExecutor = require('halimede.io.shellScript.ShellScriptExecutor')
 local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
 
