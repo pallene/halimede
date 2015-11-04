@@ -10,9 +10,13 @@ local class = require('halimede.middleclass')
 local executeFromFile = require('halimede.luacode.executeFromFile').executeFromFile
 local exception = require('halimede.exception')
 local deepMerge = require('halimede.table.deepMerge').deepMerge
+local tabelize = require('halimede.table.tabelize').tabelize
 
-local CStandard = require('halimede.build.recipes.CStandard')
-local Defines = require('halimede.build.defines.Defines')
+local CStandard = require('halimede.build.toolchain.CStandard')
+local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
+local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
+local BuildEnvironment = require('halimede.build.toolchain.BuildEnvironment')
+local Toolchain = require('halimede.build.toolchain.Toolchain')
 local _FILE_OFFSET_BITS = require('halimede.build.defines._FILE_OFFSET_BITS')
 local CRAY_STACKSEG_END = require('halimede.build.defines.CRAY_STACKSEG_END')
 local RETSIGTYPE = require('halimede.build.defines.RETSIGTYPE')
@@ -47,7 +51,7 @@ local function ensureFunctionOrCallFieldExistsOrDefault(parent, fieldName, defau
 	return fieldValue
 end
 
-local function configHDefinesNews(configH, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
+local function configHDefinesNew(configH, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
 	
 	local version = packageVersion .. '-' .. table.concat(chosenBuildVariantNames, '-')
 	
@@ -62,6 +66,9 @@ local function configHDefinesNews(configH, packageOrganisation, packageName, pac
 end
 
 local function configHDefinesDefault(configHDefines, platform)
+end
+
+local function executeDefault(buildEnvironmentLight)
 end
 
 local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
@@ -167,22 +174,20 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 end
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
-function module.loadRecipe(recipeFilePath, chosenBuildVariantNames)
+function module.doRecipe(recipeFilePath, chosenBuildVariantNames, buildPlatform, crossPlatform, buildSysrootPath, crossSysrootPath, sourcePath)
 	assert.parameterTypeIsString(recipeFilePath)
 	
 	local chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
 	local environment = {
 		CStandard = CStandard,
-		Defines = Defines,
+		LegacyCandCPlusPlusStringLiteralEncoding = LegacyCandCPlusPlusStringLiteralEncoding,
+		CommandLineDefines = CommandLineDefines,
 		_FILE_OFFSET_BITS = _FILE_OFFSET_BITS,
 		CRAY_STACKSEG_END = CRAY_STACKSEG_END,
 		RETSIGTYPE = RETSIGTYPE,
 		ST_MTIM_NSEC = ST_MTIM_NSEC,
-		STACK_DIRECTION = STACK_DIRECTION,
-		
-		sysrootPath = '/opt',
-		destinationPath = '/opt/package/version'  -- Where version is, say, 2.0.4-lua-5.2 and package is luarocks
+		STACK_DIRECTION = STACK_DIRECTION
 	}
 	
 	local result = executeFromFile('recipe file', recipeFilePath, environment)
@@ -196,13 +201,18 @@ function module.loadRecipe(recipeFilePath, chosenBuildVariantNames)
 		local consolidatedBuildVariant = validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuildVariantNames, buildVariants)
 		
 	local configH = ensureTableExistsOrDefault(result, 'configH')
-		local configHDefines = crossPlatform:newConfigHDefines()
 		
 		local configHDefinesNew = ensureFunctionOrCallFieldExistsOrDefault(configH, 'configHDefinesNew', configHDefinesNew)
-		configHDefinesNew(configHDefines, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
 		
 		local configHDefinesDefault = ensureFunctionOrCallFieldExistsOrDefault(configH, 'configHDefinesDefault', configHDefinesDefault)
-		configHDefinesDefault(configHDefines, crossPlatorm)
+		
+		local platformConfigHDefinesFunctions = tabelize()
+		
+		local configHDefinesNewWrapperFunction = function(configHDefines, platform)
+			return configHDefinesNew(configHDefines, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
+		end
+		platformConfigHDefinesFunctions:insert(configHDefinesNewWrapperFunction)
+		platformConfigHDefinesFunctions:insert(configHDefinesDefault)
 		
 		local platforms = ensureTableExistsOrDefault(configH, 'platforms')
 		for platformMatch, platformFunction in pairs(platforms) do
@@ -210,15 +220,17 @@ function module.loadRecipe(recipeFilePath, chosenBuildVariantNames)
 			assert.parameterTypeIsFunctionOrCall(platformFunction)
 			
 			if crossPlatform.gnuTuple[platformMatch] == true then
+				platformConfigHDefinesFunctions:insert(platformFunction)
 				platformFunction(configHDefines, crossPlatorm)
 			end
 		end
 	
-	local compilationUnits = ensureTableExistsOrDefault(result, 'compilationUnits')
+	local execute = ensureFunctionOrCallFieldExistsOrDefault(result, 'execute', executeDefault)
 	
-	XXXXX: How? (choose windows or POSIX)
-	local compileUnitActions = platform:newCompileUnitActions()
+	local buildToolchain = Toolchain(buildPlatform, buildSysrootPath)
+	local crossToolchain = Toolchain(crossPlatform, crossSysrootPath)
 	
-	XXXX: crossPlatform - from where ?
+	local buildEnvironment = BuildEnvironment:new(buildToolchain, crossToolchain)
+	buildEnvironment:use(true, dependencies, consolidatedBuildVariant, sourcePath, configHDefinesNewWrapperFunction, platformConfigHDefinesFunctions  execute)
 	
 end

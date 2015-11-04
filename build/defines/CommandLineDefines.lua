@@ -13,10 +13,10 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local CompilerDriverArguments = require('halimede.build.toolchain.CompilerDriverArguments')
 
 
-function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros, ...)
+function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros)
 	assert.parameterTypeIsBoolean(doNotPredefineSystemOrCompilerDriverMacros)
 	
-	Defines.initialize(self, ...)
+	Defines.initialize(self)
 	
 	self.doNotPredefineSystemOrCompilerDriverMacros = doNotPredefineSystemOrCompilerDriverMacros
 end

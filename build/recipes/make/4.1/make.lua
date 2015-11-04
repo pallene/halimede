@@ -186,7 +186,7 @@ local function configHDefinesIsWindows(configHDefines, platform)
 	configH:FILE_TIMESTAMP_HI_RES(false)
 end
 
-local function compile(buildEnvironmentLight, buildVariantArguments, configHDefines, sourcePath)
+local function execute(buildEnvironmentLight)
 	
 	-- TODO:alloca support may be needed (all modern platforms have this)
 	-- TODO:Windows and VMS have different file lists
@@ -218,7 +218,7 @@ local function compile(buildEnvironmentLight, buildVariantArguments, configHDefi
 		'version',
 		'vpath',
 		'hash',
-		'remote-' .. buildVariantArguments.REMOTE,
+		'remote-' .. buildEnvironmentLight.arguments.REMOTE,
 		buildEnvironmentLight.concatenateToPath('glob', 'fnmatch'),
 		buildEnvironmentLight.concatenateToPath('glob', 'glob'),
 	}
@@ -228,14 +228,14 @@ local function compile(buildEnvironmentLight, buildVariantArguments, configHDefi
 	local sysrootPath = toolchain.sysrootPath
 	
 	
-	configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
+	buildEnvironmentLight.configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
 	buildEnvironmentLight.action(nil, 'WriteConfigH', configHDefines)
 	
 	
 	local standard = CStandard.gnu90
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
-	local defines = Defines(false)
+	local defines = CommandLineDefines(false)
 	defines:_quotedNonEmptyString('LOCALEDIR', toolchain:concatenateToPath(sysrootPath, 'lib'))
 	defines:_quotedNonEmptyString('LIBDIR', toolchain:concatenateToPath(sysrootPath, 'include'))
 	defines:_quotedNonEmptyString('INCLUDEDIR', toolchain:concatenateToPath(sysrootPath, 'share', 'local'))
@@ -383,7 +383,5 @@ return {
 			isMacOsX = configHDefinesIsMacOsX
 		}
 	},
-	compilationUnits = {
-		compile
-	}	
+	execute = execute
 }

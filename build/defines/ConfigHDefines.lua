@@ -13,8 +13,8 @@ local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 
 
-function ConfigHDefines:initialize(...)
-	Defines.initialize(self, ...)
+function ConfigHDefines:initialize()
+	Defines.initialize(self)
 	self.ensureDefinitions = {}
 end
 

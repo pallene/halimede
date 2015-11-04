@@ -10,15 +10,16 @@ local ToolchainBufferedShellScript = moduleclass('ToolchainBufferedShellScript',
 local halimede = require('halimede')
 local assert = halimede.assert
 local exception = require('halimede.exception')
-local Toolchain = requireSibling('Toolchain')
 
 
-function module:initialize(shellScriptExecutor, toolchain)
-	assert.parameterTypeIsInstanceOf(toolchain, Toolchain)
+function module:initialize(shellScriptExecutor, dependencies, buildVariant)
+	assert.parameterTypeIsTable(dependencies)
+	assert.parameterTypeIsTable(buildVariant)
 	
 	BufferedShellScript.initialize(self, shellScriptExecutor)
 	
-	self.toolchain = toolchain
+	self.dependencies = dependencies
+	self.buildVariant = buildVariant
 	
 	local shellLanguage = self.shellLanguage
 	self.lowerCasedName = shellLanguage.lowerCasedName
@@ -46,7 +47,7 @@ function module:newAction(namespace, actionName)
 		local ok, resultOrErrorMessage = pcall(require, potentialShellVariantModuleName)
 		if ok then
 			local ShellScriptActionClass = resultOrErrorMessage
-			return ShellScriptActionClass:new(self, self.toolchain)
+			return ShellScriptActionClass:new(self)
 		end
 	end
 	

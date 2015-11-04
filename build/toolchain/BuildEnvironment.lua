@@ -12,6 +12,7 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local Toolchain = requireSibling('Toolchain')
 local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
 local noRedirection = require('halimede.io.execute').noRedirection
+local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
 
 
 assert.globalTypeIsFunction('select', 'type', 'ipairs')
@@ -46,21 +47,28 @@ function BuildEnvironment(buildToolchain, crossToolchain)
 	self.isCrossCompiling = isCrossCompiling
 end
 
-function module:use(userFunction, isForRunningOnCrossCompiledHost, buildVariantArguments, configHDefines, sourcePath)
+assert.globalTypeIsFunction('ipairs')
+function module:use(isForRunningOnCrossCompiledHost, dependencies, buildVariant, sourcePath, platformConfigHDefinesFunctions, userFunction)
 	assert.parameterTypeIsFunctionOrCall(userFunction)
+	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
+	assert.parameterTypeIsTable(dependencies)
+	assert.parameterTypeIsTable(buildVariant)
+
+	local toolchain
+	if isForRunningOnCrossCompiledHost then
+		toolchain = self.crossToolchain
+	else
+		toolchain = self.buildToolchain
+	end
 	
-	
-	
-	
-	
-	TODO: Still need to pass    dependencies, buildVariant   to ctor of compiler driver actions
-	
-	
-	
-	
-	
-	local shellScript = self:_newShellScript(isForRunningOnCrossCompiledHost)
-	shellScript:newAction('StartScript')(sourcePath)
+	local platform = toolchain.platform
+	local configHDefines = platform:newConfigHDefines()
+	for _, platformConfigHDefinesFunction in ipairs(platformConfigHDefinesFunctions) do
+		platformConfigHDefinesFunction(configHDefines, platform)
+	end
+		
+	local shellScript = self:_newShellScript(toolchain, dependencies, buildVariant)
+	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
 	
 	local buildEnvironmentLight = {
 		
@@ -87,26 +95,21 @@ function module:use(userFunction, isForRunningOnCrossCompiledHost, buildVariantA
 		
 		action = function(name, namespace, ...)
 			shellScript:newAction(namespace, name):execute(...)
-		end
+		end,
+		
+		arguments = buildVariant.arguments,
+		
+		configHDefines = configHDefines
 	}
 	
-	userFunction(buildEnvironmentLight, buildVariantArguments, configHDefines)
+	userFunction(buildEnvironmentLight)
 	
-	shellScript:newAction('EndScript')()
+	shellScript:newAction(nil, 'EndScript'):execute()
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
 -- Are we expecting shell scripts to execute on the build or on the cross?
-function module:_newShellScript(isForRunningOnCrossCompiledHost)
-	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
-	
-	local toolchain
-	if isForRunningOnCrossCompiledHost then
-		toolchain = self.crossToolchain
-	else
-		toolchain = self.buildToolchain
-	end
-	
+function module:_newShellScript(toolchain, dependencies, buildVariant)
 	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
-	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, toolchain)
+	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, dependencies, buildVariant)
 end
