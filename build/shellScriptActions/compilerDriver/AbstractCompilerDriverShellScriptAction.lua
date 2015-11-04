@@ -50,7 +50,7 @@ function module:_unsetEnvironmentVariables(compilerDriverArguments)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
-		self:unsetEnvironmentVariableAction.execute(environmentVariableName)
+		self.unsetEnvironmentVariableAction.execute(environmentVariableName)
 	end)
 end
 
@@ -58,6 +58,6 @@ function module:_exportEnvironmentVariables(compilerDriverArguments, extras)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
-		self:exportEnvironmentVariableAction.execute(environmentVariableName, environmentVariableValue)
+		self.exportEnvironmentVariableAction.execute(environmentVariableName, environmentVariableValue)
 	end, extras)
 end

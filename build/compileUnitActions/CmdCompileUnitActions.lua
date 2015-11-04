@@ -5,18 +5,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local CompileUnitActions = requireSibling('CompileUnitActions')
-local CmdCompileUnitActions = moduleclass('CmdCompileUnitActions', CompileUnitActions)
+moduleclass('CmdCompileUnitActions', CompileUnitActions)
 
 local halimede = require('halimede')
 local assert = halimede.assert
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
-function CmdCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
+function module:initialize(sourcePath, sysrootPath, toolchain)
 	AbstractCompileUnitActions.initialise(self, ShellLanguage.Cmd, sourcePath, sysrootPath, toolchain)
 end
 
-function CmdCompileUnitActions:_initialBuildScript()
+function module:_initialBuildScript()
 	-- Can't use a multiline string because the new line terminator is then wrong
 	self:_appendLinesToScript(
 		'@ECHO OFF',
@@ -24,6 +24,6 @@ function CmdCompileUnitActions:_initialBuildScript()
 	)
 end
 
-function CmdCompileUnitActions:_finalBuildScript()
+function module:_finalBuildScript()
 	self:_appendLinesToScript('ENDLOCAL')
 end

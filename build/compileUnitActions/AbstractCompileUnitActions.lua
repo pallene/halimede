@@ -38,6 +38,8 @@ function AbstractCompileUnitActions:initialize(buildToolchain, crossToolchain, d
 	
 	self.shellScript = BufferedShellScript:new(shellLanguage)
 	self._initialBuildScript()
+	
+	XXXXX: Need to fit this
 	self.actionChangeDirectory(sourcePath)
 end
 
@@ -46,5 +48,5 @@ end
 
 function AbstractCompileUnitActions:executeScriptExpectingSuccess()
 	self._finishBuildScript()
-	self.shellScript:executeScriptExpectingSuccess(shellScriptExecutor, noRedirection, noRedirection)
+	self.shellScript:executeScriptExpectingSuccess(self.shellScriptExecutor, noRedirection, noRedirection)
 end

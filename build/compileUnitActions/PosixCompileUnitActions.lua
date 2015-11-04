@@ -5,13 +5,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local CompileUnitActions = requireSibling('CompileUnitActions')
-local PosixCompileUnitActions = moduleclass('PosixCompileUnitActions', CompileUnitActions)
+moduleclass('PosixCompileUnitActions', CompileUnitActions)
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
+local UnsetEnvironmentVariablePosixShellScriptAction = require('halimede.build.shellScriptActions.posix.UnsetEnvironmentVariablePosixShellScriptAction')
+local ExportEnvironmentVariablePosixShellScriptAction = require('halimede.build.shellScriptActions.posix.ExportEnvironmentVariablePosixShellScriptAction')
 
 
-local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptStart = {
+local environmentVariablesToUnsetAtBuildScriptStart = {
 	'CDPATH',
 	'BASH_ENV',
 	'ENV',
@@ -19,14 +22,23 @@ local PosixCompileUnitActions.static.environmentVariablesToUnsetAtBuildScriptSta
 	'MAILPATH'
 }
 
-function PosixCompileUnitActions:initialize(sourcePath, sysrootPath, toolchain)
-	AbstractCompileUnitActions.initialise(self, sourcePath, sysrootPath, toolchain)
+local environmentVariablesToExportAtBuildScriptStart = {
+	LC_ALL = 'C',
+	LC_CTYPE = 'C',
+	LC_MESSAGES = 'C',
+	LANGUAGE = 'C',
+	LANG = 'C'
+}
+
+function module:initialize(sourcePath, sysrootPath, toolchain)
+	AbstractCompileUnitActions.initialise(self, ShellLanguage.POSIX, sourcePath, sysrootPath, toolchain)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function PosixCompileUnitActions:_initialBuildScript()
+function module:_initialBuildScript()
 	-- Can't use a multiline string because the new line terminator is wrong if this file is edited by some Windows programs
-	-- NOTE: We don't try to support ancient non-POSIX shells that don't like export VAR=VALUE syntax
+	
+	local ifsValue=' \t\n'
 	self:_appendLinesToScript(
 		'#!/usr/bin/env sh',
 		'set -e',
@@ -41,17 +53,19 @@ function PosixCompileUnitActions:_initialBuildScript()
 		[[    alias -g '${1+"$[@]"}'='"$[@]"']],
 		'    setopt NO_GLOB_SUBST',
 		'fi',
-		'IFS=" $(printf \'\\t\')$(printf \'\\n\')"',  -- Space, Tab, Newline
-		'export LC_ALL=C',
-		'export LC_CTYPE=C',
-		'export LC_MESSAGES=C',
-		'export LANGUAGE=C',
-		'export LANG=C'
+		'IFS="' .. ifsValue .. '"'
 	)
-	for _, environmentVariableToUnsetAtBuildScriptStart in ipairs(environmentVariablesToUnsetAtBuildScriptStart) do
-		self:actionUnsetEnvironmentVariable(environmentVariableToUnsetAtBuildScriptStart)
+	
+	local unsetEnvironmentVariableAction = UnsetEnvironmentVariablePosixShellScriptAction:new()
+	for _, environmentVariableName in ipairs(environmentVariablesToUnsetAtBuildScriptStart) do
+		unsetEnvironmentVariableAction:execute(environmentVariableName)
+	end
+	
+	local exportEnvironmentVariableAction = ExportEnvironmentVariablePosixShellScriptAction:new()
+	for environmentVariableName, environmentVariableValue in pairs(environmentVariablesToExportAtBuildScriptStart) do
+		exportEnvironmentVariableAction:execute(environmentVariableName, environmentVariableValue)
 	end
 end
 
-function PosixCompileUnitActions:_finalBuildScript()
+function module:_finalBuildScript()
 end
