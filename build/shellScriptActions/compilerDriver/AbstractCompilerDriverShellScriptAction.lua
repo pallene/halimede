@@ -7,39 +7,24 @@ local AbstractShellScriptAction = require('halimede.build.shellScriptActions.Abs
 moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
 local assert = require('halimede').assert
+local Toolchain = requireSibling('Toolchain')
 local CStandard = require('halimede.build.toolchain.CStandard')
 local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
 local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
 
 
--- These unsetEnvironmentVariableActionCreator and exportEnvironmentVariableActionCreator are for either Cmd or Posix (or any other shell in the future, perhaps PowerShell or CScript)
-function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
+function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 	assert.parameterTypeIsFunctionOrCall(unsetEnvironmentVariableActionCreator)
 	assert.parameterTypeIsFunctionOrCall(exportEnvironmentVariableActionCreator)
-	assert.parameterTypeIsInstanceOf(buildToolchain, Toolchain)
-	assert.parameterTypeIsInstanceOf(crossToolchain, Toolchain)
 	assert.parameterTypeIsTable(dependencies)
 	assert.parameterTypeIsTable(buildVariant)
-	assert.parameterTypeIsInstanceOf(sourcePath, AbsolutePath)
 	
 	AbstractShellScriptAction.initialize(self, shellScript)
 	
-	-- eg UnsetEnvironmentVariablePosixShellScriptAction:new()
-	self.unsetEnvironmentVariableAction = unsetEnvironmentVariableActionCreator(shellScript)
-	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionCreator(shellScript)
-	self.buildToolchain = buildToolchain
-	self.crossToolchain = crossToolchain
 	self.dependencies = dependencies
 	self.buildVariant = buildVariant
-	self.sourcePath = sourcePath
-end
-
-function AbstractCompileUnitActions:_chooseToolchain(crossCompile)
-	if crossCompile then
-		return self.crossToolchain
-	else
-		return self.buildToolchain
-	end
+	self.unsetEnvironmentVariableAction = unsetEnvironmentVariableActionCreator(shellScript)
+	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionCreator(shellScript)
 end
 
 function AbstractCompileUnitActions:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)

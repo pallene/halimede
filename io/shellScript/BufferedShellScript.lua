@@ -12,14 +12,16 @@ local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
-local ShellScriptExecutor = require('halimede.io.shellScript.ShellScriptExecutor')
+local AbstractShellScriptExecutor = require('halimede.io.shellScript.AbstractShellScriptExecutor')
 local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
 
 
-function BufferedShellScript:initialize(shellLanguage)
-	assert.parameterTypeIsInstanceOf(shellLanguage, ShellLanguage)
+function BufferedShellScript:initialize(shellScriptExecutor)
+	assert.parameterTypeIsInstanceOf(shellScriptExecutor, AbstractShellScriptExecutor)
 	
-	self.shellLanguage = shellLanguage
+	self.shellScriptExecutor = shellScriptExecutor
+	
+	self.shellLanguage = shellScriptExecutor.shellLanguage
 	self.tabelizedScriptBuffer = tabelize()
 end
 
@@ -45,12 +47,10 @@ function BufferedShellScript:finish()
 	return script
 end
 
-function BufferedShellScript:executeScriptExpectingSuccess(shellScriptExecutor, standardOut, standardError)
-	assert.parameterTypeIsInstanceOf(shellLanguage, ShellScriptExecutor)
-	
+function BufferedShellScript:executeScriptExpectingSuccess(standardOut, standardError)
 	local script = self:finish()
 	
 	toTemporaryFileAllContentsInTextModeAndUse(script, self.shellLanguage.shellScriptFileExtensionIncludingLeadingPeriod, function(scriptFilePath)
-		shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
+		self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 	end)
 end

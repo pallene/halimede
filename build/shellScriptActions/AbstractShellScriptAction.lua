@@ -21,7 +21,7 @@ function module:_quoteArgument(argument)
 end
 
 function module:_redirectStandardOutput(filePathOrFileDescriptor)
-	return self.shellSript:redirectStandardOutput(fileOrFileDescriptor)
+	return self.shellScript:redirectStandardOutput(fileOrFileDescriptor)
 end
 
 function module:_appendLinesToScript(...)

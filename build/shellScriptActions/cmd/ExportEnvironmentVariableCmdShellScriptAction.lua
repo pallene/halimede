@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
-moduleclass('ExportEnvironmentVariablePosixShellScriptAction', AbstractPosixShellScriptAction)
+local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
+moduleclass('ExportEnvironmentVariableCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local assert = require('halimede').assert
 
 
 function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+	AbstractCmdShellScriptAction.initialize(self, shellScript)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')

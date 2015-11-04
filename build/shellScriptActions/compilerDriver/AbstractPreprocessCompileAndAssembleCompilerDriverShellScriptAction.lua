@@ -7,12 +7,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
+local Toolchain = requireSibling('Toolchain')
 
-function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
-	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
+
+function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)
+	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)
 end
 
-function module:execute(crossCompile, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
+function module:execute(toolchain, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
+	assert.parameterTypeIsInstanceOf(toolchain, Toolchain)
 	assert.parameterTypeIsBoolean(crossCompile)
 	assert.parameterTypeIsTable(compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf(standard, CStandard)

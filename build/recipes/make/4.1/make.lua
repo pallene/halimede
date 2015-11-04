@@ -186,7 +186,7 @@ local function configHDefinesIsWindows(configHDefines, platform)
 	configH:FILE_TIMESTAMP_HI_RES(false)
 end
 
-local function compile(compileUnitActions, buildEnvironment, buildVariant, configHDefines)
+local function compile(compileUnitActions, buildEnvironment, buildVariant, configHDefines, sourcePath)
 		
 	-- TODO:alloca support may be needed (all modern platforms have this)
 	-- TODO:Windows and VMS have different file lists
@@ -224,8 +224,12 @@ local function compile(compileUnitActions, buildEnvironment, buildVariant, confi
 	}
 	
 	
-	configH:MAKE_HOST(crossPlatform.gnuTuple.triplet)
-	compileUnitActions:writeConfigH()
+	local shellScript = buildEnvironment:newShellScript(false)
+	shellScript:newAction('StartScript'):execute(sourcePath)
+	
+	
+	configHDefines:MAKE_HOST(crossPlatform.gnuTuple.triplet)
+	shellScript:newAction('WriteConfigH'):execute(configHDefines)
 	
 	
 	local crossCompile = true
@@ -239,7 +243,7 @@ local function compile(compileUnitActions, buildEnvironment, buildVariant, confi
 	defines:_quotedNonEmptyString('INCLUDEDIR', buildEnvironment.crossToolchain.platform:concatenateToPath(sysrootPath, 'share', 'local'))
 	defines:_boolean('HAVE_CONFIG_H', true)
 	local sources = buildEnvironment:toCFiles(baseFileNames)
-	compileUnitActions:actionCompilerDriverCPreprocessCompileAndAssemble(crossCompile, compilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
+	shellScript:newAction('PreprocessCompileAndAssembleCompilerDriver', 'halimede.build.shellScriptActions.compilerDriver'):execute(buildEnvironment.crossToolchain, compilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
 	
 	
 	-- Do we want to name stuff, rather than use command line switches?
@@ -249,7 +253,10 @@ local function compile(compileUnitActions, buildEnvironment, buildVariant, confi
 	local objects = buildEnvironment.crossToolchain.platform:toObjectsWithoutPaths(baseFileNames)
 	local linkedLibraries = {}
 	local baseName = 'make'
-	compileUnitActions:actionCompilerDriverLinkCExecutable(crossCompile, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
+	shellScript:newAction('ExecutableLinkCompilerDriver', 'halimede.build.shellScriptActions.compilerDriver'):execute(buildEnvironment.crossToolchain, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
+
+	shellScript:newAction('EndScript'):execute()
+	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
 --[[

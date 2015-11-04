@@ -44,41 +44,10 @@ function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtensio
 	self.shellLanguage = shellLanguage
 	self.folderSeparator = shellLanguage.folderSeparator
 	self.pathSeparator = shellLanguage.pathSeparator
-	self.lowerCasedName = shellLanguage.lowerCasedName
-	self.titleCasedName = shellLanguage.titleCasedName
 	
 	Platform.static[name] = self
 end
 
-XXXX: shellScript
-
--- Arguments are things like shellScript, etc...
--- Doesn't work for the CompilerDriver actions like ExecutableLinkCompilerDriverShellScriptAction with unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator
--- We could either have Windows and Posix variants (which is an ok idea), or have the class object declare 'actions' it needs populated
--- Still unpleasant, as have to construct with arguments the client doesn't know
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-function Platform:newAction(actionName, namespace, ...)
-	assert.parameterTypeIsString(actionName)
-	
-	local actionNamespace
-	if namespace == nil then
-		actionNamespace = 'halimide.build.shellScriptActions'
-	else
-		assert.parameterTypeIsString(namespace)
-		actionNamespace = namespace
-	end
-	
-	-- Try to see if there's a Posix, Cmd, etc variant
-	local potentialShellVariantModuleName = ('%s.%s.%s%sShellScriptAction'):format(actionNamespace, self.lowerCasedName, actionName, self.titleCasedName)
-	local ok, resultOrErrorMessage = pcall(require, potentialShellVariantModuleName)
-	if ok then
-		local ShellScriptActionClass = resultOrErrorMessage
-		return ShellScriptActionClass:new(...)
-	end
-	
-	local potentialModuleName = ('%s.%sShellScriptAction'):format(actionNamespace, actionName)
-	return require(potentialModuleName):new(...)
-end
 
 function Platform:concatenateToPath(...)
 	return table.concat({...}, self.folderSeparator)

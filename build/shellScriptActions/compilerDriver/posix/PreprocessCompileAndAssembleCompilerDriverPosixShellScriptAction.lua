@@ -5,12 +5,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction = require('halimede.build.shellScriptActions.compilerDriver.AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction')
-moduleclass('PosixPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction)
+moduleclass('PreprocessCompileAndAssembleCompilerDriverPosixShellScriptAction', AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction)
 
 local UnsetEnvironmentVariablePosixShellScriptAction = require('halimede.build.shellScriptActions.cmd.UnsetEnvironmentVariablePosixShellScriptAction')
 local ExportEnvironmentVariablePosixShellScriptAction = require('halimede.build.shellScriptActions.cmd.ExportEnvironmentVariablePosixShellScriptAction')
 
 
-function module:initialize(shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
-	AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.initialize(self, shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction)
+function module:initialize(shellScript, dependencies, buildVariant)
+	AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction)
 end

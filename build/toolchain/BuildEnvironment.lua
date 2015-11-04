@@ -10,27 +10,34 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local Toolchain = requireSibling('Toolchain')
+local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
 
 
 function BuildEnvironment(buildToolchain, crossToolchain)
-	self.buildToolchain = crossToolchain
+	self.buildToolchain = buildToolchain
+	self.crossToolchain = crossToolchain
 	
-	if buildToolchain == nil then
-		self.buildToolchain = crossToolchain
-		self.isCrossCompiling = false
+	if buildToolchain == crossToolchain then
+		isCrossCompiling = false
 	else
-		assert.parameterTypeIsInstanceOf(buildToolchain, Toolchain)
-		
-		self.buildToolchain = buildToolchain
-		
-		local isCrossCompiling
-		if buildToolchain == crossToolchain then
-			isCrossCompiling = false
-		else
-			isCrossCompiling = true
-		end
-		self.isCrossCompiling = isCrossCompiling
+		isCrossCompiling = true
 	end
+	self.isCrossCompiling = isCrossCompiling
+end
+
+-- Are we expecting shell scripts to execute on the build or on the cross?
+function module:newShellScript(isForRunningOnCrossCompiledHost)
+	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
+	
+	local toolchain
+	if isForRunningOnCrossCompiledHost then
+		toolchain = self.crossToolchain
+	else
+		toolchain = self.buildToolchain
+	end
+	
+	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
+	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, toolchain)
 end
 
 assert.globalTypeIsFunction('select', 'type', 'ipairs')
@@ -53,11 +60,11 @@ BuildEnvironment.static.addFileExtensionToFileNames = function(extensionWithLead
 	return result
 end
 
-function BuildEnvironment:toCFiles(...)
+function module:toCFiles(...)
 	return BuildEnvironment.addFileExtensionToFileNames('.c', ...)
 end
 
 -- TODO: not necessarily .cxx; several variants, sadly
-function BuildEnvironment:toCPlusPlusFiles(...)
+function module:toCPlusPlusFiles(...)
 	return BuildEnvironment.addFileExtensionToFileNames('.cxx', ...)
 end
