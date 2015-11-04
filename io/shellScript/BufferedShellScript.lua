@@ -23,16 +23,24 @@ function BufferedShellScript:initialize(shellLanguage)
 	self.tabelizedScriptBuffer = tabelize()
 end
 
+function BufferedShellScript:quoteArgument(argument)
+	return self.shellLanguage:quoteArgument(argument)
+end
+
+function BufferedShellScript:redirectStandardOutput(filePathOrFileDescriptor)
+	return self.shellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
+end
+
 function BufferedShellScript:appendLinesToScript(...)
 	self.shellLanguage:appendLinesToScript(self.tabelizedScriptBuffer, ...)
 end
 
-function BufferedShellScript:appendCommandLineToScript(tabelizedScriptBuffer, ...)
+function BufferedShellScript:appendCommandLineToScript(...)
 	self.shellLanguage:appendCommandLineToScript(self.tabelizedScriptBuffer, ...)
 end
 
 function BufferedShellScript:finish()
-	local script = self.tabelizedScriptBuffer:concat()
+	local script = self.tabelizedScriptBuffer:concat(self.shellLanguage.newline)
 	self.tabelizedScriptBuffer = tabelize()
 	return script
 end

@@ -18,5 +18,5 @@ end
 function module:execute(abstractPath)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 	
-	self:_appendCommandLineToBuildScript('cd', abstractPath.path)
+	self:_appendCommandLineToScript('cd', abstractPath.path)
 end

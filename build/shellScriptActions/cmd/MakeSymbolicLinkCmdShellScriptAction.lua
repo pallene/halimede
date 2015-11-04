@@ -21,8 +21,8 @@ function module:execute(abstractLinkContentsFilePath, abstractLinkFilePath, isDi
 	assert.parameterTypeIsInstanceOf(abstractLinkFilePath, AbstractPath)
 	
 	if isDirectory then
-		self:_appendCommandLineToBuildScript('MKLINK', '/D', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
+		self:_appendCommandLineToScript('MKLINK', '/D', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
 	else
-		self:_appendCommandLineToBuildScript('MKLINK', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
+		self:_appendCommandLineToScript('MKLINK', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
 	end
 end

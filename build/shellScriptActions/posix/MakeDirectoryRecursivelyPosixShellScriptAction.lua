@@ -19,5 +19,5 @@ function module:execute(abstractPath, mode)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 	assert.parameterTypeIsString(mode)
 	
-	self:_appendCommandLineToBuildScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
+	self:_appendCommandLineToScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
 end

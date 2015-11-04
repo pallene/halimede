@@ -21,8 +21,8 @@ function module:execute(abstractPath)
 	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
 
 	if Object.isInstanceOf(abstractPath, AbsolutePath) then
-		self:_appendCommandLineToBuildScript('CD', '/D', abstractPath.path)
+		self:_appendCommandLineToScript('CD', '/D', abstractPath.path)
 	else
-		self:_appendCommandLineToBuildScript('CD', abstractPath.path)
+		self:_appendCommandLineToScript('CD', abstractPath.path)
 	end
 end

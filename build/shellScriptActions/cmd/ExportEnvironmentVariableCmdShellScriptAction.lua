@@ -19,5 +19,5 @@ function module:execute(variableName, variableValue)
 	assert.parameterTypeIsString(variableName)
 	assert.parameterTypeIsString(variableValue)
 	
-	self:_appendCommandLineToBuildScript('SET', variableName .. '=' .. variableValue)
+	self:_appendCommandLineToScript('SET', variableName .. '=' .. variableValue)
 end

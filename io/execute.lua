@@ -20,13 +20,13 @@ function module.execute(standardIn, standardOut, standardError, ...)
 	
 	local arguments = tabelize({...})
 	if standardIn then
-		arguments:insert(shellLanguage.redirectInput(standardIn))
+		arguments:insert(shellLanguage.redirectStandardInput(standardIn))
 	end
 	if standardOut then
-		arguments:insert(shellLanguage.redirectOutput(standardOut))
+		arguments:insert(shellLanguage.redirectStandardOutput(standardOut))
 	end
 	if standardError then
-		arguments:insert(shellLanguage.redirectOutput(standardError))
+		arguments:insert(shellLanguage.redirectStandardError(standardError))
 	end
 	
 	local command = shellLanguage.toShellCommand(...)

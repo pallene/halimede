@@ -5,9 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
-moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('WriteConfigHPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
+local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 
 
@@ -15,10 +16,14 @@ function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-function module:execute(abstractPath)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
-
-	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows
-	self:_appendCommandLineToScript('RD', '/S', '/Q', abstractPath.path)
+function module:execute(configHDefines, filePath)
+	assert.parameterTypeIsInstanceOf(configHDefines, ConfigHDefines)
+	local actualFilePath
+	if filePath == nil then
+		actualFilePath = 'config.h'
+	else
+		assert.parameterTypeIsInstanceOf(filePath, AbstractPath)
+		actualFilePath = filePath.path
+	end
+	self:_appendCommandLineToScript('printf', '%s',  configHDefines:toCPreprocessorText(), self:_redirectStandardOutput(actualFilePath))
 end

@@ -9,9 +9,6 @@ local CmdCompileUnitActions = moduleclass('CmdCompileUnitActions', CompileUnitAc
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
-local RelativePath = require('halimede.io.paths.RelativePath')
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
@@ -21,13 +18,12 @@ end
 
 function CmdCompileUnitActions:_initialBuildScript()
 	-- Can't use a multiline string because the new line terminator is then wrong
-	self:_appendLinesToBuildScript(
+	self:_appendLinesToScript(
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions'
 	)
 end
 
-assert.globalTypeIsFunction('unpack')
 function CmdCompileUnitActions:_finalBuildScript()
-	self:_appendLinesToBuildScript('ENDLOCAL')
+	self:_appendLinesToScript('ENDLOCAL')
 end

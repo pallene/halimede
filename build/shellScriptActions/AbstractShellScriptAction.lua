@@ -16,6 +16,18 @@ function module:initialize(shellScript)
 	self.shellScript = shellScript
 end
 
+function module:_quoteArgument(argument)
+	return self.shellScript:quoteArgument(argument)
+end
+
+function module:_redirectStandardOutput(filePathOrFileDescriptor)
+	return self.shellSript:redirectStandardOutput(fileOrFileDescriptor)
+end
+
+function module:_appendLinesToScript(...)
+	self.shellScript:appendLinesToScript(...)
+end
+
 function module:_appendCommandLineToScript(...)
 	self.shellScript:appendCommandLineToScript(...)
 end

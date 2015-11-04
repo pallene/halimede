@@ -19,8 +19,8 @@ function ConfigHDefines:initialize(...)
 end
 
 assert.globalTypeIsFunction('pairs')
-function ConfigHDefines:toCPreprocessorText()	
-	local buffer = tabelize({})
+function ConfigHDefines:toCPreprocessorTextLines()	
+	local buffer = tabelize()
 	for defineName, _ in pairs(self.explicitlyUndefine) do
 		buffer:insert('#undef ' .. defineName)
 	end
@@ -32,7 +32,11 @@ function ConfigHDefines:toCPreprocessorText()
 		buffer:insert('# define ' .. defineName .. ' ' .. defineValue)
 		buffer:insert('#endif')
 	end
-	return buffer:concat('\n')
+	return buffer
+end
+
+function ConfigHDefines:toCPreprocessorText(newline)
+	return self:toCPreprocessorTextLines():concat(newline)
 end
 
 function ConfigHDefines:_ensureDefinition(defineName, enable, defineValue)

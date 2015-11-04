@@ -21,6 +21,6 @@ function module:execute(paths)
 	assert.parameterTypeIsInstanceOf(paths, Paths)
 
 	-- http://ss64.com/nt/path.html
-	self:_appendCommandLineToBuildScript('PATH', ';')
-	self:_appendCommandLineToBuildScript('PATH', paths.paths)
+	self:_appendCommandLineToScript('PATH', ';')
+	self:_appendCommandLineToScript('PATH', paths.paths)
 end

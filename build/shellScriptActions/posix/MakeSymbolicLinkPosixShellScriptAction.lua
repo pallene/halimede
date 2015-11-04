@@ -19,5 +19,5 @@ function module:execute(abstractLinkContentsFilePath, abstractLinkFilePath, isDi
 	assert.parameterTypeIsInstanceOf(abstractLinkContentsFilePath, AbstractPath)
 	assert.parameterTypeIsInstanceOf(abstractLinkFilePath, AbstractPath)
 	
-	self:_appendCommandLineToBuildScript('ln', '-s' abstractLinkContentsFilePath.path, abstractLinkFilePath.path)
+	self:_appendCommandLineToScript('ln', '-s' abstractLinkContentsFilePath.path, abstractLinkFilePath.path)
 end

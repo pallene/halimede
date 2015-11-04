@@ -37,6 +37,6 @@ function module:execute(crossCompile, compilerDriverFlags, standard, legacyCandC
 	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 	
 	compilerDriverArguments:useUnpacked(function(...)
-		self:_appendCommandLineToBuildScript(...)
+		self:_appendCommandLineToScript(...)
 	end)
 end

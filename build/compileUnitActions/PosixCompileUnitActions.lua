@@ -27,7 +27,7 @@ assert.globalTypeIsFunction('ipairs')
 function PosixCompileUnitActions:_initialBuildScript()
 	-- Can't use a multiline string because the new line terminator is wrong if this file is edited by some Windows programs
 	-- NOTE: We don't try to support ancient non-POSIX shells that don't like export VAR=VALUE syntax
-	self:_appendLinesToBuildScript(
+	self:_appendLinesToScript(
 		'#!/usr/bin/env sh',
 		'set -e',
 		'set -u',

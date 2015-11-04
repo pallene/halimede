@@ -34,9 +34,9 @@ function ShellLanguage:initialize(pathSeparator, newline, shellScriptFileExtensi
 	self.silenced = silenced
 	self.searchesCurrentPath = searchesCurrentPath
 
-	self.silenceStandardIn = self:redirectInput(ShellLanguage.standardIn, silenced),
-	self.silenceStandardOut = self:redirectOutput(ShellLanguage.standardOut, silenced),
-	self.silenceStandardError = self:redirectOutput(ShellLanguage.standardError, silenced),
+	self.silenceStandardIn = self:redirectStandardInput(silenced),
+	self.silenceStandardOut = self:redirectStandardOutput(silenced),
+	self.silenceStandardError = self:redirectStandardError(silenced),
 end
 
 function ShellLanguage:quoteArgument(argument)
@@ -66,6 +66,18 @@ function ShellLanguage:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
+function ShellLanguage:redirectStandardInput(filePathOrFileDescriptor)
+	return self:redirectInput(ShellLanguage.standardIn, filePathOrFileDescriptor)
+end
+
+function ShellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
+	return self:redirectOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
+end
+
+function ShellLanguage:redirectStandardError(filePathOrFileDescriptor)
+	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
+end
+
 assert.globalTypeIsFunction('ipairs')
 function ShellLanguage:toShellCommand(...)
 	local arguments = {...}
@@ -91,7 +103,6 @@ function ShellLanguage:appendLinesToScript(tabelizedScriptBuffer, ...)
 	local lines = {...}
 	for _, line in ipairs(lines) do
 		tabelizedScriptBuffer:insert(line)
-		tabelizedScriptBuffer:insert(self.newline)
 	end
 end
 

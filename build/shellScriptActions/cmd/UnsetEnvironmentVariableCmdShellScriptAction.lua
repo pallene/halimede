@@ -18,5 +18,5 @@ assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:execute(variableName)
 	assert.parameterTypeIsString(variableName)
 	
-	self:_appendCommandLineToBuildScript('UNSET', '/Q', variableName)
+	self:_appendCommandLineToScript('UNSET', '/Q', variableName)
 end

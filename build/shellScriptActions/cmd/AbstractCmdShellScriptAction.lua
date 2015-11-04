@@ -11,3 +11,8 @@ moduleclass('AbstractPosixShellScriptAction', AbstractShellScriptAction)
 function module:initialize(shellScript)
 	AbstractShellScriptAction.initialize(self, shellScript)
 end
+
+function module:appendCommandWithErrorCheck(...)
+	self:_appendCommandLineToScript(...)
+	self:_appendLinesToScript('IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
+end
