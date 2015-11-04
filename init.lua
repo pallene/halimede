@@ -415,7 +415,7 @@ local packageConfiguration = ourModule.packageConfiguration
 
 local function detectOperatingSystemDetails()
 	
-	local operatingSystemDetailsPOSIX = {
+	local operatingSystemDetailsPosix = {
 		isPosix = true,
 		isWindows = false,
 		name = 'POSIX',
@@ -437,7 +437,7 @@ local function detectOperatingSystemDetails()
 		if packageConfiguration.folderSeparator == '\\' then
 			return operatingSystemDetailsWindows
 		else
-			return operatingSystemDetailsPOSIX
+			return operatingSystemDetailsPosix
 		end
 	end
 	
@@ -446,11 +446,11 @@ local function detectOperatingSystemDetails()
 	if name == 'Windows' then
 		return operatingSystemDetailsWindows
 	else
-		operatingSystemDetailsPOSIX.name = name
+		operatingSystemDetailsPosix.name = name
 		if name == 'OSX' then
-			operatingSystemDetailsPOSIX.sharedLibraryExtension = 'dylib'
+			operatingSystemDetailsPosix.sharedLibraryExtension = 'dylib'
 		end
-		return operatingSystemDetailsPOSIX
+		return operatingSystemDetailsPosix
 	end
 end
 ourModule.operatingSystemDetails = detectOperatingSystemDetails()

@@ -152,7 +152,7 @@ function ShellLanguage:binarySearchPath()
 end
 
 
-local PosixShellLanguage = class('POSIX', ShellLanguage)
+local PosixShellLanguage = class('PosixShellLanguage', ShellLanguage)
 
 function PosixShellLanguage:initialize()
 	ShellLanguage.initialize(self, ':', '\n', '', '/dev/null', false)
@@ -165,10 +165,10 @@ function PosixShellLanguage:quoteArgument(argument)
 	return "'" .. argument:gsub("'", "''") .. "'"
 end
 
-ShellLanguage.static.POSIX = PosixShellLanguage:new()
+ShellLanguage.static.Posix = PosixShellLanguage:new()
 
 
-local CmdShellLanguage = class('Cmd', ShellLanguage)
+local CmdShellLanguage = class('CmdShellLanguage', ShellLanguage)
 
 function CmdShellLanguage:initialize()
 	ShellLanguage.initialize(self, ';', '\r\n', '.cmd', 'NUL', true)
@@ -225,7 +225,7 @@ ShellLanguage.static.Cmd = CmdShellLanguage:new()
 local operatingSystemDetails = halimede.operatingSystemDetails
 local default
 if operatingSystemDetails.isPosix then
-	default = ShellLanguage.POSIX
+	default = ShellLanguage.Posix
 elseif halimede.operatingSystemDetails.isCmd then
 	default = ShellLanguage.Cmd
 else

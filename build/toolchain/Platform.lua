@@ -93,7 +93,7 @@ Unix POSIX platforms:-
 
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
-	ShellLanguage.POSIX,
+	ShellLanguage.Posix,
 	'/',
 	'\n',
 	'.o',
@@ -109,7 +109,7 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
-	ShellLanguage.POSIX,
+	ShellLanguage.Posix,
 	'/',
 	'\n',
 	'.o',

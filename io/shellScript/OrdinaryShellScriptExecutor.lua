@@ -25,5 +25,5 @@ function ShellScriptExecutor:_executeScriptExpectingSuccess(scriptFilePath, stan
 	executeExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))
 end
 
-OrdinaryShellScriptExecutor.static.POSIX = OrdinaryShellScriptExecutor:new('sh')
+OrdinaryShellScriptExecutor.static.Posix = OrdinaryShellScriptExecutor:new('sh')
 OrdinaryShellScriptExecutor.static.Cmd = OrdinaryShellScriptExecutor:new('cmd', '/c', '/e:on', '/u')
