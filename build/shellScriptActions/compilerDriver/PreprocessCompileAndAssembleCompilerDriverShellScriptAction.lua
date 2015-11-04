@@ -8,7 +8,7 @@ local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShe
 moduleclass('PreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 
-function module:initialize(shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
+function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
 	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, buildToolchain, crossToolchain, dependencies, buildVariant, sourcePath)
 end
 
