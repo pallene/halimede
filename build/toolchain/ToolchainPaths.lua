@@ -76,9 +76,6 @@ local toolchainPathStrategies = {
 	end
 }
 
-
-
-
 function module:initialize(strategy, sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
 	assert.parameterTypeIsFunctionOrCall(strategy)
 	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
@@ -96,69 +93,121 @@ function module:initialize(strategy, sysrootPath, versionRelativePath, prefixPat
 		assert.parameterTypeIsInstanceOf(libPrefixPath, AbsolutePath)
 		self.libPrefixPath = libPrefixPath
 	end
-	
-	-- User Executables (bindir)
-	self.packageBinAbsolutePath, self.packageBinRelativePath = strategy(execPrefixPath, versionRelativePath, 'bin')
-	
-	-- System Administrator Executables (sbindir)
-	self.packageSbinAbsolutePath, self.packageSbinRelativePath = strategy(execPrefixPath, versionRelativePath, 'sbin')
-	
-	-- Program Executables (libexecdir)
-	self.packageLibexecAbsolutePath, self.packageLibexecRelativePath = strategy(execPrefixPath, versionRelativePath, 'libexec')
-	
-	-- TODO: Needs to go into a per-machine location so it can be modified / mounted independently of build
-	-- TODO: Probably some sort of overlay approach using rsync (ie replacements for default config)
-	-- Read-only single-machine data (sysconfdir)
-	self.packageEtcAbsolutePath, self.packageEtcRelativePath = strategy(prefixPath, versionRelativePath, 'etc')
-	
-	-- Modifiable architecture-independent data (sharedstatedir)  -- ? is this similar to /srv ?
-	self.packageComAbsolutePath, self.packageComRelativePath = strategy(prefixPath, versionRelativePath, 'com')
-	
-	-- TODO: Needs a different strategy
-	-- TODO: Probably needs to go into a per-machine location so can be independently mountained (we will want to retain state)
-	-- TODO: We may not want to version this
-	-- Modifiable single-machine data (localstatedir)
-	self.packageVarAbsolutePath, self.packageVarRelativePath = strategy(prefixPath, versionRelativePath, 'var')
-	
-	-- TODO: Consider splitting out .a from .so during installs
-	-- Object code libraries (libdir)  (can contain both static .a and dynamic .so libraries as well as pkgconfig .pc cruft; the former is only needed at compile-time)
-	self.packageLibAbsolutePath, self.packageLibRelativePath = strategy(libPrefixPath, versionRelativePath, 'lib')
-	
-	-- C header files (includedir)
-	self.packageIncludeAbsolutePath, self.packageIncludeRelativePath = strategy(prefixPath, versionRelativePath, 'include')
-	
-	-- C header files for non-gcc (oldincludedir)
-	self.packageOldIncludeAbsolutePath, self.packageOldIncludeRelativePath = strategy(prefixPath, versionRelativePath, 'oldinclude')  -- GNU configure default is /usr/include
-	
-	-- Read-only archictecture-independent data root (datarootdir)
-	self.packageShareAbsolutePath, self.packageShareRelativePath = strategy(prefixPath, versionRelativePath, 'share')
-	
-	-- Read-only idiosyncratic read-only architecture-independent data (datadir)
-	self.packageDataAbsolutePath, self.packageDataRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'data') -- GNU configure default is == datarootdir
-	
-	-- info documentation (infodir)
-	self.packageInfoAbsolutePath, self.packageInfoRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'info')
-	
-	-- locale-dependent data (localedir)
-	self.packageManAbsolutePath, self.packageManRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'locale')
-	
-	-- man documentation (mandir)
-	self.packageManAbsolutePath, self.packageManRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'man')
-	
-	-- documentation root (docdir)
-	self.packageDocAbsolutePath, self.packageDocRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc')
-	
-    -- html documentation (htmldir)
-	self.packageHtmlAbsolutePath, self.packageHtmlRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'html')
-	
-    -- dvi documentation (dvidir)
-	self.packageDviAbsolutePath, self.packageDviRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'dvi')
-	
-    -- pdf documentation (pdfdir)
-	self.packagePdfAbsolutePath, self.packagePdfRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'pdf')
-    
-	-- ps documentation (psdir)
-	self.packagePsAbsolutePath, self.packagePsRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'ps')
-	
 end
 
+function module:_path(strategy, path, ...)
+	return strategy(path, self.versionRelativePath, ...)
+end
+
+function module:_prefixPath(strategy, ...)
+	return self:_path(strategy, self.prefixPath, ...)
+end
+
+function module:_execPrefixPath(strategy, ...)
+	return self:_path(strategy, self.execPrefixPath, ...)
+end
+
+function module:_libPefixPath(strategy, ...)
+	return self:_path(strategy, self.libPrefixPath, ...)
+end
+
+-- User Executables (bindir)
+function module:bin(strategy)
+	return self:_execPrefixPath(strategy, 'bin')
+end
+
+-- System Administrator Executables (sbindir)
+function module:sbin(strategy)
+	return self:_execPrefixPath(strategy, 'sbin')
+end
+
+-- Program Executables (libself.execdir)
+function module:libself.exec(strategy)
+	return self:_execPrefixPath(strategy, 'libself.exec')
+end
+
+-- TODO: Needs to go into a per-machine location so it can be modified / mounted independently of build
+-- TODO: Probably some sort of oself.verlay approach using rsync (ie replacements for default config)
+-- Read-only single-machine data (sysconfdir)
+function module:etc(strategy)
+	return self:_prefixPath(strategy, 'etc')
+end
+
+-- Modifiable architecture-independent data (sharedstatedir)
+function module:com(strategy)
+	return self:_prefixPath(strategy, 'com')
+end
+
+-- TODO: Needs a different strategy
+-- TODO: Probably needs to go into a per-machine location so can be independently mountained (we will want to retain state)
+-- TODO: We may not want to self.version this
+-- Modifiable single-machine data (localstatedir)
+function module:var(strategy)
+	return self:_prefixPath(strategy, 'var')
+end
+
+-- TODO: Consider splitting out .a from .so during installs
+-- Object code libraries (libdir)  (can contain both static .a and dynamic .so libraries as well as pkgconfig .pc cruft; the former is only needed at compile-time)
+function module:com(strategy)
+	return self:_libPrefixPath(strategy, 'lib')
+end
+
+-- C header files (includedir)
+function module:include(strategy)
+	return self:_prefixPath(strategy, 'include')
+end
+
+-- C header files for non-gcc (oldincludedir)
+function module:oldinclude(strategy)
+	return self:_prefixPath(strategy, 'oldinclude')  -- GNU configure default is /usr/include
+end
+
+-- Read-only archictecture-independent data root (datarootdir)
+function module:share(strategy)
+	return self:_prefixPath(strategy, 'share')
+end
+
+-- Read-only idiosyncratic read-only architecture-independent data (datadir)
+function module:data(strategy)
+	return self:_prefixPath(strategy, 'share', 'data')  -- GNU configure default is == datarootdir
+end
+
+-- info documentation (infodir)
+function module:info(strategy)
+	return self:_prefixPath(strategy, 'share', 'info')
+end
+
+-- locale-dependent data (localedir)
+function module:locale(strategy)
+	return self:_prefixPath(strategy, 'share', 'locale')
+end
+
+-- man documentation (mandir)
+function module:man(strategy)
+	return self:_prefixPath(strategy, 'share', 'man')
+end
+
+-- documentation root (docdir)
+function module:doc(strategy)
+	return self:_prefixPath(strategy, 'share', 'doc')
+end
+
+-- html documentation (htmldir)
+function module:html(strategy)
+	return self:_prefixPath(strategy, 'share', 'doc', 'html')
+end
+
+-- dvi documentation (dvidir)
+function module:dvi(strategy)
+	return self:_prefixPath(strategy, 'share', 'doc', 'dvi')
+end
+
+-- pdf documentation (pdfdir)
+function module:doc(strategy)
+	return self:_prefixPath(strategy, 'share', 'doc', 'pdf')
+end
+
+-- ps documentation (psdir)
+function module:ps(strategy)
+	return self:_prefixPath(strategy, 'share', 'doc', 'ps')
+end
