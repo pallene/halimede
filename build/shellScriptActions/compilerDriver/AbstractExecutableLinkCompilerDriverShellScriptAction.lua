@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('AbstractExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-local BuildEnvironment = requireSibling('Toolchain')
+local Toolchain = requireSibling('Toolchain')
 
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)

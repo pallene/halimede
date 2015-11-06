@@ -9,7 +9,7 @@ moduleclass('Toolchain')
 local halimede = require('halimede')
 local assert = halimede.assert
 local Platform = requireSibling('Platform')
-local Platform = requireSibling('ToolchainPaths')
+local ToolchainPaths = requireSibling('ToolchainPaths')
 
 
 function module:initialize(platform, toolchainPaths)
@@ -17,7 +17,7 @@ function module:initialize(platform, toolchainPaths)
 	assert.parameterTypeIsInstanceOf(toolchainPaths, ToolchainPaths)
 	
 	self.platform = platform
-	self.sysrootPath = sysrootPath
+	self.toolchainPaths = toolchainPaths
 end
 
 function module:concatenateToPath(...)

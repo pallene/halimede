@@ -7,10 +7,6 @@ local AbstractShellScriptAction = require('halimede.build.shellScriptActions.Abs
 moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
 local assert = require('halimede').assert
-local BuildEnvironment = requireSibling('Toolchain')
-local CStandard = require('halimede.build.toolchain.CStandard')
-local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
-local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
 
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)

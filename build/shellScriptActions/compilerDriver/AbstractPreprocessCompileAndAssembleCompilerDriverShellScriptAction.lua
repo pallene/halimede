@@ -7,7 +7,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-local BuildEnvironment = requireSibling('Toolchain')
+local Toolchain = requireSibling('Toolchain')
+local CStandard = require('halimede.build.toolchain.CStandard')
+local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
+local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
 
 
 function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)
