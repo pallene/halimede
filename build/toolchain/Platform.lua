@@ -48,23 +48,33 @@ function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtensio
 	Platform.static[name] = self
 end
 
-function Platform:concatenateToPath(...)
-	return table.concat({...}, self.folderSeparator)
-end
-
-function Platform:concatenateToPaths(...)
-	return table.concat({...}, self.pathSeparator)
-end
-
-function Platform:toObjects(...)
-	return addFileExtensionToFileNames(self.objectExtension, ...)
-end
-
-function Platform:newConfigHDefines()
+function module:_newConfigHDefines()
 	return self.gnuTuple:newConfigHDefines()
 end
 
-function Platform:toObjectsWithoutPaths(...)
+function module:createConfigHDefines(platformConfigHDefinesFunctions)
+	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
+	
+	local configHDefines = self:_newConfigHDefines()
+	for _, platformConfigHDefinesFunction in ipairs(platformConfigHDefinesFunctions) do
+		platformConfigHDefinesFunction(configHDefines, self)
+	end
+	return configHDefines
+end
+
+function module:concatenateToPath(...)
+	return table.concat({...}, self.folderSeparator)
+end
+
+function module:concatenateToPaths(...)
+	return table.concat({...}, self.pathSeparator)
+end
+
+function module:toObjects(...)
+	return addFileExtensionToFileNames(self.objectExtension, ...)
+end
+
+function module:toObjectsWithoutPaths(...)
 	local result = tabelize()
 	for _, pathPrefixedFileName in ipairs(self:toObjects(...)) do
 		result:insert(halimede.basename(pathPrefixedFileName))

@@ -724,10 +724,14 @@ end
 
 modulesRootPath = concatenateToPath({findOurFolderPath(), '..'})
 package.loaded[ourModuleName] = ourModule
-require(ourModuleName .. '.init.trace')
-require(ourModuleName .. '.init.requireChild')
-require(ourModuleName .. '.init.requireSibling')
-require(ourModuleName .. '.init.augmentAssertWithMiddleclass')
+local function augment(moduleLeafName)
+	require(ourModuleName .. '.init.' .. moduleLeafName)	
+end
+augment('trace')
+augment('requireChild')
+augment('requireSibling')
+augment('augmentAssertWithMiddleclass')
+augment('augmentAssertWithFieldExists')
 
 local class = require(ourModuleName .. '.middleclass')
 assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')

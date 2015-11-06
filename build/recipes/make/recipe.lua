@@ -225,7 +225,6 @@ local function execute(buildEnvironmentLight)
 	
 	local toolchain = buildEnvironmentLight.crossToolchain
 	local cCompilerDriverFlags = {}
-	local sysrootPath = toolchain.sysrootPath
 	
 	
 	buildEnvironmentLight.configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
@@ -236,9 +235,9 @@ local function execute(buildEnvironmentLight)
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
 	local defines = CommandLineDefines(false)
-	defines:_quotedNonEmptyString('LOCALEDIR', toolchain:concatenateToPath(sysrootPath, 'lib'))
-	defines:_quotedNonEmptyString('LIBDIR', toolchain:concatenateToPath(sysrootPath, 'include'))
-	defines:_quotedNonEmptyString('INCLUDEDIR', toolchain:concatenateToPath(sysrootPath, 'share', 'local'))
+	defines:_quotedNonEmptyString('LOCALEDIR', toolchain:concatenateToPathBelowSysroot('lib'))
+	defines:_quotedNonEmptyString('LIBDIR', toolchain:concatenateToPathBelowSysroot('include'))
+	defines:_quotedNonEmptyString('INCLUDEDIR', toolchain:concatenateToPathBelowSysroot('share', 'local'))
 	defines:_boolean('HAVE_CONFIG_H', true)
 	local sources = buildEnvironmentLight.toCFiles(baseFileNames)
 	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'PreprocessCompileAndAssembleCompilerDriver', toolchain, cCompilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)

@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-local Toolchain = requireSibling('Toolchain')
+local BuildEnvironment = requireSibling('Toolchain')
 
 
 function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)
@@ -23,8 +23,6 @@ function module:execute(toolchain, compilerDriverFlags, standard, legacyCandCPlu
 	assert.parameterTypeIsTable(preprocessorFlags)
 	assert.parameterTypeIsInstanceOf(defines, CommandLineDefines)
 	assert.parameterTypeIsTable(sources)
-	
-	local toolchain = self:_chooseToolchain(crossCompile)
 	
 	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:append(compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)

@@ -4,24 +4,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('Toolchain')
+moduleclass('ToolchainPaths')
+local AbsolutePath = require('halimede.io.paths.AbsolutePath')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local Platform = requireSibling('Platform')
-local CompilerDriver = requireSibling('CompilerDriver')
-local GnuTuple = requireSibling('GnuTuple')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
+local exception = require('halimede.exception')
 
 
-function module:initialize(platform, sysrootPath)
-	assert.parameterTypeIsInstanceOf(platform, Platform)
+function module:initialize(sysrootPath)
 	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
 	
-	self.platform = platform
 	self.sysrootPath = sysrootPath
-end
-
-function module:concatenateToPath(...)
-	return self.platform:concatenateToPath(...)
 end

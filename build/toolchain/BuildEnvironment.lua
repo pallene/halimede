@@ -4,113 +4,26 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local BuildEnvironment = moduleclass('BuildEnvironment')
+moduleclass('Toolchain')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local tabelize = require('halimede.table.tabelize').tabelize
-local Toolchain = requireSibling('Toolchain')
-local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
-local noRedirection = require('halimede.io.execute').noRedirection
-local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
+local Platform = requireSibling('Platform')
+local Platform = requireSibling('ToolchainPaths')
 
 
-assert.globalTypeIsFunction('select', 'type', 'ipairs')
-BuildEnvironment.static.addFileExtensionToFileNames = function(extensionWithLeadingPeriod, ...)
-	local asTable
-	if select('#', ...) == 1 then
-		if type(...) == 'table' then
-			asTable = select(1, ...)
-		else
-			asTable = {...}
-		end
-	else
-		asTable = {...}
-	end
+function module:initialize(platform, toolchainPaths)
+	assert.parameterTypeIsInstanceOf(platform, Platform)
+	assert.parameterTypeIsInstanceOf(toolchainPaths, ToolchainPaths)
 	
-	local result = tabelize()
-	for _, basefilename in ipairs(asTable) do
-		result:insert(basefilename .. extensionWithLeadingPeriod)
-	end
-	return result
+	self.platform = platform
+	self.sysrootPath = sysrootPath
 end
 
-function BuildEnvironment(buildToolchain, crossToolchain)
-	self.buildToolchain = buildToolchain
-	self.crossToolchain = crossToolchain
-	
-	if buildToolchain == crossToolchain then
-		isCrossCompiling = false
-	else
-		isCrossCompiling = true
-	end
-	self.isCrossCompiling = isCrossCompiling
+function module:concatenateToPath(...)
+	return self.platform:concatenateToPath(...)
 end
 
-assert.globalTypeIsFunction('ipairs')
-function module:use(isForRunningOnCrossCompiledHost, dependencies, buildVariant, sourcePath, platformConfigHDefinesFunctions, userFunction)
-	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
-	assert.parameterTypeIsTable(dependencies)
-	assert.parameterTypeIsTable(buildVariant)
-	--assert.parameterTypeIsTable(sourcePath)
-	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
-	assert.parameterTypeIsFunctionOrCall(userFunction)
-
-	local toolchain
-	if isForRunningOnCrossCompiledHost then
-		toolchain = self.crossToolchain
-	else
-		toolchain = self.buildToolchain
-	end
-	
-	local platform = toolchain.platform
-	local configHDefines = platform:newConfigHDefines()
-	for _, platformConfigHDefinesFunction in ipairs(platformConfigHDefinesFunctions) do
-		platformConfigHDefinesFunction(configHDefines, platform)
-	end
-		
-	local shellScript = self:_newShellScript(toolchain, dependencies, buildVariant)
-	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
-	
-	local buildEnvironmentLight = {
-		
-		buildToolchain = self.buildToolchain,
-		
-		crossToolchain = self.crossToolchain,
-		
-		isCrossCompiling = self.isCrossCompiling,
-		
-		concatenateToPath = function(...)
-			self.buildToolchain:concatenateToPath(...)
-		end,
-		
-		addFileExtensionToFileNames = BuildEnvironment.addFileExtensionToFileNames,
-		
-		toCFiles = function(...)
-			return BuildEnvironment.addFileExtensionToFileNames('.c', ...)
-		end,
-
-		-- TODO: not necessarily .cxx; several variants, sadly
-		toCPlusPlusFiles = function(...)
-			return BuildEnvironment.addFileExtensionToFileNames('.cxx', ...)
-		end,
-		
-		action = function(name, namespace, ...)
-			shellScript:newAction(namespace, name):execute(...)
-		end,
-		
-		arguments = buildVariant.arguments,
-		
-		configHDefines = configHDefines
-	}
-	
-	userFunction(buildEnvironmentLight)
-	
-	shellScript:newAction(nil, 'EndScript'):execute()
-	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
-end
-
-function module:_newShellScript(toolchain, dependencies, buildVariant)
-	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
-	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, dependencies, buildVariant)
+function module:concatenateToPathBelowSysroot(...)
+	return self:concatenateToPath(self.toolchainPaths.sysrootPath, ...)
 end
