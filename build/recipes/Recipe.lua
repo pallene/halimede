@@ -13,19 +13,11 @@ local executeFromFile = require('halimede.luacode.executeFromFile').executeFromF
 local exception = require('halimede.exception')
 local deepMerge = require('halimede.table.deepMerge').deepMerge
 local tabelize = require('halimede.table.tabelize').tabelize
-local CStandard = require('halimede.build.toolchain.CStandard')
-local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
-local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
-local BuildEnvironment = require('halimede.build.toolchain.BuildEnvironment')
-local _FILE_OFFSET_BITS = require('halimede.build.defines._FILE_OFFSET_BITS')
-local CRAY_STACKSEG_END = require('halimede.build.defines.CRAY_STACKSEG_END')
-local RETSIGTYPE = require('halimede.build.defines.RETSIGTYPE')
-local ST_MTIM_NSEC = require('halimede.build.defines.ST_MTIM_NSEC')
-local STACK_DIRECTION = require('halimede.build.defines.STACK_DIRECTION')
+local noRedirection = require('halimede.io.execute').noRedirection
+
 local AbstractPath = require('halimede.io.paths.AbstractPath')
-
-
-
+local ToolchainPaths = require('halimede.build.toolchain.ToolchainPaths')
+local BuildEnvironment = require('halimede.build.toolchain.BuildEnvironment')
 
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
@@ -65,9 +57,13 @@ function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 end
 
+function module:versionStringIncludingBuildVariants(packageVersion)
+	return packageVersion .. '-' .. self.chosenBuildVariantNames:concat('-')
+end
+
 local function configHDefinesNew(configH, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
 	
-	local version = packageVersion .. '-' .. table.concat(chosenBuildVariantNames, '-')
+	local version = self:versionStringIncludingBuildVariants(packageVersion)
 	
 	configHDefines:PACKAGE(packageName)
 	--configHDefines:PACKAGE_BUGREPORT('bug-' .. packageName .. '@gnu.org')
@@ -138,20 +134,20 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		libs = {}
 	}
 	
-	for _, chosenBuildVariantName in ipairs(chosenBuildVariantNames) do
+	for _, chosenBuildVariantName in ipairs(self.chosenBuildVariantNames) do
 		local buildVariantSettings = buildVariants[chosenBuildVariantName]
 		if buildVariantSettings == nil then
 			exception.throw("Unknown chosen build variant '%s'", chosenBuildVariantName)
 		end
 		
 		for _, requiredBuildVariantName in ipairs(buildVariantSettings.requires) do
-			if chosenBuildVariantNames[requiredBuildVariantName] ~= nil then
+			if self.chosenBuildVariantNames[requiredBuildVariantName] ~= nil then
 				exception.throw("Chosen build variant '%s' requires chosen build variant '%s'", chosenBuildVariantName, requiredBuildVariantName)
 			end
 		end
 		
 		for _, conflictsBuildVariantName in ipairs(buildVariantSettings.conflicts) do
-			if chosenBuildVariantNames[conflictsBuildVariantName] ~= nil then
+			if self.chosenBuildVariantNames[conflictsBuildVariantName] ~= nil then
 				exception.throw("Chosen build variant '%s' conflicts with chosen build variant '%s'", chosenBuildVariantName, conflictsBuildVariantName)
 			end
 		end
@@ -166,19 +162,8 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 	return consolidatedBuildVariants
 end
 
-function module:_load()
-	local environment = {
-		CStandard = CStandard,
-		LegacyCandCPlusPlusStringLiteralEncoding = LegacyCandCPlusPlusStringLiteralEncoding,
-		CommandLineDefines = CommandLineDefines,
-		_FILE_OFFSET_BITS = _FILE_OFFSET_BITS,
-		CRAY_STACKSEG_END = CRAY_STACKSEG_END,
-		RETSIGTYPE = RETSIGTYPE,
-		ST_MTIM_NSEC = ST_MTIM_NSEC,
-		STACK_DIRECTION = STACK_DIRECTION
-	}
-	
-	return executeFromFile('recipe file', self.recipeFilePath.path, environment)
+function module:_load(executionEnvironment)
+	return executeFromFile('recipe file', self.recipeFilePath.path, executionEnvironment.recipeEnvironment)
 end
 
 function module:_validate(result)
@@ -196,7 +181,7 @@ function module:_validate(result)
 		local configHDefinesNew = assert.fieldExistsAsFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesNew', configHDefinesNew)
 		
 		platformConfigHDefinesFunctions:insert(function(configHDefines, platform)
-			return configHDefinesNew(configHDefines, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
+			return configHDefinesNew(configHDefines, packageOrganisation, packageName, packageVersion, self.chosenBuildVariantNames)
 		end)
 		
 		local configHDefinesDefault = assert.fieldExistsAsFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesDefault', configHDefinesDefault)
@@ -215,18 +200,20 @@ function module:_validate(result)
 	
 	local execute = ensureFunctionOrCallFieldExistsOrDefault(result, 'execute', executeDefault)
 	
-	return dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute
+	return dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute
 end
 
+-- local executionEnvironment = ExecutionEnvironment:new(buildPlatform, buildToolchainPaths, crossPlatform)
 assert.globalTypeIsFunction('ipairs', 'pairs')
-function module:execute(buildPlatform, crossPlatform, buildSysrootPath, crossSysrootPath)
+function module:execute(executionEnvironment)
 	
 	local result = self:_load()
-	local dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result)
+	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result)
 	
-	local buildToolchain = Toolchain(buildPlatform, buildSysrootPath)
-	local crossToolchain = Toolchain(crossPlatform, crossSysrootPath)
-	
-	local buildEnvironment = BuildEnvironment:new(buildToolchain, crossToolchain)
-	buildEnvironment:use(true, dependencies, consolidatedBuildVariant, self.recipeSourcePath, configHDefinesNewWrapperFunction, platformConfigHDefinesFunctions, execute)
+	-- We also ought to capture hash of the recipe file path and of the toolchain / build code
+	-- there are two possibilities: destinationPath/opt/recipe/version+buildvariants+hash-of-dependencyversions OR destinationPath/
+	-- sysrootPath
+	local crossToolchainPaths = ToolchainPaths:new(executionEnvironment.sysrootPath, executionEnvironment.sysrootPath:appendSubFolders('opt', self.recipeName, self:versionStringIncludingBuildVariants(packageVersion), 'dependencies-hash'))
+	local shellScript = executionEnvironment:use(crossToolchainPaths, self.recipeSourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute)
+	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end

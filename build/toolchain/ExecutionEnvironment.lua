@@ -4,15 +4,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('BuildEnvironment')
+moduleclass('ExecutionEnvironment')
 
 local halimede = require('halimede')
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
+local Platform = requireSibling('Platform')
 local Toolchain = requireSibling('Toolchain')
-local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
-local noRedirection = require('halimede.io.execute').noRedirection
-local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
+local ToolchainPaths = requireSibling('ToolchainPaths')
+local AbsolutePath = require('halimede.io.paths.AbsolutePath')
+local defaultRecipeEnvironment = requireSibling('recipeEnvironment')
+local ExecutionEnvironmentBufferedShellScript = require('halimede.io.shellScript.ExecutionEnvironmentBufferedShellScript')
 
 
 assert.globalTypeIsFunction('select', 'type', 'ipairs')
@@ -35,10 +37,23 @@ local function addFileExtensionToFileNames(extensionWithLeadingPeriod, ...)
 	return result
 end
 
-function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform)
+function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)
+	assert.parameterTypeIsInstanceOf(buildPlatform, Platform)
+	assert.parameterTypeIsInstanceOf(buildToolchainPaths, ToolchainPaths)
+	assert.parameterTypeIsInstanceOf(crossPlatform, Platform)
+	assert.parameterTypeIsInstanceOf(destinationPath, AbsolutePath)
+	
 	self.buildPlatform = buildPlatform
 	self.buildToolchainPaths = buildToolchainPaths
 	self.crossPlatform = crossPlatform
+	self.destinationPath = destinationPath
+	
+	if recipeEnvironment == nil then
+		self.recipeEnvironment = defaultRecipeEnvironment
+	else
+		assert.parameterTypeIsTable(recipeEnvironment)
+		self.recipeEnvironment = recipeEnvironment
+	end
 	
 	if buildPlatform == crossPlatform then
 		isCrossCompiling = false
@@ -49,22 +64,22 @@ function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function module:use(crossToolchainPaths, dependencies, buildVariant, sourcePath, platformConfigHDefinesFunctions, userFunction)
+function module:createShellScript(crossToolchainPaths, sourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, userFunction)
 	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
 	assert.parameterTypeIsTable(dependencies)
-	assert.parameterTypeIsTable(buildVariant)
+	assert.parameterTypeIsTable(consolidatedBuildVariant)
 	--assert.parameterTypeIsTable(sourcePath)
 	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
 	assert.parameterTypeIsFunctionOrCall(userFunction)
 	
-	local shellScript = self:_newShellScript(self.buildToolchain, dependencies, buildVariant)
+	local shellScript = self:_newShellScript(self.buildToolchain, dependencies, consolidatedBuildVariant)
 	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
 	
 	local buildEnvironmentLight = {
 		
-		buildPlatform = self.buildPlatform,
+		buildToolchain = Toolchain:new(self.buildPlatform, self.buildToolchainPaths),
 		
-		crossPlatform = self.crossPlatform,
+		crossToolchain = Toolchain:new(self.crossPlatform, crossToolchainPaths),
 		
 		concatenateToPath = function(...)
 			self.buildToolchain:concatenateToPath(...)
@@ -87,16 +102,15 @@ function module:use(crossToolchainPaths, dependencies, buildVariant, sourcePath,
 		
 		arguments = buildVariant.arguments,
 		
-		configHDefines = self.crossToolchain.platform:createConfigHDefines(platformConfigHDefinesFunctions)
+		configHDefines = self.crossPlatform:createConfigHDefines(platformConfigHDefinesFunctions)
 	}
 	
 	userFunction(buildEnvironmentLight)
 	
 	shellScript:newAction(nil, 'EndScript'):execute()
-	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
-function module:_newShellScript(toolchain, dependencies, buildVariant)
+function module:_newShellScript(toolchain, dependencies, consolidatedBuildVariant)
 	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
-	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, dependencies, buildVariant)
+	return shellScriptExecutor:newShellScript(ExecutionEnvironmentBufferedShellScript, dependencies, consolidatedBuildVariant)
 end

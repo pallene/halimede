@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Arguments = moduleclass('Arguments')
+moduleclass('Arguments')
 
 local halimede = require('halimede')
 local assert = halimede.assert
@@ -12,17 +12,17 @@ local type = halimede.type
 local tabelize = require('halimede.table.tabelize').tabelize
 
 
-function Arguments:initialize()
+function module:initialize()
 	self.arguments = tabelize()
 end
 
-function Arguments:_append(argument)
+function module:_append(argument)
 	assert.parameterTypeIsString(argument)
 	self.arguments:insert(argument)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function Arguments:append(...)
+function module:append(...)
 	local arguments = {...}
 	for _, argument in ipairs(arguments) do
 		if type.isTable(argument)
@@ -36,7 +36,7 @@ function Arguments:append(...)
 end
 
 assert.globalTypeIsFunction('unpack')
-function Arguments:useUnpacked(userFunction)
+function module:useUnpacked(userFunction)
 	assert.parameterTypeIsFunctionOrCall(userFunction)
 	
 	return userFunction(unpack(self.arguments))

@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
-local ToolchainBufferedShellScript = moduleclass('ToolchainBufferedShellScript', BufferedShellScript)
+moduleclass('ExecutionEnvironmentBufferedShellScript', BufferedShellScript)
 
 local halimede = require('halimede')
 local assert = halimede.assert
