@@ -229,7 +229,7 @@ local function execute(buildEnvironmentLight)
 	
 	
 	buildEnvironmentLight.configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
-	buildEnvironmentLight.action(nil, 'WriteConfigH', configHDefines)
+	buildEnvironmentLight.action(nil, 'WriteConfigH', buildEnvironmentLight.configHDefines)
 	
 	
 	local standard = CStandard.gnu90

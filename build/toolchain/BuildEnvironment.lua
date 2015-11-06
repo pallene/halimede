@@ -49,10 +49,12 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:use(isForRunningOnCrossCompiledHost, dependencies, buildVariant, sourcePath, platformConfigHDefinesFunctions, userFunction)
-	assert.parameterTypeIsFunctionOrCall(userFunction)
 	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
 	assert.parameterTypeIsTable(dependencies)
 	assert.parameterTypeIsTable(buildVariant)
+	--assert.parameterTypeIsTable(sourcePath)
+	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
+	assert.parameterTypeIsFunctionOrCall(userFunction)
 
 	local toolchain
 	if isForRunningOnCrossCompiledHost then
@@ -108,7 +110,6 @@ function module:use(isForRunningOnCrossCompiledHost, dependencies, buildVariant,
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
--- Are we expecting shell scripts to execute on the build or on the cross?
 function module:_newShellScript(toolchain, dependencies, buildVariant)
 	local shellScriptExecutor = toolchain.platform.shellScriptExecutor
 	return shellScriptExecutor:newShellScript(ToolchainBufferedShellScript, dependencies, buildVariant)
