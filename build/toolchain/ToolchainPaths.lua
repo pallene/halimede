@@ -148,16 +148,16 @@ function module:initialize(strategy, sysrootPath, versionRelativePath, prefixPat
 	-- documentation root (docdir)
 	self.packageDocAbsolutePath, self.packageDocRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc')
 	
-    --htmldir=DIR           html documentation [DOCDIR]
+    -- html documentation (htmldir)
 	self.packageHtmlAbsolutePath, self.packageHtmlRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'html')
 	
-    --dvidir=DIR            dvi documentation [DOCDIR]
+    -- dvi documentation (dvidir)
 	self.packageDviAbsolutePath, self.packageDviRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'dvi')
 	
-    --pdfdir=DIR            pdf documentation [DOCDIR]
+    -- pdf documentation (pdfdir)
 	self.packagePdfAbsolutePath, self.packagePdfRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'pdf')
     
-	--psdir=DIR             ps documentation [DOCDIR]
+	-- ps documentation (psdir)
 	self.packagePsAbsolutePath, self.packagePsRelativePath = strategy(prefixPath, versionRelativePath, 'share', 'doc', 'ps')
 	
 end
