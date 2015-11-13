@@ -8,7 +8,6 @@ moduleclass('Recipe')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local executeFromFile = require('halimede.luacode.executeFromFile').executeFromFile
 local exception = require('halimede.exception')
 local deepMerge = require('halimede.table.deepMerge').deepMerge
@@ -17,7 +16,7 @@ local noRedirection = require('halimede.io.execute').noRedirection
 
 local AbstractPath = require('halimede.io.paths.AbstractPath')
 local ToolchainPaths = require('halimede.build.toolchain.ToolchainPaths')
-local BuildEnvironment = require('halimede.build.toolchain.BuildEnvironment')
+local ExecutionEnvironment = require('halimede.build.toolchain.ExecutionEnvironment')
 
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
@@ -213,6 +212,7 @@ function module:execute(executionEnvironment)
 	-- We also ought to capture hash of the recipe file path and of the toolchain / build code
 	-- there are two possibilities: destinationPath/opt/recipe/version+buildvariants+hash-of-dependencyversions OR destinationPath/
 	-- sysrootPath
+	error("There is no executionEnvironment.sysrootPath")
 	local crossToolchainPaths = ToolchainPaths:new(executionEnvironment.sysrootPath, executionEnvironment.sysrootPath:appendSubFolders('opt', self.recipeName, self:versionStringIncludingBuildVariants(packageVersion), 'dependencies-hash'))
 	local shellScript = executionEnvironment:use(crossToolchainPaths, self.recipeSourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute)
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)

@@ -16,12 +16,27 @@ local shellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
 Paths.static.pathSeparator = shellLanguage.pathSeparator
 
 assert.globalTypeIsFunction('ipairs')
-function Paths:initialize(...)
-	local pathInstances = tabelize({...})
-	for _, pathInstance in ipairs(pathInstances) do
-		assert.parameterTypeIsInstanceOf(pathInstance, AbstractPath)
+function module:initialize(pathSeparator, pathObjects)
+	assert.parameterTypeIsString(pathSeparator)
+	assert.parameterTypeIsTable(pathObjects)
+	
+	for _, pathObject in ipairs(pathObjects) do
+		assert.parameterTypeIsInstanceOf(pathObject, AbstractPath)
 	end
 	
-	self.pathInstances = pathInstances
-	self.paths = pathInstances:concat(Paths.pathSeparator)
+	self.pathSeparator = pathSeparator
+	self.pathObjects = pathObjects
+	self.paths = pathObjects:concat(pathSeparator)
+end
+
+function module:iterate()
+	local index = 0
+	local count = #self.pathObjects
+	return function()
+		index = index + 1
+		if index > count then
+			return nil
+		end
+		return self.pathObjects[index]
+	end
 end

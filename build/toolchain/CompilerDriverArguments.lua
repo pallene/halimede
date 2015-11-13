@@ -9,7 +9,6 @@ local CompilerDriverArguments = moduleclass('CompilerDriverArguments')
 local halimede = require('halimede')
 local assert = halimede.assert
 local type = halimede.type
-local class = require('halimede.middleclass')
 local CompilerDriver = requireSibling('CompilerDriver')
 local Arguments = requireSibling('Arguments')
 

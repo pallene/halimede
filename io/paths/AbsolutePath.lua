@@ -28,14 +28,15 @@ end
 -- eg \\server\admin$\system32 => absolutePath('\\server\admin$', 'system32') [admin$ is usually C:\WINDOWS or C:\WINNT]
 -- eg \\server\temp (C:\temp, probably) => absolutePath('\\server', 'temp')
 -- eg /usr/bin => absolutePath('', 'usr', 'bin')
-function AbsolutePath:initialize(driveOrUncPrefixIfWindows, ...)
+-- It's probably best on Windows to use Long UNC, eg \\?\C:\File.txt or \\?\UNC\Server\Volume\File.txt
+function AbsolutePath:initialize(folderSeparator, driveOrUncPrefixIfWindows, ...)
 	assert.parameterTypeIsString(driveOrUncPrefixIfWindows)
 	
-	AbstractPath.initialize(self, false, initialPathPrefix(driveOrUncPrefixIfWindows), ...)
+	AbstractPath.initialize(self, folderSeparator, false, initialPathPrefix(driveOrUncPrefixIfWindows), ...)
 	
 	self.driveOrUncPrefixIfWindows = driveOrUncPrefixIfWindows
 end
 
 function AbsolutePath:_construct(...)
-	return AbsolutePath:new(self.driveOrUncPrefixIfWindows, ...)
+	return AbsolutePath:new(self.folderSeparator, self.driveOrUncPrefixIfWindows, ...)
 end

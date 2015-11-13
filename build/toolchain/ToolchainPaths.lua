@@ -4,13 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('ToolchainPaths')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
-local RelativePath = require('halimede.io.paths.RelativePath')
-
-local halimede = require('halimede')
-local assert = halimede.assert
-local exception = require('halimede.exception')
 
 --[[
 
@@ -46,43 +39,21 @@ libPrefixPath		defaults to prefixPath; exists because it is debateable whether l
 Note that it is still possible to run scripts from a filesystem mounted noexec
 ]]--
 
-local toolchainPathStrategies = {
-	
-	-- The default, eg returns /usr/bin if prefixPath == '/' and folderName == 'bin'
-	pathConstant = function(prefixPath, versionRelativePath, ...)
-		local folderPath = RelativePath:new(...)
-		local relativePath = folderPath
-		local absolutePath = prefixPath:appendRelativePathOf(relativePath)
-		
-		return absolutePath, relativePath
-	end
-	
-	-- eg returns '/opt/package/version/dependencies/bin' if prefixPath == '/opt'
-	pathVersioned = function(prefixPath, versionRelativePath, ...)
-		local folderPath = RelativePath:new(...)
-		local relativePath = folderPath:appendRelativePathOf(versionRelativePath)
-		local absolutePath = prefixPath:appendRelativePathOf(relativePath)
-		
-		return absolutePath, relativePath
-	end
-	
-	-- eg returns '/bin/package/version/dependencies/bin' if prefixPath == '/' and folderName == 'bin'
-	pathInsidePackage = function(prefixPath, versionRelativePath, ...)
-		local folderPath = RelativePath:new(...)
-		local relativePath = versionRelativePath:appendRelativePathOf(folderPath)
-		local absolutePath = prefixPath:appendRelativePathOf(relativePath)
-		
-		return absolutePath, relativePath
-	end
-}
+moduleclass('ToolchainPaths')
+local AbsolutePath = require('halimede.io.paths.AbsolutePath')
+local RelativePath = require('halimede.io.paths.RelativePath')
 
-function module:initialize(strategy, sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
-	assert.parameterTypeIsFunctionOrCall(strategy)
+local halimede = require('halimede')
+local assert = halimede.assert
+local exception = require('halimede.exception')
+
+function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
+	assert.parameterTypeIsFunctionOrCall(toolchainPathStrategy)
 	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
 	assert.parameterTypeIsInstanceOf(versionRelativePath, RelativePath)
 	assert.parameterTypeIsInstanceOf(prefixPath, AbsolutePath)
 	assert.parameterTypeIsInstanceOf(execPrefixPath, AbsolutePath)
-
+	
 	self.sysrootPath = sysrootPath
 	self.versionRelativePath = versionRelativePath
 	self.prefixPath = prefixPath
@@ -95,119 +66,119 @@ function module:initialize(strategy, sysrootPath, versionRelativePath, prefixPat
 	end
 end
 
-function module:_path(strategy, path, ...)
-	return strategy(path, self.versionRelativePath, ...)
+function module:_path(toolchainPathStrategy, path, ...)
+	return toolchainPathStrategy(path, self.versionRelativePath, ...)
 end
 
-function module:_prefixPath(strategy, ...)
-	return self:_path(strategy, self.prefixPath, ...)
+function module:_prefixPath(toolchainPathStrategy, ...)
+	return self:_path(toolchainPathStrategy, self.prefixPath, ...)
 end
 
-function module:_execPrefixPath(strategy, ...)
-	return self:_path(strategy, self.execPrefixPath, ...)
+function module:_execPrefixPath(toolchainPathStrategy, ...)
+	return self:_path(toolchainPathStrategy, self.execPrefixPath, ...)
 end
 
-function module:_libPefixPath(strategy, ...)
-	return self:_path(strategy, self.libPrefixPath, ...)
+function module:_libPrefixPath(toolchainPathStrategy, ...)
+	return self:_path(toolchainPathStrategy, self.libPrefixPath, ...)
 end
 
 -- User Executables (bindir)
-function module:bin(strategy)
-	return self:_execPrefixPath(strategy, 'bin')
+function module:bin(toolchainPathStrategy)
+	return self:_execPrefixPath(toolchainPathStrategy, 'bin')
 end
 
 -- System Administrator Executables (sbindir)
-function module:sbin(strategy)
-	return self:_execPrefixPath(strategy, 'sbin')
+function module:sbin(toolchainPathStrategy)
+	return self:_execPrefixPath(toolchainPathStrategy, 'sbin')
 end
 
--- Program Executables (libself.execdir)
-function module:libself.exec(strategy)
-	return self:_execPrefixPath(strategy, 'libself.exec')
+-- Program Executables (libexecdir)
+function module:libexec(toolchainPathStrategy)
+	return self:_execPrefixPath(toolchainPathStrategy, 'libexec')
 end
 
 -- TODO: Needs to go into a per-machine location so it can be modified / mounted independently of build
--- TODO: Probably some sort of oself.verlay approach using rsync (ie replacements for default config)
+-- TODO: Probably some sort of overlay approach using rsync (ie replacements for default config)
 -- Read-only single-machine data (sysconfdir)
-function module:etc(strategy)
-	return self:_prefixPath(strategy, 'etc')
+function module:etc(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'etc')
 end
 
 -- Modifiable architecture-independent data (sharedstatedir)
-function module:com(strategy)
-	return self:_prefixPath(strategy, 'com')
+function module:com(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'com')
 end
 
--- TODO: Needs a different strategy
+-- TODO: Needs a different toolchainPathStrategy
 -- TODO: Probably needs to go into a per-machine location so can be independently mountained (we will want to retain state)
 -- TODO: We may not want to self.version this
 -- Modifiable single-machine data (localstatedir)
-function module:var(strategy)
-	return self:_prefixPath(strategy, 'var')
+function module:var(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'var')
 end
 
 -- TODO: Consider splitting out .a from .so during installs
 -- Object code libraries (libdir)  (can contain both static .a and dynamic .so libraries as well as pkgconfig .pc cruft; the former is only needed at compile-time)
-function module:com(strategy)
-	return self:_libPrefixPath(strategy, 'lib')
+function module:lib(toolchainPathStrategy)
+	return self:_libPrefixPath(toolchainPathStrategy, 'lib')
 end
 
 -- C header files (includedir)
-function module:include(strategy)
-	return self:_prefixPath(strategy, 'include')
+function module:include(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'include')
 end
 
 -- C header files for non-gcc (oldincludedir)
-function module:oldinclude(strategy)
-	return self:_prefixPath(strategy, 'oldinclude')  -- GNU configure default is /usr/include
+function module:oldinclude(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'oldinclude')  -- GNU configure default is /usr/include
 end
 
 -- Read-only archictecture-independent data root (datarootdir)
-function module:share(strategy)
-	return self:_prefixPath(strategy, 'share')
+function module:share(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share')
 end
 
 -- Read-only idiosyncratic read-only architecture-independent data (datadir)
-function module:data(strategy)
-	return self:_prefixPath(strategy, 'share', 'data')  -- GNU configure default is == datarootdir
+function module:data(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'data')  -- GNU configure default is == datarootdir
 end
 
 -- info documentation (infodir)
-function module:info(strategy)
-	return self:_prefixPath(strategy, 'share', 'info')
+function module:info(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'info')
 end
 
 -- locale-dependent data (localedir)
-function module:locale(strategy)
-	return self:_prefixPath(strategy, 'share', 'locale')
+function module:locale(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'locale')
 end
 
 -- man documentation (mandir)
-function module:man(strategy)
-	return self:_prefixPath(strategy, 'share', 'man')
+function module:man(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'man')
 end
 
 -- documentation root (docdir)
-function module:doc(strategy)
-	return self:_prefixPath(strategy, 'share', 'doc')
+function module:doc(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'doc')
 end
 
 -- html documentation (htmldir)
-function module:html(strategy)
-	return self:_prefixPath(strategy, 'share', 'doc', 'html')
+function module:html(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'doc', 'html')
 end
 
 -- dvi documentation (dvidir)
-function module:dvi(strategy)
-	return self:_prefixPath(strategy, 'share', 'doc', 'dvi')
+function module:dvi(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'doc', 'dvi')
 end
 
 -- pdf documentation (pdfdir)
-function module:doc(strategy)
-	return self:_prefixPath(strategy, 'share', 'doc', 'pdf')
+function module:doc(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'doc', 'pdf')
 end
 
 -- ps documentation (psdir)
-function module:ps(strategy)
-	return self:_prefixPath(strategy, 'share', 'doc', 'ps')
+function module:ps(toolchainPathStrategy)
+	return self:_prefixPath(toolchainPathStrategy, 'share', 'doc', 'ps')
 end

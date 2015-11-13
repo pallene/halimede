@@ -53,7 +53,7 @@ function Defines:_defineIfMissing(defineName, enable, defineValue)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
-function Defines:_quotedNonEmptyString(defineName, value)
+function Defines:quotedNonEmptyString(defineName, value)
 	if constant == nil then
 		self:_undefine(defineName)
 	else

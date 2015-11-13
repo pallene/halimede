@@ -117,7 +117,7 @@ local function configHDefinesNew(configHDefines, packageOrganisation, packageNam
 	-- Mandatory
 	-- Define to the name of the SCCS 'get' command.
 	function configHDefines:SCCS_GET(command)
-		self:_quotedNonEmptyString('SCCS_GET', command)
+		self:quotedNonEmptyString('SCCS_GET', command)
 	end
 
 	-- Define to 1 if the SCCS 'get' command understands the '-G<file>' option.
@@ -219,8 +219,8 @@ local function execute(buildEnvironmentLight)
 		'vpath',
 		'hash',
 		'remote-' .. buildEnvironmentLight.arguments.REMOTE,
-		buildEnvironmentLight.concatenateToPath('glob', 'fnmatch'),
-		buildEnvironmentLight.concatenateToPath('glob', 'glob'),
+		RelativePath:new(buildEnvironmentLight.buildToolchain.platform.shellScriptExecutor.shellLanguage.folderSeparator, 'glob', 'fnmatch').path,
+		RelativePath:new(buildEnvironmentLight.buildToolchain.platform.shellScriptExecutor.shellLanguage.folderSeparator, 'glob', 'glob').path,
 	}
 	
 	local toolchain = buildEnvironmentLight.crossToolchain
@@ -230,14 +230,13 @@ local function execute(buildEnvironmentLight)
 	buildEnvironmentLight.configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
 	buildEnvironmentLight.action(nil, 'WriteConfigH', buildEnvironmentLight.configHDefines)
 	
-	
 	local standard = CStandard.gnu90
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
 	local defines = CommandLineDefines(false)
-	defines:_quotedNonEmptyString('LOCALEDIR', toolchain:concatenateToPathBelowSysroot('lib'))
-	defines:_quotedNonEmptyString('LIBDIR', toolchain:concatenateToPathBelowSysroot('include'))
-	defines:_quotedNonEmptyString('INCLUDEDIR', toolchain:concatenateToPathBelowSysroot('share', 'local'))
+	defines:quotedNonEmptyString('LOCALEDIR', toolchain:locale().path)
+	defines:quotedNonEmptyString('LIBDIR', toolchain:lib().path)
+	defines:quotedNonEmptyString('INCLUDEDIR', toolchain:include().path)
 	defines:_boolean('HAVE_CONFIG_H', true)
 	local sources = buildEnvironmentLight.toCFiles(baseFileNames)
 	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'PreprocessCompileAndAssembleCompilerDriver', toolchain, cCompilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)

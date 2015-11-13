@@ -12,7 +12,8 @@ local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local operatingSystemDetails = require('halimede').operatingSystemDetails
 local exception = require('halimede.exception')
-local class = require('halimede.middleclass')
+local Paths = require('halimede.io.paths.Paths')
+
 
 
 ShellLanguage.static.standardIn = 0
@@ -136,24 +137,23 @@ function ShellScript:appendCommandLineToScript(tabelizedScriptBuffer, ...)
 	tabelizedScriptBuffer:insert(self.toShellCommandLine(...))
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
-function ShellLanguage:iteratePath(path)
-	if path == nil then
-		return nil
+assert.globalTypeIsFunction('ipairs')
+function ShellLanguage:paths(stringPathsTable)
+	assert.parameterTypeIsTable(stringPathsTable)
+	
+	local pathObjects = tabelize()
+	
+	for _, path in ipairs(stringPathsTable) do
+		assert.parameterTypeIsString(path)
+		
+		local pathObject = AbstractPath.parse(self.folderSeparator, path)
+		pathObjects:insert(pathObject)
 	end
 	
-	local paths = path:split(self.pathSeparator)
-	local index = 0
-	local count = #paths
-	return function()
-		index = index + 1
-		if index > count then
-			return nil
-		end
-		return paths[index]
-	end
+	return Paths:new(self.pathSeparator, pathObjects)
 end
 
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
 function ShellLanguage:binarySearchPath()
 	local PATH
 	local searchPaths
@@ -164,17 +164,22 @@ function ShellLanguage:binarySearchPath()
 	else
 		PATH = nil
 	end
-
+	
+	local combined
 	-- In Windows, the current working directory is considered a part of the path
 	if self.searchesCurrentPath then
 		if PATH == nil then
-			return '.'
+			return self:paths({'.'})
 		else
-			return '.' .. self.pathSeparator .. PATH
+			combined = '.' .. self.pathSeparator .. PATH
 		end
+	elseif PATH == nil then
+		return self:paths({})
 	else
-		return PATH
+		combined = PATH
 	end
+	
+	return self:paths(combined:split(self.pathSeparator))
 end
 
 

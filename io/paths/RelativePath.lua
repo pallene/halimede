@@ -13,8 +13,8 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
 
 
-function RelativePath:initialize(...)
-	AbstractPath.initialize(self, true, '', ...)
+function RelativePath:initialize(folderSeparator, ...)
+	AbstractPath.initialize(self, folderSeparator, true, '', ...)
 end
 
 function RelativePath:_appendSubFolders(childFoldersTable)
@@ -24,5 +24,5 @@ function RelativePath:_appendSubFolders(childFoldersTable)
 		folders:insert(childFolder)
 	end
 
-	return RelativePath:new(unpack(folders))
+	return RelativePath:new(self.folderSeparator, unpack(folders))
 end

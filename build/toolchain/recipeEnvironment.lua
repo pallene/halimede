@@ -4,6 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+module.RelativePath = require('halimede.io.paths.RelativePath'),
+module.AbsolutePath = require('halimede.io.paths.AbsolutePath'),
 module.CStandard = require('halimede.build.toolchain.CStandard'),
 module.LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding'),
 module.CommandLineDefines = require('halimede.build.defines.CommandLineDefines'),

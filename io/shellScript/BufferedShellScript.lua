@@ -8,7 +8,6 @@ local BufferedShellScript = moduleclass('BufferedShellScript')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')

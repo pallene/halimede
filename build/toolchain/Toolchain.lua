@@ -20,10 +20,18 @@ function module:initialize(platform, toolchainPaths)
 	self.toolchainPaths = toolchainPaths
 end
 
-function module:concatenateToPath(...)
-	return self.platform:concatenateToPath(...)
+function module:path(pathName)
+	return self.platform:path(self.toolchainPaths, pathName)
 end
 
-function module:concatenateToPathBelowSysroot(...)
-	return self:concatenateToPath(self.toolchainPaths.sysrootPath, ...)
+function module:include()
+	return self:path('include')
+end
+
+function module:lib()
+	return self:path('lib')
+end
+
+function module:locale()
+	return self:path('locale')
 end

@@ -9,14 +9,13 @@ moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
 local noRedirection = execute.noRedirection
 
 function module:initialize(shellLanguage, ...)
-	ShellScriptExecutor:initialize(self, shellLanguage, shellLanguage.commandInterpreterName, ...)
+	AbstractShellScriptExecutor:initialize(self, shellLanguage, shellLanguage.commandInterpreterName, ...)
 end
 
 assert.globalTypeIsFunction('unpack')

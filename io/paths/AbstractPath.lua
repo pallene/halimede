@@ -12,21 +12,63 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
 local syscall = require('syscall')
+local exception = require('halimede.exception')
 
+local AbsolutePath = requireSibling('AbsolutePath')
+local RelativePath = requireSibling('RelativePath')
 
-AbstractPath.static.folderSeparator = halimede.packageConfiguration.folderSeparator
 
 AbstractPath.static.fail = function(syscallName, path, becauseOfReason)
 	exception.throwWithLevelIncrement(2, "Could not %s path '%s' because %s", syscallName, path, becauseOfReason)
 end
 
+-- Does not work for Windows paths such as C:FILE.TXT, \path\with\leading\separator (which is relative), and the use of '/' as an alternative folder separator (not valid for UNC paths)
+-- Or for /current/drive/file.txt (ie relative to the current disk)
+-- Probably doesn't work for OpenVMS...
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub')
+AbstractPath.static.parse = function(folderSeparator, stringPath)
+	assert.parameterTypeIsString(stringPath)
+	if stringPath:len() == 0 then
+		exception.throw('Parameter stringPath can not be empty')
+	end
+	
+	if folderSeparator == '/' then
+		if stringPath:sub(1, 1) == pathSeparator then
+			return AbsolutePath:new(folderSeparator, stringPath:split(folderSeparator))
+		else
+			return RelativePath:new(folderSeparator, stringPath:split(folderSeparator))
+		end
+	end
+	
+	
+	
+	
+	TODO: Plus also remove dependency on global folder separaotr
+	TODO: Consider having Windows, Posix, Other path classes as folderSeparator not enough if ever need to support OpenVMS or Risc OS?
+	
+	
+	
+	xxxxxx
+	
+	-- Windows UNC
+	if stringPath:sub(1, 2) == '\\\\' then
+		-- Lots of yucky combinations, see https://en.wikipedia.org/wiki/Path_%28computing%29, we just extract * from \\*\
+		
+	-- Windows Drive Letter (Might be either C:file.txt or C:\file.txt)	
+	elseif stringPath:sub(2, 1) == ':' then
+		
+	else
+		return 
+	end
+end
+
 assert.globalTypeIsFunction('ipairs')
-function AbstractPath:initialize(isRelative, initialPathPrefix, ...)
+function AbstractPath:initialize(folderSeparator, isRelative, initialPathPrefix, ...)
 	assert.parameterTypeIsBoolean(isRelative)
 	assert.parameterTypeIsString(initialPathPrefix)
 	
 	local folders = tabelize({...})
-	for index, folder in ipairs(self.folders) do
+	for index, folder in ipairs(folders) do
 		assert.parameterTypeIsString(folder)
 		
 		if folder:match('\0') ~= nil then
@@ -37,11 +79,12 @@ function AbstractPath:initialize(isRelative, initialPathPrefix, ...)
 		end
 	end
 	
-	self.folders = folders
+	self.folderSeparator = folderSeparator
 	self.isRelative = isRelative
-	self.isAbsolute = not isRelative
 	self.initialPathPrefix = initialPathPrefix
-	self.path = initialPathPrefix .. folders:concat(AbstractClass.folderSeparator)
+	self.isAbsolute = not isRelative
+	self.folders = folders
+	self.path = initialPathPrefix .. folders:concat(folderSeparator)
 end
 
 function AbsolutePath:__tostring()
@@ -75,6 +118,9 @@ end
 
 function AbstractPath:appendRelativePathOf(relativePath)
 	assert.parameterTypeIsInstanceOf(relativePath, RelativePath)
+	if relativePath.folderSeparator ~= self.folderSeparator then
+		exception.throw("relativePath '%s' has an incompatible folderSeparator '%s' (should be '%s')", relativePath.path, relativePath.folderSeparator, self.folderSeparator)
+	end
 	
 	return self:_appendSubFolders(relativePath.folders)
 end
@@ -282,7 +328,7 @@ function AbstractPath:mkdirParents(mode, initialPathPrefix)
 		AbstractPath.fail('mkdir', path, becauseOfReason)
 	end
 	
-	local folderSeparator = AbstractClass.folderSeparator
+	local folderSeparator = self.folderSeparator
 	
 	local length = #self.folders
 	for index, folder in ipairs(self.folders) do

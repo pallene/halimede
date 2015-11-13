@@ -8,7 +8,6 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local type = halimede.type
 local shellLanguage = require('halimede.io.SearchLanguage').Default
-local concatenateToPath = halimede.concatenateToPath
 local openTextModeForReading = require('halimede.io.read').openTextModeForReading
 
 
@@ -24,13 +23,14 @@ local noShellIsAvailable = not shellIsAvailable
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
+-- NOTE: This approach does not check for invalid characters (eg 0x00, /) in a file name
 function module.commandIsOnPath(command)
 	assert.parameterTypeIsString(command)
 	
-	for path in shellLanguage.iteratePath(shellLanguage.binarySearchPath) do
-		local pathToBinary = concatenateToPath({path, command})
+	for path in shellLanguage:binarySearchPath():iterate() do
+		local pathToBinary = path:appendSubFolders(command)
 		
-		local ok, fileHandleOrError = pcall(openTextModeForReading, absolutePath, command)
+		local ok, fileHandleOrError = pcall(openTextModeForReading, pathToBinary, command)
 		if ok then
 			local fileHandle = fileHandleOrError
 			fileHandle:close()

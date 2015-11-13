@@ -13,10 +13,12 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')
 local GnuTuple = requireSibling('GnuTuple')
 local CompilerDriver = requireSibling('CompilerDriver')
+local toolchainPathStrategies = requireSibling('toolchainPathStrategies')
 
 
-function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
+function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString(name)
+	assert.parameterTypeIsFunctionOrCall(toolchainPathStrategy)
 	assert.parameterTypeIsInstanceOf(shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString(objectExtension)
 	assert.parameterTypeIsString(executableExtension)
@@ -29,6 +31,7 @@ function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtensio
 	assert.parameterTypeIsInstanceOf(cPlusPlusCompilerDriver, CompilerDriver)
 	
 	self.name = name
+	self.toolchainPathStrategy = toolchainPathStrategy
 	self.shellScriptExecutor = shellScriptExecutor
 	self.objectExtension = objectExtension
 	self.executableExtension = executableExtension
@@ -39,12 +42,7 @@ function Platform:initialize(name, shellScriptExecutor, gnuTuple, objectExtensio
 	self.gnuTuple = gnuTuple
 	self.cCompilerDriver = cCompilerDriver
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
-	
-	local shellLanguage = self.shellScriptExecutor.shellLanguage
-	self.shellLanguage = shellLanguage
-	self.folderSeparator = shellLanguage.folderSeparator
-	self.pathSeparator = shellLanguage.pathSeparator
-	
+		
 	Platform.static[name] = self
 end
 
@@ -62,12 +60,8 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	return configHDefines
 end
 
-function module:concatenateToPath(...)
-	return table.concat({...}, self.folderSeparator)
-end
-
-function module:concatenateToPaths(...)
-	return table.concat({...}, self.pathSeparator)
+function module:path(toolchainPaths, pathName)
+	return toolchainPaths[pathName](self.toolchainPathStrategy)
 end
 
 function module:toObjects(...)
@@ -110,8 +104,8 @@ end
 
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
+	ToolchainPathStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
-	'/',
 	'.o',
 	'', -- eg .exe on Windows
 	'lib',
@@ -125,8 +119,8 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
+	ToolchainPathStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
-	'/',
 	'.o',
 	'',
 	'lib',

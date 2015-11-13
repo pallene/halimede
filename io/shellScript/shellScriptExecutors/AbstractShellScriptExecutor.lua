@@ -8,7 +8,6 @@ moduleclass('AbstractShellScriptExecutor')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')

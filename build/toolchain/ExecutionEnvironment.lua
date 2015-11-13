@@ -74,18 +74,16 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 	
 	local shellScript = self:_newShellScript(self.buildToolchain, dependencies, consolidatedBuildVariant)
 	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
-	
+		
 	local buildEnvironmentLight = {
 		
 		buildToolchain = Toolchain:new(self.buildPlatform, self.buildToolchainPaths),
 		
 		crossToolchain = Toolchain:new(self.crossPlatform, crossToolchainPaths),
 		
-		concatenateToPath = function(...)
-			self.buildToolchain:concatenateToPath(...)
-		end,
-		
-		addFileExtensionToFileNames = BuildEnvironment.addFileExtensionToFileNames,
+		sourcePath = sourcePath,
+				
+		addFileExtensionToFileNames = addFileExtensionToFileNames,
 		
 		toCFiles = function(...)
 			return addFileExtensionToFileNames('.c', ...)

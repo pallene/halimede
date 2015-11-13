@@ -9,7 +9,6 @@ moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local class = require('halimede.middleclass')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
@@ -17,7 +16,7 @@ local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
 function module:initialize()
-	ShellScriptExecutor:initialize(self, ShellLanguage.Posix, 'brew', 'sh')
+	AbstractShellScriptExecutor:initialize(self, ShellLanguage.Posix, 'brew', 'sh')
 end
 
 assert.globalTypeIsFunction('unpack')
