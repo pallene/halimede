@@ -9,6 +9,7 @@ local Path = moduleclass('Path')
 local halimede = require('halimede')
 local assert = halimede.assert
 local exception = require('halimede.exception')
+local Object = require('halimede.middleclass').Object
 local PathStyle = requireSibling('PathStyle')
 local PathRelativity = requireSibling('PathRelativity')
 
@@ -72,7 +73,61 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:__tostring()
-	return ('Path(%s)'):format(self:formatPath(false))
+	return ('%s(%s)'):format(self.class.name, self:formatPath(false))
+end
+
+function module:__eq(right)
+	if right == nil then
+		return false
+	end
+	if not Object.isInstanceOf(value, self.class) then
+		return false
+	end
+	if self.pathStyle ~= right.pathStyle then
+		return false
+	end
+	if self.pathRelativity ~= right.pathRelativity then
+		return false
+	end
+	if isUnequalWithNil(self.device, right.device) then
+		return false
+	end
+	if isArrayShallowUnequal(self.pathElements, right.pathElements) then
+		return false
+	end
+	if self.isFile ~= right.isFile then
+		return false
+	end
+	if isUnequalWithNil(self.alternateStreamName, right.alternateStreamName) then
+		return false
+	end
+end
+
+local function isUnequalWithNil(left, right)
+	if (left == nil or right == nil) then
+		if left == nil and right ~= nil then
+			return true
+		end
+		if left ~= nil and right == nil then
+			return true
+		end
+	elseif left ~= right then
+		return true
+	end
+	return false
+end
+
+assert.globalTypeIsFunction('ipairs')
+local function isArrayShallowUnequal(left, right)
+	if #left ~= #right then
+		return true
+	end
+	for index, leftItem in ipairs(left) do
+		if right[index] ~= left then
+			return true
+		end
+	end
+	return false
 end
 
 function module:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -88,6 +143,16 @@ function module:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	end
 	
 	return self.pathRelativity:formatPath(self.pathStyle, pathElementsCopy, self.isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
+end
+
+function module:hasNonEmptyDevice()
+	local pathRelativity = self.pathRelativity
+	local hasDevice = pathRelativity.isAbsoluteIncludingDeviceName or pathRelativity.isRelativeToDeviceCurrentDirectoryOnCmd
+	return self.device ~= nil and hasDevice
+end
+
+function module:newFromTemplate(...)
+	return Path:new(self.pathStyle, self.pathRelativity, self.device, {...}, true, self.alternateStreamName)
 end
 
 assert.globalTypeIsFunction('ipairs')

@@ -14,13 +14,6 @@ local assert = halimede.assert
 local syscall = require('syscall')
 local exception = require('halimede.exception')
 
-local AbsolutePath = requireSibling('AbsolutePath')
-local RelativePath = requireSibling('RelativePath')
-
-
-AbstractPath.static.fail = function(syscallName, path, becauseOfReason)
-	exception.throwWithLevelIncrement(2, "Could not %s path '%s' because %s", syscallName, path, becauseOfReason)
-end
 
 -- Does not work for Windows paths such as C:FILE.TXT, \path\with\leading\separator (which is relative), and the use of '/' as an alternative folder separator (not valid for UNC paths)
 -- Or for /current/drive/file.txt (ie relative to the current disk)
@@ -60,69 +53,6 @@ AbstractPath.static.parse = function(folderSeparator, stringPath)
 	else
 		return 
 	end
-end
-
-assert.globalTypeIsFunction('ipairs')
-function AbstractPath:initialize(folderSeparator, isRelative, initialPathPrefix, ...)
-	assert.parameterTypeIsBoolean(isRelative)
-	assert.parameterTypeIsString(initialPathPrefix)
-	
-	local folders = tabelize({...})
-	for index, folder in ipairs(folders) do
-		assert.parameterTypeIsString(folder)
-		
-		if folder:match('\0') ~= nil then
-			exception.throw("Folder name at index '%s' contains ASCII NUL", index)
-		end
-		if folder:match(folderSeparator) ~= nil then
-			exception.throw("Folder name at index '%s' contains folder separator '%s'", index, folderSeparator)
-		end
-	end
-	
-	self.folderSeparator = folderSeparator
-	self.isRelative = isRelative
-	self.initialPathPrefix = initialPathPrefix
-	self.isAbsolute = not isRelative
-	self.folders = folders
-	self.path = initialPathPrefix .. folders:concat(folderSeparator)
-end
-
-function AbsolutePath:__tostring()
-	return self.class.name .. '(' .. self.path .. ')'
-end
-
-function AbstractPath:__eq(right)
-	if right == nil then
-		return false
-	end
-	if not Object.isInstanceOf(value, self.class) then
-		return false
-	end
-	return self.path == right.path
-end
-
-assert.globalTypeIsFunction('ipairs', 'unpack')
-function AbsolutePath:_appendSubFolders(childFoldersTable)
-	
-	local folders = tabelize(shallowCopy(self.folders))
-	for _, childFolder in ipairs(childFoldersTable) do
-		folders:insert(childFolder)
-	end
-	
-	return self:_construct(unpack(folders))
-end
-
-function AbstractPath:appendSubFolders(...)
-	return self:_appendSubFolders(tabelize({...}))
-end
-
-function AbstractPath:appendRelativePathOf(relativePath)
-	assert.parameterTypeIsInstanceOf(relativePath, RelativePath)
-	if relativePath.folderSeparator ~= self.folderSeparator then
-		exception.throw("relativePath '%s' has an incompatible folderSeparator '%s' (should be '%s')", relativePath.path, relativePath.folderSeparator, self.folderSeparator)
-	end
-	
-	return self:_appendSubFolders(relativePath.folders)
 end
 
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device

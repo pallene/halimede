@@ -4,37 +4,46 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('ToolchainPaths')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
-local RelativePath = require('halimede.io.paths.RelativePath')
+local Path = require('halimede.io.paths.Path')
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local exception = require('halimede.exception')
 
 
 function module.pathConstant(prefixPath, versionRelativePath, ...)
-	local folderPath = RelativePath:new(prefixPath.folderSeparator, ...)
+	assert.parameterTypeIsInstanceOf(prefixPath, Path)
+	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	
+	local folderPath = prefixPath:newFromTemplate(...)
+	
 	local relativePath = folderPath
-	local absolutePath = prefixPath:appendRelativePathOf(relativePath)
+	local absolutePath = prefixPath:appendRelativePath(relativePath)
 	
 	return absolutePath, relativePath
 end
 	
 -- eg returns '/opt/package/version/dependencies/bin' if prefixPath == '/opt'
 function module.pathVersioned(prefixPath, versionRelativePath, ...)
-	local folderPath = RelativePath:new(prefixPath.folderSeparator, ...)
-	local relativePath = folderPath:appendRelativePathOf(versionRelativePath)
-	local absolutePath = prefixPath:appendRelativePathOf(relativePath)
+	assert.parameterTypeIsInstanceOf(prefixPath, Path)
+	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	
+	local folderPath = prefixPath:newFromTemplate(...)
+	
+	local relativePath = folderPath:appendRelativePath(versionRelativePath)
+	local absolutePath = prefixPath:appendRelativePath(relativePath)
 	
 	return absolutePath, relativePath
 end
 	
 -- eg returns '/bin/package/version/dependencies' if prefixPath == '/' and folderName == 'bin'
 function module.pathInsidePackage(prefixPath, versionRelativePath, ...)
-	local folderPath = RelativePath:new(prefixPath.folderSeparator, ...)
-	local relativePath = versionRelativePath:appendRelativePathOf(folderPath)
-	local absolutePath = prefixPath:appendRelativePathOf(relativePath)
+	assert.parameterTypeIsInstanceOf(prefixPath, Path)
+	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	
+	local folderPath = prefixPath:newFromTemplate(...)
+	
+	local relativePath = versionRelativePath:appendRelativePath(folderPath)
+	local absolutePath = prefixPath:appendRelativePath(relativePath)
 	
 	return absolutePath, relativePath
 end

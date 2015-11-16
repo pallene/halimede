@@ -14,7 +14,7 @@ local deepMerge = require('halimede.table.deepMerge').deepMerge
 local tabelize = require('halimede.table.tabelize').tabelize
 local noRedirection = require('halimede.io.execute').noRedirection
 
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 local ToolchainPaths = require('halimede.build.toolchain.ToolchainPaths')
 local ExecutionEnvironment = require('halimede.build.toolchain.ExecutionEnvironment')
 

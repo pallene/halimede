@@ -9,24 +9,30 @@ local Paths = moduleclass('Paths')
 local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractPath = requireSibling('AbstractPath')
-local shellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
+local Path = requireSibling('Path')
 
-
-Paths.static.pathSeparator = shellLanguage.pathSeparator
 
 assert.globalTypeIsFunction('ipairs')
-function module:initialize(pathSeparator, pathObjects)
-	assert.parameterTypeIsString(pathSeparator)
+function module:initialize(pathStyle, paths)
+	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
 	assert.parameterTypeIsTable(pathObjects)
 	
-	for _, pathObject in ipairs(pathObjects) do
-		assert.parameterTypeIsInstanceOf(pathObject, AbstractPath)
+	for _, path in ipairs(paths) do
+		assert.parameterTypeIsInstanceOf(path, Path)
 	end
 	
-	self.pathSeparator = pathSeparator
-	self.pathObjects = pathObjects
-	self.paths = pathObjects:concat(pathSeparator)
+	self.pathStyle = pathStyle
+	self.paths = paths
+end
+
+function module:formatPaths(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	
+	local pathsBuffer = tabelize()
+	for path in self:iterate() do
+		pathsBuffer:insert(path:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	end
+	return pathsBuffer:concat(self.pathStyle.pathSeparator)
 end
 
 function module:iterate()

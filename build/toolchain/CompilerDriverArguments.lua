@@ -11,12 +11,13 @@ local assert = halimede.assert
 local type = halimede.type
 local CompilerDriver = requireSibling('CompilerDriver')
 local Arguments = requireSibling('Arguments')
+local Path = require('halimede.io.paths.Path')
 
 
 function CompilerDriverArguments:initialize(compilerDriver, compilerDriverFlags, sysrootPath)
 	assert.parameterTypeIsInstanceOf(compilerDriver, CompilerDriver)
 	assert.parameterTypeIsTable(compilerDriverFlags)
-	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
+	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
 	
 	self.arguments = Arguments:new()
 	self.arguments:append(self.commandLineName)

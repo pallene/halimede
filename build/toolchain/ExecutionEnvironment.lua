@@ -12,7 +12,7 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local Platform = requireSibling('Platform')
 local Toolchain = requireSibling('Toolchain')
 local ToolchainPaths = requireSibling('ToolchainPaths')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
+local Path = require('halimede.io.paths.Path')
 local defaultRecipeEnvironment = requireSibling('recipeEnvironment')
 local ExecutionEnvironmentBufferedShellScript = require('halimede.io.shellScript.ExecutionEnvironmentBufferedShellScript')
 
@@ -41,7 +41,7 @@ function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform, de
 	assert.parameterTypeIsInstanceOf(buildPlatform, Platform)
 	assert.parameterTypeIsInstanceOf(buildToolchainPaths, ToolchainPaths)
 	assert.parameterTypeIsInstanceOf(crossPlatform, Platform)
-	assert.parameterTypeIsInstanceOf(destinationPath, AbsolutePath)
+	assert.parameterTypeIsInstanceOf(destinationPath, Path)
 	
 	self.buildPlatform = buildPlatform
 	self.buildToolchainPaths = buildToolchainPaths

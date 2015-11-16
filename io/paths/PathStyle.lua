@@ -128,6 +128,7 @@ end
 function module:formatPathAbsoluteIncludingDeviceName(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
+	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString(device)
 	
 	return device .. self.deviceSeparator .. self:formatPathRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -137,6 +138,7 @@ end
 function module:formatPathRelativeToCurrentDeviceAndAbsoluteOnPosix(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
+	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	return self.folderSeparator .. table.concat(pathElements, self.folderSeparator)
 end
@@ -145,6 +147,7 @@ end
 function module:formatPathRelativeToDeviceCurrentDirectoryOnCmd(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
+	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString(device)
 	
 	exception.throw("This PathStyle '%s' does not support device relative paths on a device such as '%s'", self.name, device)
@@ -189,6 +192,7 @@ local Cmd = PathStyle:new('Cmd', ';', '\\', '\\', '.', '..', '.', ':', true, {'<
 Cmd.formatPathRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)  -- Windows, maybe OpenVms, eg C:..\file.txt
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
+	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString(device)
 	
 	return device .. self:formatPathRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)

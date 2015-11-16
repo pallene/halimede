@@ -12,6 +12,7 @@ local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local operatingSystemDetails = require('halimede').operatingSystemDetails
 local exception = require('halimede.exception')
+local Path = require('halimede.io.paths.Path')
 local Paths = require('halimede.io.paths.Paths')
 
 
@@ -146,7 +147,7 @@ function ShellLanguage:paths(stringPathsTable)
 	for _, path in ipairs(stringPathsTable) do
 		assert.parameterTypeIsString(path)
 		
-		local pathObject = AbstractPath.parse(self.folderSeparator, path)
+		local pathObject = Path.parse(self.folderSeparator, path)
 		pathObjects:insert(pathObject)
 	end
 	

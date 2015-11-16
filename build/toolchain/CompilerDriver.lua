@@ -12,7 +12,7 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
 local CompilerMetadata = requireSibling('CompilerMetadata')
 local CStandard = requireSibling('CStandard')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
+local Path = require('halimede.io.paths.Path')
 local Arguments = requireSibling('Arguments')
 
 
@@ -87,9 +87,16 @@ end
 
 function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
+	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
 	
-	arguments:append(self.sysrootPathOption .. sysrootPath.path)
+	if sysrootPath.isFile then
+		exception.throw("sysrootPath '%s' must not be a file", sysrootPath)
+	end
+	if not sysrootPath.isEffectivelyAbsolute then
+		exception.throw("sysrootPath '%s' must be effectively absolute", sysrootPath)
+	end
+	
+	arguments:append(self.sysrootPathOption .. sysrootPath.formatPath(true))
 end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc

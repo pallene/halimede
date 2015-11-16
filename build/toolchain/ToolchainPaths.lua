@@ -40,19 +40,33 @@ Note that it is still possible to run scripts from a filesystem mounted noexec
 ]]--
 
 moduleclass('ToolchainPaths')
-local AbsolutePath = require('halimede.io.paths.AbsolutePath')
-local RelativePath = require('halimede.io.paths.RelativePath')
+local Path = require('halimede.io.paths.Path')
 
 local halimede = require('halimede')
 local assert = halimede.assert
 local exception = require('halimede.exception')
 
+
+local function validatePath(path, name, mustBe)
+	if path.isFile then
+		exception.throw("%s '%s' must not be a file pathF", name, path)
+	end
+	if path[mustBe] == false then
+		exception.throw("%s '%s' must be %s", name, path, mustBe)
+	end
+end
+
 function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
 	assert.parameterTypeIsFunctionOrCall(toolchainPathStrategy)
-	assert.parameterTypeIsInstanceOf(sysrootPath, AbsolutePath)
-	assert.parameterTypeIsInstanceOf(versionRelativePath, RelativePath)
-	assert.parameterTypeIsInstanceOf(prefixPath, AbsolutePath)
-	assert.parameterTypeIsInstanceOf(execPrefixPath, AbsolutePath)
+	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
+	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	assert.parameterTypeIsInstanceOf(prefixPath, Path)
+	assert.parameterTypeIsInstanceOf(execPrefixPath, Path)
+	
+	validatePath(sysrootPath, 'sysrootPath', 'isEffectivelyAbsolute')
+	validatePath(versionRelativePath, 'versionRelativePath', 'isRelative')
+	validatePath(prefixPath, 'prefixPath', 'isEffectivelyAbsolute')
+	validatePath(execPrefixPath, 'execPrefixPath', 'isEffectivelyAbsolute')
 	
 	self.sysrootPath = sysrootPath
 	self.versionRelativePath = versionRelativePath
@@ -61,7 +75,8 @@ function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPre
 	if libPrefixPath == nil then
 		self.libPrefixPath = prefixPath
 	else
-		assert.parameterTypeIsInstanceOf(libPrefixPath, AbsolutePath)
+		assert.parameterTypeIsInstanceOf(libPrefixPath, Path)
+		validatePath(libPrefixPath, 'libPrefixPath', 'isEffectivelyAbsolute')
 		self.libPrefixPath = libPrefixPath
 	end
 end

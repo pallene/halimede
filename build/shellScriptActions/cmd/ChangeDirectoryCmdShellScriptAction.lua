@@ -8,21 +8,26 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local assert = require('halimede').assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
-local class = require('halimede.middleclass')
-local Object = class.Object
+local tabelize = require('halimede.table.tabelize').tabelize
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)
 end
 
-function module:execute(abstractPath)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
-
-	if Object.isInstanceOf(abstractPath, AbsolutePath) then
-		self:_appendCommandLineToScript('CD', '/D', abstractPath.path)
-	else
-		self:_appendCommandLineToScript('CD', abstractPath.path)
+assert.globalTypeIsFunction('unpack')
+function module:execute(path)
+	assert.parameterTypeIsInstanceOf(path, Path)
+	
+	local command = tabelize({'CD'})
+	
+	local formattedPath = abstractPath.formatPath(true)
+	if path:hasNonEmptyDevice() then
+		command:insert('/D')
 	end
+	
+	command:insert(formattedPath)
+	
+	self:_appendCommandLineToScript(unpack(command))
 end

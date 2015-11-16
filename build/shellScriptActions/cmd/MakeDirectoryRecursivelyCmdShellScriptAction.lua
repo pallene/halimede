@@ -8,27 +8,18 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('MakeDirectoryRecursivelyCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local assert = require('halimede').assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
-local class = require('halimede.middleclass')
-local Object = class.Object
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)
 end
 
-function module:execute(abstractPath, mode)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
+function module:execute(path, mode)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
-
-	local path
-	if Object.isInstanceOf(abstractPath, AbsolutePath) then
-		path = abstractPath.path
-	else
-		path = '\\' .. abstractPath.path
-	end
 	
 	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	self:_appendCommandLineToScript('MD', path)
+	self:_appendCommandLineToScript('MD', path.formatPath(true))
 end
