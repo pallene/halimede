@@ -65,6 +65,78 @@ function module:execute(sourcePath)
 		exportEnvironmentVariableShellScriptAction:execute(environmentVariableName, environmentVariableValue)
 	end
 	
+	-- Actually, change to the folder above sourceFolder
+	-- Consider allowing expandable-arguments so we can have settings at shell script start we can change (eg if not supplied on the command line)
+	-- Consider switching to actual shell script path
 	local changeDirectoryShellScriptAction = ChangeDirectoryPosixShellScriptAction:new(self.shellScript)
 	changeDirectoryShellScriptAction:execute(sourcePath)
 end
+
+--[[
+# pdksh / mksh have problems with unsetting a variable that was never set...
+if [ "${CDPATH+set}" = 'set' ]; then
+	unset CDPATH
+fi
+
+# Find the absolute path containing this script
+_program_path_find()
+{
+	if [ "${0%/*}" = "$0" ]; then
+
+		# We've been invoked by the interpreter as, say, bash program
+		if [ -r "$0" ]; then
+			pwd -P
+		# Clutching at straws; probably run via a download, anonymous script, etc, weird execve, etc
+		else
+			printf '\n'
+		fi
+		
+	else
+	
+		# We've been invoked with a relative or absolute path (also when invoked via PATH in a shell)
+		
+		_program_path_find_parentPath()
+		{
+			parentPath="${scriptPath%/*}"
+			if [ -z "$parentPath" ]; then
+				parentPath='/'
+			fi
+			cd "$parentPath" 1>/dev/null
+		}
+		
+		if command -v realpath 1>/dev/null 2>/dev/null; then
+			(
+				scriptPath="$(realpath "$0")"
+				
+				_program_path_find_parentPath
+				pwd -P
+			)
+		elif command -v readlink 1>/dev/null 2>/dev/null; then
+			(
+				scriptPath="$0"
+				
+				while [ -L "$scriptPath" ]
+				do
+					_program_path_find_parentPath
+					scriptPath="$(readlink "$scriptPath")"
+				done
+
+				_program_path_find_parentPath
+				pwd -P
+			)
+		else
+			# This approach will fail in corner cases where the script itself is a symlink in a path not parallel with the concrete script
+			(
+				scriptPath="$0"
+				
+				_program_path_find_parentPath
+				pwd -P
+			)
+		fi
+		
+	fi
+}
+_program_path="$(_program_path_find)"
+
+cd "$_program_path" 1>/dev/null
+]]--

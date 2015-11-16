@@ -7,6 +7,11 @@
 set -e
 set -u
 set -f
+	
+# pdksh / mksh have problems with unsetting a variable that was never set...
+if [ "${CDPATH+set}" = 'set' ]; then
+	unset CDPATH
+fi
 
 _program_path_find()
 {
@@ -33,11 +38,6 @@ _program_path_find()
 			cd "$parentPath" 1>/dev/null
 		}
 		
-		# pdksh / mksh have problems with unsetting a variable that was never set...
-		if [ "${CDPATH+set}" = 'set' ]; then
-			unset CDPATH
-		fi
-		
 		if command -v realpath 1>/dev/null 2>/dev/null; then
 			(
 				scriptPath="$(realpath "$0")"
@@ -59,7 +59,7 @@ _program_path_find()
 				pwd -P
 			)
 		else
-			# This approach will failure in corner cases where the script itself is a symlink in a path not parallel with the concrete script
+			# This approach will fail in corner cases where the script itself is a symlink in a path not parallel with the concrete script
 			(
 				scriptPath="$0"
 				
