@@ -131,6 +131,20 @@ end
 typeModule.isTableOrUserdata = multipleTypesObject('table', 'userdata')
 typeModule.isNumberOrString = multipleTypesObject('number', 'string')
 
+local function isTypeOrNil(name)
+	return NamedFunction(name .. ' or nil', function(...)
+		local values = {...}
+		for _, value in ipairs(values) do
+			if value == nil then
+				return true
+			end
+			return is(value, name)
+		end
+		return false
+	end)
+end
+typeModule.isStringOrNil = isTypeOrNil('string', 'nil')
+
 function typeModule.hasPackageChildFieldOfType(isOfType, name, ...)
 	assertModule.parameterTypeIsTable(isOfType)
 	assertModule.parameterTypeIsString(name)
@@ -260,7 +274,11 @@ function assertModule.parameterTypeIsTableOrUserdata(value)
 end
 
 function assertModule.parameterTypeIsNumberOrString(value)
-	return parameterTypeIs(value, typeModule.IsNumberOrString)
+	return parameterTypeIs(value, typeModule.isNumberOrString)
+end
+
+function assertModule.parameterTypeIsStringOrNil(value)
+	return parameterTypeIs(value, typeModule.isStringOrNil)
 end
 
 local function globalTypeIs(isOfType, ...)
