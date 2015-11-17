@@ -90,9 +90,7 @@ function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
 	
 	sysrootPath:assertIsFolderPath('sysrootPath')
-	if not sysrootPath.isEffectivelyAbsolute then
-		exception.throw("sysrootPath '%s' must be effectively absolute", sysrootPath)
-	end
+	sysrootPath:assertIsEffectivelyAbsolute('sysrootPath')
 	
 	arguments:append(self.sysrootPathOption .. sysrootPath:toString(true))
 end

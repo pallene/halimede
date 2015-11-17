@@ -48,10 +48,9 @@ local exception = require('halimede.exception')
 
 
 local function validatePath(path, name, mustBe)
-	
 	path:assertIsFolderPath(name)
 	
-	if path[mustBe] == false then
+	if path.pathStyle[mustBe] == false then
 		exception.throw("%s '%s' must be %s", name, path, mustBe)
 	end
 end

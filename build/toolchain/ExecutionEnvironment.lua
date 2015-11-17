@@ -18,7 +18,7 @@ local ExecutionEnvironmentBufferedShellScript = require('halimede.io.shellScript
 
 
 assert.globalTypeIsFunction('select', 'type', 'ipairs')
-local function addFileExtensionToFileNames(extensionWithLeadingPeriod, ...)
+local function addFileExtensionToFileNames(pathStyle, extensionWithoutLeadingPeriod, ...)
 	local asTable
 	if select('#', ...) == 1 then
 		if type(...) == 'table' then
@@ -32,7 +32,7 @@ local function addFileExtensionToFileNames(extensionWithLeadingPeriod, ...)
 	
 	local result = tabelize()
 	for _, basefilename in ipairs(asTable) do
-		result:insert(basefilename .. extensionWithLeadingPeriod)
+		result:insert(pathStyle:appendFileExtension(basefilename, extensionWithoutLeadingPeriod))
 	end
 	return result
 end
@@ -65,17 +65,25 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:createShellScript(crossToolchainPaths, sourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, userFunction)
-	assert.parameterTypeIsBoolean(isForRunningOnCrossCompiledHost)
+	assert.parameterTypeIsInstanceOf(crossToolchainPaths, ToolchainPaths)
+	assert.parameterTypeIsInstanceOf(sourcePath, Path)
 	assert.parameterTypeIsTable(dependencies)
 	assert.parameterTypeIsTable(consolidatedBuildVariant)
-	--assert.parameterTypeIsTable(sourcePath)
 	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
 	assert.parameterTypeIsFunctionOrCall(userFunction)
 	
+	sourcePath:assertIsFolderPath('sourcePath')
+	sourcePath:assertIsEffectivelyAbsolute('sourcePath')
+	
 	local shellScript = self:_newShellScript(self.buildToolchain, dependencies, consolidatedBuildVariant)
 	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
-		
-	local buildEnvironmentLight = {
+	
+	local buildPathStyle = self.buildPlatform.shellScriptExecutor.shellLanguage.pathStyle
+	local function addFileExtensionToFileNamesWithPathStyle(extensionWithoutLeadingPeriod, ...)
+		return addFileExtensionToFileNames(buildPathStyle, extensionWithoutLeadingPeriod, ...)
+	end
+	
+	local buildEnvironment = {
 		
 		buildToolchain = Toolchain:new(self.buildPlatform, self.buildToolchainPaths),
 		
@@ -83,15 +91,14 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 		
 		sourcePath = sourcePath,
 				
-		addFileExtensionToFileNames = addFileExtensionToFileNames,
+		addFileExtensionToFileNames = addFileExtensionToFileNamesWithPathStyle,
 		
 		toCFiles = function(...)
-			return addFileExtensionToFileNames('.c', ...)
+			return addFileExtensionToFileNamesWithPathStyle('c', ...)
 		end,
-
-		-- TODO: not necessarily .cxx; several variants, sadly
-		toCPlusPlusFiles = function(...)
-			return addFileExtensionToFileNames('.cxx', ...)
+		
+		toCxxFiles = function(...)
+			return addFileExtensionToFileNamesWithPathStyle('cxx', ...)
 		end,
 		
 		action = function(name, namespace, ...)
@@ -103,7 +110,7 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 		configHDefines = self.crossPlatform:createConfigHDefines(platformConfigHDefinesFunctions)
 	}
 	
-	userFunction(buildEnvironmentLight)
+	userFunction(buildEnvironment)
 	
 	shellScript:newAction(nil, 'EndScript'):execute()
 end

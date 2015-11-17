@@ -54,17 +54,25 @@ function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
 	self.recipeFolderPath = recipesPath:appendFolders(recipeName)
 	self.recipeFilePath = recipeFolderPath:appendFile('recipe', 'lua')
 	self.recipeSourcePath = recipeFolderPath:appendFolders('source')
-	self.recipeWorkingDirectoryPath = recipeFolderPath:appendFolders('.build')
+	--self.recipeWorkingDirectoryPath = recipeFolderPath:appendFolders('.build')
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
+	
+	local result = self:_load()
+	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result)
+	self.dependencies = dependencies
+	self.packageVersion = packageVersion
+	self.consolidatedBuildVariant = consolidatedBuildVariant
+	self.platformConfigHDefinesFunctions = platformConfigHDefinesFunctions
+	self.execute = execute
 end
 
-function module:versionStringIncludingBuildVariants(packageVersion)
-	return packageVersion .. '-' .. self.chosenBuildVariantNames:concat('-')
+function module:buildVariantsString()
+	return self.chosenBuildVariantNames:concat('-')
 end
 
 local function configHDefinesNew(configH, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
 	
-	local version = self:versionStringIncludingBuildVariants(packageVersion)
+	local version = packageVersion .. '-' .. self:buildVariantsString()
 	
 	configHDefines:PACKAGE(packageName)
 	--configHDefines:PACKAGE_BUGREPORT('bug-' .. packageName .. '@gnu.org')
@@ -207,15 +215,20 @@ end
 -- local executionEnvironment = ExecutionEnvironment:new(buildPlatform, buildToolchainPaths, crossPlatform)
 assert.globalTypeIsFunction('ipairs', 'pairs')
 function module:execute(executionEnvironment)
+	assert.parameterTypeIsInstanceOf(executionEnvironment, ExecutionEnvironment)
 	
-	local result = self:_load()
-	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result)
+	local crossShellLanguage = executionEnvironment.crossPlatform.shellScriptExecutor.shellLanguage
 	
-	-- We also ought to capture hash of the recipe file path and of the toolchain / build code
-	-- there are two possibilities: destinationPath/opt/recipe/version+buildvariants+hash-of-dependencyversions OR destinationPath/
-	-- sysrootPath
-	error("There is no executionEnvironment.sysrootPath")
-	local crossToolchainPaths = ToolchainPaths:new(executionEnvironment.sysrootPath, executionEnvironment.sysrootPath:appendFolders('opt', self.recipeName, self:versionStringIncludingBuildVariants(packageVersion), 'dependencies-hash'))
-	local shellScript = executionEnvironment:use(crossToolchainPaths, self.recipeSourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute)
+	-- Instead of dependencies-hash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than a maximum length
+	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
+	local sysrootPath = executionEnvironment.destinationPath
+	local destinationPath = executionEnvironment.destinationPath
+	local versionRelativePath = crossShellLanguage:relativeFolderPath(self.recipeName, self.packageVersion, self:buildVariantsString(), 'dependencies-hash')
+	local prefixPath = destinationPath:appendFolders('opt', 'prefix')  -- Mounted noexec, nosuid
+	local execPrefixPath = destinationPath:appendFolders('opt', 'exec-prefix')  -- Mounted exec, nosuid
+	local libPrefixPath = destinationPath:appendFolders('opt', 'lib-prefix')  -- Might be mounted exec, ideally noexec  and nosuid
+	
+	local crossToolchainPaths = ToolchainPaths:new(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
+	local shellScript = executionEnvironment:use(crossToolchainPaths, self.recipeSourcePath, self.dependencies, self.consolidatedBuildVariant, self.platformConfigHDefinesFunctions, self.execute)
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end

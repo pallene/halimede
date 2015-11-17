@@ -104,6 +104,12 @@ function module:assertIsFilePath(parameterName)
 	end
 end
 
+function module:assertIsEffectivelyAbsolute(parameterName)
+	if not self.pathRelativity.isEffectivelyAbsolute then
+		exception.throw("%s '%s' must be effectively absolute", parameterName, self:__tostring())
+	end
+end
+
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
