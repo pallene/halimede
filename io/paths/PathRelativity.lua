@@ -28,7 +28,7 @@ function module:initialize(name, isAbsoluteIncludingDeviceName, isRelativeToCurr
 	self.isRelativeToDeviceCurrentDirectoryOnCmd = isRelativeToDeviceCurrentDirectoryOnCmd
 	self.isRelative = isRelative
 	
-	self.pathStyleFunctionName = 'formatPath' .. name
+	self.pathStyleFunctionName = 'toString' .. name
 	self.isEffectivelyAbsolute = isAbsoluteIncludingDeviceName or isRelativeToCurrentDeviceAndAbsoluteOnPosix
 	self.doesNotHaveARoot = isRelative or isRelativeToDeviceCurrentDirectoryOnCmd
 	
@@ -53,7 +53,7 @@ function module:guardDeviceIsPermitted(pathStyle, device)
 	end
 end
 
-function module:formatPath(pathStyle, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
+function module:toString(pathStyle, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)

@@ -32,8 +32,8 @@ function module:execute(linkContentsPath, linkFilePath)
 	end
 	
 	-- Note that order is reverse of that for POSIX ln -s
-	command:insert(linkFilePath:formatPath(false))
-	command:insert(linkContentsPath:formatPath(false))
+	command:insert(linkFilePath:toString(false))
+	command:insert(linkContentsPath:toString(false))
 	
 	self:_appendCommandLineToScript(unpack(command))
 end

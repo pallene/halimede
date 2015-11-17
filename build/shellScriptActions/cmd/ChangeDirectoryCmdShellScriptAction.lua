@@ -22,7 +22,7 @@ function module:execute(path)
 	
 	local command = tabelize({'CD'})
 	
-	local formattedPath = abstractPath:formatPath(true)
+	local formattedPath = abstractPath:toString(true)
 	if path:hasNonEmptyDevice() then
 		command:insert('/D')
 	end

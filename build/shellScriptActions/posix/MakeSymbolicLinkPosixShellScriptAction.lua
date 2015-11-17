@@ -21,5 +21,5 @@ function module:execute(linkContentsPath, linkFilePath)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
 	
-	self:_appendCommandLineToScript('ln', '-s', linkContentsPath:formatPath(false), linkFilePath:formatPath(false))
+	self:_appendCommandLineToScript('ln', '-s', linkContentsPath:toString(false), linkFilePath:toString(false))
 end

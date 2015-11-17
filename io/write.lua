@@ -16,7 +16,7 @@ function module.openTextModeForWriting(filePath, fileDescription)
 	
 	filePath:assertIsFilePath()
 	
-	local fileHandle, errorMessage = io.open(filePath:formatPath(false), 'w')
+	local fileHandle, errorMessage = io.open(filePath:toString(false), 'w')
 	if fileHandle == nil then
 		exception.throw("Could not open %s '%s' for text-mode writing because of error '%s'", fileDescription, filePath, errorMessage)
 	end

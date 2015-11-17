@@ -8,7 +8,7 @@ local assert = require('halimede.assert')
 local exception = require('halimede.exception')
 local write = requireSibling('write')
 local Path = require('halimede.io.paths.Path')
-local DefaultPathStyle = require('halimede.io.shellScript.ShellLanguage').Default.pathStyle
+local DefaultShellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'tmpname')
@@ -18,7 +18,7 @@ function module.toTemporaryFileAllContentsInTextMode(contents, fileExtension)
 	
 	local temporaryFileCreatedOnPosixButNotWindows = os.tmpname()
 	
-	local temporaryFilePath = DefaultPathStyle:parse(temporaryFileCreatedOnPosixButNotWindows, true)
+	local temporaryFilePath = DefaultShellLanguage:parsePath(temporaryFileCreatedOnPosixButNotWindows, true)
 	local temporaryFilePathWithFileExtension = temporaryFilePath:appendFileExtension(fileExtension)
 	
 	write.toFileAllContentsInTextMode(temporaryFilePathWithFileExtension, 'temporary file', contents)

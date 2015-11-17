@@ -26,7 +26,7 @@ function module:execute(configHDefines, filePath)
 		assert.parameterTypeIsInstanceOf(filePath, Path)
 		filePath:assertIsFilePath('filePath')
 		
-		actualFilePath = filePath:formatPath(true)
+		actualFilePath = filePath:toString(true)
 	end
 	self:_appendCommandLineToScript('printf', '%s',  configHDefines:toCPreprocessorText(), self:_redirectStandardOutput(actualFilePath))
 end

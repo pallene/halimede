@@ -113,8 +113,23 @@ function module:appendLinesToScript(tabelizedScriptBuffer, ...)
 	end
 end
 
-function ShellScript:appendCommandLineToScript(tabelizedScriptBuffer, ...)
+function module:appendCommandLineToScript(tabelizedScriptBuffer, ...)
 	tabelizedScriptBuffer:insert(self.toShellCommandLine(...))
+end
+
+function module:parsePath(pathString, isFile)
+	assert.parameterTypeIsString(pathString)
+	assert.parameterTypeIsBoolean(isFile)
+	
+	return self.pathStyle:parse(pathString, isFile)
+end
+
+function module:relativeFolderPath(...)
+	return self.pathStyle:relativeFolderPath(...)
+end
+
+function module:relativeFilePath(...)
+	return self.pathStyle:relativeFilePath(...)
 end
 
 assert.globalTypeIsFunction('ipairs')

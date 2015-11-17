@@ -186,7 +186,7 @@ local function configHDefinesIsWindows(configHDefines, platform)
 	configH:FILE_TIMESTAMP_HI_RES(false)
 end
 
-local function execute(buildEnvironmentLight)
+local function execute(buildEnvironment)
 	
 	-- TODO:alloca support may be needed (all modern platforms have this)
 	-- TODO:Windows and VMS have different file lists
@@ -218,29 +218,29 @@ local function execute(buildEnvironmentLight)
 		'version',
 		'vpath',
 		'hash',
-		'remote-' .. buildEnvironmentLight.arguments.REMOTE,
-		XXXX: TODO: pathStyle on buildToolchain
-		Path.relativeFilePath(buildEnvironmentLight.buildToolchain.pathStyle, 'glob', 'fnmatch'):formatPath(false),
-		Path.relativeFilePath(buildEnvironmentLight.buildToolchain.pathStyle, 'glob', 'glob'):formatPath(false)
+		'remote-' .. buildEnvironment.arguments.REMOTE,
+		
+		buildEnvironment.buildToolchain:relativeFilePath('glob', 'fnmatch'):toString(false),
+		buildEnvironment.buildToolchain:relativeFilePath('glob', 'glob'):toString(false)
 	}
 	
-	local toolchain = buildEnvironmentLight.crossToolchain
+	local toolchain = buildEnvironment.crossToolchain
 	local cCompilerDriverFlags = {}
 	
 	
-	buildEnvironmentLight.configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
-	buildEnvironmentLight.action(nil, 'WriteConfigH', buildEnvironmentLight.configHDefines)
+	buildEnvironment.configHDefines:MAKE_HOST(toolchain.platform.gnuTuple.triplet)
+	buildEnvironment.action(nil, 'WriteConfigH', buildEnvironment.configHDefines)
 	
 	local standard = CStandard.gnu90
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
 	local defines = CommandLineDefines(false)
-	defines:quotedNonEmptyString('LOCALEDIR', toolchain:locale():formatPath(true))
-	defines:quotedNonEmptyString('LIBDIR', toolchain:lib():formatPath(true))
-	defines:quotedNonEmptyString('INCLUDEDIR', toolchain:include():formatPath(true))
+	defines:quotedNonEmptyString('LOCALEDIR', toolchain:locale():toString(true))
+	defines:quotedNonEmptyString('LIBDIR', toolchain:lib():toString(true))
+	defines:quotedNonEmptyString('INCLUDEDIR', toolchain:include():toString(true))
 	defines:_boolean('HAVE_CONFIG_H', true)
-	local sources = buildEnvironmentLight.toCFiles(baseFileNames)
-	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'PreprocessCompileAndAssembleCompilerDriver', toolchain, cCompilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
+	local sources = buildEnvironment.toCFiles(baseFileNames)
+	buildEnvironment.action('halimede.build.shellScriptActions.compilerDriver', 'PreprocessCompileAndAssembleCompilerDriver', toolchain, cCompilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)
 	
 	
 	-- Do we want to name stuff, rather than use command line switches?
@@ -250,7 +250,7 @@ local function execute(buildEnvironmentLight)
 	local objects = toolchain.platform:toObjectsWithoutPaths(baseFileNames)
 	local linkedLibraries = {}
 	local baseName = 'make'
-	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'ExecutableLinkCompilerDriver', toolchain, cCompilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
+	buildEnvironment.action('halimede.build.shellScriptActions.compilerDriver', 'ExecutableLinkCompilerDriver', toolchain, cCompilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
 end
 
 --[[

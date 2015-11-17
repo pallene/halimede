@@ -24,5 +24,5 @@ function module:execute(paths)
 	assert.parameterTypeIsInstanceOf(paths, Paths)
 	
 	self.unsetEnvironmentVariablePosixShellScriptAction:execute('PATH')
-	self.exportEnvironmentVariablePosixShellScriptAction:execute('PATH', paths:formatPaths(true))
+	self.exportEnvironmentVariablePosixShellScriptAction:execute('PATH', paths:toStrings(true))
 end

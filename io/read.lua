@@ -16,7 +16,7 @@ function module.openTextModeForReading(filePath, fileDescription)
 	
 	filePath:assertIsFilePath()
 	
-	local fileHandle, errorMessage = io.open(filePath:formatPath(false), 'r')
+	local fileHandle, errorMessage = io.open(filePath:toString(false), 'r')
 	if fileHandle == nil then
 		exception.throw("Could not open %s '%s' for text-mode reading because of error '%s'", fileDescription, filePath, errorMessage)
 	end

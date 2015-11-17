@@ -10,39 +10,36 @@ local halimede = require('halimede')
 local assert = halimede.assert
 
 
-function module.pathConstant(prefixPath, versionRelativePath, ...)
+function module.pathConstant(prefixPath, versionRelativePath, folderRelativePath)
 	assert.parameterTypeIsInstanceOf(prefixPath, Path)
 	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	assert.parameterTypeIsInstanceOf(folderRelativePath, Path)
 	
-	local folderPath = prefixPath:newFromTemplate(...)
-	
-	local relativePath = folderPath
+	local relativePath = folderRelativePath
 	local absolutePath = prefixPath:appendRelativePath(relativePath)
 	
 	return absolutePath, relativePath
 end
 	
 -- eg returns '/opt/package/version/dependencies/bin' if prefixPath == '/opt'
-function module.pathVersioned(prefixPath, versionRelativePath, ...)
+function module.pathVersioned(prefixPath, versionRelativePath, folderRelativePath)
 	assert.parameterTypeIsInstanceOf(prefixPath, Path)
 	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	assert.parameterTypeIsInstanceOf(folderRelativePath, Path)
 	
-	local folderPath = prefixPath:newFromTemplate(...)
-	
-	local relativePath = folderPath:appendRelativePath(versionRelativePath)
+	local relativePath = folderRelativePath:appendRelativePath(versionRelativePath)
 	local absolutePath = prefixPath:appendRelativePath(relativePath)
 	
 	return absolutePath, relativePath
 end
 	
 -- eg returns '/bin/package/version/dependencies' if prefixPath == '/' and folderName == 'bin'
-function module.pathInsidePackage(prefixPath, versionRelativePath, ...)
+function module.pathInsidePackage(prefixPath, versionRelativePath, folderRelativePath)
 	assert.parameterTypeIsInstanceOf(prefixPath, Path)
 	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
+	assert.parameterTypeIsInstanceOf(folderRelativePath, Path)
 	
-	local folderPath = prefixPath:newFromTemplate(...)
-	
-	local relativePath = versionRelativePath:appendRelativePath(folderPath)
+	local relativePath = versionRelativePath:appendRelativePath(folderRelativePath)
 	local absolutePath = prefixPath:appendRelativePath(relativePath)
 	
 	return absolutePath, relativePath

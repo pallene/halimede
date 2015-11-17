@@ -17,16 +17,6 @@ local PathStyle = requireSibling('PathStyle')
 local PathRelativity = requireSibling('PathRelativity')
 
 
-Path.static.relativeFolderPath = function(pathStyle, ...)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
-	local relativeFolderPath = Path:new(pathStyle, PathRelativity.Relative, nil, {...}, false, nil)
-end
-
-Path.static.relativeFilePath = function(pathStyle, ...)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
-	return Path:new(pathStyle, PathRelativity.Relative, nil, {...}, true, nil)
-end
-
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)
 	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
@@ -72,7 +62,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:__tostring()
-	return ('%s(%s)'):format(self.class.name, self:formatPath(false))
+	return ('%s(%s)'):format(self.class.name, self:toString(false))
 end
 
 function module:__eq(right)
@@ -114,7 +104,7 @@ function module:assertIsFilePath(parameterName)
 	end
 end
 
-function module:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	local pathElementsCopy
@@ -126,7 +116,7 @@ function module:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate)
 		pathElementsCopy = self.pathElements
 	end
 	
-	return self.pathRelativity:formatPath(self.pathStyle, pathElementsCopy, self.isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
+	return self.pathRelativity:toString(self.pathStyle, pathElementsCopy, self.isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
 end
 
 function module:hasNonEmptyDevice()
@@ -141,7 +131,7 @@ end
 
 if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'remove') then
 	function module:remove()
-		local ok, errorMessage = os.remove(self:formatPath(true))
+		local ok, errorMessage = os.remove(self:toString(true))
 		if ok == nil then
 			return false, errorMessage
 		end

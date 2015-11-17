@@ -28,7 +28,7 @@ function module:execute(configHDefines, filePath)
 		assert.parameterTypeIsInstanceOf(filePath, Path)
 		filePath:assertIsFilePath('filePath')
 		
-		actualFilePath = filePath:formatPath(true)
+		actualFilePath = filePath:toString(true)
 	end
 	
 	local lines = configHDefines:toCPreprocessorTextLines()

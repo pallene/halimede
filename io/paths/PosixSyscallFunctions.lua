@@ -19,7 +19,7 @@ assert.globalTypeIsFunction('tostring')
 function module.stat(path)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	
-	local ok, errorCode = syscall.stat(path:formatPath(false))
+	local ok, errorCode = syscall.stat(path:toString(false))
 	if ok then
 		return
 	end
@@ -53,7 +53,7 @@ assert.globalTypeIsFunction('tostring')
 function module.lstat(path)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	
-	local ok, errorCode = syscall.lstat(path:formatPath(false))
+	local ok, errorCode = syscall.lstat(path:toString(false))
 	if ok then
 		return
 	end
@@ -93,7 +93,7 @@ function module.makeCharacterDevice(path, mode, major, minor)
 	-- Seems there's a device() method, too
 	local device = {major, minor}
 	
-	local ok, errorCode = syscall.mknod(path:formatPath(false), 'fchr,' .. mode, device)
+	local ok, errorCode = syscall.mknod(path:toString(false), 'fchr,' .. mode, device)
 	if ok then
 		return
 	end
@@ -136,7 +136,7 @@ function module.mkfifo(path, mode)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
 	
-	local ok, errorCode = syscall.mkfifo(path:formatPath(false), mode)
+	local ok, errorCode = syscall.mkfifo(path:toString(false), mode)
 	if ok then
 		return
 	end
@@ -176,7 +176,7 @@ function module.chmod(path, mode)
 		fail('chmod', path, becauseOfReason)
 	end
 	
-	local pathString = path:formatPath(false)
+	local pathString = path:toString(false)
 	local ok = false
 	local errorCode
 	-- Can be interrupted

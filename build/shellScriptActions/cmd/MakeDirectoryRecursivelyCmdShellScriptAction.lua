@@ -21,5 +21,5 @@ function module:execute(path, mode)
 	
 	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	self:_appendCommandLineToScript('MD', path:formatPath(true))
+	self:_appendCommandLineToScript('MD', path:toString(true))
 end

@@ -164,7 +164,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 end
 
 function module:_load(executionEnvironment)
-	return executeFromFile('recipe file', self.recipeFilePath:formatPath(true), executionEnvironment.recipeEnvironment)
+	return executeFromFile('recipe file', self.recipeFilePath:toString(true), executionEnvironment.recipeEnvironment)
 end
 
 function module:_validate(result)

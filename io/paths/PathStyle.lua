@@ -77,6 +77,14 @@ function module:_parse(stringPath, isFile)
 	exception.throw('Abstract Method')
 end
 
+function module:relativeFolderPath(...)
+	return Path:new(self, PathRelativity.Relative, nil, {...}, false, nil)
+end
+
+function module:relativeFilePath(...)
+	return Path:new(self, PathRelativity.Relative, nil, {...}, true, nil)
+end
+
 assert.globalTypeIsFunction('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 function module:guardPathElements(pathElements)
@@ -147,17 +155,17 @@ function module:appendAlternateStreamName(fileNameIncludingAnyExtension, alterna
 end
 
 -- Specify '' on Posix and Symbian; omit the trailing '/' on Windows from the device
-function module:formatPathAbsoluteIncludingDeviceName(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
+function module:toStringAbsoluteIncludingDeviceName(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString(device)
 	
-	return device .. self.deviceSeparator .. self:formatPathRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
+	return device .. self.deviceSeparator .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end
 
 -- Windows only; on Posix, effectively an absolute Path; best choice most of the time
-function module:formatPathRelativeToCurrentDeviceAndAbsoluteOnPosix(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:toStringRelativeToCurrentDeviceAndAbsoluteOnPosix(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -166,7 +174,7 @@ function module:formatPathRelativeToCurrentDeviceAndAbsoluteOnPosix(pathElements
 end
 
 -- Windows only
-function module:formatPathRelativeToDeviceCurrentDirectoryOnCmd(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
+function module:toStringRelativeToDeviceCurrentDirectoryOnCmd(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -178,7 +186,7 @@ end
 -- POSIX relative path, Windows relative path
 -- use specifyCurrentDirectoryExplicitlyIfAppropriate for distinguishing executables in the current working directory from those in the PATH on POSIX
 -- use specifyCurrentDirectoryExplicitlyIfAppropriate on Windows to avoid problems with file streams on one-character file names being mistaken for device names...
-function module:formatPathRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -190,10 +198,10 @@ function module:formatPathRelative(pathElements, isFile, specifyCurrentDirectory
 		pathElementsToUse = pathElements
 	end
 	
-	return self:_formatPathRelative(pathElementsToUse, isFile)
+	return self:_toStringRelative(pathElementsToUse, isFile)
 end
 
-function module:_formatPathRelative(pathElements, isFile)
+function module:_toStringRelative(pathElements, isFile)
 	return table.concat(pathElements, self.folderSeparator)
 end
 
@@ -227,13 +235,13 @@ end
 -- Strictly speaking, \1 to \31 are valid in the alternate file stream portion of a path.
 local Cmd = PathStyle:new('Cmd', ';', '\\', '\\', '.', '..', '.', ':', true, {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\1', '\2', '\3', '\4', '\5', '\6', '\7', '\8', '\9', '\10', '\11', '\12', '\13', '\14', '\15', '\16', '\17', '\18', '\19', '\20', '\21', '\22', '\23', '\24', '\25', '\26', '\27', '\28', '\29', '\30', '\31'}, 'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9')  -- Note that Windows allows '/' as a directory separator, too, except when using UNC paths; . and .. are valid as file names when using \\?\ paths...
 
-Cmd.formatPathRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)  -- Windows, maybe OpenVms, eg C:..\file.txt
+Cmd.toStringRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)  -- Windows, maybe OpenVms, eg C:..\file.txt
 	assert.parameterTypeIsTable(pathElements)
 	assert.parameterTypeIsBoolean(isFile)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString(device)
 	
-	return device .. self:formatPathRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
+	return device .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'split', 'find', 'sub')
@@ -317,7 +325,7 @@ end
 
 local OpenVms = PathStyle.new('OpenVms', nil, '.', ':', '', '-', '.', ';', true, {})
 
-OpenVms._formatPathRelative = function(self, pathElements, isFile)
+OpenVms._toStringRelative = function(self, pathElements, isFile)
 	if isFile then
 		local folderPaths = tabelize(shallowCopy(pathElements))
 		local file = folderPaths:remove()

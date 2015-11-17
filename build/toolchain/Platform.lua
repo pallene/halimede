@@ -60,8 +60,8 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	return configHDefines
 end
 
-function module:path(toolchainPaths, pathName)
-	return toolchainPaths[pathName](self.toolchainPathStrategy)
+function module:toolchainPath(toolchainPaths, pathName)
+	return toolchainPaths[pathName](self.toolchainPathStrategy, self.shellScriptExecutor.shellLanguage)
 end
 
 function module:toObjects(...)

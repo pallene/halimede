@@ -25,12 +25,12 @@ function module:initialize(pathStyle, paths)
 	self.paths = paths
 end
 
-function module:formatPaths(specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:toStrings(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	local pathsBuffer = tabelize()
 	for path in self:iterate() do
-		pathsBuffer:insert(path:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate))
+		pathsBuffer:insert(path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 	end
 	return pathsBuffer:concat(self.pathStyle.pathSeparator)
 end

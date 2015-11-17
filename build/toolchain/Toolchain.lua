@@ -20,18 +20,26 @@ function module:initialize(platform, toolchainPaths)
 	self.toolchainPaths = toolchainPaths
 end
 
-function module:path(pathName)
-	return self.platform:path(self.toolchainPaths, pathName)
+function module:relativeFolderPath(...)
+	return self.platform.shellScriptExecutor.shellLanguage:relativeFolderPath(...)
+end
+
+function module:relativeFilePath(...)
+	return self.platform.shellScriptExecutor.shellLanguage:relativeFilePath(...)
+end
+
+function module:toolchainPath(pathName)
+	return self.platform:toolchainPath(self.toolchainPaths, pathName)
 end
 
 function module:include()
-	return self:path('include')
+	return self:toolchainPath('include')
 end
 
 function module:lib()
-	return self:path('lib')
+	return self:toolchainPath('lib')
 end
 
 function module:locale()
-	return self:path('locale')
+	return self:toolchainPath('locale')
 end

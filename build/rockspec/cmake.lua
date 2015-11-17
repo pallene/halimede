@@ -51,7 +51,7 @@ function module.cmakebuild(rockspec, rockspecFilePath)
 		if type.isString(cmakeListsContent) then
 			-- Ought to be $(pwd)/; not necessarily path to rockspec...
 			local cmakeListsFilePath = rockspecFilePath:parentPath():appendFolders(halimede.dirname(rockspecFilePath)):appendFile('CMakeLists', 'txt')
-			toFileAllContentsInTextMode(cmakeListsFilePath:formatPath(true), 'CMakeLists file', cmakeListsContent)
+			toFileAllContentsInTextMode(cmakeListsFilePath:toString(true), 'CMakeLists file', cmakeListsContent)
 		end
 	end
 	createCMakeListsIfRequired()
