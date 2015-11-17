@@ -9,7 +9,7 @@ local class = require('halimede.middleclass')
 local Object = class.Object
 
 
-assertModule.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunction('ipairs')
 local function simpleTypeObject(name)
 	return NamedFunction(name, function(...)
 		local values = {...}

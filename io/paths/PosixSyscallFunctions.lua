@@ -15,6 +15,7 @@ local function fail = function(syscallName, path, becauseOfReason)
 end
 
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device
+assert.globalTypeIsFunction('tostring')
 function module.stat(path)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	
@@ -48,6 +49,7 @@ function module.stat(path)
 end
 local stat = module.stat
 
+assert.globalTypeIsFunction('tostring')
 function module.lstat(path)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	
@@ -81,6 +83,7 @@ function module.lstat(path)
 end
 local lstat = module.lstat
 
+assert.globalTypeIsFunction('tostring')
 function module.makeCharacterDevice(path, mode, major, minor)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
@@ -128,6 +131,7 @@ function module.makeCharacterDevice(path, mode, major, minor)
 end
 local makeCharacterDevice = module.makeCharacterDevice
 
+assert.globalTypeIsFunction('tostring')
 function module.mkfifo(path, mode)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
@@ -163,6 +167,7 @@ function module.mkfifo(path, mode)
 end
 local mkfifo = module.mkfifo
 
+assert.globalTypeIsFunction('tostring')
 function module.chmod(path, mode)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
@@ -209,72 +214,93 @@ function module.chmod(path, mode)
 end
 local chmod = module.chmod
 
--- Can not create '/' or C:\
-function module.mkdirParents(path, mode, initialPathPrefix)
+assert.globalTypeIsFunction('tostring')
+function module.mkdir(path, mode, isLeaf)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
+	assert.parameterTypeIsBooleanOrNil(isLeaf)
+	
+	path:assertIsFolderPath(path)
+	
+	if path.isDeviceOrRoot then
+		return
+	end
+	
+	local isLeafActual
+	if isLeaf == nil then
+		isLeafActual = true
+	else
+		isLeafActual = isLeaf
+	end
 	
 	local function failure(becauseOfReason)
 		fail('mkdir', path, becauseOfReason)
 	end
-	
-	local folderSeparator = self.folderSeparator
-	
-	local length = #self.folders
-	for index, folder in ipairs(self.folders) do
-		if index == 1 then
-			path = self.initialPathPrefix .. folder
-		else
-			path = path .. folderSeparator .. folder
+
+	local mode_t = helpers.modeflags(mode)
+
+	local ok, errorCode = syscall.mkdir(concatenatedPath, mode_t)
+	if ok then
+		if isLeaf then
+			chmod(path, mode)
 		end
-	
-		local isLastFolder = index == length
-	
-		local mode_t
-		if isLastFolder then
-			mode_t = helpers.modeflags(mode)
-		else
-			mode_t = '0700'
-		end
-	
-		local ok, errorCode = syscall.mkdir(concatenatedPath, mode_t)
-	
-		if ok then
-			if isLastFolder then
-				chmod(path, mode)
-			end
-		else
-			-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkdir.html
-			if errorCode.ACCES then
-				if isLastFolder then
-					failure('search permission is denied on a component of the path prefix, or write permission is denied on the parent directory of the directory to be created')
-				else
-					-- Do nothing
-				end
-			elseif errorCode.EXIST then
-				if isLastFolder then
-					chmod(path, mode)
-				else
-					-- Do nothing
-				end
-			elseif errorCode.LOOP then
-				failure('too many symbolic links were encountered in resolving path')
-			elseif errorCode.MLINK then
-				failure('the link count of the parent directory would exceed {LINK_MAX}')
-			elseif errorCode.NAMETOOLONG then
-				failure('a component of the path prefix specified by path does not name an existing directory or path is an empty string')
-			elseif errorCode.NOENT then
-				failure('the length of the path argument exceeds {PATH_MAX} or a pathname component is longer than {NAME_MAX}')
-			elseif errorCode.NOSPC then
-				failure('the file system does not contain enough space to hold the contents of the new directory or to extend the parent directory of the new directory')
-			elseif errorCode.NOTDIR then
-				failure('a component of the path prefix is not a directory')
-			elseif errorCode.ROFS then
-				failure('the parent directory resides on a read-only file system')
-			else
-				failure(tostring(errorCode))
-			end
-		end
+		return true
 	end
+	
+	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkdir.html
+	if errorCode.ACCES then
+		if isLeaf then
+			failure('search permission is denied on a component of the path prefix, or write permission is denied on the parent directory of the directory to be created')
+		else
+			return false
+		end
+	elseif errorCode.EXIST then
+		if isLeaf then
+			chmod(path, mode)
+		else
+			-- Do nothing
+		end
+		return true
+	elseif errorCode.LOOP then
+		failure('too many symbolic links were encountered in resolving path')
+	elseif errorCode.MLINK then
+		failure('the link count of the parent directory would exceed {LINK_MAX}')
+	elseif errorCode.NAMETOOLONG then
+		failure('a component of the path prefix specified by path does not name an existing directory or path is an empty string')
+	elseif errorCode.NOENT then
+		failure('the length of the path argument exceeds {PATH_MAX} or a pathname component is longer than {NAME_MAX}')
+	elseif errorCode.NOSPC then
+		failure('the file system does not contain enough space to hold the contents of the new directory or to extend the parent directory of the new directory')
+	elseif errorCode.NOTDIR then
+		failure('a component of the path prefix is not a directory')
+	elseif errorCode.ROFS then
+		failure('the parent directory resides on a read-only file system')
+	else
+		failure(tostring(errorCode))
+	end
+	
 end
-local mkdirParents = module.mkdirParents
+local mkdir = module.mkdir
+
+-- Can not make C:\ or /
+-- 0700
+function module.mkdirs(path, mode, isLeaf)
+	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsString(mode)
+	assert.parameterTypeIsBooleanOrNil(isLeaf)
+	
+	path:assertIsFolderPath(path)
+	
+	local isLeafActual
+	if isLeaf == nil then
+		isLeafActual = true
+	else
+		isLeafActual = isLeaf
+	end
+	
+	local parentSuccess = mkdirs(path:parentPath(), '0700', false)
+	if not parentSuccess then
+		return false
+	end
+	return mkdir(path, mode, isLeafActual)
+end

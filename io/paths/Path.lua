@@ -66,6 +66,7 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 	self.alternateStreamName = alternateStreamName
 	
 	self.isDirectory = not isFile
+	self.isDeviceOrRoot = length < 2
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
@@ -107,7 +108,7 @@ function module:assertIsFolderPath(parameterName)
 end
 
 function module:assertIsFilePath(parameterName)
-	if not self.isFile then
+	if self.isDirectory then
 		exception.throw("%s '%s' is a folder path", parameterName, self:__tostring())
 	end
 end

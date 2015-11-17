@@ -143,7 +143,8 @@ local function isTypeOrNil(name)
 		return false
 	end)
 end
-typeModule.isStringOrNil = isTypeOrNil('string', 'nil')
+typeModule.isStringOrNil = isTypeOrNil('string')
+typeModule.isBooleanOrNil = isTypeOrNil('boolean')
 
 function typeModule.hasPackageChildFieldOfType(isOfType, name, ...)
 	assertModule.parameterTypeIsTable(isOfType)
@@ -245,8 +246,8 @@ function assertModule.parameterTypeIsString(value)
 	return parameterTypeIs(value, typeModule.isString)
 end
 
-function assertModule.parameterTypeIsFunction(value)
-	return parameterTypeIs(value, typeModule.isBoolean)
+function assertModule.parameterTypeIsBoolean(value)
+	assertModule.parameterTypeIs(value, typeModule.isBoolean)
 end
 
 function assertModule.parameterTypeIsTable(value)
@@ -279,6 +280,10 @@ end
 
 function assertModule.parameterTypeIsStringOrNil(value)
 	return parameterTypeIs(value, typeModule.isStringOrNil)
+end
+
+function assertModule.parameterTypeIsBooleanOrNil(value)
+	return parameterTypeIs(value, typeModule.isBooleanOrNil)
 end
 
 local function globalTypeIs(isOfType, ...)
