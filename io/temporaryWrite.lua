@@ -7,30 +7,41 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local assert = require('halimede.assert')
 local exception = require('halimede.exception')
 local write = requireSibling('write')
+local Path = require('halimede.io.paths.Path')
+local DefaultPathStyle = require('halimede.io.shellScript.ShellLanguage').Default.pathStyle
+
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'tmpname')
-function module.toTemporaryFileAllContentsInTextMode(contents, fileSuffix)
+function module.toTemporaryFileAllContentsInTextMode(contents, fileExtension)
 	assert.parameterTypeIsString(contents)
+	assert.parameterTypeIsStringOrNil(fileExtension)
 	
-	-- fileSuffix is required when creating temporary .bat or .cmd files on Windows
-	local temporaryFileToWrite = os.tmpname() .. fileSuffix
-	write.writeToFileAllContentsInTextMode(temporaryFileToWrite, 'temporary file', contents)
-	return temporaryFileToWrite
+	local temporaryFileCreatedOnPosixButNotWindows = os.tmpname()
+	
+	local temporaryFilePath = DefaultPathStyle:parse(temporaryFileCreatedOnPosixButNotWindows, true)
+	local temporaryFilePathWithFileExtension = temporaryFilePath:appendFileExtension(fileExtension)
+	
+	write.toFileAllContentsInTextMode(temporaryFilePathWithFileExtension, 'temporary file', contents)
+	return temporaryFilePathWithFileExtension, function()
+		if temporaryFilePathWithFileExtension ~= temporaryFilePath then
+			temporaryFilePathWithFileExtension:remove()
+		end
+		temporaryFilePath:remove()
+	end
 end
 local toTemporaryFileAllContentsInTextMode = module.toTemporaryFileAllContentsInTextMode
 
-assert.globalTableHasChieldFieldOfTypeFunction('os', 'remove')
-function module.toTemporaryFileAllContentsInTextModeAndUse(contents, fileSuffix, user)
+function module.toTemporaryFileAllContentsInTextModeAndUse(contents, fileExtension, user)
 	assert.parameterTypeIsString(contents)
+	assert.parameterTypeIsStringOrNil(fileExtension)
 	assert.parameterTypeIsFunction(user)
 
-	local temporaryFileToWrite = writeToTemporaryFileAllContentsInTextMode(contents, fileSuffix)
-	local ok, result = pcall(user, temporaryFileToWrite)
-	os.remove(temporaryFileToWrite)
+	local temporaryFilePathWithFileExtension, removeTemporaryFiles = toTemporaryFileAllContentsInTextMode(contents, fileExtension)
+	local ok, result = pcall(user, temporaryFilePathWithFileExtension)
+	removeTemporaryFiles()
 	if not ok then
-		error(result)
+		exception.throw(result)
 	end
-	
 	return result
 end
 local toTemporaryFileAllContentsInTextModeAndUse = module.toTemporaryFileAllContentsInTextModeAndUse

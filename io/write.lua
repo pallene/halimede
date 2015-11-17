@@ -6,14 +6,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local assert = require('halimede.assert')
 local exception = require('halimede.exception')
+local Path = require('halimede.io.paths.Path')
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'open')
 function module.openTextModeForWriting(filePath, fileDescription)
-	assert.parameterTypeIsString(filePath)
+	assert.parameterTypeIsInstanceOf(filePath, Path)
 	assert.parameterTypeIsString(fileDescription)
 	
-	local fileHandle, errorMessage = io.open(filePath, 'w')
+	filePath:assertIsFilePath()
+	
+	local fileHandle, errorMessage = io.open(filePath:formatPath(false), 'w')
 	if fileHandle == nil then
 		exception.throw("Could not open %s '%s' for text-mode writing because of error '%s'", fileDescription, filePath, errorMessage)
 	end
@@ -21,10 +24,12 @@ function module.openTextModeForWriting(filePath, fileDescription)
 end
 local openTextModeForWriting = module.openTextModeForWriting
 
-function module.writeToFileAllContentsInTextMode(filePath, fileDescription, contents)
-	assert.parameterTypeIsString(filePath)
+function module.toFileAllContentsInTextMode(filePath, fileDescription, contents)
+	assert.parameterTypeIsInstanceOf(filePath, Path)
 	assert.parameterTypeIsString(fileDescription)
 	assert.parameterTypeIsString(contents)
+	
+	filePath:assertIsFilePath()
 	
 	local fileHandle = openTextModeForWriting(filePath, fileDescription)
 	-- No errors from Lua when write or close fail...
@@ -32,4 +37,4 @@ function module.writeToFileAllContentsInTextMode(filePath, fileDescription, cont
 	fileHandle:write(contents)
 	fileHandle:close()
 end
-local writeToFileAllContentsInTextMode = module.writeToFileAllContentsInTextMode
+local toFileAllContentsInTextMode = module.toFileAllContentsInTextMode

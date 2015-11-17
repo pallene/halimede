@@ -51,10 +51,10 @@ function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
 	
 	recipesPath:assertIsFolderPath('recipesPath')
 	
-	self.recipeFolderPath = recipesPath:appendSubFolders(recipeName)
-	self.recipeFilePath = recipeFolderPath:appendSubFolders('recipe.lua')
-	self.recipeSourcePath = recipeFolderPath:appendSubFolders('source')
-	self.recipeWorkingDirectoryPath = recipeFolderPath:appendSubFolders('.build')
+	self.recipeFolderPath = recipesPath:appendFolders(recipeName)
+	self.recipeFilePath = recipeFolderPath:appendFile('recipe', 'lua')
+	self.recipeSourcePath = recipeFolderPath:appendFolders('source')
+	self.recipeWorkingDirectoryPath = recipeFolderPath:appendFolders('.build')
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 end
 
@@ -215,7 +215,7 @@ function module:execute(executionEnvironment)
 	-- there are two possibilities: destinationPath/opt/recipe/version+buildvariants+hash-of-dependencyversions OR destinationPath/
 	-- sysrootPath
 	error("There is no executionEnvironment.sysrootPath")
-	local crossToolchainPaths = ToolchainPaths:new(executionEnvironment.sysrootPath, executionEnvironment.sysrootPath:appendSubFolders('opt', self.recipeName, self:versionStringIncludingBuildVariants(packageVersion), 'dependencies-hash'))
+	local crossToolchainPaths = ToolchainPaths:new(executionEnvironment.sysrootPath, executionEnvironment.sysrootPath:appendFolders('opt', self.recipeName, self:versionStringIncludingBuildVariants(packageVersion), 'dependencies-hash'))
 	local shellScript = executionEnvironment:use(crossToolchainPaths, self.recipeSourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute)
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end

@@ -9,7 +9,7 @@ local assert = require('halimede.assert')
 local type = require('halimede').type
 local tabelize = require('halimede').tabelize
 local exception = require('halimede.exception')
-local writeToFileAllContentsInTextMode = require('halimede.io.write').writeToFileAllContentsInTextMode
+local toFileAllContentsInTextMode = require('halimede.io.write').toFileAllContentsInTextMode
 local Path = require('halimede.io.paths.Path')
 
 
@@ -50,8 +50,8 @@ function module.cmakebuild(rockspec, rockspecFilePath)
 		local cmakeListsContent = build.cmake
 		if type.isString(cmakeListsContent) then
 			-- Ought to be $(pwd)/; not necessarily path to rockspec...
-			local cmakeListsFilePath = rockspecFilePath:appendSubFolders(halimede.dirname(rockspecFilePath), 'CMakeLists.txt')
-			writeToFileAllContentsInTextMode(cmakeListsFilePath:formatPath(true), 'CMakeLists file', cmakeListsContent)
+			local cmakeListsFilePath = rockspecFilePath:parentPath():appendFolders(halimede.dirname(rockspecFilePath)):appendFile('CMakeLists', 'txt')
+			toFileAllContentsInTextMode(cmakeListsFilePath:formatPath(true), 'CMakeLists file', cmakeListsContent)
 		end
 	end
 	createCMakeListsIfRequired()

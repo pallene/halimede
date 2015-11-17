@@ -8,6 +8,7 @@ local Path = moduleclass('Path')
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local type = halimede.type
 local exception = require('halimede.exception')
 local tabelize = require('halimede.table.tabelize').tabelize
 local equality = require('halimede.table.equality')
@@ -138,6 +139,28 @@ function module:newFromTemplate(...)
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, {...}, true, self.alternateStreamName)
 end
 
+if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'remove') then
+	function module:remove()
+		local ok, errorMessage = os.remove(self:formatPath(true))
+		if ok == nil then
+			return false, errorMessage
+		end
+		return true, 'removed'
+	end
+else
+	function module:remove()
+		return false, 'os.remove() is not available'
+	end
+end
+
+function module:finalPathElementName()
+	local length = #self.pathElements
+	if length == 0 then
+		return ''
+	end
+	return self.pathElements[length]
+end
+
 assert.globalTypeIsFunction('ipairs')
 function module:appendFolders(...)
 	self:assertIsFolderPath('self')
@@ -150,14 +173,6 @@ function module:appendFolders(...)
 	end
 	
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, false, self.alternateStreamName)
-end
-
-function module:finalPathElementName()
-	local length = #self.pathElements
-	if length == 0 then
-		return ''
-	end
-	return self.pathElements[length]
 end
 
 function module:parentPath(alternateStreamName)
@@ -196,6 +211,22 @@ function module:appendFile(fileName, fileExtension, alternateStreamName)
 	end
 	
 	local pathElementsCopy = shallowCopy(self.pathElements)
+	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, true, alternateStreamName)
+end
+
+function module:appendFileExtension(fileExtension, alternateStreamName)
+	assert.parameterTypeIsString(fileExtension)
+	assert.parameterTypeIsStringOrNil(alternateStreamName)
+
+	self:assertIsFilePath('self')
+	
+	if fileExtension == nil then
+		return self
+	end
+	
+	local pathElementsCopy = shallowCopy(self.pathElements)
+	local length = #pathElementsCopy
+	pathElementsCopy[length] = self.pathStyle:appendFileExtension(pathElementsCopy[length], fileExtension)
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, true, alternateStreamName)
 end
 

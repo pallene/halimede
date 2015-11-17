@@ -17,38 +17,17 @@ local Paths = require('halimede.io.paths.Paths')
 local PathStyle = require('halimede.io.paths.PathStyle')
 
 
-
 ShellLanguage.static.standardIn = 0
 ShellLanguage.static.standardOut = 1
 ShellLanguage.static.standardError = 2
 
---[[
-local type = halimede.type
-local exception = require('halimede.exception')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-local function validateLocale()
-	local function currentLocaleShouldBe(category, shouldBe)
-		local is = os.setlocale('nil', category)
-		if is ~= nil and is ~= shouldBe then
-			exception.throw("The OS locale category '%s' must be set to '%s' so that string.tolower can be used reliably", category, shouldBe)
-		end
-	end
-	
-	if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'setlocale') then
-		currentLocaleShouldBe('all', 'C')
-		currentLocaleShouldBe('ctype', 'C')
-		currentLocaleShouldBe('collate', 'C')
-	end
-end
-validateLocale()
-]]--
 -- The reason we have a lower case and title case variant is that we avoid the need to use string:lower(), which depends on os.setlocale('all', 'C') to be deterministic, which isn't safe to use (we could be Lua code in a thread or embedded in an application that has already set setlocale())
-function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionIncludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)
+function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionExcludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)
 	assert.parameterTypeIsString(lowerCasedName)
 	assert.parameterTypeIsString(titleCasedName)
 	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
 	assert.parameterTypeIsString(newline)
-	assert.parameterTypeIsString(shellScriptFileExtensionIncludingLeadingPeriod)
+	assert.parameterTypeIsStringOrNil(shellScriptFileExtensionExcludingLeadingPeriod)
 	assert.parameterTypeIsString(silenced)
 	assert.parameterTypeIsString(searchesCurrentPath)
 	assert.parameterTypeIsString(commandInterpreterName)
@@ -57,7 +36,7 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.titleCasedName = titleCasedName
 	self.pathStyle = pathStyle
 	self.newline = newline
-	self.shellScriptFileExtensionIncludingLeadingPeriod = shellScriptFileExtensionIncludingLeadingPeriod
+	self.shellScriptFileExtensionExcludingLeadingPeriod = shellScriptFileExtensionExcludingLeadingPeriod
 	self.silenced = silenced
 	self.searchesCurrentPath = searchesCurrentPath
 	self.commandInterpreterName = commandInterpreterName
@@ -187,7 +166,7 @@ end
 local PosixShellLanguage = class('PosixShellLanguage', ShellLanguage)
 
 function PosixShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', '', '/dev/null', false, 'sh')
+	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, '/dev/null', false, 'sh')
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
@@ -203,7 +182,7 @@ ShellLanguage.static.Posix = PosixShellLanguage:new()
 local CmdShellLanguage = class('CmdShellLanguage', ShellLanguage)
 
 function CmdShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', '.cmd', 'NUL', true, 'cmd')
+	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', 'NUL', true, 'cmd')
 end
 
 local slash = '\\'

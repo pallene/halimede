@@ -6,14 +6,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local assert = require('halimede.assert')
 local exception = require('halimede.exception')
+local Path = require('halimede.io.paths.Path')
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'open')
 function module.openTextModeForReading(filePath, fileDescription)
-	assert.parameterTypeIsString(filePath)
+	assert.parameterTypeIsInstanceOf(filePath, Path)
 	assert.parameterTypeIsString(fileDescription)
 	
-	local fileHandle, errorMessage = io.open(filePath, 'r')
+	filePath:assertIsFilePath()
+	
+	local fileHandle, errorMessage = io.open(filePath:formatPath(false), 'r')
 	if fileHandle == nil then
 		exception.throw("Could not open %s '%s' for text-mode reading because of error '%s'", fileDescription, filePath, errorMessage)
 	end
@@ -35,6 +38,11 @@ end
 local allContentsInTextModeFromFileHandleAndClose = module.allContentsInTextModeFromFileHandleAndClose
 
 function module.allContentsInTextModeFromFile(filePath, fileDescription)
+	assert.parameterTypeIsInstanceOf(filePath, Path)
+	assert.parameterTypeIsString(fileDescription)
+	
+	filePath:assertIsFilePath()
+	
 	local fileHandle = openTextModeForReading(filePath, fileDescription)
 	local ok, contentsOrError = pcall(allContentsInTextModeFromFileHandleAndClose, fileHandle)
 	if ok then

@@ -49,7 +49,7 @@ end
 function BufferedShellScript:executeScriptExpectingSuccess(standardOut, standardError)
 	local script = self:finish()
 	
-	toTemporaryFileAllContentsInTextModeAndUse(script, self.shellLanguage.shellScriptFileExtensionIncludingLeadingPeriod, function(scriptFilePath)
+	toTemporaryFileAllContentsInTextModeAndUse(script, self.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod, function(scriptFilePath)
 		self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 	end)
 end

@@ -125,7 +125,11 @@ end
 
 function module:appendFileExtension(fileName, fileExtension)
 	assert.parameterTypeIsString(fileName)
-	assert.parameterTypeIsString(fileExtension)
+	assert.parameterTypeIsStringOrNil(fileExtension)
+	
+	if fileExtension == nil then
+		return fileName
+	end
 
 	return fileName .. self.fileExtensionSeparator .. fileExtension
 end

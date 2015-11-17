@@ -23,12 +23,11 @@ local noShellIsAvailable = not shellIsAvailable
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
--- NOTE: This approach does not check for invalid characters (eg 0x00, /) in a file name
 function module.commandIsOnPath(command)
 	assert.parameterTypeIsString(command)
 	
 	for path in shellLanguage:binarySearchPath():iterate() do
-		local pathToBinary = path:appendSubFolders(command)
+		local pathToBinary = path:appendFile(command)
 		
 		local ok, fileHandleOrError = pcall(openTextModeForReading, pathToBinary, command)
 		if ok then
@@ -43,7 +42,6 @@ end
 local commandIsOnPath = module.commandIsOnPath
 
 function module.commandIsOnPathAndShellIsAvaiableToUseIt(command)
-
 	assert.parameterTypeIsString(command)
 	
 	if noShellIsAvailable then
