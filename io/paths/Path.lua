@@ -100,6 +100,18 @@ function module:__eq(right)
 	end
 end
 
+function module:assertIsFolderPath(parameterName)
+	if self.isFile then
+		exception.throw("%s '%s' is a file path", parameterName, self:__tostring())
+	end
+end
+
+function module:assertIsFilePath(parameterName)
+	if not self.isFile then
+		exception.throw("%s '%s' is a folder path", parameterName, self:__tostring())
+	end
+end
+
 function module:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
@@ -127,9 +139,7 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:appendFolders(...)
-	if self.isFile then
-		exception.throw("This is a file path")
-	end
+	self:assertIsFolderPath('self')
 	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs({...}) do
@@ -174,10 +184,8 @@ function module:appendFile(fileName, fileExtension, alternateStreamName)
 	assert.parameterTypeIsString(fileName)
 	assert.parameterTypeIsStringOrNil(fileExtension)
 	assert.parameterTypeIsStringOrNil(alternateStreamName)
-	
-	if self.isFile then
-		exception.throw("This is a file path")
-	end
+
+	self:assertIsFolderPath('self')
 	
 	local qualifiedFileName
 	if fileExtension ~= nil then
@@ -197,10 +205,8 @@ function module:appendRelativePath(relativePath)
 	if not self.pathStyle.isRelative then
 		exception.throw("relativePath '%s' is not isRelative", relativePath)
 	end
-	
-	if self.isFile then
-		exception.throw("This is a file path")
-	end
+
+	self:assertIsFolderPath('self')
 	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs({...}) do

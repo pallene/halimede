@@ -23,9 +23,7 @@ function module:execute(linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf(linkContentsPath, Path)
 	assert.parameterTypeIsInstanceOf(linkFilePath, Path)
 	
-	if not linkFilePath.isFile then
-		exception.throw("linkFilePath '%s' is not a file path", linkFilePath)
-	end
+	linkFilePath:assertIsFilePath('linkFilePath')
 	
 	local command = tabelize({'MKLINK'})
 	

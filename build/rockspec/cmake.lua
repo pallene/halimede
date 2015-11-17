@@ -33,9 +33,7 @@ function module.cmakebuild(rockspec, rockspecFilePath)
 	assert.parameterTypeIsTable(rockspec)
 	assert.parameterTypeIsInstanceOf(rockspecFilePath, Path)
 	
-	if not rockspecFilePath.isFile then
-		exception.throw("rockspecFilePath '%s' is not a file path", rockspecFilePath)
-	end
+	rockspecFilePath:assertIsFilePath('rockspecFilePath')
 	
 	local build = assertTableOrEmpty(rockspec.build)
 	

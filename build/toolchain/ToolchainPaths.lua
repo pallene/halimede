@@ -48,9 +48,9 @@ local exception = require('halimede.exception')
 
 
 local function validatePath(path, name, mustBe)
-	if path.isFile then
-		exception.throw("%s '%s' must not be a file pathF", name, path)
-	end
+	
+	path:assertIsFolderPath(name)
+	
 	if path[mustBe] == false then
 		exception.throw("%s '%s' must be %s", name, path, mustBe)
 	end

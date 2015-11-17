@@ -8,7 +8,6 @@ local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptA
 moduleclass('MakeSymbolicLinkPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
-local exception = require('halimede.exception')
 local Path = require('halimede.io.paths.Path')
 
 
@@ -19,10 +18,8 @@ end
 function module:execute(linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf(linkContentsPath, Path)
 	assert.parameterTypeIsInstanceOf(linkFilePath, Path)
-	
-	if not linkFilePath.isFile then
-		exception.throw("linkFilePath '%s' is not a file path", linkFilePath)
-	end
+
+	linkFilePath:assertIsFilePath('linkFilePath')
 	
 	self:_appendCommandLineToScript('ln', '-s', linkContentsPath:formatPath(false), linkFilePath:formatPath(false))
 end

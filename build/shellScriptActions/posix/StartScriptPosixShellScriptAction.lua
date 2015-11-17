@@ -37,9 +37,7 @@ assert.globalTypeIsFunction('ipairs')
 function module:execute(sourcePath)
 	assert.parameterTypeIsInstanceOf(sourcePath, Path)
 	
-	if sourcePath.isFile then
-		exception.throw("sourcePath '%s' is a file path", sourcePath)
-	end
+	sourcePath:assertIsFolderPath('sourcePath')
 	
 	local ifsValue=' \t\n'
 	self:_appendLinesToScript(

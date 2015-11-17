@@ -30,10 +30,8 @@ end
 assert.globalTypeIsFunction('unpack')
 function module:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 	assert.parameterTypeIsInstanceOf(scriptFilePath, Path)
-	
-	if not scriptFilePath.isFile then
-		exception.throw("scriptFilePath '%s' is not a file path", scriptFilePath)
-	end
+
+	scriptFilePath:assertIsFilePath('scriptFilePath')
 	
 	local arguments = deepCopy(self.shellScriptExecutionCommand)
 	

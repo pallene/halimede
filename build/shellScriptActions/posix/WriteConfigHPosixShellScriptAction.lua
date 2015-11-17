@@ -8,7 +8,6 @@ local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptA
 moduleclass('WriteConfigHPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
-local exception = require('halimede.exception')
 local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
 local Path = require('halimede.io.paths.Path')
 
@@ -25,9 +24,7 @@ function module:execute(configHDefines, filePath)
 		actualFilePath = './config.h'
 	else
 		assert.parameterTypeIsInstanceOf(filePath, Path)
-		if not filePath.isFile then
-			exception.throw("filePath '%s' is not a file path", filePath)
-		end
+		filePath:assertIsFilePath('filePath')
 		
 		actualFilePath = filePath:formatPath(true)
 	end

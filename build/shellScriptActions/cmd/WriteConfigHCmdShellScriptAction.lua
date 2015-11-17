@@ -26,9 +26,7 @@ function module:execute(configHDefines, filePath)
 		actualFilePath = './config.h'
 	else
 		assert.parameterTypeIsInstanceOf(filePath, Path)
-		if not filePath.isFile then
-			exception.throw("filePath '%s' is not a file path", filePath)
-		end
+		filePath:assertIsFilePath('filePath')
 		
 		actualFilePath = filePath:formatPath(true)
 	end

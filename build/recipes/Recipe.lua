@@ -49,9 +49,7 @@ function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
 	assert.parameterTypeIsInstanceOf(recipesPath, Path)
 	assert.parameterTypeIsString(recipeName)
 	
-	if recipesPath.isFile then
-		exception.throw("recipesPath '%s' is a file path", recipesPath)
-	end
+	recipesPath:assertIsFolderPath('recipesPath')
 	
 	self.recipeFolderPath = recipesPath:appendSubFolders(recipeName)
 	self.recipeFilePath = recipeFolderPath:appendSubFolders('recipe.lua')

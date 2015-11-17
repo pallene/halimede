@@ -89,9 +89,7 @@ function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf(arguments, Arguments)
 	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
 	
-	if sysrootPath.isFile then
-		exception.throw("sysrootPath '%s' must not be a file", sysrootPath)
-	end
+	sysrootPath:assertIsFolderPath('sysrootPath')
 	if not sysrootPath.isEffectivelyAbsolute then
 		exception.throw("sysrootPath '%s' must be effectively absolute", sysrootPath)
 	end
