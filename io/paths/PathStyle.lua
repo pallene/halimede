@@ -12,6 +12,7 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
 local exception = require('halimede.exception')
+local windowsPathMultisplitter = require('halimede.string.multisplitter').multisplitter('\\/')
 local Path = requireSibling('Path')
 local PathRelativity = requireSibling('PathRelativity')
 
@@ -65,6 +66,14 @@ function module:parse(stringPath, isFile)
 	assert.parameterTypeIsString(stringPath)
 	assert.parameterTypeIsBoolean(isFile)
 	
+	if stringPath:len() == 0 then
+		exception.throw("The stringPath is empty")
+	end
+	
+	return self:_parse(stringPath, isFile)
+end
+
+function module:_parse(stringPath, isFile)
 	exception.throw('Abstract Method')
 end
 
@@ -196,13 +205,7 @@ end
 local Posix = PathStyle:new('Posix', ':', '/', nil, '.', '..', '.', nil, false, {})
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub', 'split')
-Posix.parse = function(self, stringPath, isFile)
-	assert.parameterTypeIsString(stringPath)
-	assert.parameterTypeIsBoolean(isFile)
-	
-	if stringPath:len() == 0 then
-		exception.throw("The stringPath is empty")
-	end
+Posix._parse = function(self, stringPath, isFile)
 	
 	local pathElements = stringPath:split('/')
 	local pathRelativity
@@ -227,6 +230,84 @@ Cmd.formatPathRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElement
 	assert.parameterTypeIsString(device)
 	
 	return device .. self:formatPathRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
+end
+
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'split', 'find', 'sub')
+Cmd._parse = function(self, stringPath, isFile)
+
+	local pathElements
+	local pathRelativity
+	local device
+	
+	-- UNC-style
+	if stringPath:sub(1, 2) == '\\\\' then
+
+		local uncNamespace = stringPath:sub(1, 4)
+		
+		if uncNamespace == '\\\\.\\' then
+			-- Win32 Device Namespaces (Device selector)
+			pathElements = windowsPathMultisplitter(stringPath:sub(5))
+			device = '\\\\.\\' .. pathElements:remove(1)
+			pathRelativity = PathRelativity.AbsoluteIncludingDeviceName
+			
+			-- things like \\.\NUL and \\.\COM5 won't work because we check for them in the path element
+			exception.throw('Device namespaces are not supported at this time')
+			
+		elseif uncNamespace == '\\\\?\\' then
+			-- Win32 File Namespaces (Win32API selector)
+			-- . and .. no longer refer to current directory or parent directory
+			-- Effectively absolute paths, so we can treat them as '\\?\<device>\'
+			-- '/' is NOT VALID as a folder separator for \\?\ UNC namespaces, hence the split() not windowsPathMultisplitter()
+			pathElements = stringPath:sub(5):split('\\')
+			
+			device = '\\\\?\\' .. pathElements:remove(1)
+			
+			-- Long UNC form
+			if pathElements[1] == 'UNC' then
+				device = device .. '\\' .. pathElements:remove(1)
+			end
+			
+			-- Not sure if \\?\C:file.txt is valid; we're assuming it isn't for now
+			pathRelativity = PathRelativity.AbsoluteIncludingDeviceName
+		else
+			-- Filespace selector  see https://msdn.microsoft.com/en-us/library/gg465305.aspx
+			-- \\ComputerName\SharedName\Path
+			pathElements = windowsPathMultisplitter(stringPath:sub(3))
+			device = '\\\\' .. pathElements:remove(1)
+			pathRelativity = PathRelativity.AbsoluteIncludingDeviceName
+		end
+	else
+		pathElements = windowsPathMultisplitter(stringPath)
+		device = nil
+		if stringPath:sub(1, 1) == '\\' then
+			pathElements:remove(1)
+			pathRelativity = PathRelativity.RelativeToCurrentDeviceAndAbsoluteOnPosix
+		elseif stringPath:sub(2, 1) == ':' then
+			device = pathElements:remove(1)
+			-- Is this C: or C:\ or C:/ ?
+			local thirdCharacter = stringPath:sub(3, 1)
+			if thirdCharacter == '\\' or thirdCharacter == '/' then
+				pathRelativity = PathRelativity.AbsoluteIncludingDeviceName
+			else
+				pathRelativity = PathRelativity.RelativeToDeviceCurrentDirectoryOnCmd
+			end
+		else
+			pathRelativity = PathRelativity.Relative
+		end
+	end
+	
+	local alternateStreamName = nil
+	local lastIndex = #pathElements
+	if lastIndex > 0 then
+		local lastPathElement = pathElements[lastIndex]
+		local firstIndex = lastPathElement:find(':')
+		if firstIndex then
+			pathElements[lastIndex] = lastPathElement:sub(1, firstIndex - 1)
+			alternateStreamName = lastPathElement:sub(firstIndex + 1)
+		end
+	end
+
+	return Path:new(self, pathRelativity, device, pathElements, isFile, alternateStreamName)
 end
 
 
