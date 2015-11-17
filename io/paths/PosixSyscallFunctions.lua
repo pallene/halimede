@@ -4,66 +4,27 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local OldPath = moduleclass('OldPath')
-
-local class = require('halimede.middleclass')
-local Object = class.Object
-local tabelize = require('halimede.table.tabelize').tabelize
-local halimede = require('halimede')
-local assert = halimede.assert
-local syscall = require('syscall')
+local assert = require('halimede').assert
 local exception = require('halimede.exception')
+local Path = requireSibling('Path')
+local syscall = require('syscall')
 
 
--- Does not work for Windows paths such as C:FILE.TXT, \path\with\leading\separator (which is relative), and the use of '/' as an alternative folder separator (not valid for UNC paths)
--- Or for /current/drive/file.txt (ie relative to the current disk)
--- Probably doesn't work for OpenVMS...
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub')
-OldPath.static.parse = function(folderSeparator, stringPath)
-	assert.parameterTypeIsString(stringPath)
-	if stringPath:len() == 0 then
-		exception.throw('Parameter stringPath can not be empty')
-	end
-	
-	if folderSeparator == '/' then
-		if stringPath:sub(1, 1) == pathSeparator then
-			return AbsolutePath:new(folderSeparator, stringPath:split(folderSeparator))
-		else
-			return RelativePath:new(folderSeparator, stringPath:split(folderSeparator))
-		end
-	end
-	
-	
-	
-	
-	
-	
-	xxxxxx
-	
-	-- Windows UNC
-	if stringPath:sub(1, 2) == '\\\\' then
-		-- Lots of yucky combinations, see https://en.wikipedia.org/wiki/Path_%28computing%29, we just extract * from \\*\
-		
-	-- Windows Drive Letter (Might be either C:file.txt or C:\file.txt)	
-	elseif stringPath:sub(2, 1) == ':' then
-		
-	else
-		return 
-	end
+local function fail = function(syscallName, path, becauseOfReason)
+	exception.throwWithLevelIncrement(2, "Could not %s path '%s' because %s", syscallName, path, becauseOfReason)
 end
 
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device
-function OldPath:stat()
+function module.stat(path)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	
-	local path = self.path
-	
-	local ok, errorCode = syscall.stat(path)
+	local ok, errorCode = syscall.stat(path:formatPath(false))
 	if ok then
 		return
 	end
 	
 	local function failure(becauseOfReason)
-		OldPath.fail('stat', path, becauseOfReason)
+		fail('stat', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/stat.html
@@ -85,18 +46,18 @@ function OldPath:stat()
 		failure(tostring(errorCode))
 	end
 end
+local stat = module.stat
 
-function OldPath:lstat()
+function module.lstat(path)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	
-	local path = self.path
-	
-	local ok, errorCode = syscall.lstat(path)
+	local ok, errorCode = syscall.lstat(path:formatPath(false))
 	if ok then
 		return
 	end
 	
 	local function failure(becauseOfReason)
-		OldPath.fail('lstat', path, becauseOfReason)
+		fail('lstat', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/lstat.html
@@ -118,23 +79,24 @@ function OldPath:lstat()
 		failure(tostring(errorCode))
 	end
 end
+local lstat = module.lstat
 
-function OldPath:makeCharacterDevice(mode, major, minor)
+function module.makeCharacterDevice(path, mode, major, minor)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
 	assert.parameterTypeIsNumber(major)
 	assert.parameterTypeIsNumber(minor)
 	
-	local path = self.path
 	-- Seems there's a device() method, too
 	local device = {major, minor}
 	
-	local ok, errorCode = syscall.mknod(path, 'fchr,' .. mode, device)
+	local ok, errorCode = syscall.mknod(path:formatPath(false), 'fchr,' .. mode, device)
 	if ok then
 		return
 	end
 	
 	local function failure(becauseOfReason)
-		OldPath.fail('mknod', path, becauseOfReason)
+		fail('mknod', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mknod.html
@@ -163,27 +125,27 @@ function OldPath:makeCharacterDevice(mode, major, minor)
 	else
 		failure(tostring(errorCode))
 	end
-	
 end
+local makeCharacterDevice = module.makeCharacterDevice
 
-function OldPath:mkfifo(mode)
+function module.mkfifo(path, mode)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
 	
-	local path = self.path
-	local ok, errorCode = syscall.mkfifo(path, mode)
+	local ok, errorCode = syscall.mkfifo(path:formatPath(false), mode)
 	if ok then
 		return
 	end
 	
 	local function failure(becauseOfReason)
-		OldPath.fail('mkfifo', path, becauseOfReason)
+		fail('mkfifo', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkfifo.html
 	if errorCode.ACCES then
 		failure('a component of the path prefix denies search permission, or write permission is denied on the parent directory of the FIFO to be created')
 	elseif errorCode.EXIST then
-		self.chmod(mode)
+		chmod(path, mode)
 		return
 	elseif errorCode.LOOP then
 		failure('too many symbolic links were encountered in resolving path')
@@ -199,22 +161,23 @@ function OldPath:mkfifo(mode)
 		failure(tostring(errorCode))
 	end
 end
+local mkfifo = module.mkfifo
 
-function OldPath:chmod(mode)
+function module.chmod(path, mode)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
-	
-	local path = self.path
 		
 	local function failure(becauseOfReason)
-		OldPath.fail('chmod', path, becauseOfReason)
+		fail('chmod', path, becauseOfReason)
 	end
 	
+	local pathString = path:formatPath(false)
 	local ok = false
 	local errorCode
 	-- Can be interrupted
 	repeat
 		
-		ok, errorCode = syscall.chmod(path, mode)
+		ok, errorCode = syscall.chmod(pathString, mode)
 		if ok then
 			return
 		end
@@ -244,15 +207,15 @@ function OldPath:chmod(mode)
 		
 	until ok
 end
+local chmod = module.chmod
 
 -- Can not create '/' or C:\
-function OldPath:mkdirParents(mode, initialPathPrefix)
+function module.mkdirParents(path, mode, initialPathPrefix)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
 	
-	local path
-	
 	local function failure(becauseOfReason)
-		OldPath.fail('mkdir', path, becauseOfReason)
+		fail('mkdir', path, becauseOfReason)
 	end
 	
 	local folderSeparator = self.folderSeparator
@@ -278,7 +241,7 @@ function OldPath:mkdirParents(mode, initialPathPrefix)
 	
 		if ok then
 			if isLastFolder then
-				self:chmod(mode)
+				chmod(path, mode)
 			end
 		else
 			-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkdir.html
@@ -290,7 +253,7 @@ function OldPath:mkdirParents(mode, initialPathPrefix)
 				end
 			elseif errorCode.EXIST then
 				if isLastFolder then
-					self:chmod(mode)
+					chmod(path, mode)
 				else
 					-- Do nothing
 				end
@@ -314,3 +277,4 @@ function OldPath:mkdirParents(mode, initialPathPrefix)
 		end
 	end
 end
+local mkdirParents = module.mkdirParents

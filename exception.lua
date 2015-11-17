@@ -4,14 +4,23 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local assert = requireSibling('assert')
+local assert = require('halimede').assert
+local type = require('halimede').type
 
 
+assert.globalTypeIsFunction('unpack', 'ipairs', 'tostring')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module.throwWithLevelIncrement(levelIncrement, template, ...)
 	assert.parameterTypeIsString(template)
 	
-	error(template:format(...), 2 + levelIncrement)
+	local formatArguments = {...}
+	for index, formatArgument in ipairs(formatArguments) do
+		if type.isObject(formatArgument) then
+			formatArguments[index] = tostring(formatArgument)
+		end
+	end
+	
+	error(template:format(unpack(formatArguments)), 2 + levelIncrement)
 end
 local throwWithLevelIncrement = module.throwWithLevelIncrement
 

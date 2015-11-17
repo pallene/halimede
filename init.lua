@@ -748,6 +748,7 @@ end
 augment('trace')
 augment('requireChild')
 augment('requireSibling')
+augment('augmentTypeWithMiddleclass')
 augment('augmentAssertWithMiddleclass')
 augment('augmentAssertWithFieldExists')
 
