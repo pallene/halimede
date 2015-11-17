@@ -10,7 +10,7 @@ local type = require('halimede').type
 local tabelize = require('halimede').tabelize
 local exception = require('halimede.exception')
 local writeToFileAllContentsInTextMode = require('halimede.io.write').writeToFileAllContentsInTextMode
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 
 
 local cmakeEnvironmentVariables = {
@@ -31,7 +31,11 @@ assert.globalTableHasChieldFieldOfTypeFunction('os', 'getenv')
 assert.globalTypeIsFunction('tostring')
 function module.cmakebuild(rockspec, rockspecFilePath)
 	assert.parameterTypeIsTable(rockspec)
-	assert.parameterTypeIsInstanceOf(rockspecFilePath, AbstractPath)
+	assert.parameterTypeIsInstanceOf(rockspecFilePath, Path)
+	
+	if not rockspecFilePath.isFile then
+		exception.throw("rockspecFilePath '%s' is not a file path", rockspecFilePath)
+	end
 	
 	local build = assertTableOrEmpty(rockspec.build)
 	
@@ -49,7 +53,7 @@ function module.cmakebuild(rockspec, rockspecFilePath)
 		if type.isString(cmakeListsContent) then
 			-- Ought to be $(pwd)/; not necessarily path to rockspec...
 			local cmakeListsFilePath = rockspecFilePath:appendSubFolders(halimede.dirname(rockspecFilePath), 'CMakeLists.txt')
-			writeToFileAllContentsInTextMode(cmakeListsFilePath.formatPath(true), 'CMakeLists file', cmakeListsContent)
+			writeToFileAllContentsInTextMode(cmakeListsFilePath:formatPath(true), 'CMakeLists file', cmakeListsContent)
 		end
 	end
 	createCMakeListsIfRequired()

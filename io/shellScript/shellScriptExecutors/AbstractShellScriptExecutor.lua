@@ -11,7 +11,7 @@ local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellLanguage, ...)
@@ -29,7 +29,11 @@ end
 
 assert.globalTypeIsFunction('unpack')
 function module:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
-	assert.parameterTypeIsInstanceOf(scriptFilePath, AbstractPath)
+	assert.parameterTypeIsInstanceOf(scriptFilePath, Path)
+	
+	if not scriptFilePath.isFile then
+		exception.throw("scriptFilePath '%s' is not a file path", scriptFilePath)
+	end
 	
 	local arguments = deepCopy(self.shellScriptExecutionCommand)
 	

@@ -20,7 +20,7 @@ end
 
 assert.globalTypeIsFunction('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
-	arguments:insert(scriptFilePath.path)
+	arguments:insert(scriptFilePath:formatPath(true))
 	executeExpectingSuccess(self.shellLanguage, noRedirection, standardOut, standardError, unpack(arguments))
 end
 

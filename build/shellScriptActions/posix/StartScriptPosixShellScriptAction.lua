@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('StartScriptPosixShellScriptAction', AbstractPosixShellScriptAction)
 
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 local UnsetEnvironmentVariablePosixShellScriptAction = requireSibling('UnsetEnvironmentVariablePosixShellScriptAction')
 local ExportEnvironmentVariablePosixShellScriptAction = requireSibling('ExportEnvironmentVariablePosixShellScriptAction')
 local ChangeDirectoryPosixShellScriptAction = requireSibling('ChangeDirectoryPosixShellScriptAction')
@@ -35,7 +35,11 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:execute(sourcePath)
-	assert.parameterTypeIsInstanceOf(sourcePath, AbstractPath)
+	assert.parameterTypeIsInstanceOf(sourcePath, Path)
+	
+	if sourcePath.isFile then
+		exception.throw("sourcePath '%s' is a file path", sourcePath)
+	end
 	
 	local ifsValue=' \t\n'
 	self:_appendLinesToScript(

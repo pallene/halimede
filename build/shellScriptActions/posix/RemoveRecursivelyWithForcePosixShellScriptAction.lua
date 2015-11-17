@@ -8,7 +8,7 @@ local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptA
 moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)
@@ -16,8 +16,8 @@ function module:initialize(shellScript)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
-function module:execute(abstractPath)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
+function module:execute(path)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	
-	self:_appendCommandLineToScript('rm', '-rf', abstractPath.path)
+	self:_appendCommandLineToScript('rm', '-rf', path:formatPath(true))
 end

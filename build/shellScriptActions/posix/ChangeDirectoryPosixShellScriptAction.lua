@@ -8,15 +8,15 @@ local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptA
 moduleclass('ChangeDirectoryPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
-function module:execute(abstractPath)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
+function module:execute(path)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	
-	self:_appendCommandLineToScript('cd', abstractPath.path)
+	self:_appendCommandLineToScript('cd', path:formatPath(true))
 end

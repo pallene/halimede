@@ -220,8 +220,8 @@ local function execute(buildEnvironmentLight)
 		'hash',
 		'remote-' .. buildEnvironmentLight.arguments.REMOTE,
 		XXXX: TODO: pathStyle on buildToolchain
-		Path.relativeFilePath(buildEnvironmentLight.buildToolchain.pathStyle, 'glob', 'fnmatch').formatPath(false),
-		Path.relativeFilePath(buildEnvironmentLight.buildToolchain.pathStyle, 'glob', 'glob').formatPath(false)
+		Path.relativeFilePath(buildEnvironmentLight.buildToolchain.pathStyle, 'glob', 'fnmatch'):formatPath(false),
+		Path.relativeFilePath(buildEnvironmentLight.buildToolchain.pathStyle, 'glob', 'glob'):formatPath(false)
 	}
 	
 	local toolchain = buildEnvironmentLight.crossToolchain
@@ -235,9 +235,9 @@ local function execute(buildEnvironmentLight)
 	local cEncoding = LegacyCandCPlusPlusStringLiteralEncoding.C
 	local preprocessorFlags = {}
 	local defines = CommandLineDefines(false)
-	defines:quotedNonEmptyString('LOCALEDIR', toolchain:locale().formatPath(true))
-	defines:quotedNonEmptyString('LIBDIR', toolchain:lib().formatPath(true))
-	defines:quotedNonEmptyString('INCLUDEDIR', toolchain:include().formatPath(true))
+	defines:quotedNonEmptyString('LOCALEDIR', toolchain:locale():formatPath(true))
+	defines:quotedNonEmptyString('LIBDIR', toolchain:lib():formatPath(true))
+	defines:quotedNonEmptyString('INCLUDEDIR', toolchain:include():formatPath(true))
 	defines:_boolean('HAVE_CONFIG_H', true)
 	local sources = buildEnvironmentLight.toCFiles(baseFileNames)
 	buildEnvironmentLight.action('halimede.build.shellScriptActions.compilerDriver', 'PreprocessCompileAndAssembleCompilerDriver', toolchain, cCompilerDriverFlags, standard, cEncoding, preprocessorFlags, defines, sources)

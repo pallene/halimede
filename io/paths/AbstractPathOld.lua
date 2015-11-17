@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractPath = moduleclass('AbstractPath')
+local OldPath = moduleclass('OldPath')
 
 local class = require('halimede.middleclass')
 local Object = class.Object
@@ -19,7 +19,7 @@ local exception = require('halimede.exception')
 -- Or for /current/drive/file.txt (ie relative to the current disk)
 -- Probably doesn't work for OpenVMS...
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub')
-AbstractPath.static.parse = function(folderSeparator, stringPath)
+OldPath.static.parse = function(folderSeparator, stringPath)
 	assert.parameterTypeIsString(stringPath)
 	if stringPath:len() == 0 then
 		exception.throw('Parameter stringPath can not be empty')
@@ -56,7 +56,7 @@ AbstractPath.static.parse = function(folderSeparator, stringPath)
 end
 
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device
-function AbstractPath:stat()
+function OldPath:stat()
 	
 	local path = self.path
 	
@@ -66,7 +66,7 @@ function AbstractPath:stat()
 	end
 	
 	local function failure(becauseOfReason)
-		AbstractPath.fail('stat', path, becauseOfReason)
+		OldPath.fail('stat', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/stat.html
@@ -89,7 +89,7 @@ function AbstractPath:stat()
 	end
 end
 
-function AbstractPath:lstat()
+function OldPath:lstat()
 	
 	local path = self.path
 	
@@ -99,7 +99,7 @@ function AbstractPath:lstat()
 	end
 	
 	local function failure(becauseOfReason)
-		AbstractPath.fail('lstat', path, becauseOfReason)
+		OldPath.fail('lstat', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/lstat.html
@@ -122,7 +122,7 @@ function AbstractPath:lstat()
 	end
 end
 
-function AbstractPath:makeCharacterDevice(mode, major, minor)
+function OldPath:makeCharacterDevice(mode, major, minor)
 	assert.parameterTypeIsString(mode)
 	assert.parameterTypeIsNumber(major)
 	assert.parameterTypeIsNumber(minor)
@@ -137,7 +137,7 @@ function AbstractPath:makeCharacterDevice(mode, major, minor)
 	end
 	
 	local function failure(becauseOfReason)
-		AbstractPath.fail('mknod', path, becauseOfReason)
+		OldPath.fail('mknod', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mknod.html
@@ -169,7 +169,7 @@ function AbstractPath:makeCharacterDevice(mode, major, minor)
 	
 end
 
-function AbstractPath:mkfifo(mode)
+function OldPath:mkfifo(mode)
 	assert.parameterTypeIsString(mode)
 	
 	local path = self.path
@@ -179,7 +179,7 @@ function AbstractPath:mkfifo(mode)
 	end
 	
 	local function failure(becauseOfReason)
-		AbstractPath.fail('mkfifo', path, becauseOfReason)
+		OldPath.fail('mkfifo', path, becauseOfReason)
 	end
 	
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkfifo.html
@@ -203,13 +203,13 @@ function AbstractPath:mkfifo(mode)
 	end
 end
 
-function AbstractPath:chmod(mode)
+function OldPath:chmod(mode)
 	assert.parameterTypeIsString(mode)
 	
 	local path = self.path
 		
 	local function failure(becauseOfReason)
-		AbstractPath.fail('chmod', path, becauseOfReason)
+		OldPath.fail('chmod', path, becauseOfReason)
 	end
 	
 	local ok = false
@@ -249,13 +249,13 @@ function AbstractPath:chmod(mode)
 end
 
 -- Can not create '/' or C:\
-function AbstractPath:mkdirParents(mode, initialPathPrefix)
+function OldPath:mkdirParents(mode, initialPathPrefix)
 	assert.parameterTypeIsString(mode)
 	
 	local path
 	
 	local function failure(becauseOfReason)
-		AbstractPath.fail('mkdir', path, becauseOfReason)
+		OldPath.fail('mkdir', path, becauseOfReason)
 	end
 	
 	local folderSeparator = self.folderSeparator

@@ -8,16 +8,16 @@ local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptA
 moduleclass('MakeDirectoryRecursivelyPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local assert = require('halimede').assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
-function module:execute(abstractPath, mode)
-	assert.parameterTypeIsInstanceOf(abstractPath, AbstractPath)
+function module:execute(path, mode)
+	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
 	
-	self:_appendCommandLineToScript('mkdir', '-m', mode, '-p', abstractPath, mode.path)
+	self:_appendCommandLineToScript('mkdir', '-m', mode, '-p', path:formatPath(true), mode)
 end

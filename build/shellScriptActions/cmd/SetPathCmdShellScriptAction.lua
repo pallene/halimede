@@ -20,5 +20,5 @@ function module:execute(paths)
 
 	-- http://ss64.com/nt/path.html
 	self:_appendCommandLineToScript('PATH', ';')
-	self:_appendCommandLineToScript('PATH', paths.paths)
+	self:_appendCommandLineToScript('PATH', paths:formatPaths(true))
 end

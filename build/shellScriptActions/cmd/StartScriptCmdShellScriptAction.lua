@@ -7,7 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
 moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
 
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local exception = require('halimede.exception')
+local Path = require('halimede.io.paths.Path')
 local UnsetEnvironmentVariableCmdShellScriptAction = requireSibling('UnsetEnvironmentVariableCmdShellScriptAction')
 local ExportEnvironmentVariableCmdShellScriptAction = requireSibling('ExportEnvironmentVariableCmdShellScriptAction')
 local ChangeDirectoryCmdShellScriptAction = requireSibling('ChangeDirectoryCmdShellScriptAction')
@@ -25,7 +26,11 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:execute(sourcePath)
-	assert.parameterTypeIsInstanceOf(sourcePath, AbstractPath)
+	assert.parameterTypeIsInstanceOf(sourcePath, Path)
+	
+	if sourcePath.isFile then
+		exception.throw("sourcePath '%s' is a file path", sourcePath)
+	end
 
 	self:_appendLinesToScript(
 		'@ECHO OFF',

@@ -8,7 +8,9 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractCmdShellScriptAction)
 
 local assert = require('halimede').assert
-local AbstractPath = require('halimede.io.paths.AbstractPath')
+local exception = require('halimede.exception')
+local tabelize = require('halimede.table.tabelize').tabelize
+local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)
@@ -16,13 +18,24 @@ function module:initialize(shellScript)
 end
 
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
-function module:execute(abstractLinkContentsFilePath, abstractLinkFilePath, isDirectory)
-	assert.parameterTypeIsInstanceOf(abstractLinkContentsFilePath, AbstractPath)
-	assert.parameterTypeIsInstanceOf(abstractLinkFilePath, AbstractPath)
+assert.globalTypeIsFunction('unpack')
+function module:execute(linkContentsPath, linkFilePath)
+	assert.parameterTypeIsInstanceOf(linkContentsPath, Path)
+	assert.parameterTypeIsInstanceOf(linkFilePath, Path)
 	
-	if isDirectory then
-		self:_appendCommandLineToScript('MKLINK', '/D', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
-	else
-		self:_appendCommandLineToScript('MKLINK', abstractLinkFilePath.path, abstractLinkContentsFilePath.path)
+	if not linkFilePath.isFile then
+		exception.throw("linkFilePath '%s' is not a file path", linkFilePath)
 	end
+	
+	local command = tabelize({'MKLINK'})
+	
+	if not linkContentsPath.isFile then
+		command:insert('/D')
+	end
+	
+	-- Note that order is reverse of that for POSIX ln -s
+	command:insert(linkFilePath:formatPath(false))
+	command:insert(linkContentsPath:formatPath(false))
+	
+	self:_appendCommandLineToScript(unpack(command))
 end

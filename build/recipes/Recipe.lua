@@ -46,8 +46,12 @@ local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 end
 
 function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
-	assert.parameterTypeIsInstanceOf(recipesPath, AbstractPath)
+	assert.parameterTypeIsInstanceOf(recipesPath, Path)
 	assert.parameterTypeIsString(recipeName)
+	
+	if recipesPath.isFile then
+		exception.throw("recipesPath '%s' is a file path", recipesPath)
+	end
 	
 	self.recipeFolderPath = recipesPath:appendSubFolders(recipeName)
 	self.recipeFilePath = recipeFolderPath:appendSubFolders('recipe.lua')
@@ -162,7 +166,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 end
 
 function module:_load(executionEnvironment)
-	return executeFromFile('recipe file', self.recipeFilePath.path, executionEnvironment.recipeEnvironment)
+	return executeFromFile('recipe file', self.recipeFilePath:formatPath(true), executionEnvironment.recipeEnvironment)
 end
 
 function module:_validate(result)

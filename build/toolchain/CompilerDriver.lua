@@ -96,7 +96,7 @@ function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
 		exception.throw("sysrootPath '%s' must be effectively absolute", sysrootPath)
 	end
 	
-	arguments:append(self.sysrootPathOption .. sysrootPath.formatPath(true))
+	arguments:append(self.sysrootPathOption .. sysrootPath:formatPath(true))
 end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
