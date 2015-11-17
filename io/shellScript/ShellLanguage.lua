@@ -14,6 +14,7 @@ local operatingSystemDetails = require('halimede').operatingSystemDetails
 local exception = require('halimede.exception')
 local Path = require('halimede.io.paths.Path')
 local Paths = require('halimede.io.paths.Paths')
+local PathStyle = require('halimede.io.paths.PathStyle')
 
 
 
@@ -42,10 +43,10 @@ end
 validateLocale()
 ]]--
 -- The reason we have a lower case and title case variant is that we avoid the need to use string:lower(), which depends on os.setlocale('all', 'C') to be deterministic, which isn't safe to use (we could be Lua code in a thread or embedded in an application that has already set setlocale())
-function ShellLanguage:initialize(lowerCasedName, titleCasedName, folderSeparator, pathSeparator, newline, shellScriptFileExtensionIncludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)
+function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionIncludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)
 	assert.parameterTypeIsString(lowerCasedName)
 	assert.parameterTypeIsString(titleCasedName)
-	assert.parameterTypeIsString(pathSeparator)
+	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
 	assert.parameterTypeIsString(newline)
 	assert.parameterTypeIsString(shellScriptFileExtensionIncludingLeadingPeriod)
 	assert.parameterTypeIsString(silenced)
@@ -54,8 +55,7 @@ function ShellLanguage:initialize(lowerCasedName, titleCasedName, folderSeparato
 	
 	self.lowerCasedName = lowerCasedName
 	self.titleCasedName = titleCasedName
-	self.folderSeparator = folderSeparator
-	self.pathSeparator = pathSeparator
+	self.pathStyle = pathStyle
 	self.newline = newline
 	self.shellScriptFileExtensionIncludingLeadingPeriod = shellScriptFileExtensionIncludingLeadingPeriod
 	self.silenced = silenced
@@ -67,11 +67,11 @@ function ShellLanguage:initialize(lowerCasedName, titleCasedName, folderSeparato
 	self.silenceStandardError = self:redirectStandardError(silenced),
 end
 
-function ShellLanguage:quoteArgument(argument)
+function module:quoteArgument(argument)
 	exception.throw('AbstractMethod')
 end
 
-function ShellLanguage:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
+function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
@@ -82,32 +82,32 @@ function ShellLanguage:_redirect(fileDescriptor, filePathOrFileDescriptor, symbo
 	return fileDescriptor .. symbol .. redirection
 end
 
-function ShellLanguage:redirectInput(fileDescriptor, filePathOrFileDescriptor)
+function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsNumber(fileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
-function ShellLanguage:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
+function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsNumber(fileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
-function ShellLanguage:redirectStandardInput(filePathOrFileDescriptor)
+function module:redirectStandardInput(filePathOrFileDescriptor)
 	return self:redirectInput(ShellLanguage.standardIn, filePathOrFileDescriptor)
 end
 
-function ShellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
+function module:redirectStandardOutput(filePathOrFileDescriptor)
 	return self:redirectOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
 end
 
-function ShellLanguage:redirectStandardError(filePathOrFileDescriptor)
+function module:redirectStandardError(filePathOrFileDescriptor)
 	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function ShellLanguage:toShellCommand(...)
+function module:toShellCommand(...)
 	local arguments = {...}
 
 	local commandBuffer = tabelize()
@@ -122,12 +122,12 @@ function ShellLanguage:toShellCommand(...)
 	return commandBuffer:concat(' ')
 end
 
-function ShellLanguage:toShellCommandLine(...)
+function module:toShellCommandLine(...)
 	return self:toShellCommand(...) .. self.newline
 end
 
 assert.globalTypeIsFunction('ipairs')
-function ShellLanguage:appendLinesToScript(tabelizedScriptBuffer, ...)
+function module:appendLinesToScript(tabelizedScriptBuffer, ...)
 	local lines = {...}
 	for _, line in ipairs(lines) do
 		tabelizedScriptBuffer:insert(line)
@@ -139,23 +139,23 @@ function ShellScript:appendCommandLineToScript(tabelizedScriptBuffer, ...)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function ShellLanguage:paths(stringPathsTable)
+function module:paths(stringPathsTable)
 	assert.parameterTypeIsTable(stringPathsTable)
 	
-	local pathObjects = tabelize()
+	local paths = tabelize()
 	
-	for _, path in ipairs(stringPathsTable) do
-		assert.parameterTypeIsString(path)
+	for _, stringPath in ipairs(stringPathsTable) do
+		assert.parameterTypeIsString(stringPath)
 		
-		local pathObject = Path.parse(self.folderSeparator, path)
-		pathObjects:insert(pathObject)
+		local path = self.pathStyle:parse(stringPath, false)
+		path:insert(path)
 	end
 	
-	return Paths:new(self.pathSeparator, pathObjects)
+	return Paths:new(self.pathStyle, paths)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
-function ShellLanguage:binarySearchPath()
+function module:binarySearchPath()
 	local PATH
 	local searchPaths
 	
@@ -172,7 +172,7 @@ function ShellLanguage:binarySearchPath()
 		if PATH == nil then
 			return self:paths({'.'})
 		else
-			combined = '.' .. self.pathSeparator .. PATH
+			combined = '.' .. self.pathStyle.pathSeparator .. PATH
 		end
 	elseif PATH == nil then
 		return self:paths({})
@@ -180,14 +180,14 @@ function ShellLanguage:binarySearchPath()
 		combined = PATH
 	end
 	
-	return self:paths(combined:split(self.pathSeparator))
+	return self:paths(combined:split(self.pathStyle.pathSeparator))
 end
 
 
 local PosixShellLanguage = class('PosixShellLanguage', ShellLanguage)
 
 function PosixShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'posix', 'Posix', '/', ':', '\n', '', '/dev/null', false, 'sh')
+	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', '', '/dev/null', false, 'sh')
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
@@ -203,7 +203,7 @@ ShellLanguage.static.Posix = PosixShellLanguage:new()
 local CmdShellLanguage = class('CmdShellLanguage', ShellLanguage)
 
 function CmdShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'cmd', 'Cmd', '\\', ';', '\r\n', '.cmd', 'NUL', true, 'cmd')
+	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', '.cmd', 'NUL', true, 'cmd')
 end
 
 local slash = '\\'

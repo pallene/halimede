@@ -9,6 +9,8 @@ local Path = moduleclass('Path')
 local halimede = require('halimede')
 local assert = halimede.assert
 local exception = require('halimede.exception')
+local tabelize = require('halimede.table.tabelize').tabelize
+local equality = require('halimede.table.equality')
 local Object = require('halimede.middleclass').Object
 local PathStyle = requireSibling('PathStyle')
 local PathRelativity = requireSibling('PathRelativity')
@@ -23,11 +25,6 @@ Path.static.relativeFilePath = function(pathStyle, ...)
 	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
 	return Path:new(pathStyle, PathRelativity.Relative, nil, {...}, true, nil)
 end
-
-local class = require('halimede.middleclass')
-local Object = class.Object
-local tabelize = require('halimede.table.tabelize').tabelize
-local exception = require('halimede.exception')
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)
@@ -89,45 +86,18 @@ function module:__eq(right)
 	if self.pathRelativity ~= right.pathRelativity then
 		return false
 	end
-	if isUnequalWithNil(self.device, right.device) then
+	if equality.isUnequalWithNil(self.device, right.device) then
 		return false
 	end
-	if isArrayShallowUnequal(self.pathElements, right.pathElements) then
+	if equality.isArrayShallowUnequal(self.pathElements, right.pathElements) then
 		return false
 	end
 	if self.isFile ~= right.isFile then
 		return false
 	end
-	if isUnequalWithNil(self.alternateStreamName, right.alternateStreamName) then
+	if equality.isUnequalWithNil(self.alternateStreamName, right.alternateStreamName) then
 		return false
 	end
-end
-
-local function isUnequalWithNil(left, right)
-	if (left == nil or right == nil) then
-		if left == nil and right ~= nil then
-			return true
-		end
-		if left ~= nil and right == nil then
-			return true
-		end
-	elseif left ~= right then
-		return true
-	end
-	return false
-end
-
-assert.globalTypeIsFunction('ipairs')
-local function isArrayShallowUnequal(left, right)
-	if #left ~= #right then
-		return true
-	end
-	for index, leftItem in ipairs(left) do
-		if right[index] ~= left then
-			return true
-		end
-	end
-	return false
 end
 
 function module:formatPath(specifyCurrentDirectoryExplicitlyIfAppropriate)

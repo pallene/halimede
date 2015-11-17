@@ -59,6 +59,13 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	PathStyle.static[name] = self
 end
 
+function module:parse(stringPath, isFile)
+	assert.parameterTypeIsString(stringPath)
+	assert.parameterTypeIsBoolean(isFile)
+	
+	
+end
+
 assert.globalTypeIsFunction('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 function module:guardPathElements(pathElements)

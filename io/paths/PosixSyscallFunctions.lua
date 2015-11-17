@@ -36,9 +36,6 @@ OldPath.static.parse = function(folderSeparator, stringPath)
 	
 	
 	
-	TODO: Plus also remove dependency on global folder separaotr
-	TODO: Consider having Windows, Posix, Other path classes as folderSeparator not enough if ever need to support OpenVMS or Risc OS?
-	
 	
 	
 	xxxxxx

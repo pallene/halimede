@@ -406,7 +406,7 @@ local function initialisePackageConfiguration()
 	
 	local packageConfigurationMapping = {
 		'folderSeparator', -- eg '/' on POSIX
-		'pathSeparator', -- usually ';' (even on POSIX)
+		'luaPathSeparator', -- usually ';' (even on POSIX)
 		'substitutionPoint', -- usually '?'
 		'executableDirectory',  -- usually '!' (only works on Windows)
 		'markToIgnoreTestWhenBuildLuaOpen' -- usually '-'
@@ -632,7 +632,7 @@ assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 local function initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
 
 	local folderSeparator = packageConfiguration.folderSeparator
-	local pathSeparator = packageConfiguration.pathSeparator
+	local luaPathSeparator = packageConfiguration.luaPathSeparator
 	
 	local mappings = {
 		path = 'lua',
@@ -644,7 +644,7 @@ local function initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
 		for _, searchPathGenerator in ipairs(searchPathGenerators) do
 			table.insert(paths, concatenateToPath({modulesRootPath, searchPathGenerator(moduleNameLocal)) .. '.' .. fileExtension})
 		end
-		package[key] = table.concat(paths, pathSeparator)
+		package[key] = table.concat(paths, luaPathSeparator)
 	end
 end
 

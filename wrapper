@@ -192,7 +192,7 @@ local function initialisePackageConfiguration()
 	
 	local packageConfigurationMapping = {
 		"folderSeparator", -- eg "/" on POSIX
-		"pathSeparator", -- usually ";" (even on POSIX)
+		"luaPathSeparator", -- usually ";" (even on POSIX)
 		"substitutionPoint", -- usually "?"
 		"executableDirectory",  -- usually "!" (only works on Windows)
 		"markToIgnoreTestWhenBuildLuaOpen" -- usually "-"
@@ -217,7 +217,7 @@ end
 local packageConfiguration = initialisePackageConfiguration()
 local folderSeparator = packageConfiguration.folderSeparator
 local substitutionPoint = packageConfiguration.substitutionPoint
-local pathSeparator = packageConfiguration.pathSeparator
+local luaPathSeparator = packageConfiguration.luaPathSeparator
 
 local function toPath(...)
 	return table.concat({...}, folderSeparator)
@@ -228,7 +228,7 @@ local function toPaths(paths, fileExtension)
 		return ""
 	end
 	local ending = "." .. fileExtension
-	return table.concat(paths, ending .. pathSeparator) .. ending
+	return table.concat(paths, ending .. luaPathSeparator) .. ending
 end
 
 local paths = {
