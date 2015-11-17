@@ -12,6 +12,8 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
 local exception = require('halimede.exception')
+local Path = requireSibling('Path')
+local PathRelativity = requireSibling('PathRelativity')
 
 
 assert.globalTypeIsFunction('pairs', 'ipairs')
@@ -63,7 +65,7 @@ function module:parse(stringPath, isFile)
 	assert.parameterTypeIsString(stringPath)
 	assert.parameterTypeIsBoolean(isFile)
 	
-	
+	exception.throw('Abstract Method')
 end
 
 assert.globalTypeIsFunction('ipairs')
@@ -190,7 +192,29 @@ function module:prependCurrentDirectory(pathElements)
 	return copy
 end
 
-PathStyle:new('Posix', ':', '/', nil, '.', '..', '.', nil, false, {})
+
+local Posix = PathStyle:new('Posix', ':', '/', nil, '.', '..', '.', nil, false, {})
+
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub', 'split')
+Posix.parse = function(self, stringPath, isFile)
+	assert.parameterTypeIsString(stringPath)
+	assert.parameterTypeIsBoolean(isFile)
+	
+	if stringPath:len() == 0 then
+		exception.throw("The stringPath is empty")
+	end
+	
+	local pathElements = stringPath:split('/')
+	local pathRelativity
+	if stringPath:sub(1, 1) == '/' then
+		table.remove(pathElements, 1)
+		pathRelativity = PathRelativity.RelativeToCurrentDeviceAndAbsoluteOnPosix
+	else
+		pathRelativity = PathRelativity.Relative
+	end
+	return Path:new(self, pathRelativity, nil, pathElements, isFile, nil)
+end
+
 
 -- https://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx
 -- Strictly speaking, \1 to \31 are valid in the alternate file stream portion of a path.
