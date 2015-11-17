@@ -6,8 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local assert = require('halimede').assert
 local exception = require('halimede.exception')
-local Path = requireSibling('Path')
 local syscall = require('syscall')
+local Path = requireSibling('Path')
 
 
 local function fail = function(syscallName, path, becauseOfReason)
@@ -214,6 +214,7 @@ function module.chmod(path, mode)
 end
 local chmod = module.chmod
 
+-- Can not make C:\ or / or C: or UNC-based paths
 assert.globalTypeIsFunction('tostring')
 function module.mkdir(path, mode, isLeaf)
 	assert.parameterTypeIsInstanceOf(path, Path)
@@ -282,8 +283,6 @@ function module.mkdir(path, mode, isLeaf)
 end
 local mkdir = module.mkdir
 
--- Can not make C:\ or /
--- 0700
 function module.mkdirs(path, mode, isLeaf)
 	assert.parameterTypeIsInstanceOf(path, Path)
 	assert.parameterTypeIsString(mode)
