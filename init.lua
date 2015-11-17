@@ -60,7 +60,7 @@ end
 local typeModule = {}
 package.loaded[ourModuleName .. '.type'] = assertModule
 
-local function NamedFunction(name, functor)
+function assertModule.NamedFunction(name, functor)
 	return setmetatable({
 		name = name
 	}, {
@@ -72,6 +72,7 @@ local function NamedFunction(name, functor)
 		end
 	})
 end
+local NamedFunction = assertModule.NamedFunction
 
 local function is(value, name)
 	return type(value) == name
@@ -230,7 +231,7 @@ function assertModule.parameterIsNotMessage(name)
 end
 
 local function parameterTypeIs(value, isOfType)
-	withLevel(isOfType(value), parameterIsNotMessage(isOfType.name), 4)
+	withLevel(isOfType(value), assertModule.parameterIsNotMessage(isOfType.name), 4)
 end
 
 -- Would be a bit odd to use this
@@ -545,9 +546,9 @@ local findArg0 = ourModule.findArg0
 
 -- Please note the absolute path '/' is modelled as ''
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty')
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty', 'find')
 assert.globalTypeIsFunction('ipairs')
-function ourModule.concatenateToPath(folders)
+local function concatenateToPath(folders)
 	assert.parameterTypeIsTable(folders)
 	
 	local folderSeparator = packageConfiguration.folderSeparator
@@ -562,7 +563,7 @@ function ourModule.concatenateToPath(folders)
 			else
 				error(("Folder name at index '%s' is an empty string; only that at index 1 may be on POSIX systems"):format(index))
 			end
-		elseif folder:match('\0') ~= nil then
+		elseif folder:find('\0', 1, true) ~= nil then
 			error(("Folder name at index '%s' contains ASCII NUL"):format(index))
 		else
 			path = path .. folderSeparator .. folder
@@ -571,7 +572,6 @@ function ourModule.concatenateToPath(folders)
 	
 	return path
 end
-local concatenateToPath = ourModule.concatenateToPath
 
 -- Ideally, we need to use realpath to resolve symlinks
 local function findOurFolderPath()
@@ -613,28 +613,28 @@ end
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
 local searchPathGenerators = {
 	function(moduleName)
-		return packageConfiguration.substitutionPoint
+		return {packageConfiguration.substitutionPoint}
 	end,
 	function(moduleName)
-		return packageConfiguration.substitutionPoint, 'init'
+		return {packageConfiguration.substitutionPoint, 'init'}
 	end,
 	function(moduleName)
 		-- eg halimede.html5 => halimede/html5/html5.lua (modname is then irrelevant to searcher)
 		local subFolders = moduleName:split('.')
 		table.insert(subFolders, subFolders[#subFolders])
-		return unpack(subFolders)
+		return subFolders
 	end,
 	function(moduleName)
 		-- eg for ljsyscall, checked out as a git submodule 'syscall', require('syscall') => syscall/syscall.lua but also require('syscall.helpers') => syscall/syscall/helpers.lua
 		-- This is because ljsyscall is designed to be 'installed' by LuaRocks even though it's pure Lua code...
 		local subFolders = moduleName:split('.')
 		table.insert(subFolders, 1, subFolders[1])
-		return unpack(subFolders)
+		return subFolders
 	end	
 }
 
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
-local function initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
+local function initialiseSearchPaths(moduleNameLocal)
 
 	local folderSeparator = packageConfiguration.folderSeparator
 	local luaPathSeparator = packageConfiguration.luaPathSeparator
@@ -647,12 +647,16 @@ local function initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
 	for key, fileExtension in pairs(mappings) do
 		local paths = {}
 		for _, searchPathGenerator in ipairs(searchPathGenerators) do
-			table.insert(paths, concatenateToPath({modulesRootPath, searchPathGenerator(moduleNameLocal)) .. '.' .. fileExtension})
+			local pathPieces = searchPathGenerator(moduleNameLocal)
+			table.insert(pathPieces, 1, modulesRootPath)
+			local searchPath = concatenateToPath(pathPieces) .. '.' .. fileExtension
+			table.insert(paths, searchPath)
 		end
 		package[key] = table.concat(paths, luaPathSeparator)
 	end
 end
 
+assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
 local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator)
 	
@@ -687,13 +691,14 @@ local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator
 	leafModuleName = leafModuleNameLocal
 	parentModule = loaded[parentModuleNameLocal]
 	
-	initialiseSearchPaths(moduleNameLocal, searchPathGenerators)
+	initialiseSearchPaths(moduleNameLocal)
+	local failures = {}
 	for _, searcher in ipairs(searchers) do
 		-- filePath only in Lua 5.2+, and not set by the preload searcher
 		local moduleLoaderOrFailedToFindExplanationString, filePath = searcher(moduleNameLocal)
 		if typeModule.isFunction(moduleLoaderOrFailedToFindExplanationString) then
 			local result = moduleLoaderOrFailedToFindExplanationString()
-		
+			
 			local ourResult
 			if result == nil then
 				ourResult = module
@@ -708,11 +713,12 @@ local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator
 			resetModuleGlobals()
 			return ourResult
 		end
+		table.insert(failures, moduleLoaderOrFailedToFindExplanationString)
 	end
 	
 	loaded[moduleNameLocal] = nil
 	resetModuleGlobals()
-	error(("Could not load module '%s' "):format(moduleNameLocal))
+	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, ' or ')))
 end
 
 -- Lua 5.1 / 5.2 compatibility

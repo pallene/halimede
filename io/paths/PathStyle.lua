@@ -109,7 +109,7 @@ function module:isReservedPathElement(pathElement)
 	end
 	
 	for _, characterNotAllowedInPathElements in ipairs(self.charactersNotAllowedInPathElements) do
-		if pathElement:match(characterNotAllowedInPathElements) then
+		if pathElement:find(characterNotAllowedInPathElements, 1, true) ~= nil then
 			return true
 		end
 	end

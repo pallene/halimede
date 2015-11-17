@@ -12,7 +12,7 @@ local assert = halimede.assert
 local class = require('halimede.middleclass')
 local Object = class.Object
 
-assertModule.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunction('tostring')
 function assert.parameterTypeIsInstanceOf(value, Class)
 	if not Object.isInstanceOf(value, Class) then
 		assert.withLevel(isOfType(value), parameterIsNotMessage(tostring(Class)), 3)
