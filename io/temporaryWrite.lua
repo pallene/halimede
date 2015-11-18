@@ -13,8 +13,8 @@ local DefaultShellLanguage = require('halimede.io.shellScript.ShellLanguage').De
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'tmpname')
 function module.toTemporaryFileAllContentsInTextMode(contents, fileExtension)
-	assert.parameterTypeIsString(contents)
-	assert.parameterTypeIsStringOrNil(fileExtension)
+	assert.parameterTypeIsString('contents', contents)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	
 	local temporaryFileCreatedOnPosixButNotWindows = os.tmpname()
 	
@@ -33,9 +33,9 @@ local toTemporaryFileAllContentsInTextMode = module.toTemporaryFileAllContentsIn
 
 assert.globalTypeIsFunction('pcall')
 function module.toTemporaryFileAllContentsInTextModeAndUse(contents, fileExtension, user)
-	assert.parameterTypeIsString(contents)
-	assert.parameterTypeIsStringOrNil(fileExtension)
-	assert.parameterTypeIsFunction(user)
+	assert.parameterTypeIsString('contents', contents)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
+	assert.parameterTypeIsFunction('user', user)
 
 	local temporaryFilePathWithFileExtension, removeTemporaryFiles = toTemporaryFileAllContentsInTextMode(contents, fileExtension)
 	local ok, result = pcall(user, temporaryFilePathWithFileExtension)

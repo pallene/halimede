@@ -17,7 +17,7 @@ function module:initialize()
 end
 
 function module:_append(argument)
-	assert.parameterTypeIsString(argument)
+	assert.parameterTypeIsString('argument', argument)
 	self.arguments:insert(argument)
 end
 
@@ -37,7 +37,7 @@ end
 
 assert.globalTypeIsFunction('unpack')
 function module:useUnpacked(userFunction)
-	assert.parameterTypeIsFunctionOrCall(userFunction)
+	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
 	
 	return userFunction(unpack(self.arguments))
 end

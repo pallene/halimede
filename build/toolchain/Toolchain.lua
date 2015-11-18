@@ -17,8 +17,8 @@ local FilePaths = requireSibling('FilePaths')
 
 
 function module:initialize(platform, toolchainPaths)
-	assert.parameterTypeIsInstanceOf(platform, Platform)
-	assert.parameterTypeIsInstanceOf(toolchainPaths, ToolchainPaths)
+	assert.parameterTypeIsInstanceOf('platform', platform, Platform)
+	assert.parameterTypeIsInstanceOf('toolchainPaths', toolchainPaths, ToolchainPaths)
 	
 	self.platform = platform
 	self.toolchainPaths = toolchainPaths
@@ -44,7 +44,7 @@ function module:baseFilePaths(...)
 end
 
 function module:toObjectsWithoutPaths(baseFilePaths)
-	assert.parameterTypeIsInstanceOf(baseFilePaths, FilePaths)
+	assert.parameterTypeIsInstanceOf('baseFilePaths', baseFilePaths, FilePaths)
 	
 	return baseFilePaths:toObjectsWithoutPaths(self.platform.objectExtension)
 end

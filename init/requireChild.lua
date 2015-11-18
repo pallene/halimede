@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local assert = halimede.assert
 
 function requireChild(childModuleElementName)
-	assert.parameterTypeIsString(childModuleElementName)
+	assert.parameterTypeIsString('childModuleElementName', childModuleElementName)
 	
 	return require(parentModuleName .. '.' .. childModuleElementName)
 end

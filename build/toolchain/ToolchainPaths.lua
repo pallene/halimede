@@ -57,10 +57,10 @@ end
 
 function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
 	assert.parameterTypeIsFunctionOrCall(toolchainPathStrategy, shellLanguage)
-	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
-	assert.parameterTypeIsInstanceOf(versionRelativePath, Path)
-	assert.parameterTypeIsInstanceOf(prefixPath, Path)
-	assert.parameterTypeIsInstanceOf(execPrefixPath, Path)
+	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
+	assert.parameterTypeIsInstanceOf('versionRelativePath', versionRelativePath, Path)
+	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
+	assert.parameterTypeIsInstanceOf('execPrefixPath', execPrefixPath, Path)
 	
 	validatePath(sysrootPath, 'sysrootPath', 'isEffectivelyAbsolute')
 	validatePath(versionRelativePath, 'versionRelativePath', 'isRelative')
@@ -74,7 +74,7 @@ function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPre
 	if libPrefixPath == nil then
 		self.libPrefixPath = prefixPath
 	else
-		assert.parameterTypeIsInstanceOf(libPrefixPath, Path)
+		assert.parameterTypeIsInstanceOf('libPrefixPath', libPrefixPath, Path)
 		validatePath(libPrefixPath, 'libPrefixPath', 'isEffectivelyAbsolute')
 		self.libPrefixPath = libPrefixPath
 	end

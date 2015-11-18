@@ -26,7 +26,7 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:execute(sourcePath)
-	assert.parameterTypeIsInstanceOf(sourcePath, Path)
+	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
 	
 	sourcePath:assertIsFolderPath('sourcePath')
 

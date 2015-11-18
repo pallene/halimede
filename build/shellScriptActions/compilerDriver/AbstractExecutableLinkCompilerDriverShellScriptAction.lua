@@ -15,13 +15,13 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 end
 
 function module:execute(toolchain, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
-	assert.parameterTypeIsInstanceOf(toolchain, Toolchain)
-	assert.parameterTypeIsBoolean(crossCompile)
-	assert.parameterTypeIsTable(compilerDriverFlags)
-	assert.parameterTypeIsTable(linkerFlags)
-	assert.parameterTypeIsTable(objects)
-	assert.parameterTypeIsTable(additionalLinkedLibraries)
-	assert.parameterTypeIsString(baseName)
+	assert.parameterTypeIsInstanceOf('toolchain', toolchain, Toolchain)
+	assert.parameterTypeIsBoolean('crossCompile', crossCompile)
+	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
+	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
+	assert.parameterTypeIsTable('objects', objects)
+	assert.parameterTypeIsTable('additionalLinkedLibraries', additionalLinkedLibraries)
+	assert.parameterTypeIsString('baseName', baseName)
 	
 	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)

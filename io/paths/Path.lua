@@ -19,12 +19,12 @@ local PathRelativity = requireSibling('PathRelativity')
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
-	assert.parameterTypeIsInstanceOf(pathRelativity, PathRelativity)
-	assert.parameterTypeIsStringOrNil(device)
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsStringOrNil(alternateStreamName)
+	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
+	assert.parameterTypeIsInstanceOf('pathRelativity', pathRelativity, PathRelativity)
+	assert.parameterTypeIsStringOrNil('device', device)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 	
 	local length = #pathElements
 	
@@ -111,7 +111,7 @@ function module:assertIsEffectivelyAbsolute(parameterName)
 end
 
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	local pathElementsCopy
 	if self.alternateStreamName ~= nil then
@@ -159,7 +159,7 @@ function module:appendFolders(...)
 	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs({...}) do
-		assert.parameterTypeIsString(childPathElement)
+		assert.parameterTypeIsString('childPathElement', childPathElement)
 		
 		pathElementsCopy:insert(childPathElement)
 	end
@@ -168,7 +168,7 @@ function module:appendFolders(...)
 end
 
 function module:parentPath(alternateStreamName)
-	assert.parameterTypeIsStringOrNil(alternateStreamName)
+	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 	
 	local length = #self.pathElements
 	
@@ -189,9 +189,9 @@ function module:parentPath(alternateStreamName)
 end
 
 function module:appendFile(fileName, fileExtension, alternateStreamName)
-	assert.parameterTypeIsString(fileName)
-	assert.parameterTypeIsStringOrNil(fileExtension)
-	assert.parameterTypeIsStringOrNil(alternateStreamName)
+	assert.parameterTypeIsString('fileName', fileName)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
+	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 
 	self:assertIsFolderPath('self')
 	
@@ -207,8 +207,8 @@ function module:appendFile(fileName, fileExtension, alternateStreamName)
 end
 
 function module:appendFileExtension(fileExtension, alternateStreamName)
-	assert.parameterTypeIsString(fileExtension)
-	assert.parameterTypeIsStringOrNil(alternateStreamName)
+	assert.parameterTypeIsString('fileExtension', fileExtension)
+	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 
 	self:assertIsFilePath('self')
 	
@@ -224,7 +224,7 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:appendRelativePath(relativePath)
-	assert.parameterTypeIsInstanceOf(relativePath, Path)
+	assert.parameterTypeIsInstanceOf('relativePath', relativePath, Path)
 	
 	if not self.pathStyle.isRelative then
 		exception.throw("relativePath '%s' is not isRelative", relativePath)
@@ -234,7 +234,7 @@ function module:appendRelativePath(relativePath)
 	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs({...}) do
-		assert.parameterTypeIsString(childPathElement)
+		assert.parameterTypeIsString('childPathElement', childPathElement)
 		
 		pathElementsCopy:insert(childPathElement)
 	end

@@ -18,15 +18,15 @@ local FilePaths = requireSibling('FilePaths')
 
 
 function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-	assert.parameterTypeIsInstanceOf(CompilerMetadata, compilerMetadata)
-	assert.parameterTypeIsTable(commandLineFlags)
-	assert.parameterTypeIsTable(onlyRunPreprocessorStepFlags)
-	assert.parameterTypeIsTable(onlyRunPreprocessorAndCompilationStepsFlags)
-	assert.parameterTypeIsTable(onlyRunPreprocessorCompilationAndAssembleStepsFlags)
-	assert.parameterTypeIsTable(useFileExtensionsToDetermineLanguageFlags)
+	assert.parameterTypeIsInstanceOf('CompilerMetadata', CompilerMetadata, compilerMetadata)
+	assert.parameterTypeIsTable('commandLineFlags', commandLineFlags)
+	assert.parameterTypeIsTable('onlyRunPreprocessorStepFlags', onlyRunPreprocessorStepFlags)
+	assert.parameterTypeIsTable('onlyRunPreprocessorAndCompilationStepsFlags', onlyRunPreprocessorAndCompilationStepsFlags)
+	assert.parameterTypeIsTable('onlyRunPreprocessorCompilationAndAssembleStepsFlags', onlyRunPreprocessorCompilationAndAssembleStepsFlags)
+	assert.parameterTypeIsTable('useFileExtensionsToDetermineLanguageFlags', useFileExtensionsToDetermineLanguageFlags)
 
-	assert.parameterTypeIsTable(environmentVariablesToUnset)
-	assert.parameterTypeIsTable(gcc4X_environmentVariablesToExport)
+	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
+	assert.parameterTypeIsTable('gcc4X_environmentVariablesToExport', gcc4X_environmentVariablesToExport)
 	
 	self.compilerMetadata = compilerMetadata
 	self.commandLineFlags = commandLineFlags
@@ -80,14 +80,14 @@ function CompilerDriver:newArguments(compilerDriverFlags, sysrootPath)
 end
 
 function CompilerDriver:useFileExtensionsToDetermineLanguageFlags(arguments)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 
 	arguments:append(self.useFileExtensionsToDetermineLanguageFlags)
 end
 
 function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	
 	sysrootPath:assertIsFolderPath('sysrootPath')
 	sysrootPath:assertIsEffectivelyAbsolute('sysrootPath')
@@ -97,29 +97,29 @@ end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
 function CompilerDriver:addCStandard(arguments, cStandard)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsInstanceOf(cStandard, CStandard)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	
 	arguments:append(self.standardOption .. cStandard.value)
 end
 
 function CompilerDriver:doNotPredefineSystemOrCompilerDriverMacros(arguments)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 
 	arguments:append(self.undefOption)
 end
 
 function CompilerDriver:undefinePreprocessorMacro(arguments, defineName)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsString(defineName)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsString('defineName', defineName)
 
 	arguments:append(self.undefineOption .. defineName)
 end
 
 function CompilerDriver:definePreprocessorMacro(arguments, defineName, defineValue)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsString(defineName)
-	assert.parameterTypeIsString(defineValue)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsString('defineName', defineName)
+	assert.parameterTypeIsString('defineValue', defineValue)
 
 	arguments:append(self.defineOption .. defineName .. '=' .. defineValue)
 end
@@ -132,9 +132,9 @@ end
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
 function CompilerDriver:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsTable(dependenciesSystemIncludePaths)
-	assert.parameterTypeIsTable(buildVariantSystemIncludePaths)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsTable('dependenciesSystemIncludePaths', dependenciesSystemIncludePaths)
+	assert.parameterTypeIsTable('buildVariantSystemIncludePaths', buildVariantSystemIncludePaths)
 	
 	local systemIncludePaths = {}
 	for _, systemIncludePath in ipairs(mergeFlags(self.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
@@ -148,8 +148,8 @@ end
 
 assert.globalTypeIsFunction('pairs')
 function CompilerDriver:addIncludePaths(arguments, sourceFilePaths)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsInstanceOf(sourceFilePaths, FilePaths)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
 	
 	local includePaths = {}
 	for sourceFilePath in sourceFilePaths:iterate() do
@@ -163,10 +163,10 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function CompilerDriver:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsTable(dependenciesLinkerFlags)
-	assert.parameterTypeIsTable(buildVariantLinkerFlags)
-	assert.parameterTypeIsTable(otherLinkerFlags)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsTable('dependenciesLinkerFlags', dependenciesLinkerFlags)
+	assert.parameterTypeIsTable('buildVariantLinkerFlags', buildVariantLinkerFlags)
+	assert.parameterTypeIsTable('otherLinkerFlags', otherLinkerFlags)
 	
 	for _, linkerFlag in ipairs(mergeFlags(self.linkerFlags, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)) do
 		arguments:append(linkerFlag)
@@ -175,10 +175,10 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function CompilerDriverArguments:addLinkedLibraries(arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
-	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsTable(dependenciesLinkedLibraries)
-	assert.parameterTypeIsTable(buildVariantLinkedLibraries)
-	assert.parameterTypeIsTable(otherLinkedLibraries)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsTable('dependenciesLinkedLibraries', dependenciesLinkedLibraries)
+	assert.parameterTypeIsTable('buildVariantLinkedLibraries', buildVariantLinkedLibraries)
+	assert.parameterTypeIsTable('otherLinkedLibraries', otherLinkedLibraries)
 	
 	for _, linkedLibrary in ipairs(mergeFlags(self.linkedLibraries, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)) do
 		arguments:append(self.linkedLibraryOption .. linkedLibrary)
@@ -187,7 +187,7 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function CompilerDriver:unsetEnvironmentVariables(unsetEnvironmentVariableFunction)
-	assert.parameterTypeIsFunctionOrCall(unsetEnvironmentVariableFunction)
+	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableFunction', unsetEnvironmentVariableFunction)
 	
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
 		unsetEnvironmentVariableFunction(environmentVariableName)
@@ -196,8 +196,8 @@ end
 
 assert.globalTypeIsFunction('pairs')
 function CompilerDriver:exportEnvironmentVariables(exportEnvironmentVariableFunction, environmentVariableOverrides)
-	assert.parameterTypeIsFunctionOrCall(exportEnvironmentVariableFunction)
-	assert.parameterTypeIsTable(environmentVariableOverrides)
+	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableFunction', exportEnvironmentVariableFunction)
+	assert.parameterTypeIsTable('environmentVariableOverrides', environmentVariableOverrides)
 	
 	for environmentVariableName, environmentVariableValue in pairs(self.environmentVariablesToExport) do
 		local actualValue

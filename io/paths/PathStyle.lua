@@ -19,16 +19,16 @@ local PathRelativity = requireSibling('PathRelativity')
 
 assert.globalTypeIsFunction('pairs', 'ipairs')
 function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator, currentDirectory, parentDirectory, fileExtensionSeparator, alternateStreamSeparator, hasDevices, additionalCharactersNotAllowedInPathElements, ...)
-	assert.parameterTypeIsString(name)
-	assert.parameterTypeIsStringOrNil(pathSeparator)
-	assert.parameterTypeIsString(folderSeparator)
-	assert.parameterTypeIsString(deviceSeparator)
-	assert.parameterTypeIsStringOrNil(currentDirectory)
-	assert.parameterTypeIsStringOrNil(parentDirectory)
-	assert.parameterTypeIsString(fileExtensionSeparator)
-	assert.parameterTypeIsStringOrNil(alternateStreamSeparator)
-	assert.parameterTypeIsBoolean(hasDevices)
-	assert.parameterTypeIsTable(additionalCharactersNotAllowedInPathElements)
+	assert.parameterTypeIsString('name', name)
+	assert.parameterTypeIsStringOrNil('pathSeparator', pathSeparator)
+	assert.parameterTypeIsString('folderSeparator', folderSeparator)
+	assert.parameterTypeIsString('deviceSeparator', deviceSeparator)
+	assert.parameterTypeIsStringOrNil('currentDirectory', currentDirectory)
+	assert.parameterTypeIsStringOrNil('parentDirectory', parentDirectory)
+	assert.parameterTypeIsString('fileExtensionSeparator', fileExtensionSeparator)
+	assert.parameterTypeIsStringOrNil('alternateStreamSeparator', alternateStreamSeparator)
+	assert.parameterTypeIsBoolean('hasDevices', hasDevices)
+	assert.parameterTypeIsTable('additionalCharactersNotAllowedInPathElements', additionalCharactersNotAllowedInPathElements)
 	
 	self.name = name
 	self.pathSeparator = pathSeparator
@@ -64,8 +64,8 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
 function module:parse(stringPath, isFile)
-	assert.parameterTypeIsString(stringPath)
-	assert.parameterTypeIsBoolean(isFile)
+	assert.parameterTypeIsString('stringPath', stringPath)
+	assert.parameterTypeIsBoolean('isFile', isFile)
 	
 	if stringPath:isEmpty() then
 		exception.throw("The stringPath is empty")
@@ -89,10 +89,10 @@ end
 assert.globalTypeIsFunction('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 function module:guardPathElements(pathElements)
-	assert.parameterTypeIsTable(pathElements)
+	assert.parameterTypeIsTable('pathElements', pathElements)
 	
 	for index, pathElement in ipairs(pathElements) do
-		assert.parameterTypeIsString(pathElement)
+		assert.parameterTypeIsString('pathElement', pathElement)
 		
 		if self:isReservedPathElement(pathElement) then
 			exception.throw("PathElement at index '%s' is a reserved folder or file name '%s'", index, pathElement)
@@ -103,7 +103,7 @@ end
 assert.globalTypeIsFunction('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match')
 function module:isReservedPathElement(pathElement)
-	assert.parameterTypeIsString(pathElement)
+	assert.parameterTypeIsString('pathElement', pathElement)
 		
 	if self.reservedPathElements[pathElement] then
 		return true
@@ -119,7 +119,7 @@ function module:isReservedPathElement(pathElement)
 end
 
 function module:isReservedFileName(pathElement)
-	assert.parameterTypeIsString(pathElement)
+	assert.parameterTypeIsString('pathElement', pathElement)
 	
 	if self:isReservedPathElement(pathElement) then
 		return true
@@ -133,8 +133,8 @@ function module:isReservedFileName(pathElement)
 end
 
 function module:appendFileExtension(fileName, fileExtension)
-	assert.parameterTypeIsString(fileName)
-	assert.parameterTypeIsStringOrNil(fileExtension)
+	assert.parameterTypeIsString('fileName', fileName)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	
 	if fileExtension == nil then
 		return fileName
@@ -145,8 +145,8 @@ end
 
 -- Cmd and OpenVms only
 function module:appendAlternateStreamName(fileNameIncludingAnyExtension, alternateStreamName)
-	assert.parameterTypeIsString(fileNameIncludingAnyExtension)
-	assert.parameterTypeIsString(alternateStreamName)
+	assert.parameterTypeIsString('fileNameIncludingAnyExtension', fileNameIncludingAnyExtension)
+	assert.parameterTypeIsString('alternateStreamName', alternateStreamName)
 	
 	if self.alternateStreamSeparator == nil then
 		exception.throw('Alternate stream names are not supported')
@@ -157,29 +157,29 @@ end
 
 -- Specify '' on Posix and Symbian; omit the trailing '/' on Windows from the device
 function module:toStringAbsoluteIncludingDeviceName(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsString(device)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsString('device', device)
 	
 	return device .. self.deviceSeparator .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end
 
 -- Windows only; on Posix, effectively an absolute Path; best choice most of the time
 function module:toStringRelativeToCurrentDeviceAndAbsoluteOnPosix(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	return self.folderSeparator .. table.concat(pathElements, self.folderSeparator)
 end
 
 -- Windows only
 function module:toStringRelativeToDeviceCurrentDirectoryOnCmd(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsString(device)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsString('device', device)
 	
 	exception.throw("This PathStyle '%s' does not support device relative paths on a device such as '%s'", self.name, device)
 end
@@ -188,9 +188,9 @@ end
 -- use specifyCurrentDirectoryExplicitlyIfAppropriate for distinguishing executables in the current working directory from those in the PATH on POSIX
 -- use specifyCurrentDirectoryExplicitlyIfAppropriate on Windows to avoid problems with file streams on one-character file names being mistaken for device names...
 function module:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	local pathElementsToUse
 	if specifyCurrentDirectoryExplicitlyIfAppropriate then
@@ -207,7 +207,7 @@ function module:_toStringRelative(pathElements, isFile)
 end
 
 function module:prependCurrentDirectory(pathElements)
-	assert.parameterTypeIsTable(pathElements)
+	assert.parameterTypeIsTable('pathElements', pathElements)
 	
 	local copy = shallowCopy(pathElements)
 	table.insert(copy, 1, self.currentDirectory)
@@ -237,10 +237,10 @@ end
 local Cmd = PathStyle:new('Cmd', ';', '\\', '\\', '.', '..', '.', ':', true, {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\1', '\2', '\3', '\4', '\5', '\6', '\7', '\8', '\9', '\10', '\11', '\12', '\13', '\14', '\15', '\16', '\17', '\18', '\19', '\20', '\21', '\22', '\23', '\24', '\25', '\26', '\27', '\28', '\29', '\30', '\31'}, 'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9')  -- Note that Windows allows '/' as a directory separator, too, except when using UNC paths; . and .. are valid as file names when using \\?\ paths...
 
 Cmd.toStringRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)  -- Windows, maybe OpenVms, eg C:..\file.txt
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsString(device)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsString('device', device)
 	
 	return device .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end

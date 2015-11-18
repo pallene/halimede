@@ -18,7 +18,7 @@ end
 
 assert.globalTypeIsFunction('unpack')
 function module:execute(path)
-	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	local command = tabelize({'CD'})
 	

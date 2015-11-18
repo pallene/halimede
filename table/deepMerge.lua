@@ -10,8 +10,8 @@ local isTable = type.isTable
 
 assert.globalTypeIsFunction('type')
 local function deepMerge(source, destination)
-	assert.parameterTypeIsTable(source)
-	assert.parameterTypeIsTable(destination)
+	assert.parameterTypeIsTable('source', source)
+	assert.parameterTypeIsTable('destination', destination)
 	
 	for key, value in pairs(source) do
 		if not isTable(value) then

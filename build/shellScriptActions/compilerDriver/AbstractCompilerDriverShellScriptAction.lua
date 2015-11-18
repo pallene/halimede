@@ -10,10 +10,10 @@ local assert = require('halimede').assert
 
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
-	assert.parameterTypeIsFunctionOrCall(unsetEnvironmentVariableActionCreator)
-	assert.parameterTypeIsFunctionOrCall(exportEnvironmentVariableActionCreator)
-	assert.parameterTypeIsTable(dependencies)
-	assert.parameterTypeIsTable(buildVariant)
+	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableActionCreator', unsetEnvironmentVariableActionCreator)
+	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableActionCreator', exportEnvironmentVariableActionCreator)
+	assert.parameterTypeIsTable('dependencies', dependencies)
+	assert.parameterTypeIsTable('buildVariant', buildVariant)
 	
 	AbstractShellScriptAction.initialize(self, shellScript)
 	

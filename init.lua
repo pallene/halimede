@@ -243,8 +243,8 @@ type.isStringOrNil = isTypeOrNil('string')
 type.isBooleanOrNil = isTypeOrNil('boolean')
 
 function type.hasPackageChildFieldOfType(isOfType, name, ...)
-	assert.parameterTypeIsTable(isOfType)
-	assert.parameterTypeIsString(name)
+	assert.parameterTypeIsTable('isOfType', isOfType)
+	assert.parameterTypeIsString('name', name)
 	
 	local package = _G[name]
 	if not type.isTable(package) then
@@ -255,7 +255,7 @@ function type.hasPackageChildFieldOfType(isOfType, name, ...)
 	
 	local childFieldNames = {...}
 	for _, childFieldName in ipairs(childFieldNames) do
-		assert.parameterTypeIsString(childFieldName)
+		assert.parameterTypeIsString('childFieldName', childFieldName)
 		
 		local value = package[childFieldName]
 		if not isOfType(value) then
@@ -295,65 +295,68 @@ end
 local withLevel = assert.withLevel
 
 assert.parameterIsNotATemplate = "Parameter is not a "
-function assert.parameterIsNotMessage(name)
-	return "Parameter is not a " .. name
+function assert.parameterIsNotMessage(parameterName, name)
+	assert.parameterTypeIsString('parameterName', parameterName)
+	assert.parameterTypeIsString('name', name)
+	
+	return "Parameter '" .. parameterName .. "' is not of type '" .. name .. "'"
 end
 
-local function parameterTypeIs(value, isOfType)
+local function parameterTypeIs(parameterName, value, isOfType)
 	withLevel(isOfType(value), assert.parameterIsNotMessage(isOfType.name), 4)
 end
 
 -- Would be a bit odd to use this
-function assert.parameterTypeIsNil(value)
-	assert.parameterTypeIs(value, type.isNil)
+function assert.parameterTypeIsNil(parameterName, value)
+	assert.parameterTypeIs(parameterName, value, type.isNil)
 end
 
-function assert.parameterTypeIsNumber(value)
-	return parameterTypeIs(value, type.isNumber)
+function assert.parameterTypeIsNumber(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isNumber)
 end
 
-function assert.parameterTypeIsString(value)
-	return parameterTypeIs(value, type.isString)
+function assert.parameterTypeIsString(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isString)
 end
 
-function assert.parameterTypeIsBoolean(value)
-	assert.parameterTypeIs(value, type.isBoolean)
+function assert.parameterTypeIsBoolean(parameterName, value)
+	assert.parameterTypeIs(parameterName, value, type.isBoolean)
 end
 
-function assert.parameterTypeIsTable(value)
-	return parameterTypeIs(value, type.isTable)
+function assert.parameterTypeIsTable(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isTable)
 end
 
-function assert.parameterTypeIsFunction(value)
-	return parameterTypeIs(value, type.isFunction)
+function assert.parameterTypeIsFunction(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isFunction)
 end
 
-function assert.parameterTypeIsThread(value)
-	return parameterTypeIs(value, type.isThread)
+function assert.parameterTypeIsThread(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isThread)
 end
 
-function assert.parameterTypeIsUserdata(value)
-	return parameterTypeIs(value, type.isUserdata)
+function assert.parameterTypeIsUserdata(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isUserdata)
 end
 
-function assert.parameterTypeIsFunctionOrCall(value)
-	return parameterTypeIs(value, type.isFunctionOrCall)
+function assert.parameterTypeIsFunctionOrCall(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isFunctionOrCall)
 end
 
-function assert.parameterTypeIsTableOrUserdata(value)
-	return parameterTypeIs(value, type.isTableOrUserdata)
+function assert.parameterTypeIsTableOrUserdata(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isTableOrUserdata)
 end
 
-function assert.parameterTypeIsNumberOrString(value)
-	return parameterTypeIs(value, type.isNumberOrString)
+function assert.parameterTypeIsNumberOrString(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isNumberOrString)
 end
 
-function assert.parameterTypeIsStringOrNil(value)
-	return parameterTypeIs(value, type.isStringOrNil)
+function assert.parameterTypeIsStringOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isStringOrNil)
 end
 
-function assert.parameterTypeIsBooleanOrNil(value)
-	return parameterTypeIs(value, type.isBooleanOrNil)
+function assert.parameterTypeIsBooleanOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isBooleanOrNil)
 end
 
 local function globalTypeIs(isOfType, ...)
@@ -368,7 +371,7 @@ local function globalTypeIs(isOfType, ...)
 	local length = #names
 	while index <= length do
 		local name = names[index]
-		assert.parameterTypeIsString(name)
+		assert.parameterTypeIsString('name', name)
 		
 		local global = _G[name]
 		withLevel(global ~= nil, essentialGlobalMissingErrorMessage(name), 4)
@@ -401,7 +404,7 @@ local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 	
 	local childFieldNames = {...}
 	for _, childFieldName in ipairs(childFieldNames) do
-		assert.parameterTypeIsString(childFieldName)
+		assert.parameterTypeIsString('childFieldName', childFieldName)
 		
 		local childField = package[childFieldName]
 		local qualifiedChildFieldName = "The global '" .. name .. '.' .. childFieldName .. "'"
@@ -426,8 +429,8 @@ assert.globalTypeIsTable('string')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'find', 'sub')
 function string.split(value, separator)
-	assert.parameterTypeIsString(value)
-	assert.parameterTypeIsString(separator)
+	assert.parameterTypeIsString('value', value)
+	assert.parameterTypeIsString('separator', separator)
 	
 	local result = {}
 	local length = value:len()
@@ -451,7 +454,7 @@ end
 assert.globalTypeIsTable('string')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 function string.isEmpty(value)
-	assert.parameterTypeIsString(value)
+	assert.parameterTypeIsString('value', value)
 	
 	return value:len() == 0
 end
@@ -536,7 +539,7 @@ local function concatenateToPath(...)
 	
 	local path = ''
 	for index, folder in ipairs(folders) do
-		assert.parameterTypeIsString(folder)
+		assert.parameterTypeIsString('folder', folder)
 		
 		if folder:isEmpty() then
 			if index == 1 then
@@ -709,7 +712,7 @@ loaded[ourModuleName] = ourModule
 loaded[relativeRequireName('assert')] = assert
 loaded[relativeRequireName('type')] = type
 function require(modname)
-	assert.parameterTypeIsString(modname)
+	assert.parameterTypeIsString('modname', modname)
 	
 	if modname:isEmpty() then
 		error("Please supply a modname to require() that isn't empty")

@@ -23,15 +23,15 @@ local function assertTableOrEmpty(value)
 	if value == nil then
 		return {}
 	end
-	assert.parameterTypeIsTable(value)
+	assert.parameterTypeIsTable('value', value)
 	return value
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'getenv')
 assert.globalTypeIsFunction('tostring')
 function module.cmakebuild(rockspec, parentFolderOfCmakeListsPath)
-	assert.parameterTypeIsTable(rockspec)
-	assert.parameterTypeIsInstanceOf(parentFolderOfCmakeListsPath, Path)
+	assert.parameterTypeIsTable('rockspec', rockspec)
+	assert.parameterTypeIsInstanceOf('parentFolderOfCmakeListsPath', parentFolderOfCmakeListsPath, Path)
 	
 	parentFolderOfCmakeListsPath:assertIsFilePath('parentFolderOfCmakeListsPath')
 	
@@ -92,8 +92,8 @@ function module.cmakebuild(rockspec, parentFolderOfCmakeListsPath)
 end
 
 function module.commandbuild(rockspec, rockspecFilePath)
-	assert.parameterTypeIsTable(rockspec)
-	assert.parameterTypeIsString(rockspecFilePath)
+	assert.parameterTypeIsTable('rockspec', rockspec)
+	assert.parameterTypeIsString('rockspecFilePath', rockspecFilePath)
 	
 	local build = assertTableOrEmpty(rockspec.build)
 	
@@ -105,8 +105,8 @@ end
 local makeVariableFormatPattern = '%$%((%a[%a%d_]+)%)'
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
 function module.makeStyleVariableSubstitutions(makeReplacementsIntoHereWith, variables)
-	assert.parameterTypeIsTable(makeReplacementsIntoHereWith)
-	assert.parameterTypeIsTable(variables)
+	assert.parameterTypeIsTable('makeReplacementsIntoHereWith', makeReplacementsIntoHereWith)
+	assert.parameterTypeIsTable('variables', variables)
    
     local updated = {}
     for key, value in pairs(makeReplacementsIntoHereWith) do

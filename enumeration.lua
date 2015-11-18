@@ -11,7 +11,7 @@ local assert = halimede.assert
 
 assert.globalTypeIsFunction('ipairs')
 function module:stringEnumerationClass(name, ...)
-	assert.parameterTypeIsString(name)
+	assert.parameterTypeIsString('name', name)
 	
 	local Class = class(name)
 	
@@ -21,7 +21,7 @@ function module:stringEnumerationClass(name, ...)
 	end
 	
 	for index, constant in ipairs({...}) do
-		assert.parameterTypeIsString(constant)
+		assert.parameterTypeIsString('constant', constant)
 		Class.static[constant] = Class:new(index, constant)
 	end
 	
@@ -30,7 +30,7 @@ end
 
 function module:numberEnumerationClass(name, ...)
 
-	assert.parameterTypeIsString(name)
+	assert.parameterTypeIsString('name', name)
 	
 	local Class = class(name)
 	
@@ -40,7 +40,7 @@ function module:numberEnumerationClass(name, ...)
 	end
 	
 	for index, nameValuePair in ipairs({...}) do
-		assert.parameterTypeIsTable(nameValuePair)
+		assert.parameterTypeIsTable('nameValuePair', nameValuePair)
 		
 		local name = nameValuePair[1]
 		local value = nameValuePair[2]

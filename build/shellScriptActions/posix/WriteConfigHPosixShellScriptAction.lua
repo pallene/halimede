@@ -17,13 +17,13 @@ function module:initialize(shellScript)
 end
 
 function module:execute(configHDefines, filePath)
-	assert.parameterTypeIsInstanceOf(configHDefines, ConfigHDefines)
+	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	
 	local actualFilePath
 	if filePath == nil then
 		actualFilePath = './config.h'
 	else
-		assert.parameterTypeIsInstanceOf(filePath, Path)
+		assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
 		filePath:assertIsFilePath('filePath')
 		
 		actualFilePath = filePath:toString(true)

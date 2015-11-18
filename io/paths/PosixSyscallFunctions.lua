@@ -17,7 +17,7 @@ end
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device
 assert.globalTypeIsFunction('tostring')
 function module.stat(path)
-	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	local ok, errorCode = syscall.stat(path:toString(false))
 	if ok then
@@ -51,7 +51,7 @@ local stat = module.stat
 
 assert.globalTypeIsFunction('tostring')
 function module.lstat(path)
-	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	local ok, errorCode = syscall.lstat(path:toString(false))
 	if ok then
@@ -85,10 +85,10 @@ local lstat = module.lstat
 
 assert.globalTypeIsFunction('tostring')
 function module.makeCharacterDevice(path, mode, major, minor)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
-	assert.parameterTypeIsNumber(major)
-	assert.parameterTypeIsNumber(minor)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
+	assert.parameterTypeIsNumber('major', major)
+	assert.parameterTypeIsNumber('minor', minor)
 	
 	-- Seems there's a device() method, too
 	local device = {major, minor}
@@ -133,8 +133,8 @@ local makeCharacterDevice = module.makeCharacterDevice
 
 assert.globalTypeIsFunction('tostring')
 function module.mkfifo(path, mode)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
 	
 	local ok, errorCode = syscall.mkfifo(path:toString(false), mode)
 	if ok then
@@ -169,8 +169,8 @@ local mkfifo = module.mkfifo
 
 assert.globalTypeIsFunction('tostring')
 function module.chmod(path, mode)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
 		
 	local function failure(becauseOfReason)
 		fail('chmod', path, becauseOfReason)
@@ -217,9 +217,9 @@ local chmod = module.chmod
 -- Can not make C:\ or / or C: or UNC-based paths
 assert.globalTypeIsFunction('tostring')
 function module.mkdir(path, mode, isLeaf)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
-	assert.parameterTypeIsBooleanOrNil(isLeaf)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
+	assert.parameterTypeIsBooleanOrNil('isLeaf', isLeaf)
 	
 	path:assertIsFolderPath(path)
 	
@@ -284,9 +284,9 @@ end
 local mkdir = module.mkdir
 
 function module.mkdirs(path, mode, isLeaf)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
-	assert.parameterTypeIsBooleanOrNil(isLeaf)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
+	assert.parameterTypeIsBooleanOrNil('isLeaf', isLeaf)
 	
 	path:assertIsFolderPath(path)
 	

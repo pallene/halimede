@@ -11,8 +11,8 @@ local Path = require('halimede.io.paths.Path')
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'open')
 function module.openTextModeForReading(filePath, fileDescription)
-	assert.parameterTypeIsInstanceOf(filePath, Path)
-	assert.parameterTypeIsString(fileDescription)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
+	assert.parameterTypeIsString('fileDescription', fileDescription)
 	
 	filePath:assertIsFilePath()
 	
@@ -26,7 +26,7 @@ end
 local openTextModeForReading = module.openTextModeForReading
 
 function module.allContentsInTextModeFromFileHandleAndClose(fileHandle)
-	assert.parameterTypeIsUserdata(fileHandle)
+	assert.parameterTypeIsUserdata('fileHandle', fileHandle)
 	
 	local contents = fileHandle:read('*a')
 	fileHandle:close()
@@ -39,8 +39,8 @@ local allContentsInTextModeFromFileHandleAndClose = module.allContentsInTextMode
 
 assert.globalTypeIsFunction('pcall')
 function module.allContentsInTextModeFromFile(filePath, fileDescription)
-	assert.parameterTypeIsInstanceOf(filePath, Path)
-	assert.parameterTypeIsString(fileDescription)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
+	assert.parameterTypeIsString('fileDescription', fileDescription)
 	
 	filePath:assertIsFilePath()
 	

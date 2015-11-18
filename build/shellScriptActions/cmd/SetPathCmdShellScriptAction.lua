@@ -16,7 +16,7 @@ function module:initialize(shellScript)
 end
 
 function module:execute(paths)
-	assert.parameterTypeIsInstanceOf(paths, Paths)
+	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
 
 	-- http://ss64.com/nt/path.html
 	self:_appendCommandLineToScript('PATH', ';')

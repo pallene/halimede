@@ -10,10 +10,10 @@ local runtime = require('halimede.runtime')
 
 assert.globalTypeIsFunction('pcall')
 function module.execute(luaCodeString, description, origin, environment)
-	assert.parameterTypeIsString(luaCodeString)
-	assert.parameterTypeIsString(description)
-	assert.parameterTypeIsString(origin)
-	assert.parameterTypeIsTable(environment)
+	assert.parameterTypeIsString('luaCodeString', luaCodeString)
+	assert.parameterTypeIsString('description', description)
+	assert.parameterTypeIsString('origin', origin)
+	assert.parameterTypeIsTable('environment', environment)
 	
 	-- loadstring is not in Lua 5.2/5.3
 	-- loadstring is an alias to load in LuaJIT, but seems not to have reference equality, sadly, hence this detection

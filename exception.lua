@@ -11,7 +11,7 @@ local type = require('halimede').type
 assert.globalTypeIsFunction('unpack', 'ipairs', 'tostring')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module.throwWithLevelIncrement(levelIncrement, template, ...)
-	assert.parameterTypeIsString(template)
+	assert.parameterTypeIsString('template', template)
 	
 	local formatArguments = {...}
 	for index, formatArgument in ipairs(formatArguments) do
@@ -25,7 +25,7 @@ end
 local throwWithLevelIncrement = module.throwWithLevelIncrement
 
 function module.throw(template, ...)
-	assert.parameterTypeIsString(template)
+	assert.parameterTypeIsString('template', template)
 	
 	return throwWithLevelIncrement(1, template, ...)
 end

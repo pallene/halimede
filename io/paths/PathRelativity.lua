@@ -16,11 +16,11 @@ local exception = require('halimede.exception')
 -- isRelativeToDeviceCurrentDirectoryOnCmd: C:file.txt
 -- isRelative: path/to/file.txt
 function module:initialize(name, isAbsoluteIncludingDeviceName, isRelativeToCurrentDeviceAndAbsoluteOnPosix, isRelativeToDeviceCurrentDirectoryOnCmd, isRelative)
-	assert.parameterTypeIsString(name)
-	assert.parameterTypeIsBoolean(isAbsoluteIncludingDeviceName)
-	assert.parameterTypeIsBoolean(isRelativeToCurrentDeviceAndAbsoluteOnPosix)
-	assert.parameterTypeIsBoolean(isRelativeToDeviceCurrentDirectoryOnCmd)
-	assert.parameterTypeIsBoolean(isRelative)
+	assert.parameterTypeIsString('name', name)
+	assert.parameterTypeIsBoolean('isAbsoluteIncludingDeviceName', isAbsoluteIncludingDeviceName)
+	assert.parameterTypeIsBoolean('isRelativeToCurrentDeviceAndAbsoluteOnPosix', isRelativeToCurrentDeviceAndAbsoluteOnPosix)
+	assert.parameterTypeIsBoolean('isRelativeToDeviceCurrentDirectoryOnCmd', isRelativeToDeviceCurrentDirectoryOnCmd)
+	assert.parameterTypeIsBoolean('isRelative', isRelative)
 	
 	self.name = name
 	self.isAbsoluteIncludingDeviceName = isAbsoluteIncludingDeviceName
@@ -36,14 +36,14 @@ function module:initialize(name, isAbsoluteIncludingDeviceName, isRelativeToCurr
 end
 
 function module:guardDeviceIsPermitted(pathStyle, device)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
+	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
 	
 	if device == nil then
 		if self.isAbsoluteIncludingDeviceName or self.isRelativeToDeviceCurrentDirectoryOnCmd then
 			exception.throw("device is required because the path relativity is '%s'", self.name)
 		end
 	else
-		assert.parameterTypeIsString(device)
+		assert.parameterTypeIsString('device', device)
 		if self.isRelativeToCurrentDeviceAndAbsoluteOnPosix or self.isRelative then
 			exception.throw("A device '%s' is not permitted because the path relativity is '%s'", device, self.name)
 		end
@@ -54,10 +54,10 @@ function module:guardDeviceIsPermitted(pathStyle, device)
 end
 
 function module:toString(pathStyle, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
-	assert.parameterTypeIsTable(pathElements)
-	assert.parameterTypeIsBoolean(isFile)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
+	assert.parameterTypeIsTable('pathElements', pathElements)
+	assert.parameterTypeIsBoolean('isFile', isFile)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	self:guardDeviceIsPermitted(pathStyle, device)
 	return pathStyle[self.pathStyleFunctionName](pathStyle, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)

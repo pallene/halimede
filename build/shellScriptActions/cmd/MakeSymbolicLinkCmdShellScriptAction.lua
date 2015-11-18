@@ -20,8 +20,8 @@ end
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
 assert.globalTypeIsFunction('unpack')
 function module:execute(linkContentsPath, linkFilePath)
-	assert.parameterTypeIsInstanceOf(linkContentsPath, Path)
-	assert.parameterTypeIsInstanceOf(linkFilePath, Path)
+	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
+	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
 	
 	linkFilePath:assertIsFilePath('linkFilePath')
 	

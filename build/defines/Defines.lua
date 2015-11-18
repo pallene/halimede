@@ -25,7 +25,7 @@ function Defines:_undefine(defineName)
 end
 
 function Defines:_boolean(defineName, enable)
-	assert.parameterTypeIsBoolean(enable)
+	assert.parameterTypeIsBoolean('enable', enable)
 	
 	if enable then
 		self.defines[defineName] = '1'
@@ -35,7 +35,7 @@ function Defines:_boolean(defineName, enable)
 end
 
 function Defines:_oneOrZero(defineName, enable)
-	assert.parameterTypeIsBoolean(enable)
+	assert.parameterTypeIsBoolean('enable', enable)
 	
 	if enable then
 		self.defines[defineName] = '1'
@@ -57,7 +57,7 @@ function Defines:quotedNonEmptyString(defineName, value)
 	if constant == nil then
 		self:_undefine(defineName)
 	else
-		assert.parameterTypeIsString(value)
+		assert.parameterTypeIsString('value', value)
 		if character:isEmpty() then
 			exception.throw("The %s define can not be empty", defineName)
 		end
@@ -76,7 +76,7 @@ function Defines:_enumeration(defineName, constant)
 		self:_undefine(defineName)
 	else
 		local enumerationClass = require(enumerationClassParentModulePrefix .. defineName)
-		assert.parameterTypeIsInstanceOf(constant, enumerationClass)
+		assert.parameterTypeIsInstanceOf('constant', constant, enumerationClass)
 		self.defines[defineName] = constant.value
 	end
 end

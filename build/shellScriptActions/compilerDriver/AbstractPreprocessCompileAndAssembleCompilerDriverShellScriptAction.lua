@@ -18,14 +18,14 @@ function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, e
 end
 
 function module:execute(toolchain, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
-	assert.parameterTypeIsInstanceOf(toolchain, Toolchain)
-	assert.parameterTypeIsBoolean(crossCompile)
-	assert.parameterTypeIsTable(compilerDriverFlags)
-	assert.parameterTypeIsInstanceOf(standard, CStandard)
-	assert.parameterTypeIsInstanceOf(legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
-	assert.parameterTypeIsTable(preprocessorFlags)
-	assert.parameterTypeIsInstanceOf(defines, CommandLineDefines)
-	assert.parameterTypeIsTable(sources)
+	assert.parameterTypeIsInstanceOf('toolchain', toolchain, Toolchain)
+	assert.parameterTypeIsBoolean('crossCompile', crossCompile)
+	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
+	assert.parameterTypeIsInstanceOf('standard', standard, CStandard)
+	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
+	assert.parameterTypeIsTable('preprocessorFlags', preprocessorFlags)
+	assert.parameterTypeIsInstanceOf('defines', defines, CommandLineDefines)
+	assert.parameterTypeIsTable('sources', sources)
 	
 	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:append(compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)

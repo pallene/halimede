@@ -14,10 +14,10 @@ local Path = requireSibling('Path')
 
 assert.globalTypeIsFunction('ipairs')
 function module:initialize(paths)
-	assert.parameterTypeIsTable(paths)
+	assert.parameterTypeIsTable('paths', paths)
 	
 	for _, path in ipairs(paths) do
-		assert.parameterTypeIsInstanceOf(path, Path)
+		assert.parameterTypeIsInstanceOf('path', path, Path)
 		path:assertIsFilePath('path')
 	end
 	
@@ -27,7 +27,7 @@ end
 assert.globalTypeIsFunction('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
 function module:appendFileExtension(fileExtension)
-	assert.parameterTypeIsString(fileExtension)
+	assert.parameterTypeIsString('fileExtension', fileExtension)
 
 	local copy = {}
 	
@@ -59,7 +59,7 @@ function module:toFileNamePaths()
 end
 
 function module:toObjectsWithoutPaths(objectFileExtension)
-	assert.parameterTypeIsString(objectFileExtension)
+	assert.parameterTypeIsString('objectFileExtension', objectFileExtension)
 	
 	return self:toFileNamePaths():appendFileExtension(objectFileExtension)
 end

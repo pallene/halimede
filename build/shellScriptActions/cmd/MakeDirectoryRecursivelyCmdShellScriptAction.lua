@@ -16,8 +16,8 @@ function module:initialize(shellScript)
 end
 
 function module:execute(path, mode)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
 	
 	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed

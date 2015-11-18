@@ -13,8 +13,8 @@ local exception = require('halimede.exception')
 
 
 function module:initialize(shellScriptExecutor, dependencies, buildVariant)
-	assert.parameterTypeIsTable(dependencies)
-	assert.parameterTypeIsTable(buildVariant)
+	assert.parameterTypeIsTable('dependencies', dependencies)
+	assert.parameterTypeIsTable('buildVariant', buildVariant)
 	
 	BufferedShellScript.initialize(self, shellScriptExecutor)
 	
@@ -29,13 +29,13 @@ end
 assert.globalTypeIsFunction('pcall')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:newAction(namespace, actionName)
-	assert.parameterTypeIsString(actionName)
+	assert.parameterTypeIsString('actionName', actionName)
 	
 	local actionNamespace
 	if namespace == nil then
 		actionNamespace = 'halimede.build.shellScriptActions'
 	else
-		assert.parameterTypeIsString(namespace)
+		assert.parameterTypeIsString('namespace', namespace)
 		actionNamespace = namespace
 	end
 	

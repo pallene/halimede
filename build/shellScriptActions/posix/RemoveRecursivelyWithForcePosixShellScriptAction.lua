@@ -17,7 +17,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:execute(path)
-	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	self:_appendCommandLineToScript('rm', '-rf', path:toString(true))
 end

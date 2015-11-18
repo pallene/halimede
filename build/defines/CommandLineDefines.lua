@@ -14,7 +14,7 @@ local CompilerDriverArguments = require('halimede.build.toolchain.CompilerDriver
 
 
 function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros)
-	assert.parameterTypeIsBoolean(doNotPredefineSystemOrCompilerDriverMacros)
+	assert.parameterTypeIsBoolean('doNotPredefineSystemOrCompilerDriverMacros', doNotPredefineSystemOrCompilerDriverMacros)
 	
 	Defines.initialize(self)
 	

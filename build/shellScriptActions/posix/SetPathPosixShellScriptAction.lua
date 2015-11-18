@@ -21,7 +21,7 @@ function module:initialize(shellScript)
 end
 
 function module:execute(paths)
-	assert.parameterTypeIsInstanceOf(paths, Paths)
+	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
 	
 	self.unsetEnvironmentVariablePosixShellScriptAction:execute('PATH')
 	self.exportEnvironmentVariablePosixShellScriptAction:execute('PATH', paths:toStrings(true))

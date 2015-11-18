@@ -16,7 +16,7 @@ function module:initialize(shellScript)
 end
 
 function module:execute(path)
-	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	self:_appendCommandLineToScript('cd', path:toString(true))
 end

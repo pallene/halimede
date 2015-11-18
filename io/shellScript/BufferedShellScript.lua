@@ -16,7 +16,7 @@ local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporar
 
 
 function BufferedShellScript:initialize(shellScriptExecutor)
-	assert.parameterTypeIsInstanceOf(shellScriptExecutor, AbstractShellScriptExecutor)
+	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	
 	self.shellScriptExecutor = shellScriptExecutor
 	

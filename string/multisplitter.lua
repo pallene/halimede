@@ -12,11 +12,11 @@ local tabelize = require('halimede.table.tabelize').tabelize
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 local formatString = '([^%s]+)'
 function module.multisplitter(separators)
-	assert.parameterTypeIsString(separators)
+	assert.parameterTypeIsString('separators', separators)
 	
 	local pattern = formatString:format(separators)
 	return function(value)
-		assert.parameterTypeIsString(value)
+		assert.parameterTypeIsString('value', value)
 	
 		local fields = tabelize()
 	

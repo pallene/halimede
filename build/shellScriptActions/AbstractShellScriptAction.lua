@@ -13,7 +13,7 @@ local exception = require('halimede.exception')
 
 
 function module:initialize(shellScript)
-	assert.parameterTypeIsInstanceOf(shellScript, BufferedShellScript)
+	assert.parameterTypeIsInstanceOf('shellScript', shellScript, BufferedShellScript)
 	
 	self.shellScript = shellScript
 end

@@ -17,18 +17,18 @@ local toolchainPathStrategies = requireSibling('toolchainPathStrategies')
 
 
 function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
-	assert.parameterTypeIsString(name)
-	assert.parameterTypeIsFunctionOrCall(toolchainPathStrategy)
-	assert.parameterTypeIsInstanceOf(shellScriptExecutor, AbstractShellScriptExecutor)
-	assert.parameterTypeIsString(objectExtension)
-	assert.parameterTypeIsString(executableExtension)
-	assert.parameterTypeIsString(staticLibraryPrefix)
-	assert.parameterTypeIsString(staticLibraryExtension)
-	assert.parameterTypeIsString(dynamicLibraryPrefix)
-	assert.parameterTypeIsString(dynamicLibraryExtension)
-	assert.parameterTypeIsInstanceOf(gnuTuple, GnuTuple)
-	assert.parameterTypeIsInstanceOf(cCompilerDriver, CompilerDriver)
-	assert.parameterTypeIsInstanceOf(cPlusPlusCompilerDriver, CompilerDriver)
+	assert.parameterTypeIsString('name', name)
+	assert.parameterTypeIsFunctionOrCall('toolchainPathStrategy', toolchainPathStrategy)
+	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
+	assert.parameterTypeIsString('objectExtension', objectExtension)
+	assert.parameterTypeIsString('executableExtension', executableExtension)
+	assert.parameterTypeIsString('staticLibraryPrefix', staticLibraryPrefix)
+	assert.parameterTypeIsString('staticLibraryExtension', staticLibraryExtension)
+	assert.parameterTypeIsString('dynamicLibraryPrefix', dynamicLibraryPrefix)
+	assert.parameterTypeIsString('dynamicLibraryExtension', dynamicLibraryExtension)
+	assert.parameterTypeIsInstanceOf('gnuTuple', gnuTuple, GnuTuple)
+	assert.parameterTypeIsInstanceOf('cCompilerDriver', cCompilerDriver, CompilerDriver)
+	assert.parameterTypeIsInstanceOf('cPlusPlusCompilerDriver', cPlusPlusCompilerDriver, CompilerDriver)
 	
 	self.name = name
 	self.toolchainPathStrategy = toolchainPathStrategy
@@ -52,7 +52,7 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:createConfigHDefines(platformConfigHDefinesFunctions)
-	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
+	assert.parameterTypeIsTable('platformConfigHDefinesFunctions', platformConfigHDefinesFunctions)
 	
 	local configHDefines = self:_newConfigHDefines()
 	for _, platformConfigHDefinesFunction in ipairs(platformConfigHDefinesFunctions) do

@@ -13,8 +13,8 @@ local class = require('halimede.middleclass')
 local Object = class.Object
 
 assert.globalTypeIsFunction('tostring')
-function assert.parameterTypeIsInstanceOf(value, Class)
+function assert.parameterTypeIsInstanceOf(parameterName, value, Class)
 	if not Object.isInstanceOf(value, Class) then
-		assert.withLevel(isOfType(value), parameterIsNotMessage(tostring(Class)), 3)
+		assert.withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, tostring(Class)), 3)
 	end
 end

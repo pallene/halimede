@@ -25,7 +25,7 @@ local noShellIsAvailable = not shellIsAvailable
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
 assert.globalTypeIsFunction('pcall')
 function module.commandIsOnPath(command)
-	assert.parameterTypeIsString(command)
+	assert.parameterTypeIsString('command', command)
 	
 	for path in shellLanguage:binarySearchPath():iterate() do
 		local pathToBinary = path:appendFile(command)
@@ -43,7 +43,7 @@ end
 local commandIsOnPath = module.commandIsOnPath
 
 function module.commandIsOnPathAndShellIsAvaiableToUseIt(command)
-	assert.parameterTypeIsString(command)
+	assert.parameterTypeIsString('command', command)
 	
 	if noShellIsAvailable then
 		return false

@@ -12,8 +12,8 @@ local exception = require('halimede.exception')
 
 if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'setlocale') then
 	local function currentLocaleShouldBe(category, shouldBe)
-		assert.parameterTypeIsString(category)
-		assert.parameterTypeIsString(shouldBe)
+		assert.parameterTypeIsString('category', category)
+		assert.parameterTypeIsString('shouldBe', shouldBe)
 		
 		local is = os.setlocale('nil', category)
 		if is ~= nil and is ~= shouldBe then

@@ -16,7 +16,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:execute(variableName)
-	assert.parameterTypeIsString(variableName)
+	assert.parameterTypeIsString('variableName', variableName)
 	
 	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)
 	self:_appendCommandLineToScript(('(unset %s) 1>/dev/null 2>/dev/null && unset %s'):format(variableName))

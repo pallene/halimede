@@ -20,12 +20,12 @@ end
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 assert.globalTypeIsFunction('ipairs')
 function module:execute(configHDefines, filePath)
-	assert.parameterTypeIsInstanceOf(configHDefines, ConfigHDefines)
+	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	local actualFilePath
 	if filePath == nil then
 		actualFilePath = './config.h'
 	else
-		assert.parameterTypeIsInstanceOf(filePath, Path)
+		assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
 		filePath:assertIsFilePath('filePath')
 		
 		actualFilePath = filePath:toString(true)

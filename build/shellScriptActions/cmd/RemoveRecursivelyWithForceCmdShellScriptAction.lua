@@ -17,7 +17,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 function module:execute(path)
-	assert.parameterTypeIsInstanceOf(path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 
 	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows
 	self:_appendCommandLineToScript('RD', '/S', '/Q', path:toString(true))

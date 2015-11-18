@@ -22,7 +22,7 @@ local platformsInOrderByOperatingSystem = setmetatable({
 	Windows = {'windows', 'win32'}
 	MINGW   = {'windows', 'mingw32', 'win32'}
 }, {__index = function(_, operatingSystem)
-	assert.parameterTypeIsString(operatingSystem)
+	assert.parameterTypeIsString('operatingSystem', operatingSystem)
 	
 	return 'unix'
 end})
@@ -66,8 +66,8 @@ local function applyPlatformOverrides(rockspec, operatingSystem)
 end
 
 function module.loadRockspec(rockspecFilePath, operatingSystem)
-	assert.parameterTypeIsString(rockspecFilePath)
-	assert.parameterTypeIsString(operatingSystem)
+	assert.parameterTypeIsString('rockspecFilePath', rockspecFilePath)
+	assert.parameterTypeIsString('operatingSystem', operatingSystem)
 	
 	local chunkResult, rockspec = configure.load('rockspec file', rockspecFilePath, {}, {}, configure.sandboxEnvironmentToPreserve)
 	applyPlatformOverrides(rockspec, operatingSystem)

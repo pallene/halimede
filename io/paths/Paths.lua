@@ -14,11 +14,11 @@ local Path = requireSibling('Path')
 
 assert.globalTypeIsFunction('ipairs')
 function module:initialize(pathStyle, paths)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
-	assert.parameterTypeIsTable(paths)
+	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
+	assert.parameterTypeIsTable('paths', paths)
 	
 	for _, path in ipairs(paths) do
-		assert.parameterTypeIsInstanceOf(path, Path)
+		assert.parameterTypeIsInstanceOf('path', path, Path)
 	end
 	
 	self.pathStyle = pathStyle
@@ -26,7 +26,7 @@ function module:initialize(pathStyle, paths)
 end
 
 function module:toStrings(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
 	local pathsBuffer = tabelize()
 	for path in self:iterate() do

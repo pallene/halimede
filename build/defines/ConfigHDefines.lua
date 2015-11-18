@@ -40,7 +40,7 @@ end
 
 function ConfigHDefines:_ensureDefinition(defineName, enable, defineValue)
 	if defineValue ~= nil then
-		assert.parameterTypeIsString(defineValue)
+		assert.parameterTypeIsString('defineValue', defineValue)
 	end
 	self.ensureDefinitions[defineName] = defineValue
 end
@@ -536,7 +536,7 @@ end
 -- Define to the character that separates directories in PATH.
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 function ConfigHDefines:PATH_SEPARATOR_CHAR(character)
-	assert.parameterTypeIsString(character)
+	assert.parameterTypeIsString('character', character)
 	if character:len() ~= 1 then
 		exception.throw("The path separator character must be exactly one character, it can not be '%s'", character)
 	end

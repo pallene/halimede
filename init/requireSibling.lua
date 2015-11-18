@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local assert = halimede.assert
 
 function requireSibling(siblingModuleElementName)
-	assert.parameterTypeIsString(siblingModuleElementName)
+	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
 	
 	local grandParentModuleName, _ = halimede.parentModuleNameFromModuleName(parentModuleName)
 	local requiredModuleName

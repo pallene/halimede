@@ -16,8 +16,8 @@ function module:initialize(shellScript)
 end
 
 function module:execute(linkContentsPath, linkFilePath)
-	assert.parameterTypeIsInstanceOf(linkContentsPath, Path)
-	assert.parameterTypeIsInstanceOf(linkFilePath, Path)
+	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
+	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
 	

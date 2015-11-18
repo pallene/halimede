@@ -17,7 +17,7 @@ module.noRedirection = false  -- Bizarre but works
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'execute')
 function module.execute(shellLanguage, standardIn, standardOut, standardError, ...)
-	assert.parameterTypeIsInstanceOf(shellLanguage, ShellLanguage)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	
 	local arguments = tabelize({...})
 	if standardIn then

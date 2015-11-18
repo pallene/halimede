@@ -9,9 +9,9 @@ local exception = require('halimede.exception')
 local execute = require('halimede.execute').execute
 
 function module.executeFromFile(fileDescription, luaCodeFilePath, environment)
-	assert.parameterTypeIsString(fileDescription)
-	assert.parameterTypeIsString(luaCodeFilePath)
-	assert.parameterTypeIsTable(environment)
+	assert.parameterTypeIsString('fileDescription', fileDescription)
+	assert.parameterTypeIsString('luaCodeFilePath', luaCodeFilePath)
+	assert.parameterTypeIsTable('environment', environment)
 	
 	local luaCodeString = removeInitialShaBang(read.allContentsInTextModeFromFile(fileDescription, luaCodeFilePath))
 	
@@ -19,7 +19,7 @@ function module.executeFromFile(fileDescription, luaCodeFilePath, environment)
 end
 
 local function removeInitialShaBang(fileContents)
-	assert.parameterTypeIsString(fileContents)
+	assert.parameterTypeIsString('fileContents', fileContents)
 	
 	return fileContents:gsub('^#![^\n]*\n', '')
 end

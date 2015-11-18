@@ -23,14 +23,14 @@ ShellLanguage.static.standardError = 2
 
 -- The reason we have a lower case and title case variant is that we avoid the need to use string:lower(), which depends on os.setlocale('all', 'C') to be deterministic, which isn't safe to use (we could be Lua code in a thread or embedded in an application that has already set setlocale())
 function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionExcludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)
-	assert.parameterTypeIsString(lowerCasedName)
-	assert.parameterTypeIsString(titleCasedName)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
-	assert.parameterTypeIsString(newline)
-	assert.parameterTypeIsStringOrNil(shellScriptFileExtensionExcludingLeadingPeriod)
-	assert.parameterTypeIsString(silenced)
-	assert.parameterTypeIsString(searchesCurrentPath)
-	assert.parameterTypeIsString(commandInterpreterName)
+	assert.parameterTypeIsString('lowerCasedName', lowerCasedName)
+	assert.parameterTypeIsString('titleCasedName', titleCasedName)
+	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
+	assert.parameterTypeIsString('newline', newline)
+	assert.parameterTypeIsStringOrNil('shellScriptFileExtensionExcludingLeadingPeriod', shellScriptFileExtensionExcludingLeadingPeriod)
+	assert.parameterTypeIsString('silenced', silenced)
+	assert.parameterTypeIsString('searchesCurrentPath', searchesCurrentPath)
+	assert.parameterTypeIsString('commandInterpreterName', commandInterpreterName)
 	
 	self.lowerCasedName = lowerCasedName
 	self.titleCasedName = titleCasedName
@@ -62,13 +62,13 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 end
 
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
-	assert.parameterTypeIsNumber(fileDescriptor)
+	assert.parameterTypeIsNumber('fileDescriptor', fileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
 function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
-	assert.parameterTypeIsNumber(fileDescriptor)
+	assert.parameterTypeIsNumber('fileDescriptor', fileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
@@ -93,7 +93,7 @@ function module:toShellCommand(...)
 	
 	for _, argument in ipairs(arguments) do
 		if argument ~= nil then
-			assert.parameterTypeIsString(argument)
+			assert.parameterTypeIsString('argument', argument)
 			commandBuffer:insert(self:quoteArgument(argument))
 		end
 	end
@@ -118,8 +118,8 @@ function module:appendCommandLineToScript(tabelizedScriptBuffer, ...)
 end
 
 function module:parsePath(pathString, isFile)
-	assert.parameterTypeIsString(pathString)
-	assert.parameterTypeIsBoolean(isFile)
+	assert.parameterTypeIsString('pathString', pathString)
+	assert.parameterTypeIsBoolean('isFile', isFile)
 	
 	return self.pathStyle:parse(pathString, isFile)
 end
@@ -133,20 +133,20 @@ function module:relativeFilePath(...)
 end
 
 function module:appendFileExtension(fileName, fileExtension)
-	assert.parameterTypeIsString(fileName)
-	assert.parameterTypeIsStringOrNil(fileExtension)
+	assert.parameterTypeIsString('fileName', fileName)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	
 	return self.pathStyle:appendFileExtension(fileName, fileExtension)
 end
 
 assert.globalTypeIsFunction('ipairs')
 function module:paths(stringPathsTable)
-	assert.parameterTypeIsTable(stringPathsTable)
+	assert.parameterTypeIsTable('stringPathsTable', stringPathsTable)
 	
 	local paths = tabelize()
 	
 	for _, stringPath in ipairs(stringPathsTable) do
-		assert.parameterTypeIsString(stringPath)
+		assert.parameterTypeIsString('stringPath', stringPath)
 		
 		local path = self.pathStyle:parse(stringPath, false)
 		path:insert(path)
@@ -193,7 +193,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
 function PosixShellLanguage:quoteArgument(argument)
-	assert.parameterTypeIsString(argument)
+	assert.parameterTypeIsString('argument', argument)
 	
 	return "'" .. argument:gsub("'", "''") .. "'"
 end
@@ -226,7 +226,7 @@ end
 -- Quoting is a mess in Cmd; these rules only work for cmd.exe /C (it's a per-program thing)
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
 function CmdShellLanguage:quoteArgument(argument)
-	assert.parameterTypeIsString(argument)
+	assert.parameterTypeIsString('argument', argument)
 	
 	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
     if argument:match('^[%.a-zA-Z]?:?[\\/]')  then

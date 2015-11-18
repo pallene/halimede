@@ -18,7 +18,7 @@ function module.tabelize(optionalValueToTabelize)
 	
 	local valueToTabelize
 	if optionalValueToTabelize ~= nil then
-		assert.parameterTypeIsTable(optionalValueToTabelize)
+		assert.parameterTypeIsTable('optionalValueToTabelize', optionalValueToTabelize)
 		valueToTabelize = optionalValueToTabelize
 	else
 		valueToTabelize = {}

@@ -16,8 +16,8 @@ function module:initialize(shellScript)
 end
 
 function module:execute(path, mode)
-	assert.parameterTypeIsInstanceOf(path, Path)
-	assert.parameterTypeIsString(mode)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsString('mode', mode)
 	
 	self:_appendCommandLineToScript('mkdir', '-m', mode, '-p', path:toString(true), mode)
 end

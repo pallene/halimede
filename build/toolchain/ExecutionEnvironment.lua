@@ -40,10 +40,10 @@ local function addFileExtensionToFileNames(pathStyle, extensionWithoutLeadingPer
 end
 
 function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)
-	assert.parameterTypeIsInstanceOf(buildPlatform, Platform)
-	assert.parameterTypeIsInstanceOf(buildToolchainPaths, ToolchainPaths)
-	assert.parameterTypeIsInstanceOf(crossPlatform, Platform)
-	assert.parameterTypeIsInstanceOf(destinationPath, Path)
+	assert.parameterTypeIsInstanceOf('buildPlatform', buildPlatform, Platform)
+	assert.parameterTypeIsInstanceOf('buildToolchainPaths', buildToolchainPaths, ToolchainPaths)
+	assert.parameterTypeIsInstanceOf('crossPlatform', crossPlatform, Platform)
+	assert.parameterTypeIsInstanceOf('destinationPath', destinationPath, Path)
 	
 	self.buildPlatform = buildPlatform
 	self.buildToolchainPaths = buildToolchainPaths
@@ -53,7 +53,7 @@ function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform, de
 	if recipeEnvironment == nil then
 		self.recipeEnvironment = defaultRecipeEnvironment
 	else
-		assert.parameterTypeIsTable(recipeEnvironment)
+		assert.parameterTypeIsTable('recipeEnvironment', recipeEnvironment)
 		self.recipeEnvironment = recipeEnvironment
 	end
 	
@@ -67,12 +67,12 @@ end
 
 assert.globalTypeIsFunction('ipairs')
 function module:createShellScript(crossToolchainPaths, sourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, userFunction)
-	assert.parameterTypeIsInstanceOf(crossToolchainPaths, ToolchainPaths)
-	assert.parameterTypeIsInstanceOf(sourcePath, Path)
-	assert.parameterTypeIsTable(dependencies)
-	assert.parameterTypeIsTable(consolidatedBuildVariant)
-	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
-	assert.parameterTypeIsFunctionOrCall(userFunction)
+	assert.parameterTypeIsInstanceOf('crossToolchainPaths', crossToolchainPaths, ToolchainPaths)
+	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
+	assert.parameterTypeIsTable('dependencies', dependencies)
+	assert.parameterTypeIsTable('consolidatedBuildVariant', consolidatedBuildVariant)
+	assert.parameterTypeIsTable('platformConfigHDefinesFunctions', platformConfigHDefinesFunctions)
+	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
 	
 	sourcePath:assertIsFolderPath('sourcePath')
 	sourcePath:assertIsEffectivelyAbsolute('sourcePath')

@@ -15,21 +15,21 @@ local Path = require('halimede.io.paths.Path')
 
 
 function module:initialize(shellLanguage, ...)
-	assert.parameterTypeIsInstanceOf(shellLanguage, ShellLanguage)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	
 	self.shellLanguage = shellLanguage
 	self.shellScriptExecutionCommand = tabelize({...})
 end
 
 function module:newShellScript(ShellScriptClass, ...)
-	assert.parameterTypeIsTable(ShellScriptClass)
+	assert.parameterTypeIsTable('ShellScriptClass', ShellScriptClass)
 	
 	return ShellScriptClass:new(self, ...)
 end
 
 assert.globalTypeIsFunction('unpack')
 function module:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
-	assert.parameterTypeIsInstanceOf(scriptFilePath, Path)
+	assert.parameterTypeIsInstanceOf('scriptFilePath', scriptFilePath, Path)
 
 	scriptFilePath:assertIsFilePath('scriptFilePath')
 	

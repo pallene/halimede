@@ -21,7 +21,7 @@ local ExecutionEnvironment = require('halimede.build.toolchain.ExecutionEnvironm
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
 local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
-	assert.parameterTypeIsTable(chosenBuildVariantNames)
+	assert.parameterTypeIsTable('chosenBuildVariantNames', chosenBuildVariantNames)
 
 	if #chosenBuildVariantNames == 0 then
 		exception.throw('Empty buildVariants')
@@ -29,7 +29,7 @@ local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
 	local encountedBuildVariantNames = {}
 	for _, chosenBuildVariantName in ipairs(chosenBuildVariantNames) do
-		assert.parameterTypeIsString(chosenBuildVariantName)
+		assert.parameterTypeIsString('chosenBuildVariantName', chosenBuildVariantName)
 		if encountedBuildVariantNames[chosenBuildVariantName] then
 			exception.throw("Duplicate build variant name '%s'", chosenBuildVariantName)
 		end
@@ -46,8 +46,8 @@ local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 end
 
 function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
-	assert.parameterTypeIsInstanceOf(recipesPath, Path)
-	assert.parameterTypeIsString(recipeName)
+	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)
+	assert.parameterTypeIsString('recipeName', recipeName)
 	
 	recipesPath:assertIsFolderPath('recipesPath')
 	
@@ -94,11 +94,11 @@ assert.globalTypeIsFunction('ipairs', 'pairs')
 local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuildVariantNames, buildVariants)
 			
 	for buildVariantName, buildVariantSettings in pairs(buildVariants) do
-		assert.parameterTypeIsString(buildVariantName)
+		assert.parameterTypeIsString('buildVariantName', buildVariantName)
 		
 		local requires = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'requires')
 		for _, requiredBuildVariantName in ipairs(requires) do
-			assert.parameterTypeIsString(requiredBuildVariantName)
+			assert.parameterTypeIsString('requiredBuildVariantName', requiredBuildVariantName)
 			if buildVariants[name] == nil then
 				exception.throw("Build variant '%s' requires undefined build variant '%s'", buildVariantName, requiredBuildVariantName)
 			end
@@ -106,7 +106,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		
 		local conflicts = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'conflicts')
 		for _, conflictsBuildVariantName in ipairs(conflicts) do
-			assert.parameterTypeIsString(conflictsBuildVariantName)
+			assert.parameterTypeIsString('conflictsBuildVariantName', conflictsBuildVariantName)
 			if buildVariants[name] == nil then
 				exception.throw("Build variant '%s' conflicts undefined build variant '%s'", buildVariantName, conflictsBuildVariantName)
 			end
@@ -116,7 +116,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		
 		local compilerDriverFlags = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'compilerDriverFlags')
 		for _, compilerDriverFlag in ipairs(compilerDriverFlags) do
-			assert.parameterTypeIsString(compilerDriverFlag)
+			assert.parameterTypeIsString('compilerDriverFlag', compilerDriverFlag)
 		end
 		
 		local defines = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'defines')
@@ -127,7 +127,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		
 		local libs = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'libs')
 		for _, lib in ipairs(libs) do
-			assert.parameterTypeIsString(lib)
+			assert.parameterTypeIsString('lib', lib)
 		end
 	end
 	
@@ -199,8 +199,8 @@ function module:_validate(result)
 		
 		local platforms = assert.fieldExistsAsTableOrDefaultTo(configH, 'platforms')
 		for platformMatch, platformFunction in pairs(platforms) do
-			assert.parameterTypeIsString(platformMatch)
-			assert.parameterTypeIsFunctionOrCall(platformFunction)
+			assert.parameterTypeIsString('platformMatch', platformMatch)
+			assert.parameterTypeIsFunctionOrCall('platformFunction', platformFunction)
 			
 			if crossPlatform.gnuTuple[platformMatch] == true then
 				platformConfigHDefinesFunctions:insert(platformFunction)
@@ -215,7 +215,7 @@ end
 -- local executionEnvironment = ExecutionEnvironment:new(buildPlatform, buildToolchainPaths, crossPlatform)
 assert.globalTypeIsFunction('ipairs', 'pairs')
 function module:execute(executionEnvironment)
-	assert.parameterTypeIsInstanceOf(executionEnvironment, ExecutionEnvironment)
+	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
 	
 	local crossShellLanguage = executionEnvironment.crossPlatform.shellScriptExecutor.shellLanguage
 	
