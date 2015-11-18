@@ -151,14 +151,11 @@ end
 
 -- Embedded type module (logically, type.lua, but functionality is needed during load)
 -- Embedded assert module (logically, assert.lua, but functionality is needed during load)
+local assert = {}
+local typeOriginalGlobalFunction = type
+local type = {}
 
-local assertModule = {}
-package.loaded[ourModuleName .. '.assert'] = assertModule
-
-local typeModule = {}
-package.loaded[ourModuleName .. '.type'] = assertModule
-
-function assertModule.NamedFunction(name, functor)
+function assert.NamedFunction(name, functor)
 	return setmetatable({
 		name = name
 	}, {
@@ -170,10 +167,10 @@ function assertModule.NamedFunction(name, functor)
 		end
 	})
 end
-local NamedFunction = assertModule.NamedFunction
+local NamedFunction = assert.NamedFunction
 
 local function is(value, name)
-	return type(value) == name
+	return typeOriginalGlobalFunction(value) == name
 end
 
 local function simpleTypeObject(name)
@@ -188,14 +185,14 @@ local function simpleTypeObject(name)
 	end)
 end
 
-typeModule.isNil = simpleTypeObject('nil')
-typeModule.isNumber = simpleTypeObject('number')
-typeModule.isString = simpleTypeObject('string')
-typeModule.isBoolean = simpleTypeObject('boolean')
-typeModule.isTable = simpleTypeObject('table')
-typeModule.isFunction = simpleTypeObject('function')
-typeModule.isThread = simpleTypeObject('thread')
-typeModule.isUserdata = simpleTypeObject('userdata')
+type.isNil = simpleTypeObject('nil')
+type.isNumber = simpleTypeObject('number')
+type.isString = simpleTypeObject('string')
+type.isBoolean = simpleTypeObject('boolean')
+type.isTable = simpleTypeObject('table')
+type.isFunction = simpleTypeObject('function')
+type.isThread = simpleTypeObject('thread')
+type.isUserdata = simpleTypeObject('userdata')
 
 local function functionOrCallTypeObject()
 	return NamedFunction('function or _call', function(...)
@@ -211,7 +208,7 @@ local function functionOrCallTypeObject()
 		return false
 	end)
 end
-typeModule.isFunctionOrCall = functionOrCallTypeObject()
+type.isFunctionOrCall = functionOrCallTypeObject()
 
 local function multipleTypesObject(name1, name2)
 	return NamedFunction(name1 .. ' or ' .. name2, function(...)
@@ -227,8 +224,8 @@ local function multipleTypesObject(name1, name2)
 		return false
 	end)
 end
-typeModule.isTableOrUserdata = multipleTypesObject('table', 'userdata')
-typeModule.isNumberOrString = multipleTypesObject('number', 'string')
+type.isTableOrUserdata = multipleTypesObject('table', 'userdata')
+type.isNumberOrString = multipleTypesObject('number', 'string')
 
 local function isTypeOrNil(name)
 	return NamedFunction(name .. ' or nil', function(...)
@@ -242,15 +239,15 @@ local function isTypeOrNil(name)
 		return false
 	end)
 end
-typeModule.isStringOrNil = isTypeOrNil('string')
-typeModule.isBooleanOrNil = isTypeOrNil('boolean')
+type.isStringOrNil = isTypeOrNil('string')
+type.isBooleanOrNil = isTypeOrNil('boolean')
 
-function typeModule.hasPackageChildFieldOfType(isOfType, name, ...)
-	assertModule.parameterTypeIsTable(isOfType)
-	assertModule.parameterTypeIsString(name)
+function type.hasPackageChildFieldOfType(isOfType, name, ...)
+	assert.parameterTypeIsTable(isOfType)
+	assert.parameterTypeIsString(name)
 	
 	local package = _G[name]
-	if not typeModule.isTable(package) then
+	if not type.isTable(package) then
 		return false
 	end
 	
@@ -258,7 +255,7 @@ function typeModule.hasPackageChildFieldOfType(isOfType, name, ...)
 	
 	local childFieldNames = {...}
 	for _, childFieldName in ipairs(childFieldNames) do
-		assertModule.parameterTypeIsString(childFieldName)
+		assert.parameterTypeIsString(childFieldName)
 		
 		local value = package[childFieldName]
 		if not isOfType(value) then
@@ -269,24 +266,19 @@ function typeModule.hasPackageChildFieldOfType(isOfType, name, ...)
 	return true
 end
 
-function typeModule.hasPackageChildFieldOfTypeString(name, ...)
-	return typeModule.hasPackageChildFieldOfType(typeModule.isString, name, ...)
+function type.hasPackageChildFieldOfTypeString(name, ...)
+	return type.hasPackageChildFieldOfType(type.isString, name, ...)
 end
 
-function typeModule.hasPackageChildFieldOfTypeFunctionOrCall(name, ...)
-	return typeModule.hasPackageChildFieldOfType(typeModule.isFunctionOrCall, name, ...)
+function type.hasPackageChildFieldOfTypeFunctionOrCall(name, ...)
+	return type.hasPackageChildFieldOfType(type.isFunctionOrCall, name, ...)
 end
 
-function typeModule.hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
-	return typeModule.hasPackageChildFieldOfType(typeModule.isTableOrUserdata, name, ...)
+function type.hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
+	return type.hasPackageChildFieldOfType(type.isTableOrUserdata, name, ...)
 end
 
-
-local type = typeModule
-ourModule.type = type
-
-
-function assertModule.withLevel(booleanResult, message, level)
+function assert.withLevel(booleanResult, message, level)
 	if booleanResult then
 		return
 	end
@@ -300,67 +292,67 @@ function assertModule.withLevel(booleanResult, message, level)
 	
 	error(errorMessage, level)
 end
-local withLevel = assertModule.withLevel
+local withLevel = assert.withLevel
 
-assertModule.parameterIsNotATemplate = "Parameter is not a "
-function assertModule.parameterIsNotMessage(name)
+assert.parameterIsNotATemplate = "Parameter is not a "
+function assert.parameterIsNotMessage(name)
 	return "Parameter is not a " .. name
 end
 
 local function parameterTypeIs(value, isOfType)
-	withLevel(isOfType(value), assertModule.parameterIsNotMessage(isOfType.name), 4)
+	withLevel(isOfType(value), assert.parameterIsNotMessage(isOfType.name), 4)
 end
 
 -- Would be a bit odd to use this
-function assertModule.parameterTypeIsNil(value)
-	assertModule.parameterTypeIs(value, type.isNil)
+function assert.parameterTypeIsNil(value)
+	assert.parameterTypeIs(value, type.isNil)
 end
 
-function assertModule.parameterTypeIsNumber(value)
+function assert.parameterTypeIsNumber(value)
 	return parameterTypeIs(value, type.isNumber)
 end
 
-function assertModule.parameterTypeIsString(value)
+function assert.parameterTypeIsString(value)
 	return parameterTypeIs(value, type.isString)
 end
 
-function assertModule.parameterTypeIsBoolean(value)
-	assertModule.parameterTypeIs(value, type.isBoolean)
+function assert.parameterTypeIsBoolean(value)
+	assert.parameterTypeIs(value, type.isBoolean)
 end
 
-function assertModule.parameterTypeIsTable(value)
+function assert.parameterTypeIsTable(value)
 	return parameterTypeIs(value, type.isTable)
 end
 
-function assertModule.parameterTypeIsFunction(value)
+function assert.parameterTypeIsFunction(value)
 	return parameterTypeIs(value, type.isFunction)
 end
 
-function assertModule.parameterTypeIsThread(value)
+function assert.parameterTypeIsThread(value)
 	return parameterTypeIs(value, type.isThread)
 end
 
-function assertModule.parameterTypeIsUserdata(value)
+function assert.parameterTypeIsUserdata(value)
 	return parameterTypeIs(value, type.isUserdata)
 end
 
-function assertModule.parameterTypeIsFunctionOrCall(value)
+function assert.parameterTypeIsFunctionOrCall(value)
 	return parameterTypeIs(value, type.isFunctionOrCall)
 end
 
-function assertModule.parameterTypeIsTableOrUserdata(value)
+function assert.parameterTypeIsTableOrUserdata(value)
 	return parameterTypeIs(value, type.isTableOrUserdata)
 end
 
-function assertModule.parameterTypeIsNumberOrString(value)
+function assert.parameterTypeIsNumberOrString(value)
 	return parameterTypeIs(value, type.isNumberOrString)
 end
 
-function assertModule.parameterTypeIsStringOrNil(value)
+function assert.parameterTypeIsStringOrNil(value)
 	return parameterTypeIs(value, type.isStringOrNil)
 end
 
-function assertModule.parameterTypeIsBooleanOrNil(value)
+function assert.parameterTypeIsBooleanOrNil(value)
 	return parameterTypeIs(value, type.isBooleanOrNil)
 end
 
@@ -376,7 +368,7 @@ local function globalTypeIs(isOfType, ...)
 	local length = #names
 	while index <= length do
 		local name = names[index]
-		assertModule.parameterTypeIsString(name)
+		assert.parameterTypeIsString(name)
 		
 		local global = _G[name]
 		withLevel(global ~= nil, essentialGlobalMissingErrorMessage(name), 4)
@@ -386,30 +378,30 @@ local function globalTypeIs(isOfType, ...)
 	end
 end
 
-function assertModule.globalTypeIsTable(...)
+function assert.globalTypeIsTable(...)
 	return globalTypeIs(type.isTable, ...)
 end
 
-function assertModule.globalTypeIsFunction(...)
+function assert.globalTypeIsFunction(...)
 	return globalTypeIs(type.isFunction, ...)
 end
 
-function assertModule.globalTypeIsFunctionOrCall(...)
+function assert.globalTypeIsFunctionOrCall(...)
 	return globalTypeIs(type.isFunctionOrCall, ...)
 end
 
-function assertModule.globalTypeIsString(...)
+function assert.globalTypeIsString(...)
 	return globalTypeIs(type.isString, ...)
 end
 
 local function globalTableHasChieldFieldOfType(isOfType, name, ...)
-	assertModule.globalTypeIsTable(name)
+	assert.globalTypeIsTable(name)
 	
 	local package = _G[name]
 	
 	local childFieldNames = {...}
 	for _, childFieldName in ipairs(childFieldNames) do
-		assertModule.parameterTypeIsString(childFieldName)
+		assert.parameterTypeIsString(childFieldName)
 		
 		local childField = package[childFieldName]
 		local qualifiedChildFieldName = "The global '" .. name .. '.' .. childFieldName .. "'"
@@ -418,22 +410,17 @@ local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 	end
 end
 
-function assertModule.globalTableHasChieldFieldOfTypeTable(name, ...)
+function assert.globalTableHasChieldFieldOfTypeTable(name, ...)
 	return globalTableHasChieldFieldOfType(type.isTable, name, ...)
 end
 
-function assertModule.globalTableHasChieldFieldOfTypeFunction(name, ...)
+function assert.globalTableHasChieldFieldOfTypeFunction(name, ...)
 	return globalTableHasChieldFieldOfType(type.isFunction, name, ...)
 end
 
-function assertModule.globalTableHasChieldFieldOfTypeString(name, ...)
+function assert.globalTableHasChieldFieldOfTypeString(name, ...)
 	return globalTableHasChieldFieldOfType(type.isString, name, ...)
 end
-
-local assert = assertModule
-ourModule.assert = assert
-
-
 
 assert.globalTypeIsTable('string')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
@@ -539,7 +526,6 @@ local function initialisePackageConfiguration()
 	return configuration
 end
 local packageConfiguration = initialisePackageConfiguration()
-ourModule.packageConfiguration = packageConfiguration
 
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty', 'find')
@@ -567,7 +553,6 @@ local function concatenateToPath(...)
 	
 	return path
 end
-
 
 local parentFolder = packageConfiguration.parentFolder
 local currentFolder = packageConfiguration.currentFolder
@@ -615,7 +600,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
-function ourModule.parentModuleNameFromModuleName(moduleName)
+local function parentModuleNameFromModuleName(moduleName)
 	local moduleElementNames = {}
 	for moduleElementName in moduleName:gmatch('[^%.]+') do
 		table.insert(moduleElementNames, moduleElementName)
@@ -634,7 +619,6 @@ function ourModule.parentModuleNameFromModuleName(moduleName)
 	
 	return parentModuleName, moduleElementNames[size]
 end
-local parentModuleNameFromModuleName = ourModule.parentModuleNameFromModuleName
 
 -- assert.globalTypeIsFunction('require')
 local function requireParentModuleFirst(ourParentModuleName)
@@ -697,6 +681,10 @@ local function initialiseSearchPaths(moduleNameLocal)
 	end
 end
 
+local function relativeRequireName(childModuleName)
+	return ourModuleName .. '.' .. childModuleName
+end
+
 assert.globalTypeIsFunction('ipairs', 'error')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty', 'gsub')
@@ -718,6 +706,8 @@ end
 local loaded = package.loaded
 loaded[''] = rootParentModule
 loaded[ourModuleName] = ourModule
+loaded[relativeRequireName('assert')] = assert
+loaded[relativeRequireName('type')] = type
 function require(modname)
 	assert.parameterTypeIsString(modname)
 	
@@ -788,13 +778,23 @@ function require(modname)
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, ' or ')))
 end
 
+assert.globalTypeIsFunctionOrCall('require')
+local function relativeRequire(childModuleName)
+	return require(relativeRequireName(childModuleName))
+end
 
+local function augment(moduleLeafName)
+	return relativeRequire('init.' .. moduleLeafName)	
+end
 
+ourModule.type = type
+ourModule.assert = assert
+ourModule.packageConfiguration = packageConfiguration
+ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
 
 -- Used by middleclass
 assert.globalTypeIsFunction('setmetatable', 'rawget', 'assert', 'type', 'tostring', 'ipairs', 'pairs')
-local class = require(ourModuleName .. '.middleclass')
-
+local class = relativeRequire('middleclass')
 
 assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')
 function moduleclass(...)
@@ -807,11 +807,6 @@ function moduleclass(...)
 	setmetatable(moduleClass, getmetatable(newClass))
 	
 	return moduleClass
-end
-
-assert.globalTypeIsFunctionOrCall('require')
-local function augment(moduleLeafName)
-	require(ourModuleName .. '.init.' .. moduleLeafName)	
 end
 
 augment('trace')
