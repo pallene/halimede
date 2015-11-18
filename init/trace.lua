@@ -5,8 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local type = require('halimede').type
-local assert = halimede.assert
 
 local function traceIfRequired()
 	

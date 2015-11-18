@@ -7,7 +7,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local Platform = moduleclass('Platform')
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local addFileExtensionToFileNames = requireSibling('Toolchain').addFileExtensionToFileNames
 local tabelize = require('halimede.table.tabelize').tabelize
 local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')

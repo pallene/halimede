@@ -6,7 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 moduleclass('AbstractShellScriptAction')
 
-local assert = require('halimede').assert
 local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
 
 local exception = require('halimede.exception')

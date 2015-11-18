@@ -8,7 +8,6 @@ local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript
 moduleclass('ExecutionEnvironmentBufferedShellScript', BufferedShellScript)
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local exception = require('halimede.exception')
 
 

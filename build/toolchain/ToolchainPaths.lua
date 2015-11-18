@@ -43,7 +43,6 @@ moduleclass('ToolchainPaths')
 local Path = require('halimede.io.paths.Path')
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local exception = require('halimede.exception')
 
 

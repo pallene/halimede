@@ -8,7 +8,6 @@ local Defines = requireSibling('Defines')
 local CommandLineDefines = moduleclass('CommandLineDefines', Defines)
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local CompilerDriverArguments = require('halimede.build.toolchain.CompilerDriverArguments')
 

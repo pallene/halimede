@@ -7,8 +7,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local ShellLanguage = moduleclass('ShellLanguage')
 
 local halimede = require('halimede')
-local type = halimede.type
-local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 local packageConfiguration = require('halimede').packageConfiguration
 local exception = require('halimede.exception')

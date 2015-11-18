@@ -8,7 +8,6 @@ local FilePaths = moduleclass('FilePaths')
 
 local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
-local assert = halimede.assert
 local Path = requireSibling('Path')
 
 

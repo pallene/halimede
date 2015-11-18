@@ -4,10 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local assert = require('halimede').assert
 local configure = require('halimede.luacode.configure')
 local deepMerge = require('halimede.table.deepMerge').deepMerge
-local type = require('halimede').type
 local isTable = type.isTable
 
 assert.globalTypeIsFunction('setmetatable')

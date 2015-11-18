@@ -7,7 +7,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
 moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractCmdShellScriptAction)
 
-local assert = require('halimede').assert
 local exception = require('halimede.exception')
 local tabelize = require('halimede.table.tabelize').tabelize
 local Path = require('halimede.io.paths.Path')

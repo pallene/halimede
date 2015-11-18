@@ -5,7 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local assert = halimede.assert
 
 function requireChild(childModuleElementName)
 	assert.parameterTypeIsString('childModuleElementName', childModuleElementName)

@@ -5,8 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local type = require('halimede').type
-local assert = halimede.assert
 
 -- Now we have a working require, we can augment assert to work with middleclass' class system
 local class = require('halimede.middleclass')

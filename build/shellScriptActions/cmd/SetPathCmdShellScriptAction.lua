@@ -7,7 +7,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
 moduleclass('SetPathCmdShellScriptAction', AbstractCmdShellScriptAction)
 
-local assert = require('halimede').assert
 local Paths = require('halimede.io.paths.Paths')
 
 

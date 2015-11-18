@@ -148,12 +148,25 @@ if package.loadlib == nil then
 	end
 end
 
-
--- Embedded type module (logically, type.lua, but functionality is needed during load)
--- Embedded assert module (logically, assert.lua, but functionality is needed during load)
-local assert = {}
 local typeOriginalGlobalFunction = type
-local type = {}
+type = setmetatable({}, {
+	__tostring = function()
+		return 'function:type'
+	end,
+	__call = function(table, ...)
+		return typeOriginalGlobalFunction(...)
+	end
+})
+
+local assertOriginalGlobalFunction = assert
+assert = setmetatable({}, {
+	__tostring = function()
+		return 'function:assert'
+	end,
+	__call = function(table, ...)
+		return assertOriginalGlobalFunction(...)
+	end
+})
 
 function assert.NamedFunction(name, functor)
 	return setmetatable({

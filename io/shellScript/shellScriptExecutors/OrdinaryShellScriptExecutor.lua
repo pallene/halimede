@@ -8,7 +8,6 @@ local AbstractShellScriptExecutor = requireSibling('AbstractShellScriptExecutor'
 moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess

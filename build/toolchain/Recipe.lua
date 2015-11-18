@@ -7,7 +7,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 moduleclass('Recipe')
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local executeFromFile = require('halimede.luacode.executeFromFile').executeFromFile
 local exception = require('halimede.exception')
 local deepMerge = require('halimede.table.deepMerge').deepMerge

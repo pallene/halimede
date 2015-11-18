@@ -8,7 +8,6 @@ local Defines = requireSibling('Defines')
 local ConfigHDefines = moduleclass('ConfigHDefines', Defines)
 
 local halimede = require('halimede')
-local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
 
 
