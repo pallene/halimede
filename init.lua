@@ -296,14 +296,11 @@ local withLevel = assert.withLevel
 
 assert.parameterIsNotATemplate = "Parameter is not a "
 function assert.parameterIsNotMessage(parameterName, name)
-	assert.parameterTypeIsString('parameterName', parameterName)
-	assert.parameterTypeIsString('name', name)
-	
 	return "Parameter '" .. parameterName .. "' is not of type '" .. name .. "'"
 end
 
 local function parameterTypeIs(parameterName, value, isOfType)
-	withLevel(isOfType(value), assert.parameterIsNotMessage(isOfType.name), 4)
+	withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, isOfType.name), 4)
 end
 
 -- Would be a bit odd to use this
