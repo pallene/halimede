@@ -29,11 +29,11 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'getenv')
 assert.globalTypeIsFunction('tostring')
-function module.cmakebuild(rockspec, rockspecFilePath)
+function module.cmakebuild(rockspec, parentFolderOfCmakeListsPath)
 	assert.parameterTypeIsTable(rockspec)
-	assert.parameterTypeIsInstanceOf(rockspecFilePath, Path)
+	assert.parameterTypeIsInstanceOf(parentFolderOfCmakeListsPath, Path)
 	
-	rockspecFilePath:assertIsFilePath('rockspecFilePath')
+	parentFolderOfCmakeListsPath:assertIsFilePath('parentFolderOfCmakeListsPath')
 	
 	local build = assertTableOrEmpty(rockspec.build)
 	
@@ -49,8 +49,7 @@ function module.cmakebuild(rockspec, rockspecFilePath)
 	local function createCMakeListsIfRequired()
 		local cmakeListsContent = build.cmake
 		if type.isString(cmakeListsContent) then
-			-- Ought to be $(pwd)/; not necessarily path to rockspec...
-			local cmakeListsFilePath = rockspecFilePath:parentPath():appendFolders(halimede.dirname(rockspecFilePath)):appendFile('CMakeLists', 'txt')
+			local cmakeListsFilePath = rockspec, parentFolderOfCmakeListsPath:appendFile('CMakeLists', 'txt')
 			toFileAllContentsInTextMode(cmakeListsFilePath:toString(true), 'CMakeLists file', cmakeListsContent)
 		end
 	end

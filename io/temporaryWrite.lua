@@ -31,6 +31,7 @@ function module.toTemporaryFileAllContentsInTextMode(contents, fileExtension)
 end
 local toTemporaryFileAllContentsInTextMode = module.toTemporaryFileAllContentsInTextMode
 
+assert.globalTypeIsFunction('pcall')
 function module.toTemporaryFileAllContentsInTextModeAndUse(contents, fileExtension, user)
 	assert.parameterTypeIsString(contents)
 	assert.parameterTypeIsStringOrNil(fileExtension)

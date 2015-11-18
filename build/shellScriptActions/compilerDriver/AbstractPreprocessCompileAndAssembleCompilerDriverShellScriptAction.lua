@@ -35,7 +35,7 @@ function module:execute(toolchain, compilerDriverFlags, standard, legacyCandCPlu
 	defines:appendToCommandLineArguments(compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
 	compilerDriverArguments:addIncludePaths(sources)
-	compilerDriverArguments:append(sources)
+	compilerDriverArguments:appendFilePaths(sources)
 	
 	self:_unsetEnvironmentVariables(compilerDriverArguments)
 	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})

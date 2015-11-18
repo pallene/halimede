@@ -52,13 +52,13 @@ function Defines:_defineIfMissing(defineName, enable, defineValue)
 	end
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
 function Defines:quotedNonEmptyString(defineName, value)
 	if constant == nil then
 		self:_undefine(defineName)
 	else
 		assert.parameterTypeIsString(value)
-		if character:len() == 0 then
+		if character:isEmpty() then
 			exception.throw("The %s define can not be empty", defineName)
 		end
 		self.defines[defineName] = "'" .. command "'"

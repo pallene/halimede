@@ -4,17 +4,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local CompilerDriverArguments = moduleclass('CompilerDriverArguments')
+moduleclass('CompilerDriverArguments')
 
 local halimede = require('halimede')
 local assert = halimede.assert
 local type = halimede.type
 local CompilerDriver = requireSibling('CompilerDriver')
 local Arguments = requireSibling('Arguments')
+local FilePaths = requireSibling('FilePaths')
 local Path = require('halimede.io.paths.Path')
 
 
-function CompilerDriverArguments:initialize(compilerDriver, compilerDriverFlags, sysrootPath)
+function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath)
 	assert.parameterTypeIsInstanceOf(compilerDriver, CompilerDriver)
 	assert.parameterTypeIsTable(compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf(sysrootPath, Path)
@@ -26,48 +27,56 @@ function CompilerDriverArguments:initialize(compilerDriver, compilerDriverFlags,
 	self.compilerDriver:appendSystemRoot(self.arguments, sysrootPath)
 end
 
-function CompilerDriverArguments:append(...)
+function module:append(...)
 	self.arguments:append(...)
 end
 
+function module:appendFilePaths(filePaths)
+	assert.parameterTypeIsInstanceOf(filePaths, FilePaths)
+	
+	for path in filePaths:iterate() do
+		self.arguments:append(path:toString(true))
+	end
+end
+
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
-function CompilerDriverArguments:addCStandard(cStandard)
+function module:addCStandard(cStandard)
 	assert.parameterTypeIsInstanceOf(cStandard, CStandard)
 	
 	self.compilerDriver:addCStandard(self.arguments)
 end
 
-function CompilerDriverArguments:doNotPredefineSystemOrCompilerDriverMacros()
+function module:doNotPredefineSystemOrCompilerDriverMacros()
 	self.compilerDriver:doNotPredefineSystemOrCompilerDriverMacros(self.arguments)
 end
 
-function CompilerDriverArguments:undefinePreprocessorMacro(defineName)
+function module:undefinePreprocessorMacro(defineName)
 	assert.parameterTypeIsString(defineName)
 	
 	self.compilerDriver:undefinePreprocessorMacro(self.arguments, defineName)
 end
 
-function CompilerDriverArguments:definePreprocessorMacro(defineName, defineValue)
+function module:definePreprocessorMacro(defineName, defineValue)
 	assert.parameterTypeIsString(defineName)
 	assert.parameterTypeIsString(defineValue)
 	
 	self.compilerDriver:definePreprocessorMacro(self.arguments, defineName, defineValue)
 end
 
-function CompilerDriverArguments:addSystemIncludePaths(dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
+function module:addSystemIncludePaths(dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 	assert.parameterTypeIsTable(dependenciesSystemIncludePaths)
 	assert.parameterTypeIsTable(buildVariantSystemIncludePaths)
 	
 	self.compilerDriver:addSystemIncludePaths(self.arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 end
 
-function CompilerDriverArguments:addIncludePaths(sources)
-	assert.parameterTypeIsTable(sources)
+function module:addIncludePaths(sourceFilePaths)
+	assert.parameterTypeIsInstanceOf(sourceFilePaths, FilePaths)
 	
-	self.compilerDriver:addIncludePaths(self.arguments, sources)
+	self.compilerDriver:addIncludePaths(self.arguments, sourceFilePaths)
 end
 
-function CompilerDriverArguments:addLinkerFlags(dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
+function module:addLinkerFlags(dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
 	assert.parameterTypeIsTable(dependenciesLinkerFlags)
 	assert.parameterTypeIsTable(buildVariantLinkerFlags)
 	assert.parameterTypeIsTable(otherLinkerFlags)
@@ -75,7 +84,7 @@ function CompilerDriverArguments:addLinkerFlags(dependenciesLinkerFlags, buildVa
 	self:compilerDriver:addLinkerFlags(self.arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
 end
 
-function CompilerDriverArguments:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
+function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 	assert.parameterTypeIsTable(dependenciesLinkedLibraries)
 	assert.parameterTypeIsTable(buildVariantLinkedLibraries)
 	assert.parameterTypeIsTable(otherLinkedLibraries)

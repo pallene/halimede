@@ -10,7 +10,7 @@ local halimede = require('halimede')
 local type = halimede.type
 local assert = halimede.assert
 local tabelize = require('halimede.table.tabelize').tabelize
-local operatingSystemDetails = require('halimede').operatingSystemDetails
+local packageConfiguration = require('halimede').packageConfiguration
 local exception = require('halimede.exception')
 local Path = require('halimede.io.paths.Path')
 local Paths = require('halimede.io.paths.Paths')
@@ -132,6 +132,13 @@ function module:relativeFilePath(...)
 	return self.pathStyle:relativeFilePath(...)
 end
 
+function module:appendFileExtension(fileName, fileExtension)
+	assert.parameterTypeIsString(fileName)
+	assert.parameterTypeIsStringOrNil(fileExtension)
+	
+	return self.pathStyle:appendFileExtension(fileName, fileExtension)
+end
+
 assert.globalTypeIsFunction('ipairs')
 function module:paths(stringPathsTable)
 	assert.parameterTypeIsTable(stringPathsTable)
@@ -247,14 +254,15 @@ end
 
 ShellLanguage.static.Cmd = CmdShellLanguage:new()
 
-
-local operatingSystemDetails = halimede.operatingSystemDetails
+-- Not the best test; doesn't work for Symbian, can't distinguish OpenVms from RISC OS
+-- Running uname on the PATH works on POSIX systems, but that rules out Windows... and the shell isn't available on Unikernels like RumpKernel
+local folderSeparator = packageConfiguration.folderSeparator
 local default
-if operatingSystemDetails.isPosix then
+if folderSeparator == '/' then
 	default = ShellLanguage.Posix
-elseif halimede.operatingSystemDetails.isCmd then
+elseif folderSeparator == '\\' then
 	default = ShellLanguage.Cmd
 else
-	exception.throw('Could not determine ShellLanguage')
+	exception.throw("Could not determine ShellLanguage using packageConfiguration folderSeparator '%s'", folderSeparator)
 end
 ShellLanguage.static.Default = default

@@ -8,8 +8,12 @@ moduleclass('Toolchain')
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local type = halimede.type
+local tabelize = require('halimede.table.tabelize').tabelize
+local exception = require('halimede.exception')
 local Platform = requireSibling('Platform')
 local ToolchainPaths = requireSibling('ToolchainPaths')
+local FilePaths = requireSibling('FilePaths')
 
 
 function module:initialize(platform, toolchainPaths)
@@ -18,6 +22,31 @@ function module:initialize(platform, toolchainPaths)
 	
 	self.platform = platform
 	self.toolchainPaths = toolchainPaths
+end
+
+assert.globalTypeIsFunction('ipairs', 'unpack')
+assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+function module:baseFilePaths(...)
+	local baseFilePaths = {}
+	
+	for _, stringOrTable in ipairs({...}) do
+		local path
+		if type.isTable(stringOrTable) then
+			path = self:relativeFilePath(unpack(stringOrTable))
+		elseif type.isString(stringOrTable)
+			path = self:relativeFilePath(stringOrTable)
+		else
+			exception.throw('baseFilePaths should only contain strings or tables of string')
+		end
+		table.insert(baseFilePaths, path)
+	end
+	return FilePaths:new(baseFilePaths)
+end
+
+function module:toObjectsWithoutPaths(baseFilePaths)
+	assert.parameterTypeIsInstanceOf(baseFilePaths, FilePaths)
+	
+	return baseFilePaths:toObjectsWithoutPaths(self.platform.objectExtension)
 end
 
 function module:relativeFolderPath(...)

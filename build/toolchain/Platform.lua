@@ -50,6 +50,7 @@ function module:_newConfigHDefines()
 	return self.gnuTuple:newConfigHDefines()
 end
 
+assert.globalTypeIsFunction('ipairs')
 function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	assert.parameterTypeIsTable(platformConfigHDefinesFunctions)
 	
@@ -64,14 +65,26 @@ function module:toolchainPath(toolchainPaths, pathName)
 	return toolchainPaths[pathName](self.toolchainPathStrategy, self.shellScriptExecutor.shellLanguage)
 end
 
+assert.globalTypeIsFunction('ipairs')
 function module:toObjects(...)
-	return addFileExtensionToFileNames(self.objectExtension, ...)
+	local shellLanguage = self.shellScriptExecutor.shellLanguage
+	
+	local result = tabelize()
+	for _, pathString in ipairs(...) do
+		local relativeFilePath = shellLanguage:parsePath(pathString, true)
+		result:insert(relativeFilePath:appendFileExtension(self.objectExtension))
+	end
+	return result
 end
 
+assert.globalTypeIsFunction('ipairs')
 function module:toObjectsWithoutPaths(...)
+	local shellLanguage = self.shellScriptExecutor.shellLanguage
+	
 	local result = tabelize()
-	for _, pathPrefixedFileName in ipairs(self:toObjects(...)) do
-		result:insert(halimede.basename(pathPrefixedFileName))
+	for _, pathString in ipairs(...) do
+		local relativeFilePath = shellLanguage:parsePath(pathString, true)
+		result:insert(relativeFilePath:appendFileExtension(self.objectExtension):finalPathElementName())
 	end
 	return result
 end

@@ -14,7 +14,7 @@ local CompilerMetadata = requireSibling('CompilerMetadata')
 local CStandard = requireSibling('CStandard')
 local Path = require('halimede.io.paths.Path')
 local Arguments = requireSibling('Arguments')
-
+local FilePaths = requireSibling('FilePaths')
 
 
 function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
@@ -146,15 +146,15 @@ function CompilerDriver:addSystemIncludePaths(arguments, dependenciesSystemInclu
 	end	
 end
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
-local dirname = halimede.dirname
-function CompilerDriver:addIncludePaths(arguments, sources)
+assert.globalTypeIsFunction('pairs')
+function CompilerDriver:addIncludePaths(arguments, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf(arguments, Arguments)
-	assert.parameterTypeIsTable(sources)
+	assert.parameterTypeIsInstanceOf(sourceFilePaths, FilePaths)
 	
 	local includePaths = {}
-	for _, sourceFileRelativePath in ipairs(sources) do
-		populateIncludePaths(includePaths, dirname(sourceFileRelativePath))
+	for sourceFilePath in sourceFilePaths:iterate() do
+		local stringPath = sourceFilePath:toString(true)
+		populateIncludePaths(includePaths, stringPath)
 	end
 	for includePath, _ in pairs(includePaths) do
 		arguments:append(self.includePathOption .. includePath)

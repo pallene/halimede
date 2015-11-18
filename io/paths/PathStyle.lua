@@ -62,11 +62,12 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	PathStyle.static[name] = self
 end
 
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
 function module:parse(stringPath, isFile)
 	assert.parameterTypeIsString(stringPath)
 	assert.parameterTypeIsBoolean(isFile)
 	
-	if stringPath:len() == 0 then
+	if stringPath:isEmpty() then
 		exception.throw("The stringPath is empty")
 	end
 	

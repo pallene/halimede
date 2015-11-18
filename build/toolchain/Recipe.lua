@@ -93,7 +93,7 @@ end
 assert.globalTypeIsFunction('ipairs', 'pairs')
 local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuildVariantNames, buildVariants)
 			
-	for buildVariantName, buildVariantSettings in pairs(buildVariants)
+	for buildVariantName, buildVariantSettings in pairs(buildVariants) do
 		assert.parameterTypeIsString(buildVariantName)
 		
 		local requires = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'requires')

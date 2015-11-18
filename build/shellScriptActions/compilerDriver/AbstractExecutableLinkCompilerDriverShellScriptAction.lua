@@ -25,7 +25,7 @@ function module:execute(toolchain, compilerDriverFlags, linkerFlags, objects, li
 	
 	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
-	compilerDriverArguments:append(objects)
+	compilerDriverArguments:appendFilePaths(objects)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.linkedLibraries, self.buildVariant.linkedLibraries, linkedLibraries)
 	
 	self:_unsetEnvironmentVariables(compilerDriverArguments)

@@ -131,10 +131,6 @@ function module:hasNonEmptyDevice()
 	return self.device ~= nil and hasDevice
 end
 
-function module:newFromTemplate(...)
-	return Path:new(self.pathStyle, self.pathRelativity, self.device, {...}, true, self.alternateStreamName)
-end
-
 if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'remove') then
 	function module:remove()
 		local ok, errorMessage = os.remove(self:toString(true))

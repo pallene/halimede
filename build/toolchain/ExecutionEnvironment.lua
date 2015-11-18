@@ -8,6 +8,7 @@ moduleclass('ExecutionEnvironment')
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local type = halimede.type
 local tabelize = require('halimede.table.tabelize').tabelize
 local Platform = requireSibling('Platform')
 local Toolchain = requireSibling('Toolchain')
@@ -17,11 +18,12 @@ local defaultRecipeEnvironment = requireSibling('recipeEnvironment')
 local ExecutionEnvironmentBufferedShellScript = require('halimede.io.shellScript.ExecutionEnvironmentBufferedShellScript')
 
 
-assert.globalTypeIsFunction('select', 'type', 'ipairs')
+assert.globalTypeIsFunction('select', 'ipairs')
 local function addFileExtensionToFileNames(pathStyle, extensionWithoutLeadingPeriod, ...)
 	local asTable
 	if select('#', ...) == 1 then
-		if type(...) == 'table' then
+		local first = select(1, ...)
+		if type.isTable(first) then
 			asTable = select(1, ...)
 		else
 			asTable = {...}

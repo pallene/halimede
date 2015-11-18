@@ -13,8 +13,6 @@ moduleName = ''
 parentModuleName = ''
 leafModuleName = ''
 parentModule = rootParentModule
-package.loaded[''] = module
-modulesRootPath = ''
 
 
 local function essentialGlobalMissingErrorMessage(globalName)
@@ -38,24 +36,124 @@ if error == nil then
 	error("Calling non-existent error should cause the Lua environment to die")
 end
 
+local function essentialGlobalMissingError(globalName)
+	error(essentialGlobalMissingErrorMessage(globalName))
+end
+
+if type == nil then
+	essentialGlobalMissingError('type')
+end
+
+if setmetatable == nil then
+	essentialGlobalMissingError('setmetatable')
+end
+
+if getmetatable == nil then
+	essentialGlobalMissingError('getmetatable')
+end
+
+if _G == nil then
+	essentialGlobalMissingError('_G')
+end
+
+-- tostring, tonumber can probably be implemented in Pure Lua
+
+if _VERSION == nil then
+	_VERSION = 'Lua 5.1'
+end
+
+if string == nil then
+	essentialGlobalMissingError('string')
+end
+
+if string.len == nil then
+	function string.len(value)
+		return #value
+	end
+end
+
+if math == nil then
+	math = {}
+end
+
+if coroutine == nil then
+	coroutine = {}
+end
+
+if os == nil then
+	os = {}
+end
+
+if debug == nil then
+	debug = {}
+end
+
+-- Guard for presence of global assert
+if assert == nil then
+	assert = function(value, message)
+		if value == false or value == nil then
+			local assertionMessage
+			if message == nil then
+				assertionMessage = 'assertion failed!'
+			else
+				assertionMessage = message
+			end
+			error(assertionMessage)
+		else
+			return value, optionalMessage
+		end
+	end
+end
+
+if table == nil then
+	table = {}
+end
+
+-- table.concat, table.insert, table.maxn, table.remove, table.sort are all implementable in pure Lua but tricky to right
+
+if package == nil then
+	package = {}
+end
+
+if package.loaded == nil then
+	package.loaded = {}
+end
+
+-- Is overridden by our require logic
+if package.path == nil then
+	package.path = ''
+end
+
+-- Is overridden by our require logic
+if package.cpath == nil then
+	package.cpath = ''
+end
+
+-- Is overridden by our require logic
+-- require
+
+-- Is not used
+-- module
+
+-- Is not used
+-- package.seeall
+
+if package.preload == nil then
+	package.preload = {}
+end
+
+if package.loadlib == nil then
+	package.loadlib = function(libname, funcname)
+		error('loadlib is not supported')
+	end
+end
+
 
 -- Embedded type module (logically, type.lua, but functionality is needed during load)
 -- Embedded assert module (logically, assert.lua, but functionality is needed during load)
 
 local assertModule = {}
 package.loaded[ourModuleName .. '.assert'] = assertModule
-
-if type == nil then
-	error(essentialGlobalMissingErrorMessage('type'))
-end
-
-if setmetatable == nil then
-	error(essentialGlobalMissingErrorMessage('setmetatable'))
-end
-
-if getmetatable == nil then
-	error(essentialGlobalMissingErrorMessage('getmetatable'))
-end
 
 local typeModule = {}
 package.loaded[ourModuleName .. '.type'] = assertModule
@@ -188,34 +286,13 @@ local type = typeModule
 ourModule.type = type
 
 
-
-
-
-
--- Guard for presence of global assert
-if assert == nil then
-	assert = function(value, message)
-		if value == false or value == nil then
-			local assertionMessage
-			if message == nil then
-				assertionMessage = 'assertion failed!'
-			else
-				assertionMessage = message
-			end
-			error(assertionMessage)
-		else
-			return value, optionalMessage
-		end
-	end
-end
-
 function assertModule.withLevel(booleanResult, message, level)
 	if booleanResult then
 		return
 	end
 	
 	local errorMessage
-	if typeModule.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'traceback') then
+	if type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'traceback') then
 		errorMessage = debug.traceback(message, level)
 	else
 		errorMessage = message
@@ -236,55 +313,55 @@ end
 
 -- Would be a bit odd to use this
 function assertModule.parameterTypeIsNil(value)
-	assertModule.parameterTypeIs(value, typeModule.isNil)
+	assertModule.parameterTypeIs(value, type.isNil)
 end
 
 function assertModule.parameterTypeIsNumber(value)
-	return parameterTypeIs(value, typeModule.isNumber)
+	return parameterTypeIs(value, type.isNumber)
 end
 
 function assertModule.parameterTypeIsString(value)
-	return parameterTypeIs(value, typeModule.isString)
+	return parameterTypeIs(value, type.isString)
 end
 
 function assertModule.parameterTypeIsBoolean(value)
-	assertModule.parameterTypeIs(value, typeModule.isBoolean)
+	assertModule.parameterTypeIs(value, type.isBoolean)
 end
 
 function assertModule.parameterTypeIsTable(value)
-	return parameterTypeIs(value, typeModule.isTable)
+	return parameterTypeIs(value, type.isTable)
 end
 
 function assertModule.parameterTypeIsFunction(value)
-	return parameterTypeIs(value, typeModule.isFunction)
+	return parameterTypeIs(value, type.isFunction)
 end
 
 function assertModule.parameterTypeIsThread(value)
-	return parameterTypeIs(value, typeModule.isThread)
+	return parameterTypeIs(value, type.isThread)
 end
 
 function assertModule.parameterTypeIsUserdata(value)
-	return parameterTypeIs(value, typeModule.isUserdata)
+	return parameterTypeIs(value, type.isUserdata)
 end
 
 function assertModule.parameterTypeIsFunctionOrCall(value)
-	return parameterTypeIs(value, typeModule.isFunctionOrCall)
+	return parameterTypeIs(value, type.isFunctionOrCall)
 end
 
 function assertModule.parameterTypeIsTableOrUserdata(value)
-	return parameterTypeIs(value, typeModule.isTableOrUserdata)
+	return parameterTypeIs(value, type.isTableOrUserdata)
 end
 
 function assertModule.parameterTypeIsNumberOrString(value)
-	return parameterTypeIs(value, typeModule.isNumberOrString)
+	return parameterTypeIs(value, type.isNumberOrString)
 end
 
 function assertModule.parameterTypeIsStringOrNil(value)
-	return parameterTypeIs(value, typeModule.isStringOrNil)
+	return parameterTypeIs(value, type.isStringOrNil)
 end
 
 function assertModule.parameterTypeIsBooleanOrNil(value)
-	return parameterTypeIs(value, typeModule.isBooleanOrNil)
+	return parameterTypeIs(value, type.isBooleanOrNil)
 end
 
 local function globalTypeIs(isOfType, ...)
@@ -310,15 +387,19 @@ local function globalTypeIs(isOfType, ...)
 end
 
 function assertModule.globalTypeIsTable(...)
-	return globalTypeIs(typeModule.isTable, ...)
+	return globalTypeIs(type.isTable, ...)
 end
 
 function assertModule.globalTypeIsFunction(...)
-	return globalTypeIs(typeModule.isFunction, ...)
+	return globalTypeIs(type.isFunction, ...)
+end
+
+function assertModule.globalTypeIsFunctionOrCall(...)
+	return globalTypeIs(type.isFunctionOrCall, ...)
 end
 
 function assertModule.globalTypeIsString(...)
-	return globalTypeIs(typeModule.isString, ...)
+	return globalTypeIs(type.isString, ...)
 end
 
 local function globalTableHasChieldFieldOfType(isOfType, name, ...)
@@ -338,44 +419,25 @@ local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 end
 
 function assertModule.globalTableHasChieldFieldOfTypeTable(name, ...)
-	return globalTableHasChieldFieldOfType(typeModule.isTable, name, ...)
+	return globalTableHasChieldFieldOfType(type.isTable, name, ...)
 end
 
 function assertModule.globalTableHasChieldFieldOfTypeFunction(name, ...)
-	return globalTableHasChieldFieldOfType(typeModule.isFunction, name, ...)
+	return globalTableHasChieldFieldOfType(type.isFunction, name, ...)
 end
 
 function assertModule.globalTableHasChieldFieldOfTypeString(name, ...)
-	return globalTableHasChieldFieldOfType(typeModule.isString, name, ...)
+	return globalTableHasChieldFieldOfType(type.isString, name, ...)
 end
-
-assertModule.globalTypeIsFunction(
-	'assert',
-	'error',
-	'ipairs',
-	'pairs',
-	'pcall',
-	'select',
-	'setmetatable',
-	'type',
-	'unpack',
-	'xpcall'
-)
-
-assertModule.globalTypeIsTable(
-	'_G',
-	'package',
-	'string',
-	'table'
-)
 
 local assert = assertModule
 ourModule.assert = assert
 
 
 
+assert.globalTypeIsTable('string')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'find', 'sub')
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'find', 'sub')
 function string.split(value, separator)
 	assert.parameterTypeIsString(value)
 	assert.parameterTypeIsString(separator)
@@ -399,159 +461,92 @@ function string.split(value, separator)
 	return result
 end
 
+assert.globalTypeIsTable('string')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
 function string.isEmpty(value)
 	assert.parameterTypeIsString(value)
 	
 	return value:len() == 0
 end
-	
 
+local packageConfigurationMapping = {
+	'folderSeparator', -- eg '/' on POSIX
+	'luaPathSeparator', -- usually ';' (even on POSIX)
+	'substitutionPoint', -- usually '?'
+	'executableDirectory',  -- usually '!' (only works on Windows)
+	'markToIgnoreTestWhenBuildLuaOpen' -- usually '-'
+}
+
+-- Will work OK-ish even on Windows, as '/' is a valid folder separator. However, this is not ideal
+local defaultConfigurationIfMissing = {
+	folderSeparator = '/',
+	luaPathSeparator = ';',
+	substitutionPoint = '?',
+	executableDirectory = '!',
+	markToIgnoreTestWhenBuildLuaOpen = '-'
+}
+
+assert.globalTypeIsFunction('pairs')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
 local function initialisePackageConfiguration()
-	
-	local packageConfigurationMapping = {
-		'folderSeparator', -- eg '/' on POSIX
-		'luaPathSeparator', -- usually ';' (even on POSIX)
-		'substitutionPoint', -- usually '?'
-		'executableDirectory',  -- usually '!' (only works on Windows)
-		'markToIgnoreTestWhenBuildLuaOpen' -- usually '-'
-	}
-	
 	local configuration = {}
 	
-	-- Lua 5.2 / 5.3 have an extra line!
-	local maximumKnownLines = #packageConfigurationMapping
-	local index = 1
-	for line in package.config:gmatch('([^\n]+)') do
-		if index > maximumKnownLines then
-			break
+	local packageConfigurationString
+	if type.hasPackageChildFieldOfTypeString('package', 'config') then
+		-- Lua 5.2 / 5.3 have an extra line!
+		local maximumKnownLines = #packageConfigurationMapping
+		local index = 1
+		for line in package.config:gmatch('([^\n]+)') do
+			if index > maximumKnownLines then
+				break
+			end
+			configuration[packageConfigurationMapping[index]] = line
+			index = index + 1
 		end
-		configuration[packageConfigurationMapping[index]] = line
-		index = index + 1
+	else
+		for name, value in pairs(defaultConfigurationIfMissing) do
+			configuration[name] = value
+		end
 	end
+	
+	local luaSharedLibraryExtension
+	if type.hasPackageChildFieldOfTypeString('jit', 'os') then
+		-- Windows, Linux, OSX, BSD, POSIX, Other
+		local name = jit.os
+		if name == 'Windows' then
+			luaSharedLibraryExtension = 'dll'
+		else
+			-- True even on Mac OS X? (not dylib)
+			luaSharedLibraryExtension = 'so'
+		end
+	else
+		-- Doesn't work on Symbian
+		if packageConfiguration.folderSeparator == '\\' then
+			luaSharedLibraryExtension = 'dll'
+		else
+			luaSharedLibraryExtension = 'so'
+		end
+	end
+	configuration.luaSharedLibraryExtension = luaSharedLibraryExtension
+	
+	-- True for all bar RISC OS
+	configuration.fileExtensionSeparator = '.'
+	
+	-- Not true for more obscure File Systems
+	configuration.parentFolder = '..'
+	configuration.currentFolder = '.'
 	
 	return configuration
 end
-assert.globalTableHasChieldFieldOfTypeString('package', 'config')
-ourModule.packageConfiguration = initialisePackageConfiguration()
-local packageConfiguration = ourModule.packageConfiguration
+local packageConfiguration = initialisePackageConfiguration()
+ourModule.packageConfiguration = packageConfiguration
 
-local function detectOperatingSystemDetails()
-	
-	local operatingSystemDetailsPosix = {
-		isPosix = true,
-		isWindows = false,
-		name = 'POSIX',
-		sharedLibraryExtension = 'so',
-		luaSharedLibraryExtension = 'so',
-		sharedLibraryPrefix = 'lib'
-	}
-	
-	local operatingSystemDetailsWindows = {
-		isPosix = false,
-		isWindows = true,
-		name = 'Windows',
-		sharedLibraryExtension = 'dll',
-		luaSharedLibraryExtension = 'dll',
-		sharedLibraryPrefix = ''
-	}
-	
-	if not type.hasPackageChildFieldOfTypeString('jit', 'os') then
-		if packageConfiguration.folderSeparator == '\\' then
-			return operatingSystemDetailsWindows
-		else
-			return operatingSystemDetailsPosix
-		end
-	end
-	
-	-- Windows, Linux, OSX, BSD, POSIX, Other
-	local name = jit.os
-	if name == 'Windows' then
-		return operatingSystemDetailsWindows
-	else
-		operatingSystemDetailsPosix.name = name
-		if name == 'OSX' then
-			operatingSystemDetailsPosix.sharedLibraryExtension = 'dylib'
-		end
-		return operatingSystemDetailsPosix
-	end
-end
-ourModule.operatingSystemDetails = detectOperatingSystemDetails()
-local operatingSystemDetails = ourModule.operatingSystemDetails
-
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub')
-function ourModule.dirname(path, folderSeparator)
-	assert.parameterTypeIsString(path)
-	if folderSeparator == nil then
-		folderSeparator = packageConfiguration.folderSeparator
-	else
-		assert.parameterTypeIsString(folderSeparator)
-	end
-	
-	local regexSeparator
-	if folderSeparator == '\\' then
-		regexSeparator = '\\\\'
-	else
-		regexSeparator = folderSeparator
-	end
-	
-	if path:match('.-' .. regexSeparator .. '.-') then
-		local withTrailingSlash = path:gsub('(.*' .. regexSeparator .. ')(.*)', '%1')
-		return withTrailingSlash:sub(1, #withTrailingSlash - 1)
-	else
-		return '.'
-	end
-end
-local dirname = ourModule.dirname
-
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
-function ourModule.basename(path, folderSeparator)
-	assert.parameterTypeIsString(path)
-	if folderSeparator == nil then
-		folderSeparator = packageConfiguration.folderSeparator
-	else
-		assert.parameterTypeIsString(folderSeparator)
-	end
-	
-	local regexSeparator
-	if folderSeparator == '\\' then
-		regexSeparator = '\\\\'
-	else
-		regexSeparator = folderSeparator
-	end
-	
-	if path:match('.-' .. regexSeparator .. '.-') then
-		return path:gsub('(.*' .. regexSeparator .. ')(.*)', '%2')
-	else
-		return path
-	end
-end
-
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'sub')
-function ourModule.findArg0()
-	if typeModule.isTable(arg) and typeModule.isString(arg[0]) then
-		return arg[0]
-	else
-		if typeModule.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'getinfo') then
-			-- May not be a path, could be compiled C code, etc
-			local withLeadingAt = debug.getinfo(initialisePackageConfiguration, 'S').source
-			return withLeadingAt:sub(2)
-		else
-			return ''
-		end
-	end
-end
-local findArg0 = ourModule.findArg0
-
--- Please note the absolute path '/' is modelled as ''
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty', 'find')
 assert.globalTypeIsFunction('ipairs')
-local function concatenateToPath(folders)
-	assert.parameterTypeIsTable(folders)
-	
-	local folderSeparator = packageConfiguration.folderSeparator
+local folderSeparator = packageConfiguration.folderSeparator
+local function concatenateToPath(...)
+	local folders = {...}
 	
 	local path = ''
 	for index, folder in ipairs(folders) do
@@ -573,9 +568,49 @@ local function concatenateToPath(folders)
 	return path
 end
 
--- Ideally, we need to use realpath to resolve symlinks
-local function findOurFolderPath()
-	return dirname(findArg0())
+
+local parentFolder = packageConfiguration.parentFolder
+local currentFolder = packageConfiguration.currentFolder
+local folderSeparator = packageConfiguration.folderSeparator
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub')
+local function findModulesRootPath()
+	if _G.modulesRootPath ~= nil then
+		return _G.modulesRootPath
+	end
+
+	local function dirname(path)
+		local regexSeparator
+		if folderSeparator == '\\' then
+			regexSeparator = '\\\\'
+		else
+			regexSeparator = folderSeparator
+		end
+	
+		if path:match('.-' .. regexSeparator .. '.-') then
+			local withTrailingSlash = path:gsub('(.*' .. regexSeparator .. ')(.*)', '%1')
+			return withTrailingSlash:sub(1, #withTrailingSlash - 1)
+		else
+			return currentFolder
+		end
+	end
+
+	local function findArg0()
+		if type.isTable(arg) and type.isString(arg[0]) then
+			return arg[0]
+		else
+			if type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'getinfo') then
+				-- May not be a path, could be compiled C code, etc
+				local withLeadingAt = debug.getinfo(initialisePackageConfiguration, 'S').source
+				return withLeadingAt:sub(2)
+			else
+				return ''
+			end
+		end
+	end
+	
+	-- Does not resolve symlinks, unlike the realpath binary
+	local ourFolderPath = dirname(findArg0())
+	return concatenateToPath(ourFolderPath, parentFolder)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
@@ -601,6 +636,7 @@ function ourModule.parentModuleNameFromModuleName(moduleName)
 end
 local parentModuleNameFromModuleName = ourModule.parentModuleNameFromModuleName
 
+-- assert.globalTypeIsFunction('require')
 local function requireParentModuleFirst(ourParentModuleName)
 	if ourParentModuleName == '' then
 		return rootParentModule
@@ -610,12 +646,20 @@ local function requireParentModuleFirst(ourParentModuleName)
 	end
 end
 
+local searchPathFileExtensions = {
+	path = 'lua',
+	cpath = packageConfiguration.luaSharedLibraryExtension
+}
+
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
 local searchPathGenerators = {
 	function(moduleName)
+		-- eg halimede.html5 => halimede/html5.lua
 		return {packageConfiguration.substitutionPoint}
 	end,
 	function(moduleName)
+		-- eg halimede.html5 => halimede/html5/init.lua
 		return {packageConfiguration.substitutionPoint, 'init'}
 	end,
 	function(moduleName)
@@ -627,38 +671,61 @@ local searchPathGenerators = {
 	function(moduleName)
 		-- eg for ljsyscall, checked out as a git submodule 'syscall', require('syscall') => syscall/syscall.lua but also require('syscall.helpers') => syscall/syscall/helpers.lua
 		-- This is because ljsyscall is designed to be 'installed' by LuaRocks even though it's pure Lua code...
+		-- eg syscall.helpers => syscall/syscall/helpers.lua
 		local subFolders = moduleName:split('.')
 		table.insert(subFolders, 1, subFolders[1])
 		return subFolders
 	end	
 }
 
+assert.globalTypeIsFunction('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
+-- Using a local reference means that we can become detached from other global changes (this matters slightly if we used a default for package.config; highly unlikely)
+local fileExtensionSeparator = packageConfiguration.fileExtensionSeparator
+local luaPathSeparator = packageConfiguration.luaPathSeparator
+local modulesRootPath = findModulesRootPath()
 local function initialiseSearchPaths(moduleNameLocal)
-
-	local folderSeparator = packageConfiguration.folderSeparator
-	local luaPathSeparator = packageConfiguration.luaPathSeparator
-	
-	local mappings = {
-		path = 'lua',
-		cpath = operatingSystemDetails.luaSharedLibraryExtension
-	}	
-	
-	for key, fileExtension in pairs(mappings) do
+	for key, fileExtension in pairs(searchPathFileExtensions) do
 		local paths = {}
 		for _, searchPathGenerator in ipairs(searchPathGenerators) do
 			local pathPieces = searchPathGenerator(moduleNameLocal)
 			table.insert(pathPieces, 1, modulesRootPath)
-			local searchPath = concatenateToPath(pathPieces) .. '.' .. fileExtension
+			local searchPath = concatenateToPath(pathPieces) .. fileExtensionSeparator .. fileExtension
 			table.insert(paths, searchPath)
 		end
 		package[key] = table.concat(paths, luaPathSeparator)
 	end
 end
 
+assert.globalTypeIsFunction('ipairs', 'error')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
-local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator)
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty', 'gsub')
+assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
+-- Lua 5.1 / 5.2 compatibility (a good solution uses a metatable to keep references in sync)
+local searchers = package.searchers
+local loaders = package.loaders
+if searchers == nil and loaders == nil then
+	searchers = {}
+	loaders = searchers
+	-- We could continue, but we would be unable to load anything
+	error("Please ensure 'package.searchers' or 'package.loaders' exists")
+elseif searchers == nil then
+	searchers = loaders
+elseif loaders == nil then
+	loaders = searchers	
+end
+-- Using a local reference means that we can become detached from other global changes
+local loaded = package.loaded
+loaded[''] = rootParentModule
+loaded[ourModuleName] = ourModule
+function require(modname)
+	assert.parameterTypeIsString(modname)
+	
+	if modname:isEmpty() then
+		error("Please supply a modname to require() that isn't empty")
+	end
+	
+	local moduleNameLocal = modname
 	
 	local alreadyLoadedOrLoadingResult = loaded[moduleNameLocal]
 	if alreadyLoadedOrLoadingResult ~= nil then
@@ -696,14 +763,14 @@ local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator
 	for _, searcher in ipairs(searchers) do
 		-- filePath only in Lua 5.2+, and not set by the preload searcher
 		local moduleLoaderOrFailedToFindExplanationString, filePath = searcher(moduleNameLocal)
-		if typeModule.isFunction(moduleLoaderOrFailedToFindExplanationString) then
+		if type.isFunction(moduleLoaderOrFailedToFindExplanationString) then
 			local result = moduleLoaderOrFailedToFindExplanationString()
 			
 			local ourResult
 			if result == nil then
 				ourResult = module
 			else
-				if typeModule.isTable(result) then
+				if type.isTable(result) then
 					ourResult = result
 				else
 					ourResult = {result}
@@ -721,49 +788,14 @@ local function usefulRequire(moduleNameLocal, loaded, searchers, folderSeparator
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, ' or ')))
 end
 
--- Lua 5.1 / 5.2 compatibility
-local searchers = package.searchers
-if searchers == nil then
-	searchers = package.loaders
-end
-if searchers == nil then
-	error("Please ensure 'package.searchers' or 'package.loaders' exists")
-end
-
-local loaded = package.loaded
-local folderSeparator = packageConfiguration.folderSeparator
-
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
-assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
-function require(modname)
-	assert.parameterTypeIsString(modname)
-	
-	if modname:len() == 0 then
-		error("Please supply a modname to require() that isn't empty")
-	end
-	
-	return usefulRequire(modname, loaded, searchers, packageConfiguration)
-end
 
 
--- Support being require'd ourselves
-if moduleName ~= '' then
-	return ourModule
-end
 
-modulesRootPath = concatenateToPath({findOurFolderPath(), '..'})
-package.loaded[ourModuleName] = ourModule
-local function augment(moduleLeafName)
-	require(ourModuleName .. '.init.' .. moduleLeafName)	
-end
-augment('trace')
-augment('requireChild')
-augment('requireSibling')
-augment('augmentTypeWithMiddleclass')
-augment('augmentAssertWithMiddleclass')
-augment('augmentAssertWithFieldExists')
-
+-- Used by middleclass
+assert.globalTypeIsFunction('setmetatable', 'rawget', 'assert', 'type', 'tostring', 'ipairs', 'pairs')
 local class = require(ourModuleName .. '.middleclass')
+
+
 assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')
 function moduleclass(...)
 	local newClass = class(...)
@@ -776,3 +808,17 @@ function moduleclass(...)
 	
 	return moduleClass
 end
+
+assert.globalTypeIsFunctionOrCall('require')
+local function augment(moduleLeafName)
+	require(ourModuleName .. '.init.' .. moduleLeafName)	
+end
+
+augment('trace')
+augment('requireChild')
+augment('requireSibling')
+augment('augmentTypeWithMiddleclass')
+augment('augmentAssertWithMiddleclass')
+augment('augmentAssertWithFieldExists')
+
+return ourModule

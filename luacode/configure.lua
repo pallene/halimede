@@ -72,6 +72,9 @@ local function wrapWithMultipleInheritanceProxy(initialState, ...)
 end
 
 -- http://lua-users.org/wiki/SandBoxes
+assert.globalTypeIsFunction('assert', 'error', 'ipairs', 'next', 'pairs', 'pcall', 'tonumber', 'tostring', 'type', 'unpack', 'xpcall')
+assert.globalTypeIsString('_VERSION')
+assert.globalTypeIsTable('coroutine', 'string', 'table', 'math', 'os')
 module.sandboxEnvironmentToPreserve = {
 	assert = assert,
 	error = error,

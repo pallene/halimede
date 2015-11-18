@@ -37,6 +37,7 @@ function module.allContentsInTextModeFromFileHandleAndClose(fileHandle)
 end
 local allContentsInTextModeFromFileHandleAndClose = module.allContentsInTextModeFromFileHandleAndClose
 
+assert.globalTypeIsFunction('pcall')
 function module.allContentsInTextModeFromFile(filePath, fileDescription)
 	assert.parameterTypeIsInstanceOf(filePath, Path)
 	assert.parameterTypeIsString(fileDescription)

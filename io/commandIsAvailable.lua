@@ -23,6 +23,7 @@ local noShellIsAvailable = not shellIsAvailable
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
+assert.globalTypeIsFunction('pcall')
 function module.commandIsOnPath(command)
 	assert.parameterTypeIsString(command)
 	

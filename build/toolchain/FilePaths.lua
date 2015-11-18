@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Paths = moduleclass('Paths')
+local FilePaths = moduleclass('FilePaths')
 
 local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
@@ -13,26 +13,55 @@ local Path = requireSibling('Path')
 
 
 assert.globalTypeIsFunction('ipairs')
-function module:initialize(pathStyle, paths)
-	assert.parameterTypeIsInstanceOf(pathStyle, PathStyle)
+function module:initialize(paths)
 	assert.parameterTypeIsTable(paths)
 	
 	for _, path in ipairs(paths) do
 		assert.parameterTypeIsInstanceOf(path, Path)
+		path:assertIsFilePath('path')
 	end
 	
-	self.pathStyle = pathStyle
 	self.paths = paths
 end
 
-function module:toStrings(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsBoolean(specifyCurrentDirectoryExplicitlyIfAppropriate)
+assert.globalTypeIsFunction('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+function module:appendFileExtension(fileExtension)
+	assert.parameterTypeIsString(fileExtension)
+
+	local copy = {}
 	
-	local pathsBuffer = tabelize()
-	for path in self:iterate() do
-		pathsBuffer:insert(path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	for _, path in ipairs(self.paths) do
+		table.insert(copy, path:appendFileExtension(fileExtension))
 	end
-	return pathsBuffer:concat(self.pathStyle.pathSeparator)
+	
+	return FilePaths:new(copy)
+end
+
+function module:toCFiles()
+	return self:appendFileExtension('c')
+end
+
+function module:toCxxFiles()
+	return self:appendFileExtension('cxx')
+end
+
+assert.globalTypeIsFunction('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+function module:toFileNamePaths()
+	local copy = {}
+	
+	for _, path in ipairs(self.paths) do
+		table.insert(copy, path:finalPathElementName())
+	end
+	
+	return FilePaths:new(copy)
+end
+
+function module:toObjectsWithoutPaths(objectFileExtension)
+	assert.parameterTypeIsString(objectFileExtension)
+	
+	return self:toFileNamePaths():appendFileExtension(objectFileExtension)
 end
 
 function module:iterate()
