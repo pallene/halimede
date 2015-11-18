@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local assert = require('halimede.assert')
+local assert = require('halimede').assert
 local exception = require('halimede.exception')
 
 assert.globalTypeIsFunction('setmetatable')
