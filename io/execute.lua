@@ -46,6 +46,6 @@ local execute = module.execute
 function module.executeExpectingSuccess(shellLanguage, standardIn, standardOut, standardError, ...)
 	local success, terminationKind, exitCode, command = execute(shellLanguage, standardIn, standardOut, standardError, ...)
 	if not success then
-		exception.throw("Could not execute shell command, returned exitCode '%s' for command [%s]", exitCode command)
+		exception.throw("Could not execute shell command, returned exitCode '%s' for command [%s]", exitCode, command)
 	end
 end

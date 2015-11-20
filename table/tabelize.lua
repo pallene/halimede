@@ -4,23 +4,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-
-
 assert.globalTypeIsTable('table')
-
--- maxn is dead 5.2/5.3
--- we also gain pack, move and unpack in 5.3
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat', 'insert', 'remove', 'sort')
+
 
 -- Adds the table.concat, table.insert, etc methods to optionalValueToTabelize, or returns an empty table with them added
 function module.tabelize(optionalValueToTabelize)
+	assert.parameterTypeIsTableOrNil('optionalValueToTabelize', optionalValueToTabelize)
 	
 	local valueToTabelize
-	if optionalValueToTabelize ~= nil then
-		assert.parameterTypeIsTable('optionalValueToTabelize', optionalValueToTabelize)
-		valueToTabelize = optionalValueToTabelize
-	else
+	if optionalValueToTabelize == nil then
 		valueToTabelize = {}
+	else
+		valueToTabelize = optionalValueToTabelize
 	end
 	
 	return setmetatable(valueToTabelize, {__index = table})

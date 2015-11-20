@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local isTable = type.isTable
 
-assert.globalTypeIsFunction('type')
+
 local function deepMerge(source, destination)
 	assert.parameterTypeIsTable('source', source)
 	assert.parameterTypeIsTable('destination', destination)

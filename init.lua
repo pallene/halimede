@@ -193,94 +193,77 @@ assert = setmetatable({}, {
 	end
 })
 
-function assert.NamedFunction(name, functor)
+function assert.createNamedCallableFunction(functionName, actualFunction)
 	return setmetatable({
-		name = name
+		name = functionName,
+		['function'] = actualFunction
 	}, {
 		__tostring = function()
-			return 'function:' .. name
+			return 'function:' .. functionName
 		end,
-		__call = function(table, ...)
-			return functor(...)
+		__call = function(self, ...)
+			return actualFunction(...)
 		end
 	})
 end
-local NamedFunction = assert.NamedFunction
+local createNamedCallableFunction = assert.createNamedCallableFunction
 
-local function is(value, name)
-	return typeOriginalGlobalFunction(value) == name
+local function is(value, typeName)
+	return typeOriginalGlobalFunction(value) == typeName
 end
 
-local function simpleTypeObject(name)
-	return NamedFunction(name, function(...)
-		local values = {...}
-		for _, value in ipairs(values) do
-			if is(value, name) then
-				return true
-			end
-		end
-		return false
+local function isType(typeName)
+	return createNamedCallableFunction(typeName, function(value)
+		return is(value, typeName)
 	end)
 end
 
-type.isNil = simpleTypeObject('nil')
-type.isNumber = simpleTypeObject('number')
-type.isString = simpleTypeObject('string')
-type.isBoolean = simpleTypeObject('boolean')
-type.isTable = simpleTypeObject('table')
-type.isFunction = simpleTypeObject('function')
-type.isThread = simpleTypeObject('thread')
-type.isUserdata = simpleTypeObject('userdata')
-
-local function functionOrCallTypeObject()
-	return NamedFunction('function or _call', function(...)
-		local values = {...}
-		for _, value in ipairs(values) do
-			if is(value, 'function') then
-				return true
-			end
-			if is(getmetatable(value).__call, 'function') then
-				return true
-			end
+local function isFunctionTypeOrCallType()
+	local functionName = 'function or __call'
+	return createNamedCallableFunction(functionName, function(value)
+		if is(value, 'function') then
+			return true
 		end
-		return false
+		local metatable = getmetatable(value)
+		if metatable == nil then
+			return false
+		end
+		return is(metatable.__call, 'function')
 	end)
 end
-type.isFunctionOrCall = functionOrCallTypeObject()
 
-local function multipleTypesObject(name1, name2)
-	return NamedFunction(name1 .. ' or ' .. name2, function(...)
-		local values = {...}
-		for _, value in ipairs(values) do
-			if is(value, name1) then
-				return true
-			end
-			if is(value, name2) then
-				return true
-			end
-		end
-		return false
+local function isTypeOrType(typeName1, typeName2)
+	local functionName = typeName1 .. ' or ' .. typeName2
+	return createNamedCallableFunction(functionName, function(value)
+		return is(value, typeName1) or is(value, typeName2)
 	end)
 end
-type.isTableOrUserdata = multipleTypesObject('table', 'userdata')
-type.isNumberOrString = multipleTypesObject('number', 'string')
 
-local function isTypeOrNil(name)
-	return NamedFunction(name .. ' or nil', function(...)
-		local values = {...}
-		for _, value in ipairs(values) do
-			if value == nil then
-				return true
-			end
-			return is(value, name)
-		end
-		return false
+local function isTypeOrNil(typeName)
+	return createNamedCallableFunction(typeName .. ' or nil', function(value)
+		return is(value, typeName) or value == nil
 	end)
 end
+
+type.isNil = isType('nil')
+type.isNumber = isType('number')
+type.isString = isType('string')
+type.isBoolean = isType('boolean')
+type.isTable = isType('table')
+type.isFunction = isType('function')
+type.isThread = isType('thread')
+type.isUserdata = isType('userdata')
+type.isFunctionOrCall = isFunctionTypeOrCallType()
+type.isTableOrUserdata = isTypeOrType('table', 'userdata')
+type.isNumberOrString = isTypeOrType('number', 'string')
 type.isStringOrNil = isTypeOrNil('string')
 type.isBooleanOrNil = isTypeOrNil('boolean')
+type.isTableOrNil = isTypeOrNil('table')
+type.isFunctionOrNil = isTypeOrNil('function')
+type.isThreadOrNil = isTypeOrNil('thread')
+type.isUserdataOrNil = isTypeOrNil('userdata')
 
-function type.hasPackageChildFieldOfType(isOfType, name, ...)
+local function hasPackageChildFieldOfType(isOfType, name, ...)
 	assert.parameterTypeIsTable('isOfType', isOfType)
 	assert.parameterTypeIsString('name', name)
 	
@@ -305,15 +288,15 @@ function type.hasPackageChildFieldOfType(isOfType, name, ...)
 end
 
 function type.hasPackageChildFieldOfTypeString(name, ...)
-	return type.hasPackageChildFieldOfType(type.isString, name, ...)
+	return hasPackageChildFieldOfType(type.isString, name, ...)
 end
 
 function type.hasPackageChildFieldOfTypeFunctionOrCall(name, ...)
-	return type.hasPackageChildFieldOfType(type.isFunctionOrCall, name, ...)
+	return hasPackageChildFieldOfType(type.isFunctionOrCall, name, ...)
 end
 
 function type.hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
-	return type.hasPackageChildFieldOfType(type.isTableOrUserdata, name, ...)
+	return hasPackageChildFieldOfType(type.isTableOrUserdata, name, ...)
 end
 
 function assert.withLevel(booleanResult, message, level)
@@ -343,7 +326,7 @@ end
 
 -- Would be a bit odd to use this
 function assert.parameterTypeIsNil(parameterName, value)
-	assert.parameterTypeIs(parameterName, value, type.isNil)
+	return parameterTypeIs(parameterName, value, type.isNil)
 end
 
 function assert.parameterTypeIsNumber(parameterName, value)
@@ -355,7 +338,7 @@ function assert.parameterTypeIsString(parameterName, value)
 end
 
 function assert.parameterTypeIsBoolean(parameterName, value)
-	assert.parameterTypeIs(parameterName, value, type.isBoolean)
+	return parameterTypeIs(parameterName, value, type.isBoolean)
 end
 
 function assert.parameterTypeIsTable(parameterName, value)
@@ -386,6 +369,10 @@ function assert.parameterTypeIsNumberOrString(parameterName, value)
 	return parameterTypeIs(parameterName, value, type.isNumberOrString)
 end
 
+function assert.parameterTypeIsNumberOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isNumberOrNil)
+end
+
 function assert.parameterTypeIsStringOrNil(parameterName, value)
 	return parameterTypeIs(parameterName, value, type.isStringOrNil)
 end
@@ -394,8 +381,23 @@ function assert.parameterTypeIsBooleanOrNil(parameterName, value)
 	return parameterTypeIs(parameterName, value, type.isBooleanOrNil)
 end
 
-local function globalTypeIs(isOfType, ...)
+function assert.parameterTypeIsTableOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isTableOrNil)
+end
 
+function assert.parameterTypeIsFunctionOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isFunctionOrNil)
+end
+
+function assert.parameterTypeIsThreadOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isThreadOrNil)
+end
+
+function assert.parameterTypeIsUserdataOrNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isUserdataOrNil)
+end
+
+local function globalTypeIs(isOfType, ...)
 	if _G == nil then
 		error(essentialGlobalMissingErrorMessage('_G'), 3)
 	end

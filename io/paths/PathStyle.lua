@@ -21,7 +21,7 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsStringOrNil('pathSeparator', pathSeparator)
 	assert.parameterTypeIsString('folderSeparator', folderSeparator)
-	assert.parameterTypeIsString('deviceSeparator', deviceSeparator)
+	assert.parameterTypeIsStringOrNil('deviceSeparator', deviceSeparator)
 	assert.parameterTypeIsStringOrNil('currentDirectory', currentDirectory)
 	assert.parameterTypeIsStringOrNil('parentDirectory', parentDirectory)
 	assert.parameterTypeIsString('fileExtensionSeparator', fileExtensionSeparator)
@@ -323,7 +323,7 @@ Cmd._parse = function(self, stringPath, isFile)
 end
 
 
-local OpenVms = PathStyle.new('OpenVms', nil, '.', ':', '', '-', '.', ';', true, {})
+local OpenVms = PathStyle:new('OpenVms', nil, '.', ':', '', '-', '.', ';', true, {})
 
 OpenVms._toStringRelative = function(self, pathElements, isFile)
 	if isFile then
@@ -340,4 +340,4 @@ end
 PathStyle:new('Symbian', ':', '\\', '\\', nil, nil, '.', nil, false, {})
 
 
-PathStyle:new('RiscOs', nil, '.', ':', '.', '@', '^', '/', nil, true, {})
+PathStyle:new('RiscOs', nil,  '.',  ':',  '.', '@', '^', nil, true,  {})
