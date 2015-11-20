@@ -24,6 +24,7 @@ if error == nil then
 	local errorMessage = essentialGlobalMissingErrorMessage('error')
 	if assert ~= nil then
 		assert(false, errorMessage)
+		return
 	end
 	if print ~= nil then
 		print(errorMessage)
@@ -31,9 +32,11 @@ if error == nil then
 	if os ~= nil then
 		if os.exit ~= nil then
 			os.exit(1)
+			return
 		end
 	end
 	error("Calling non-existent error should cause the Lua environment to die")
+	return
 end
 
 local function essentialGlobalMissingError(globalName)
@@ -510,24 +513,30 @@ local function initialisePackageConfiguration()
 	end
 	
 	local luaSharedLibraryExtension
+	local newline
 	if type.hasPackageChildFieldOfTypeString('jit', 'os') then
 		-- Windows, Linux, OSX, BSD, POSIX, Other
 		local name = jit.os
 		if name == 'Windows' then
 			luaSharedLibraryExtension = 'dll'
+			newline = '\r\n'
 		else
 			-- True even on Mac OS X? (not dylib)
 			luaSharedLibraryExtension = 'so'
+			newline = '\n'
 		end
 	else
 		-- Doesn't work on Symbian
 		if packageConfiguration.folderSeparator == '\\' then
 			luaSharedLibraryExtension = 'dll'
+			newline = '\r\n'
 		else
 			luaSharedLibraryExtension = 'so'
+			newline = '\n'
 		end
 	end
 	configuration.luaSharedLibraryExtension = luaSharedLibraryExtension
+	configuration.newline = newline
 	
 	-- True for all bar RISC OS
 	configuration.fileExtensionSeparator = '.'
@@ -544,23 +553,23 @@ assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty', 'find')
 assert.globalTypeIsFunction('ipairs')
 local folderSeparator = packageConfiguration.folderSeparator
-local function concatenateToPath(...)
+local function appendFoldersToPath(...)
 	local folders = {...}
 	
-	local path = ''
+	local path
 	for index, folder in ipairs(folders) do
 		assert.parameterTypeIsString('folder', folder)
 		
 		if folder:isEmpty() then
-			if index == 1 then
-				path = folderSeparator
-			else
-				error(("Folder name at index '%s' is an empty string; only that at index 1 may be on POSIX systems"):format(index))
-			end
+			error(("Folder name at index '%s' is an empty string"):format(index))
 		elseif folder:find('\0', 1, true) ~= nil then
 			error(("Folder name at index '%s' contains ASCII NUL"):format(index))
 		else
-			path = path .. folderSeparator .. folder
+			if index == 1 then
+				path = folder
+			else
+				path = path .. folderSeparator .. folder
+			end
 		end
 	end
 	
@@ -570,12 +579,16 @@ end
 local parentFolder = packageConfiguration.parentFolder
 local currentFolder = packageConfiguration.currentFolder
 local folderSeparator = packageConfiguration.folderSeparator
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub')
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub', 'isEmpty')
 local function findModulesRootPath()
 	if _G.modulesRootPath ~= nil then
 		return _G.modulesRootPath
 	end
-
+	
+	-- The following logic does not resolve symlinks, unlike the realpath binary
+	-- It may rely on the location of halimede/init.lua and the presence of debug.getinfo
+	-- It may rely on arg0 being an actual path (this is usually the case, but not necessarily)
+	
 	local function dirname(path)
 		local regexSeparator
 		if folderSeparator == '\\' then
@@ -586,9 +599,12 @@ local function findModulesRootPath()
 	
 		if path:match('.-' .. regexSeparator .. '.-') then
 			local withTrailingSlash = path:gsub('(.*' .. regexSeparator .. ')(.*)', '%1')
-			return withTrailingSlash:sub(1, #withTrailingSlash - 1)
+			local result = withTrailingSlash:sub(1, #withTrailingSlash - 1)
+			if result:isEmpty() then
+				return folderSeparator
+			end
 		else
-			return currentFolder
+			return currentFolder .. folderSeparator
 		end
 	end
 
@@ -606,9 +622,8 @@ local function findModulesRootPath()
 		end
 	end
 	
-	-- Does not resolve symlinks, unlike the realpath binary
 	local ourFolderPath = dirname(findArg0())
-	return concatenateToPath(ourFolderPath, parentFolder)
+	return appendFoldersToPath(ourFolderPath, parentFolder)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
@@ -675,7 +690,7 @@ local searchPathGenerators = {
 	end	
 }
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunction('ipairs', 'unpack')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 -- Using a local reference means that we can become detached from other global changes (this matters slightly if we used a default for package.config; highly unlikely)
 local fileExtensionSeparator = packageConfiguration.fileExtensionSeparator
@@ -687,7 +702,7 @@ local function initialiseSearchPaths(moduleNameLocal)
 		for _, searchPathGenerator in ipairs(searchPathGenerators) do
 			local pathPieces = searchPathGenerator(moduleNameLocal)
 			table.insert(pathPieces, 1, modulesRootPath)
-			local searchPath = concatenateToPath(pathPieces) .. fileExtensionSeparator .. fileExtension
+			local searchPath = appendFoldersToPath(unpack(pathPieces)) .. fileExtensionSeparator .. fileExtension
 			table.insert(paths, searchPath)
 		end
 		package[key] = table.concat(paths, luaPathSeparator)
@@ -703,6 +718,7 @@ assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty', 'gsub')
 assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
 -- Lua 5.1 / 5.2 compatibility (a good solution uses a metatable to keep references in sync)
+local newline = packageConfiguration.newline
 local searchers = package.searchers
 local loaders = package.loaders
 if searchers == nil and loaders == nil then
@@ -788,7 +804,7 @@ function require(modname)
 	
 	loaded[moduleNameLocal] = nil
 	resetModuleGlobals()
-	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, ' or ')))
+	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
 end
 
 assert.globalTypeIsFunctionOrCall('require')
@@ -806,7 +822,8 @@ ourModule.packageConfiguration = packageConfiguration
 ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
 
 -- Used by middleclass
-assert.globalTypeIsFunction('setmetatable', 'rawget', 'assert', 'type', 'tostring', 'ipairs', 'pairs')
+assert.globalTypeIsFunction('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
+assert.globalTypeIsFunctionOrCall('assert', 'type')
 local class = relativeRequire('middleclass')
 
 assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')
