@@ -5,9 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 
-
-function module.fieldExistsAsTableOrDefaultTo(parent, fieldName)
+function assert.fieldExistsAsTableOrDefaultTo(parent, fieldName)
 	local childTable = parent[fieldName]
 	if childTable == nil then
 		newChildTable = {}
@@ -15,16 +15,17 @@ function module.fieldExistsAsTableOrDefaultTo(parent, fieldName)
 		return newChildTable
 	else
 		assert.parameterTypeIsTable('childTable', childTable)
+		return childTable
 	end
 end
 
-function module.fieldExistsAsString(parent, fieldName)
+function assert.fieldExistsAsString(parent, fieldName)
 	local fieldValue = parent[fieldName]
 	assert.parameterTypeIsString('fieldValue', fieldValue)
 	return fieldValue
 end
 
-function module.fieldExistsAsFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, default)
+function assert.fieldExistsAsFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, default)
 	local fieldValue = parent[fieldName]
 	if fieldValue == nil then
 		parent[fieldName] = default
