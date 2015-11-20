@@ -31,7 +31,7 @@ function module:baseFilePaths(...)
 		local path
 		if type.isTable(stringOrTable) then
 			path = self:relativeFilePath(unpack(stringOrTable))
-		elseif type.isString(stringOrTable)
+		elseif type.isString(stringOrTable) then
 			path = self:relativeFilePath(stringOrTable)
 		else
 			exception.throw('baseFilePaths should only contain strings or tables of string')

@@ -11,7 +11,8 @@ local executeFromFile = require('halimede.luacode.executeFromFile').executeFromF
 local exception = require('halimede.exception')
 local deepMerge = require('halimede.table.deepMerge').deepMerge
 local tabelize = require('halimede.table.tabelize').tabelize
-local noRedirection = require('halimede.io.execute').noRedirection
+local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
+local noRedirection = ShellLanguage.noRedirection
 
 local Path = require('halimede.io.paths.Path')
 local ToolchainPaths = require('halimede.build.toolchain.ToolchainPaths')

@@ -4,46 +4,54 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local class = require('halimede.middleclass')
 local halimede = require('halimede')
+local class = halimede.class
 
 
 assert.globalTypeIsFunction('ipairs')
-function module:stringEnumerationClass(name, ...)
-	assert.parameterTypeIsString('name', name)
+function module.stringEnumerationClass(className, ...)
+	assert.parameterTypeIsString('className', className)
 	
-	local Class = class(name)
+	local Class = class(className)
 	
-	function Class:initialize(index, value)
+	Class.initialize = function(self, instanceName, index, value)
 		self.index = index
-		self.value = value	
+		self.value = value
+		
+		Class.static[instanceName] = self
 	end
 	
-	for index, constant in ipairs({...}) do
-		assert.parameterTypeIsString('constant', constant)
-		Class.static[constant] = Class:new(index, constant)
+	for index, value in ipairs({...}) do
+		assert.parameterTypeIsString('value', value)
+		
+		Class:new(value, index, value)
 	end
 	
 	return Class
 end
 
-function module:numberEnumerationClass(name, ...)
-
-	assert.parameterTypeIsString('name', name)
+function module.numberEnumerationClass(className, ...)
+	assert.parameterTypeIsString('className', className)
 	
-	local Class = class(name)
+	local Class = class(className)
 	
-	function Class:initialize(index, value)
+	Class.initialize = function(self, instanceName, index, value)
 		self.index = index
-		self.value = value	
+		self.value = value
+		
+		Class.static[value] = self
 	end
 	
-	for index, nameValuePair in ipairs({...}) do
-		assert.parameterTypeIsTable('nameValuePair', nameValuePair)
+	for index, instanceNameValuePair in ipairs({...}) do
+		assert.parameterTypeIsTable('instanceNameValuePair', instanceNameValuePair)
 		
-		local name = nameValuePair[1]
-		local value = nameValuePair[2]
-		Class.static[name] = Class:new(index, value)
+		local instanceName = instanceNameValuePair[1]
+		assert.parameterTypeIsString('instanceName', instanceName)
+	
+		local value = instanceNameValuePair[2]
+		assert.parameterTypeIsNumber('value', value)
+		
+		Class:new(instanceName, index, value)
 	end
 	
 	return Class

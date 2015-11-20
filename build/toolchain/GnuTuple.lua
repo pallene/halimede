@@ -17,9 +17,11 @@ local halimede = require('halimede')
 local exception = require('halimede.exception')
 local ConfigHDefines = require('halimede.build.defines.ConfigHDefines')
 local InstructionSet = requireSibling('InstructionSet')
+local ARC = InstructionSet.ARC
 local ARM64 = InstructionSet.ARM64
 local ARM = InstructionSet.ARM
 local Alpha = InstructionSet.Alpha
+local CRIS = InstructionSet.CRIS
 local PARISC = InstructionSet['PA-RISC']
 local IA32 = InstructionSet['IA-32']
 local IA64 = InstructionSet['IA-64']
@@ -30,13 +32,12 @@ local PowerPC = InstructionSet.PowerPC
 local System390 = InstructionSet['System/390']
 local zArchitecture = InstructionSet['z/Architecture']
 local SH4 = InstructionSet['SH-4']
-local Endianness = requireSibling('Endianness')
 local SPARC = InstructionSet.SPARC
 local SPARC64 = InstructionSet.SPARC64
 local x86_64 = InstructionSet.x86_64
+local Endianness = requireSibling('Endianness')
 local LittleEndian = Endianness.LittleEndian
 local BigEndian = Endianness.BigEndian
-
 
 local function unknownConfigHDefines()
 	error('Unknown ConfigH')
@@ -122,7 +123,7 @@ function GnuTuple:initialize(triplet, vendor, syscallAbi, linuxLibC, instruction
 	assert.parameterTypeIsString('triplet', triplet)
 	assert.parameterTypeIsString('vendor', vendor)
 	assert.parameterTypeIsString('syscallAbi', syscallAbi)
-	assert.parameterTypeIsString('linuxLibC', linuxLibC)
+	assert.parameterTypeIsStringOrNil('linuxLibC', linuxLibC)
 	assert.parameterTypeIsInstanceOf('instructionSet', instructionSet, InstructionSet)
 	assert.parameterTypeIsInstanceOf('endianness', endianness, Endianness)
 	assert.parameterTypeIsNumber('wordSize', wordSize)
@@ -157,7 +158,7 @@ function GnuTuple:initialize(triplet, vendor, syscallAbi, linuxLibC, instruction
 		self.isMacOsX = true
 	end
 	
-	GnuTuple.static[gnuTriplet] = self
+	GnuTuple.static[triplet] = self
 end
 
 function GnuTuple:isUnknown()

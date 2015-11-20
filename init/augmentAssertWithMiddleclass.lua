@@ -5,14 +5,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-
--- Now we have a working require, we can augment assert to work with middleclass' class system
-local class = require('halimede.middleclass')
+local class = halimede.class
 local Object = class.Object
+
 
 assert.globalTypeIsFunction('tostring')
 function assert.parameterTypeIsInstanceOf(parameterName, value, Class)
-	if not Object.isInstanceOf(value, Class) then
-		assert.withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, tostring(Class)), 3)
-	end
+	assert.withLevel(Object.isInstanceOf(value, Class), assert.parameterIsNotMessage(parameterName, Class.name), 3)
 end

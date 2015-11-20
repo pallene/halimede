@@ -9,9 +9,8 @@ moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
-local execute = require('halimede.io.execute')
-local executeExpectingSuccess = execute.executeExpectingSuccess
-local noRedirection = execute.noRedirection
+local noRedirection = ShellLanguage.noRedirection
+
 
 function module:initialize(shellLanguage, ...)
 	AbstractShellScriptExecutor:initialize(self, shellLanguage, shellLanguage.commandInterpreterName, ...)
@@ -20,7 +19,7 @@ end
 assert.globalTypeIsFunction('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	arguments:insert(scriptFilePath:toString(true))
-	executeExpectingSuccess(self.shellLanguage, noRedirection, standardOut, standardError, unpack(arguments))
+	self.shellLanguage:executeExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))
 end
 
 OrdinaryShellScriptExecutor.static.Posix = OrdinaryShellScriptExecutor:new(ShellLanguage.Posix)

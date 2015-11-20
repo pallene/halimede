@@ -10,7 +10,7 @@ local halimede = require('halimede')
 local exception = require('halimede.exception')
 local tabelize = require('halimede.table.tabelize').tabelize
 local equality = require('halimede.table.equality')
-local Object = require('halimede.middleclass').Object
+local Object = halimede.class.Object
 local PathStyle = requireSibling('PathStyle')
 local PathRelativity = requireSibling('PathRelativity')
 

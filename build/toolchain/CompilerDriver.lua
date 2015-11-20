@@ -60,7 +60,7 @@ local function mergeFlags(...)
 		if type(flagSet) == 'string' then
 			result:insert(flagSet)
 		elseif type(flagSet) == 'table' then
-			for _, flag in ipairs(flagSet) then
+			for _, flag in ipairs(flagSet) do
 				if type(flag) ~= 'string' then
 					exception.throw('Argument to mergeFlags can either be string or table of strings (array)')
 				end

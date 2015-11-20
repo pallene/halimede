@@ -26,6 +26,6 @@ return stringEnumerationClass('InstructionSet',
 	'z/Architecture',
 	'SH-4',
 	'SPARC',
-	'SPARC64'
-	'x86_64', -- x86_64 (amd64) and x86_64 32-bit
+	'SPARC64',
+	'x86_64' -- x86_64 (amd64) and x86_64 32-bit
 )

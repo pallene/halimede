@@ -840,11 +840,6 @@ local function augment(moduleLeafName)
 	return relativeRequire('init.' .. moduleLeafName)	
 end
 
-ourModule.type = type
-ourModule.assert = assert
-ourModule.packageConfiguration = packageConfiguration
-ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
-
 -- Used by middleclass
 assert.globalTypeIsFunction('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
 assert.globalTypeIsFunctionOrCall('assert', 'type')
@@ -863,11 +858,19 @@ function moduleclass(...)
 	return moduleClass
 end
 
+ourModule.type = type
+ourModule.assert = assert
+ourModule.packageConfiguration = packageConfiguration
+ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
+ourModule.class = class
+ourModule.moduleclass = moduleclass
+
 augment('trace')
 augment('requireChild')
 augment('requireSibling')
 augment('augmentTypeWithMiddleclass')
 augment('augmentAssertWithMiddleclass')
 augment('augmentAssertWithFieldExists')
+
 
 return ourModule

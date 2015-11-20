@@ -44,7 +44,6 @@ function ConfigHDefines:_ensureDefinition(defineName, enable, defineValue)
 	self.ensureDefinitions[defineName] = defineValue
 end
 
-error('ENABLE_NLS is set by what in autoconf / automate / auto*?')
 -- TODO: Build Variant
 -- Define to 1 if translation of program messages to the user's native language is requested.
 function ConfigHDefines:ENABLE_NLS(enable)

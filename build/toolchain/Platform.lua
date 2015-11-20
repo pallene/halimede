@@ -118,12 +118,12 @@ Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
 	ToolchainPathStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
-	'.o',
-	'', -- eg .exe on Windows
+	'o',
+	'', -- eg exe on Windows
 	'lib',
-	'.a',
+	'a',
 	'lib',
-	'.dylib',
+	'dylib',
 	GnuTuple['x86_64-apple-darwin13.4.0'],
 	CompilerDriver.gcc49_systemNativeHostX86_64,
 	CompilerDriver.gccxx49_systemNativeHostX86_64
@@ -133,12 +133,12 @@ Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
 	ToolchainPathStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
-	'.o',
+	'o',
 	'',
 	'lib',
-	'.a',
+	'a',
 	'lib',
-	'.dylib'
+	'dylib',
 	GnuTuple['x86_64-apple-darwin14'],
 	CompilerDriver.gcc49_systemNativeHostX86_64,
 	CompilerDriver.gccxx49_systemNativeHostX86_64

@@ -9,7 +9,6 @@ moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
-local execute = require('halimede.io.execute')
 local executeExpectingSuccess = execute.executeExpectingSuccess
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
@@ -20,7 +19,7 @@ end
 
 assert.globalTypeIsFunction('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
-	executeExpectingSuccess(self.shellLanguage, scriptFilePath:toString(true), standardOut, standardError, unpack(arguments))
+	self.shellLanguage:executeExpectingSuccess(scriptFilePath:toString(true), standardOut, standardError, unpack(arguments))
 end
 
 MacOsXHomebrewShellScriptExecutor.static.MacOsXHomebrewShellScriptExecutor = MacOsXHomebrewShellScriptExecutor:new()

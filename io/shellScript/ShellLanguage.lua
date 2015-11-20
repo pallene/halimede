@@ -15,6 +15,7 @@ local Paths = require('halimede.io.paths.Paths')
 local PathStyle = require('halimede.io.paths.PathStyle')
 
 
+ShellLanguage.static.noRedirection = false  -- Bizarre but works
 ShellLanguage.static.standardIn = 0
 ShellLanguage.static.standardOut = 1
 ShellLanguage.static.standardError = 2
@@ -27,7 +28,7 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	assert.parameterTypeIsString('newline', newline)
 	assert.parameterTypeIsStringOrNil('shellScriptFileExtensionExcludingLeadingPeriod', shellScriptFileExtensionExcludingLeadingPeriod)
 	assert.parameterTypeIsString('silenced', silenced)
-	assert.parameterTypeIsString('searchesCurrentPath', searchesCurrentPath)
+	assert.parameterTypeIsBoolean('searchesCurrentPath', searchesCurrentPath)
 	assert.parameterTypeIsString('commandInterpreterName', commandInterpreterName)
 	
 	self.lowerCasedName = lowerCasedName
@@ -39,9 +40,52 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.searchesCurrentPath = searchesCurrentPath
 	self.commandInterpreterName = commandInterpreterName
 
-	self.silenceStandardIn = self:redirectStandardInput(silenced),
-	self.silenceStandardOut = self:redirectStandardOutput(silenced),
-	self.silenceStandardError = self:redirectStandardError(silenced),
+	self.silenceStandardIn = self:redirectStandardInput(silenced)
+	self.silenceStandardOut = self:redirectStandardOutput(silenced)
+	self.silenceStandardError = self:redirectStandardError(silenced)
+end
+
+local executeFunction
+if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
+	executeFunction = os.execute
+else
+	executeFunction = function(command)
+		return nil, 'exit', 126
+	end
+end
+function module:execute(standardIn, standardOut, standardError, ...)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
+
+	local arguments = tabelize({...})
+	if standardIn then
+		arguments:insert(shellLanguage.redirectStandardInput(standardIn))
+	end
+	if standardOut then
+		arguments:insert(shellLanguage.redirectStandardOutput(standardOut))
+	end
+	if standardError then
+		arguments:insert(shellLanguage.redirectStandardError(standardError))
+	end
+
+	local command = shellLanguage.toShellCommand(...)
+
+	-- Lua 5.1: returns an exit code
+	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
+	local exitCodeOrBoolean, terminationKind, exitCode = executeFunction(command)
+	if type.isNil(exitCodeOrBoolean) then
+		return false, terminationKind, exitCode, command
+	elseif type.isBoolean(exitCodeOrBoolean) then
+		return exitCodeOrBoolean, terminationKind, exitCode, command
+	else
+		return exitCodeOrBoolean == 0, 'exit', exitCodeOrBoolean, command
+	end
+end
+
+function module:executeExpectingSuccess(standardIn, standardOut, standardError, ...)
+	local success, terminationKind, exitCode, command = self:execute(standardIn, standardOut, standardError, ...)
+	if not success then
+		exception.throw("Could not execute shell command, returned exitCode '%s' for command [%s]", exitCode, command)
+	end
 end
 
 function module:quoteArgument(argument)
@@ -183,7 +227,7 @@ function module:binarySearchPath()
 end
 
 
-local PosixShellLanguage = class('PosixShellLanguage', ShellLanguage)
+local PosixShellLanguage = halimede.class('PosixShellLanguage', ShellLanguage)
 
 function PosixShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, '/dev/null', false, 'sh')
@@ -199,7 +243,7 @@ end
 ShellLanguage.static.Posix = PosixShellLanguage:new()
 
 
-local CmdShellLanguage = class('CmdShellLanguage', ShellLanguage)
+local CmdShellLanguage = halimede.class('CmdShellLanguage', ShellLanguage)
 
 function CmdShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', 'NUL', true, 'cmd')
