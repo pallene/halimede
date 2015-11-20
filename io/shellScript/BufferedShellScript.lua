@@ -10,7 +10,7 @@ local halimede = require('halimede')
 local tabelize = require('halimede.table.tabelize').tabelize
 local deepCopy = require('halimede.table.deepCopy').deepCopy
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
-local AbstractShellScriptExecutor = require('halimede.io.shellScript.AbstractShellScriptExecutor')
+local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')
 local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
 
 

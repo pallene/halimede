@@ -22,7 +22,7 @@ local CStandard = stringEnumerationClass('CStandard',
 	'c++11',
 	'gnu++11',
 	'c++1y',           -- experimental
-	'gnu++1y',         -- experimental
+	'gnu++1y'          -- experimental
 )
 
 -- Aliases

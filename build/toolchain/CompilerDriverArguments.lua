@@ -79,7 +79,7 @@ function module:addLinkerFlags(dependenciesLinkerFlags, buildVariantLinkerFlags,
 	assert.parameterTypeIsTable('buildVariantLinkerFlags', buildVariantLinkerFlags)
 	assert.parameterTypeIsTable('otherLinkerFlags', otherLinkerFlags)
 	
-	self:compilerDriver:addLinkerFlags(self.arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
+	self.compilerDriver:addLinkerFlags(self.arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
 end
 
 function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
@@ -87,7 +87,7 @@ function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLink
 	assert.parameterTypeIsTable('buildVariantLinkedLibraries', buildVariantLinkedLibraries)
 	assert.parameterTypeIsTable('otherLinkedLibraries', otherLinkedLibraries)
 	
-	self:compilerDriver:addLinkedLibraries(self.arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
+	self.compilerDriver:addLinkedLibraries(self.arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 end
 
 function Arguments:useUnpacked(userFunction)

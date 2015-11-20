@@ -13,7 +13,7 @@ function module.openTextModeForReading(filePath, fileDescription)
 	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
 	
-	filePath:assertIsFilePath()
+	filePath:assertIsFilePath('filePath')
 	
 	local fileHandle, errorMessage = io.open(filePath:toString(false), 'r')
 	if fileHandle == nil then
@@ -41,7 +41,7 @@ function module.allContentsInTextModeFromFile(filePath, fileDescription)
 	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
 	
-	filePath:assertIsFilePath()
+	filePath:assertIsFilePath('filePath')
 	
 	local fileHandle = openTextModeForReading(filePath, fileDescription)
 	local ok, contentsOrError = pcall(allContentsInTextModeFromFileHandleAndClose, fileHandle)

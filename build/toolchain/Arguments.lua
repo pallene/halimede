@@ -23,7 +23,7 @@ assert.globalTypeIsFunction('ipairs')
 function module:append(...)
 	local arguments = {...}
 	for _, argument in ipairs(arguments) do
-		if type.isTable(argument)
+		if type.isTable(argument) then
 			for _, actualArgument in ipairs(argument) do
 				self:_append(actualArgument)
 			end

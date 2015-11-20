@@ -45,19 +45,18 @@ local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	return result
 end
 
-function module:initialize(recipesPath, recipeName, chosenBuildVariantNames)
-	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)
+function module:initialize(executionEnvironment, recipeName, chosenBuildVariantNames)
+	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
 	assert.parameterTypeIsString('recipeName', recipeName)
 	
-	recipesPath:assertIsFolderPath('recipesPath')
-	
-	self.recipeFolderPath = recipesPath:appendFolders(recipeName)
-	self.recipeFilePath = recipeFolderPath:appendFile('recipe', 'lua')
-	self.recipeSourcePath = recipeFolderPath:appendFolders('source')
-	--self.recipeWorkingDirectoryPath = recipeFolderPath:appendFolders('.build')
+	self.recipesPath = executionEnvironment.recipesPath
+	self.recipeFolderPath = self.recipesPath:appendFolders(recipeName)
+	self.recipeFilePath = self.recipeFolderPath:appendFile('recipe', 'lua')
+	self.recipeSourcePath = self.recipeFolderPath:appendFolders('source')
+	--self.recipeWorkingDirectoryPath = self.recipeFolderPath:appendFolders('.build')
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
-	local result = self:_load()
+	local result = self:_load(executionEnvironment)
 	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result)
 	self.dependencies = dependencies
 	self.packageVersion = packageVersion
@@ -172,7 +171,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 end
 
 function module:_load(executionEnvironment)
-	return executeFromFile('recipe file', self.recipeFilePath:toString(true), executionEnvironment.recipeEnvironment)
+	return executeFromFile('recipe file', self.recipeFilePath, executionEnvironment.recipeEnvironment)
 end
 
 function module:_validate(result)
@@ -214,8 +213,8 @@ end
 
 -- local executionEnvironment = ExecutionEnvironment:new(buildPlatform, buildToolchainPaths, crossPlatform)
 assert.globalTypeIsFunction('ipairs', 'pairs')
-function module:execute(executionEnvironment)
-	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
+function module:execute()
+	local executionEnvironment = self.executionEnvironment
 	
 	local crossShellLanguage = executionEnvironment.crossPlatform.shellScriptExecutor.shellLanguage
 	

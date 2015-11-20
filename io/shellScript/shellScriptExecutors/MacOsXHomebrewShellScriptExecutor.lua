@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractShellScriptExecutor = requireSibling('AbstractShellScriptExecutor')
-moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
+local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
@@ -14,7 +14,7 @@ local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 
 function module:initialize()
-	AbstractShellScriptExecutor:initialize(self, ShellLanguage.Posix, 'brew', 'sh')
+	AbstractShellScriptExecutor.initialize(self, ShellLanguage.Posix, 'brew', 'sh')
 end
 
 assert.globalTypeIsFunction('unpack')

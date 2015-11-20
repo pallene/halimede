@@ -16,14 +16,13 @@ local Arguments = requireSibling('Arguments')
 local FilePaths = requireSibling('FilePaths')
 
 
-function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-	assert.parameterTypeIsInstanceOf('CompilerMetadata', CompilerMetadata, compilerMetadata)
+function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+	assert.parameterTypeIsInstanceOf('CompilerMetadata', compilerMetadata, CompilerMetadata)
 	assert.parameterTypeIsTable('commandLineFlags', commandLineFlags)
 	assert.parameterTypeIsTable('onlyRunPreprocessorStepFlags', onlyRunPreprocessorStepFlags)
 	assert.parameterTypeIsTable('onlyRunPreprocessorAndCompilationStepsFlags', onlyRunPreprocessorAndCompilationStepsFlags)
 	assert.parameterTypeIsTable('onlyRunPreprocessorCompilationAndAssembleStepsFlags', onlyRunPreprocessorCompilationAndAssembleStepsFlags)
 	assert.parameterTypeIsTable('useFileExtensionsToDetermineLanguageFlags', useFileExtensionsToDetermineLanguageFlags)
-
 	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
 	assert.parameterTypeIsTable('gcc4X_environmentVariablesToExport', gcc4X_environmentVariablesToExport)
 	
@@ -53,15 +52,15 @@ function CompilerDriver:initialize(compilerMetadata, commandLineFlags, onlyRunPr
 	self.linkedLibraryOption = '-l'
 end
 
-assert.globalTypeIsFunction('type', 'ipairs')
+assert.globalTypeIsFunction('ipairs')
 local function mergeFlags(...)
 	local result = tabelize()
 	for _, flagSet in ipairs({...}) do
-		if type(flagSet) == 'string' then
+		if type.isString(flagSet) then
 			result:insert(flagSet)
-		elseif type(flagSet) == 'table' then
+		elseif type.isTable(flagSet) then
 			for _, flag in ipairs(flagSet) do
-				if type(flag) ~= 'string' then
+				if not type.isString(flag) then
 					exception.throw('Argument to mergeFlags can either be string or table of strings (array)')
 				end
 				result:insert(flag)
@@ -74,17 +73,17 @@ local function mergeFlags(...)
 	return result	
 end
 
-function CompilerDriver:newArguments(compilerDriverFlags, sysrootPath)
+function module:newArguments(compilerDriverFlags, sysrootPath)
 	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath)
 end
 
-function CompilerDriver:useFileExtensionsToDetermineLanguageFlags(arguments)
+function module:useFileExtensionsToDetermineLanguageFlags(arguments)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 
 	arguments:append(self.useFileExtensionsToDetermineLanguageFlags)
 end
 
-function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
+function module:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	
@@ -95,27 +94,27 @@ function CompilerDriver:appendSystemRoot(arguments, sysrootPath)
 end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
-function CompilerDriver:addCStandard(arguments, cStandard)
+function module:addCStandard(arguments, cStandard)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	
 	arguments:append(self.standardOption .. cStandard.value)
 end
 
-function CompilerDriver:doNotPredefineSystemOrCompilerDriverMacros(arguments)
+function module:doNotPredefineSystemOrCompilerDriverMacros(arguments)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 
 	arguments:append(self.undefOption)
 end
 
-function CompilerDriver:undefinePreprocessorMacro(arguments, defineName)
+function module:undefinePreprocessorMacro(arguments, defineName)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsString('defineName', defineName)
 
 	arguments:append(self.undefineOption .. defineName)
 end
 
-function CompilerDriver:definePreprocessorMacro(arguments, defineName, defineValue)
+function module:definePreprocessorMacro(arguments, defineName, defineValue)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsString('defineValue', defineValue)
@@ -130,7 +129,7 @@ local function populateIncludePaths(includePaths, includePath)
 end
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
-function CompilerDriver:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
+function module:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesSystemIncludePaths', dependenciesSystemIncludePaths)
 	assert.parameterTypeIsTable('buildVariantSystemIncludePaths', buildVariantSystemIncludePaths)
@@ -146,7 +145,7 @@ function CompilerDriver:addSystemIncludePaths(arguments, dependenciesSystemInclu
 end
 
 assert.globalTypeIsFunction('pairs')
-function CompilerDriver:addIncludePaths(arguments, sourceFilePaths)
+function module:addIncludePaths(arguments, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
 	
@@ -161,7 +160,7 @@ function CompilerDriver:addIncludePaths(arguments, sourceFilePaths)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function CompilerDriver:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
+function module:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesLinkerFlags', dependenciesLinkerFlags)
 	assert.parameterTypeIsTable('buildVariantLinkerFlags', buildVariantLinkerFlags)
@@ -173,7 +172,7 @@ function CompilerDriver:addLinkerFlags(arguments, dependenciesLinkerFlags, build
 end
 
 assert.globalTypeIsFunction('ipairs')
-function CompilerDriverArguments:addLinkedLibraries(arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
+function module:addLinkedLibraries(arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesLinkedLibraries', dependenciesLinkedLibraries)
 	assert.parameterTypeIsTable('buildVariantLinkedLibraries', buildVariantLinkedLibraries)
@@ -185,7 +184,7 @@ function CompilerDriverArguments:addLinkedLibraries(arguments, dependenciesLinke
 end
 
 assert.globalTypeIsFunction('ipairs')
-function CompilerDriver:unsetEnvironmentVariables(unsetEnvironmentVariableFunction)
+function module:unsetEnvironmentVariables(unsetEnvironmentVariableFunction)
 	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableFunction', unsetEnvironmentVariableFunction)
 	
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
@@ -194,7 +193,7 @@ function CompilerDriver:unsetEnvironmentVariables(unsetEnvironmentVariableFuncti
 end
 
 assert.globalTypeIsFunction('pairs')
-function CompilerDriver:exportEnvironmentVariables(exportEnvironmentVariableFunction, environmentVariableOverrides)
+function module:exportEnvironmentVariables(exportEnvironmentVariableFunction, environmentVariableOverrides)
 	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableFunction', exportEnvironmentVariableFunction)
 	assert.parameterTypeIsTable('environmentVariableOverrides', environmentVariableOverrides)
 	
@@ -208,22 +207,12 @@ function CompilerDriver:exportEnvironmentVariables(exportEnvironmentVariableFunc
 	end
 end
 
-local gcc4XAndClang3X_commandLineFlags = {
-	'-pipe',
-	'-mtune=native',
-	'-march=native'
-}
-local gcc4XAndClang3X_onlyRunPreprocessorStepFlags = {'-E'}
-local gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags = {'-S'}
-local gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags = {'-c'}
-local gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags = {'-x', 'none'}
-
 local gcc4X_environmentVariablesToUnset = {'LANG', 'LC_CTYPE', 'LC_MESSAGES', 'LC_ALL', 'TMPDIR', 'GCC_COMPARE_DEBUG', 'GCC_EXEC_PREFIX', 'COMPILER_PATH', 'LIBRARY_PATH', 'LANG', 'CPATH', 'C_INCLUDE_PATH', 'CPLUS_INCLUDE_PATH', 'OBJC_INCLUDE_PATH', 'DEPENDENCIES_OUTPUT', 'SUNPRO_DEPENDENCIES'}
 local gcc4X_environmentVariablesToExport = {LANG = 'C', LC_CTYPE = 'C', LC_MESSAGES = 'C', LC_ALL = 'C'}
 
 -- 'native' and 'generic' are dangerous, in that they change in gcc releases
 -- '-pipe' might not work on some systems (?weird windows ones?)
-CompilerDriver.static.gcc49_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['gcc 4.9'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-CompilerDriver.static.gccxx49_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['g++ 4.9'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-CompilerDriver.static.clang34_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['clang 3.4'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-CompilerDriver.static.clangxx34_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['clang++ 3.4'], gcc4XAndClang3X_onlyRunPreprocessorStepFlags, gcc4XAndClang3X_onlyRunPreprocessorSAndCompilationStepsFlags, gcc4XAndClang3X_onlyRunPreprocessorCompilationAndAssembleStepsFlags, gcc4XAndClang3X_useFileExtensionsToDetermineLanguageFlags, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver.static.gcc49_systemNativeHostX86_64 =     CompilerDriver:new(CompilerMetadata['gcc 4.9'],     {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver.static.gccxx49_systemNativeHostX86_64 =   CompilerDriver:new(CompilerMetadata['g++ 4.9'],     {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver.static.clang34_systemNativeHostX86_64 =   CompilerDriver:new(CompilerMetadata['clang 3.4'],   {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver.static.clangxx34_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['clang++ 3.4'], {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)

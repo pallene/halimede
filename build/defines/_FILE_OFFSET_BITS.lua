@@ -9,5 +9,5 @@ local numberEnumerationClass = require('halimede.enumeration').numberEnumeration
 
 -- AC_SYS_LARGEFILE
 return numberEnumerationClass('_FILE_OFFSET_BITS', 
-	{SixtyFour, 64}
+	{'SixtyFour', 64}
 )

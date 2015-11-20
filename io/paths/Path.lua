@@ -9,6 +9,7 @@ local Path = moduleclass('Path')
 local halimede = require('halimede')
 local exception = require('halimede.exception')
 local tabelize = require('halimede.table.tabelize').tabelize
+local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
 local equality = require('halimede.table.equality')
 local Object = halimede.class.Object
 local PathStyle = requireSibling('PathStyle')
@@ -32,7 +33,7 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 		end
 	end
 	
-	if self.pathRelativity.doesNotHaveARoot then
+	if pathRelativity.doesNotHaveARoot then
 		if length == 0 then
 			exception.throw("There must be at least one path element for a relative path")
 		end
@@ -201,6 +202,7 @@ function module:appendFile(fileName, fileExtension, alternateStreamName)
 	end
 	
 	local pathElementsCopy = shallowCopy(self.pathElements)
+	table.insert(pathElementsCopy, qualifiedFileName)
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, true, alternateStreamName)
 end
 

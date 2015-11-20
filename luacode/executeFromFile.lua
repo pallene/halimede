@@ -7,21 +7,24 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local exception = require('halimede.exception')
 local execute = requireSibling('execute').execute
 local read = require('halimede.io.read')
+local Path = require('halimede.io.paths.Path')
 
-
-function module.executeFromFile(fileDescription, luaCodeFilePath, environment)
-	assert.parameterTypeIsString('fileDescription', fileDescription)
-	assert.parameterTypeIsString('luaCodeFilePath', luaCodeFilePath)
-	assert.parameterTypeIsTable('environment', environment)
-	
-	local luaCodeString = removeInitialShaBang(read.allContentsInTextModeFromFile(fileDescription, luaCodeFilePath))
-	
-	return execute(luaCodeString, fileDescription, luaCodePath, environment)
-end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
 local function removeInitialShaBang(fileContents)
 	assert.parameterTypeIsString('fileContents', fileContents)
 	
 	return fileContents:gsub('^#![^\n]*\n', '')
+end
+
+function module.executeFromFile(fileDescription, luaCodeFilePath, environment)
+	assert.parameterTypeIsString('fileDescription', fileDescription)
+	assert.parameterTypeIsInstanceOf('luaCodeFilePath', luaCodeFilePath, Path)
+	assert.parameterTypeIsTable('environment', environment)
+	
+	luaCodeFilePath:assertIsFilePath('luaCodeFilePath')
+	
+	local luaCodeString = removeInitialShaBang(read.allContentsInTextModeFromFile(luaCodeFilePath, fileDescription))
+	
+	return execute(luaCodeString, fileDescription, luaCodeFilePath:toString(true), environment)
 end

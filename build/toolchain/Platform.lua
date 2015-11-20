@@ -12,10 +12,11 @@ local tabelize = require('halimede.table.tabelize').tabelize
 local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')
 local GnuTuple = requireSibling('GnuTuple')
 local CompilerDriver = requireSibling('CompilerDriver')
-local toolchainPathStrategies = requireSibling('toolchainPathStrategies')
+local toolchainPathsStrategies = requireSibling('toolchainPathsStrategies')
+local shellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
 
 
-function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, gnuTuple, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, cCompilerDriver, cPlusPlusCompilerDriver)
+function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsFunctionOrCall('toolchainPathStrategy', toolchainPathStrategy)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
@@ -106,9 +107,9 @@ Unix POSIX platforms:-
 	MKS Toolkit
 ]]--
 
-local commandIsOnPathAndShellIsAvaiableToUseIt = require('halimede.io.commandIsAvailable').commandIsOnPathAndShellIsAvaiableToUseIt
+-- We really ned a MacOSX / Linux check, too
 local macOsXShellScriptExecutor
-if commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
+if shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
 	macOsXShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor').MacOsXHomebrewShellScriptExecutor
 else
 	macOsXShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor').Posix
@@ -116,7 +117,7 @@ end
 
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
-	ToolchainPathStrategies.pathVersioned,
+	toolchainPathsStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
 	'o',
 	'', -- eg exe on Windows
@@ -131,7 +132,7 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
-	ToolchainPathStrategies.pathVersioned,
+	toolchainPathsStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
 	'o',
 	'',

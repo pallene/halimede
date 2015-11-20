@@ -14,17 +14,19 @@ local clang = CompilerName.clang
 local clangxx = CompilerName['clang++']
 
 
-function CompilerMetadata:initialize(unifiedName, name, version, supportsC, supportsCPlusPlus)
-	assert.parameterTypeIsInstanceOf('name', name, CompilerName)
+function CompilerMetadata:initialize(compilerName, version, supportsC, supportsCPlusPlus)
+	assert.parameterTypeIsInstanceOf('compilerName', compilerName, CompilerName)
 	assert.parameterTypeIsString('version', version)
 	assert.parameterTypeIsBoolean('supportsC', supportsC)
 	assert.parameterTypeIsBoolean('supportsCPlusPlus', supportsCPlusPlus)
 	
-	self.name = name
+	self.compilerName = compilerName
 	self.version = version
 	self.supportsC = supportsC
 	self.supportsCPlusPlus = supportsCPlusPlus
 	
+	local name = compilerName.value
+	self.name = name
 	CompilerMetadata.static[name .. ' ' .. version] = self
 end
 

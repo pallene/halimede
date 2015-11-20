@@ -15,6 +15,22 @@ local Paths = require('halimede.io.paths.Paths')
 local PathStyle = require('halimede.io.paths.PathStyle')
 
 
+local executeFunction
+if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
+	executeFunction = os.execute
+else
+	executeFunction = function(command)
+		assert.parameterTypeIsStringOrNil('command', command)
+		
+		if command == nil then
+			return false
+		end
+		return nil, 'exit', 126
+	end
+end
+ShellLanguage.static.shellIsAvailable = executeFunction() == true
+
+
 ShellLanguage.static.noRedirection = false  -- Bizarre but works
 ShellLanguage.static.standardIn = 0
 ShellLanguage.static.standardOut = 1
@@ -45,14 +61,6 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.silenceStandardError = self:redirectStandardError(silenced)
 end
 
-local executeFunction
-if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
-	executeFunction = os.execute
-else
-	executeFunction = function(command)
-		return nil, 'exit', 126
-	end
-end
 function module:execute(standardIn, standardOut, standardError, ...)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 
@@ -85,6 +93,42 @@ function module:executeExpectingSuccess(standardIn, standardOut, standardError, 
 	local success, terminationKind, exitCode, command = self:execute(standardIn, standardOut, standardError, ...)
 	if not success then
 		exception.throw("Could not execute shell command, returned exitCode '%s' for command [%s]", exitCode, command)
+	end
+end
+
+-- NOTE: This approach is slow, as it opens the executable for reading
+-- NOTE: This approach can not determine if a binary is +x (executable) or not
+local openTextModeForReading
+assert.globalTypeIsFunction('pcall')
+function module:commandIsOnPath(command)
+	assert.parameterTypeIsString('command', command)
+	
+	-- To avoid pulling in a dependency on io functions unless this function is actually used
+	if openTextModeForReading == nil then
+		openTextModeForReading = require('halimede.io.read').openTextModeForReading
+	end
+	
+	for path in shellLanguage:binarySearchPath():iterate() do
+		local pathToBinary = path:appendFile(command)
+		
+		local ok, fileHandleOrError = pcall(openTextModeForReading, pathToBinary, command)
+		if ok then
+			local fileHandle = fileHandleOrError
+			fileHandle:close()
+			return true, pathToBinary
+		end
+	end
+	
+	return false, nil
+end
+
+function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
+	assert.parameterTypeIsString('command', command)
+	
+	if ShellLanguage.shellIsAvailable then
+		return self:commandIsOnPath(command)
+	else
+		return false
 	end
 end
 

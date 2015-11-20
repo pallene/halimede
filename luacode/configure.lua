@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local exception = require('halimede.exception')
 local isTable = type.isTable
+local Path = require('halimede.io.paths.Path')
 
 
 assert.globalTypeIsFunction('setmetatable')
@@ -157,10 +158,12 @@ module.sandboxEnvironmentToPreserve = {
 -- Can not mutate any globals or their fields, but can 'shadow' (overlay) globals and assign new ones
 function module.load(fileDescription, filePath, sandboxEnvironmentToPreserve, defaultConfigurationToPreserve, mutableInitialEnvironmentState)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
-	assert.parameterTypeIsString('filePath', filePath)
+	assert.parameterTypeIsPath('filePath', filePath)
 	assert.parameterTypeIsTable('sandboxEnvironmentToPreserve', sandboxEnvironmentToPreserve)
 	assert.parameterTypeIsTable('defaultConfigurationToPreserve', defaultConfigurationToPreserve)
 	assert.parameterTypeIsTable('mutableInitialEnvironmentState', mutableInitialEnvironmentState)
+	
+	filePath:assertIsFilePath('filePath')
 	
 	local environment = wrapWithMultipleInheritanceProxy(mutableInitialEnvironmentState, wrapWithReadOnlyProxy(defaultConfigurationToPreserve), wrapWithReadOnlyProxy(sandboxEnvironmentToPreserve))
 	return executeFromFile(fileDescription, filePath, environment), environment

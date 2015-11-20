@@ -13,7 +13,7 @@ local Toolchain = requireSibling('Toolchain')
 local ToolchainPaths = requireSibling('ToolchainPaths')
 local Path = require('halimede.io.paths.Path')
 local defaultRecipeEnvironment = requireSibling('recipeEnvironment')
-local ExecutionEnvironmentBufferedShellScript = require('halimede.io.shellScript.ExecutionEnvironmentBufferedShellScript')
+local ExecutionEnvironmentBufferedShellScript = require('halimede.build.toolchain.ExecutionEnvironmentBufferedShellScript')
 
 
 assert.globalTypeIsFunction('select', 'ipairs')
@@ -37,12 +37,17 @@ local function addFileExtensionToFileNames(pathStyle, extensionWithoutLeadingPer
 	return result
 end
 
-function module:initialize(buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)
+function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)
+	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)
 	assert.parameterTypeIsInstanceOf('buildPlatform', buildPlatform, Platform)
 	assert.parameterTypeIsInstanceOf('buildToolchainPaths', buildToolchainPaths, ToolchainPaths)
 	assert.parameterTypeIsInstanceOf('crossPlatform', crossPlatform, Platform)
 	assert.parameterTypeIsInstanceOf('destinationPath', destinationPath, Path)
+	assert.parameterTypeIsTableOrNil('recipeEnvironment', recipeEnvironment)
 	
+	recipesPath:assertIsFolderPath('recipesPath')
+	
+	self.recipesPath = recipesPath
 	self.buildPlatform = buildPlatform
 	self.buildToolchainPaths = buildToolchainPaths
 	self.crossPlatform = crossPlatform

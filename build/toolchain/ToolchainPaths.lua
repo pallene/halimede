@@ -55,7 +55,6 @@ local function validatePath(path, name, mustBe)
 end
 
 function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
-	assert.parameterTypeIsFunctionOrCall(toolchainPathStrategy, shellLanguage)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	assert.parameterTypeIsInstanceOf('versionRelativePath', versionRelativePath, Path)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
