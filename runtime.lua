@@ -27,7 +27,7 @@ local function detectRuntime()
 	if jit.version then
 		-- eg 'LuaJIT 2.0.4'
 		virtualMachine = jit.version
-	elseif _VERSION
+	elseif _VERSION then
 		virtualMachine = _VERSION
 	else
 		virtualMachine = defaultLanguageLevel

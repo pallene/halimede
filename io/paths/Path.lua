@@ -231,7 +231,7 @@ function module:appendRelativePath(relativePath)
 	self:assertIsFolderPath('self')
 	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
-	for _, childPathElement in ipairs({...}) do
+	for _, childPathElement in ipairs(relativePath.pathElements) do
 		assert.parameterTypeIsString('childPathElement', childPathElement)
 		
 		pathElementsCopy:insert(childPathElement)

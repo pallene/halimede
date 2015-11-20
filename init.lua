@@ -15,10 +15,6 @@ leafModuleName = ''
 parentModule = rootParentModule
 
 
-local function essentialGlobalMissingErrorMessage(globalName)
-	return "The essential global '" .. globalName .. "' is not present in the Lua environment"
-end
-
 -- Best efforts for failing if error is missing
 if error == nil then
 	local errorMessage = essentialGlobalMissingErrorMessage('error')
@@ -39,6 +35,44 @@ if error == nil then
 	return
 end
 
+local function essentialGlobalMissingErrorMessage(globalName)
+	return "The essential global '" .. globalName .. "' is not present in the Lua environment"
+end
+
+if coroutine == nil then
+	coroutine = {}
+end
+
+if package == nil then
+	package = {}
+end
+
+if string == nil then
+	essentialGlobalMissingError('string')
+end
+
+if math == nil then
+	math = {}
+end
+
+if table == nil then
+	table = {}
+end
+
+-- bit32 as of Lua 5.2; not checked for as added by LuaJIT or as Mike Pall's library as required
+
+if io == nil then
+	io = {}
+end
+
+if os == nil then
+	os = {}
+end
+
+if debug == nil then
+	debug = {}
+end
+
 local function essentialGlobalMissingError(globalName)
 	error(essentialGlobalMissingErrorMessage(globalName))
 end
@@ -48,15 +82,30 @@ if type == nil then
 end
 
 if setmetatable == nil then
-	essentialGlobalMissingError('setmetatable')
+	if debug and debug.setmetabletable then
+		setmetatable = debug.setmetatable
+	else
+		essentialGlobalMissingError('setmetatable')
+	end
 end
 
 if getmetatable == nil then
-	essentialGlobalMissingError('getmetatable')
+	if debug and debug.getmetatable then
+		setmetatable = debug.getmetatable
+	else
+		essentialGlobalMissingError('getmetatable')
+	end
 end
 
 if _G == nil then
-	essentialGlobalMissingError('_G')
+	if _ENV then
+		_G = setmetatable({}, {
+			_index = _ENV,
+			__newindex = ENV
+		})
+	else
+		essentialGlobalMissingError('_G')
+	end
 end
 
 -- tostring, tonumber can probably be implemented in Pure Lua
@@ -65,30 +114,10 @@ if _VERSION == nil then
 	_VERSION = 'Lua 5.1'
 end
 
-if string == nil then
-	essentialGlobalMissingError('string')
-end
-
 if string.len == nil then
 	function string.len(value)
 		return #value
 	end
-end
-
-if math == nil then
-	math = {}
-end
-
-if coroutine == nil then
-	coroutine = {}
-end
-
-if os == nil then
-	os = {}
-end
-
-if debug == nil then
-	debug = {}
 end
 
 -- Guard for presence of global assert
@@ -108,15 +137,8 @@ if assert == nil then
 	end
 end
 
-if table == nil then
-	table = {}
-end
-
 -- table.concat, table.insert, table.maxn, table.remove, table.sort are all implementable in pure Lua but tricky to right
 
-if package == nil then
-	package = {}
-end
 
 if package.loaded == nil then
 	package.loaded = {}

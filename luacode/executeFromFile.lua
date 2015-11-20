@@ -5,7 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local exception = require('halimede.exception')
-local execute = require('halimede.execute').execute
+local execute = requireSibling('execute').execute
+local read = require('halimede.io.read')
+
 
 function module.executeFromFile(fileDescription, luaCodeFilePath, environment)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
@@ -17,6 +19,7 @@ function module.executeFromFile(fileDescription, luaCodeFilePath, environment)
 	return execute(luaCodeString, fileDescription, luaCodePath, environment)
 end
 
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
 local function removeInitialShaBang(fileContents)
 	assert.parameterTypeIsString('fileContents', fileContents)
 	

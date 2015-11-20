@@ -14,6 +14,18 @@ function module.execute(luaCodeString, description, origin, environment)
 	assert.parameterTypeIsString('origin', origin)
 	assert.parameterTypeIsTable('environment', environment)
 	
+	-- Not needed by all logic branches, but needed on Lua 5.1 and whenever a modern load is not detected (a rare case)
+	local setfenvFunction
+	if setenv ~= nil then
+		setfenvFunction = setfenv
+	else
+		if debug ~= nil and debug.setfenv ~= nil then
+			setfenvFunction = debug.setfenv
+		else
+			setfenvFunction = nil
+		end
+	end
+	
 	-- loadstring is not in Lua 5.2/5.3
 	-- loadstring is an alias to load in LuaJIT, but seems not to have reference equality, sadly, hence this detection
 	local canUseModernLoad
@@ -27,23 +39,23 @@ function module.execute(luaCodeString, description, origin, environment)
 	elseif load ~= nil and runtime.isLanguageLevelMoreModernThan(runtime.Lua51) then
 		canUseModernLoad = true
 		loadingFunction = load
-	elseif loadstring ~= nil and setfenv ~= nil then
+	elseif loadstring ~= nil and setfenvFunction ~= nil then
 		canUseModernLoad = false
 		loadingFunction = loadstring
 	else
-		exception.throw("Can not load %s '%s' because a modern load() or older loadstring()/setenv() aren't available", description, origin)
+		exception.throw("Can not load %s '%s' because a modern load() or older loadstring()/setfenv()/debug.setfenv() aren't available", description, origin)
 	end
 	
 	local chunkString = luaCodeString
 	local chunkName = origin
 	
 	local chunk, errorMessage
-	if canUseLoad then
+	if canUseModernLoad then
 		chunk, errorMessage = load(chunkString, chunkName, 't', environment)
 	else
 		chunk, errorMessage = loadstring(chunkString, chunkName)
 		if chunk ~= nil then
-			setfenv(chunk, environment)
+			setfenvFunction(chunk, environment)
 		end
 	end
 	
