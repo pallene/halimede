@@ -18,6 +18,36 @@ local Path = require('halimede.io.paths.Path')
 local ToolchainPaths = require('halimede.build.toolchain.ToolchainPaths')
 local ExecutionEnvironment = require('halimede.build.toolchain.ExecutionEnvironment')
 
+local fieldExists = {}
+
+function fieldExists.asTableOrDefaultTo(parent, fieldName)
+	local childTable = parent[fieldName]
+	if childTable == nil then
+		newChildTable = {}
+		parent[fieldName] = newChildTable
+		return newChildTable
+	else
+		assert.parameterTypeIsTable('childTable', childTable)
+		return childTable
+	end
+end
+
+function fieldExists.asString(parent, fieldName)
+	local fieldValue = parent[fieldName]
+	assert.parameterTypeIsString('fieldValue', fieldValue)
+	return fieldValue
+end
+
+function fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, default)
+	local fieldValue = parent[fieldName]
+	if fieldValue == nil then
+		parent[fieldName] = default
+		return default
+	end
+	assert.parameterTypeIsFunctionOrCall('fieldValue', fieldValue)
+	return fieldValue
+end
+
 
 assert.globalTypeIsFunction('ipairs', 'pairs')
 local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
@@ -57,7 +87,7 @@ function module:initialize(executionEnvironment, recipeName, chosenBuildVariantN
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
 	local result = self:_load(executionEnvironment)
-	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result)
+	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result, executionEnvironment.crossPlatform.gnuTuple)
 	self.dependencies = dependencies
 	self.packageVersion = packageVersion
 	self.consolidatedBuildVariant = consolidatedBuildVariant
@@ -95,36 +125,38 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 	for buildVariantName, buildVariantSettings in pairs(buildVariants) do
 		assert.parameterTypeIsString('buildVariantName', buildVariantName)
 		
-		local requires = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'requires')
+		local requires = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'requires')
 		for _, requiredBuildVariantName in ipairs(requires) do
 			assert.parameterTypeIsString('requiredBuildVariantName', requiredBuildVariantName)
-			if buildVariants[name] == nil then
+			
+			if buildVariants[requiredBuildVariantName] == nil then
 				exception.throw("Build variant '%s' requires undefined build variant '%s'", buildVariantName, requiredBuildVariantName)
 			end
 		end
 		
-		local conflicts = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'conflicts')
+		local conflicts = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'conflicts')
 		for _, conflictsBuildVariantName in ipairs(conflicts) do
 			assert.parameterTypeIsString('conflictsBuildVariantName', conflictsBuildVariantName)
-			if buildVariants[name] == nil then
+			
+			if buildVariants[conflictsBuildVariantName] == nil then
 				exception.throw("Build variant '%s' conflicts undefined build variant '%s'", buildVariantName, conflictsBuildVariantName)
 			end
 		end
 		
-		local arguments = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'arguments')
+		local arguments = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'arguments')
 		
-		local compilerDriverFlags = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'compilerDriverFlags')
+		local compilerDriverFlags = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'compilerDriverFlags')
 		for _, compilerDriverFlag in ipairs(compilerDriverFlags) do
 			assert.parameterTypeIsString('compilerDriverFlag', compilerDriverFlag)
 		end
 		
-		local defines = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'defines')
+		local defines = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'defines')
 		-- TODO: Validate
 		
-		local configHDefines = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'configHDefines')
+		local configHDefines = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'configHDefines')
 		-- TODO: Validate
 		
-		local libs = assert.fieldExistsAsTableOrDefaultTo(buildVariantSettings, 'libs')
+		local libs = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'libs')
 		for _, lib in ipairs(libs) do
 			assert.parameterTypeIsString('lib', lib)
 		end
@@ -142,20 +174,20 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		libs = {}
 	}
 	
-	for _, chosenBuildVariantName in ipairs(self.chosenBuildVariantNames) do
+	for _, chosenBuildVariantName in ipairs(chosenBuildVariantNames) do
 		local buildVariantSettings = buildVariants[chosenBuildVariantName]
 		if buildVariantSettings == nil then
 			exception.throw("Unknown chosen build variant '%s'", chosenBuildVariantName)
 		end
 		
 		for _, requiredBuildVariantName in ipairs(buildVariantSettings.requires) do
-			if self.chosenBuildVariantNames[requiredBuildVariantName] ~= nil then
+			if chosenBuildVariantNames[requiredBuildVariantName] ~= nil then
 				exception.throw("Chosen build variant '%s' requires chosen build variant '%s'", chosenBuildVariantName, requiredBuildVariantName)
 			end
 		end
 		
 		for _, conflictsBuildVariantName in ipairs(buildVariantSettings.conflicts) do
-			if self.chosenBuildVariantNames[conflictsBuildVariantName] ~= nil then
+			if chosenBuildVariantNames[conflictsBuildVariantName] ~= nil then
 				exception.throw("Chosen build variant '%s' conflicts with chosen build variant '%s'", chosenBuildVariantName, conflictsBuildVariantName)
 			end
 		end
@@ -174,46 +206,45 @@ function module:_load(executionEnvironment)
 	return executeFromFile('recipe file', self.recipeFilePath, executionEnvironment.recipeEnvironment)
 end
 
-function module:_validate(result)
-	local dependencies = assert.fieldExistsAsTableOrDefaultTo(result, 'dependencies')
-	local package = assert.fieldExistsAsTableOrDefaultTo(result, 'package')
-		local packageOrganisation = assert.fieldExistsAsString(package, 'organisation')
-		local packageName = assert.fieldExistsAsString(package, 'name')
-		local packageVersion = assert.fieldExistsAsString(package, 'version')  -- TODO: should not really be embedded in the recipe
-	local buildVariants = assert.fieldExistsAsTableOrDefaultTo(result, 'buildVariants')
-		local consolidatedBuildVariant = validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuildVariantNames, buildVariants)
+function module:_validate(result, crossPlatformGnuTuple)
+	local dependencies = fieldExists.asTableOrDefaultTo(result, 'dependencies')
+	local package = fieldExists.asTableOrDefaultTo(result, 'package')
+		local packageOrganisation = fieldExists.asString(package, 'organisation')
+		local packageName = fieldExists.asString(package, 'name')
+		local packageVersion = fieldExists.asString(package, 'version')  -- TODO: should not really be embedded in the recipe
+	local buildVariants = fieldExists.asTableOrDefaultTo(result, 'buildVariants')
+		local consolidatedBuildVariant = validateBuildVariantsAndCreateConsolidatedBuildVariant(self.chosenBuildVariantNames, buildVariants)
 	
 	local platformConfigHDefinesFunctions = tabelize()	
-	local configH = assert.fieldExistsAsTableOrDefaultTo(result, 'configH')
+	local configH = fieldExists.asTableOrDefaultTo(result, 'configH')
 		
-		local configHDefinesNew = assert.fieldExistsAsFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesNew', configHDefinesNew)
+		local configHDefinesNew = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesNew', configHDefinesNew)
 		
 		platformConfigHDefinesFunctions:insert(function(configHDefines, platform)
 			return configHDefinesNew(configHDefines, packageOrganisation, packageName, packageVersion, self.chosenBuildVariantNames)
 		end)
 		
-		local configHDefinesDefault = assert.fieldExistsAsFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesDefault', configHDefinesDefault)
+		local configHDefinesDefault = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesDefault', configHDefinesDefault)
 		
 		platformConfigHDefinesFunctions:insert(configHDefinesDefault)
 		
-		local platforms = assert.fieldExistsAsTableOrDefaultTo(configH, 'platforms')
+		local platforms = fieldExists.asTableOrDefaultTo(configH, 'platforms')
 		for platformMatch, platformFunction in pairs(platforms) do
 			assert.parameterTypeIsString('platformMatch', platformMatch)
 			assert.parameterTypeIsFunctionOrCall('platformFunction', platformFunction)
 			
-			if crossPlatform.gnuTuple[platformMatch] == true then
+			if crossPlatformGnuTuple[platformMatch] == true then
 				platformConfigHDefinesFunctions:insert(platformFunction)
 			end
 		end
 	
-	local execute = ensureFunctionOrCallFieldExistsOrDefault(result, 'execute', executeDefault)
+	local execute = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(result, 'execute', executeDefault)
 	
 	return dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute
 end
 
--- local executionEnvironment = ExecutionEnvironment:new(buildPlatform, buildToolchainPaths, crossPlatform)
-assert.globalTypeIsFunction('ipairs', 'pairs')
 function module:execute()
+	
 	local executionEnvironment = self.executionEnvironment
 	
 	local crossShellLanguage = executionEnvironment.crossPlatform.shellScriptExecutor.shellLanguage

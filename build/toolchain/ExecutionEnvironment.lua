@@ -12,30 +12,8 @@ local Platform = requireSibling('Platform')
 local Toolchain = requireSibling('Toolchain')
 local ToolchainPaths = requireSibling('ToolchainPaths')
 local Path = require('halimede.io.paths.Path')
-local defaultRecipeEnvironment = requireSibling('recipeEnvironment')
 local ExecutionEnvironmentBufferedShellScript = require('halimede.build.toolchain.ExecutionEnvironmentBufferedShellScript')
 
-
-assert.globalTypeIsFunction('select', 'ipairs')
-local function addFileExtensionToFileNames(pathStyle, extensionWithoutLeadingPeriod, ...)
-	local asTable
-	if select('#', ...) == 1 then
-		local first = select(1, ...)
-		if type.isTable(first) then
-			asTable = select(1, ...)
-		else
-			asTable = {...}
-		end
-	else
-		asTable = {...}
-	end
-	
-	local result = tabelize()
-	for _, basefilename in ipairs(asTable) do
-		result:insert(pathStyle:appendFileExtension(basefilename, extensionWithoutLeadingPeriod))
-	end
-	return result
-end
 
 function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)
 	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)
@@ -43,7 +21,7 @@ function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, cros
 	assert.parameterTypeIsInstanceOf('buildToolchainPaths', buildToolchainPaths, ToolchainPaths)
 	assert.parameterTypeIsInstanceOf('crossPlatform', crossPlatform, Platform)
 	assert.parameterTypeIsInstanceOf('destinationPath', destinationPath, Path)
-	assert.parameterTypeIsTableOrNil('recipeEnvironment', recipeEnvironment)
+	assert.parameterTypeIsTable('recipeEnvironment', recipeEnvironment)
 	
 	recipesPath:assertIsFolderPath('recipesPath')
 	
@@ -52,13 +30,7 @@ function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, cros
 	self.buildToolchainPaths = buildToolchainPaths
 	self.crossPlatform = crossPlatform
 	self.destinationPath = destinationPath
-	
-	if recipeEnvironment == nil then
-		self.recipeEnvironment = defaultRecipeEnvironment
-	else
-		assert.parameterTypeIsTable('recipeEnvironment', recipeEnvironment)
-		self.recipeEnvironment = recipeEnvironment
-	end
+	self.recipeEnvironment = recipeEnvironment
 	
 	if buildPlatform == crossPlatform then
 		isCrossCompiling = false
@@ -83,11 +55,6 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 	local shellScript = self:_newShellScript(self.buildToolchain, dependencies, consolidatedBuildVariant)
 	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
 	
-	local buildPathStyle = self.buildPlatform.shellScriptExecutor.shellLanguage.pathStyle
-	local function addFileExtensionToFileNamesWithPathStyle(extensionWithoutLeadingPeriod, ...)
-		return addFileExtensionToFileNames(buildPathStyle, extensionWithoutLeadingPeriod, ...)
-	end
-	
 	local buildEnvironment = {
 		
 		buildToolchain = Toolchain:new(self.buildPlatform, self.buildToolchainPaths),
@@ -95,18 +62,8 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 		crossToolchain = Toolchain:new(self.crossPlatform, crossToolchainPaths),
 		
 		sourcePath = sourcePath,
-				
-		addFileExtensionToFileNames = addFileExtensionToFileNamesWithPathStyle,
 		
-		toCFiles = function(...)
-			return addFileExtensionToFileNamesWithPathStyle('c', ...)
-		end,
-		
-		toCxxFiles = function(...)
-			return addFileExtensionToFileNamesWithPathStyle('cxx', ...)
-		end,
-		
-		action = function(name, namespace, ...)
+		action = function(namespace, name, ...)
 			shellScript:newAction(namespace, name):execute(...)
 		end,
 		
@@ -115,9 +72,11 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 		configHDefines = self.crossPlatform:createConfigHDefines(platformConfigHDefinesFunctions)
 	}
 	
-	userFunction(buildEnvironment)
+	local result = userFunction(buildEnvironment)
 	
 	shellScript:newAction(nil, 'EndScript'):execute()
+	
+	return shellScript
 end
 
 function module:_newShellScript(toolchain, dependencies, consolidatedBuildVariant)
