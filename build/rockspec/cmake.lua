@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local tabelize = require('halimede').tabelize
+local tabelize = require('halimede.table.tabelize').tabelize
 local exception = require('halimede.exception')
 local toFileAllContentsInTextMode = require('halimede.io.write').toFileAllContentsInTextMode
 local Path = require('halimede.io.paths.Path')
