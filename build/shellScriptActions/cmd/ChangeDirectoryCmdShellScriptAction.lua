@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
 moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractCmdShellScriptAction)
 
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 local Path = halimede.io.paths.Path')
 
 

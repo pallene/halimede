@@ -9,7 +9,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local PathStyle = moduleclass('PathStyle')
 
 local halimede = require('halimede')
-local shallowCopy = halimede.table.shallowCopy.shallowCopy
+local shallowCopy = halimede.table.shallowCopy
 local exception = halimede.exception
 local windowsPathMultisplitter = halimede.string.multisplitter.multisplitter('\\/')
 local Path = requireSibling('Path')

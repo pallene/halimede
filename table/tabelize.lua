@@ -4,12 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+-- Adds the table.concat, table.insert, etc methods to optionalValueToTabelize, or returns an empty table with them added
 assert.globalTypeIsTable('table')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat', 'insert', 'remove', 'sort')
-
-
--- Adds the table.concat, table.insert, etc methods to optionalValueToTabelize, or returns an empty table with them added
-function module.tabelize(optionalValueToTabelize)
+assert.globalTypeIsFunction('setmetatable')
+local function tabelize(optionalValueToTabelize)
 	assert.parameterTypeIsTableOrNil('optionalValueToTabelize', optionalValueToTabelize)
 	
 	local valueToTabelize
@@ -21,3 +20,7 @@ function module.tabelize(optionalValueToTabelize)
 	
 	return setmetatable(valueToTabelize, {__index = table})
 end
+
+modulefunction(function(self, optionalValueToTabelize)
+	return tabelize(optionalValueToTabelize)
+end)

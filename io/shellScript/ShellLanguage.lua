@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local ShellLanguage = moduleclass('ShellLanguage')
 
 local halimede = require('halimede')
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 local packageConfiguration = require('halimede').packageConfiguration
 local exception = halimede.exception
 local Path = halimede.io.paths.Path')

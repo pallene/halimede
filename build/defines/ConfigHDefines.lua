@@ -8,7 +8,7 @@ local Defines = requireSibling('Defines')
 local ConfigHDefines = moduleclass('ConfigHDefines', Defines)
 
 local halimede = require('halimede')
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 
 
 function ConfigHDefines:initialize()

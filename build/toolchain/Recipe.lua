@@ -9,8 +9,8 @@ moduleclass('Recipe')
 local halimede = require('halimede')
 local executeFromFile = halimede.luacode.executeFromFile.executeFromFile
 local exception = halimede.exception
-local deepMerge = halimede.table.deepMerge.deepMerge
-local tabelize = halimede.table.tabelize.tabelize
+local deepMerge = halimede.table.deepMerge
+local tabelize = halimede.table.tabelize
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
 

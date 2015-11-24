@@ -28,6 +28,6 @@ local function deepCopyWithState(original, encountered)
 	return copy
 end
 
-function module.deepCopy(original)	
+modulefunction(function(self, original)
 	return deepCopyWithState(original, {})
-end
+end)

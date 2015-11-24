@@ -31,4 +31,7 @@ local function deepMerge(source, destination)
 		destination[key] = deepMerge(mergedDestinationValue, value)
 	end
 end
-module.deepMerge = deepMerge
+
+modulefunction(function(self, source, original)
+	return deepMerge(source, original)
+end)

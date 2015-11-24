@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 moduleclass('AbstractShellScriptExecutor')
 
 local halimede = require('halimede')
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 local exception = halimede.exception
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local Path = halimede.io.paths.Path')

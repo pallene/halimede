@@ -8,7 +8,7 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractCmdShellScriptAction)
 
 local exception = halimede.exception
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 local Path = halimede.io.paths.Path')
 
 

@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 moduleclass('Arguments')
 
 local halimede = require('halimede')
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 
 
 function module:initialize()

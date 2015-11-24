@@ -178,7 +178,7 @@ type = setmetatable({}, {
 	__tostring = function()
 		return 'function:type'
 	end,
-	__call = function(table, ...)
+	__call = function(self, ...)
 		return typeOriginalGlobalFunction(...)
 	end
 })
@@ -188,7 +188,7 @@ assert = setmetatable({}, {
 	__tostring = function()
 		return 'function:assert'
 	end,
-	__call = function(table, ...)
+	__call = function(self, ...)
 		return assertOriginalGlobalFunction(...)
 	end
 })
@@ -903,6 +903,15 @@ function moduleclass(...)
 	return moduleClass
 end
 
+assert.globalTypeIsFunction('getmetatable')
+function modulefunction(functor)
+	getmetatable(module).__call = functor
+	module.functor = function(...)
+		return functor(module, ...)
+	end
+	return module
+end
+
 makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
 halimede = ourModule
 ourModule.type = type
@@ -912,6 +921,7 @@ ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
 ourModule.makeModuleLoadChildModulesAutomatically = makeModuleLoadChildModulesAutomatically
 ourModule.class = class
 ourModule.moduleclass = moduleclass
+ourModule.modulefunction = modulefunction
 --ourModule.modulesRootPathString = modulesRootPathString
 -- At this point in time, we really ought to add a recipesRootPath, and make sure it's absolute
 

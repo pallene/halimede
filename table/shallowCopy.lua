@@ -22,3 +22,7 @@ function module.shallowCopy(original)
 	
 	return copy
 end
+
+modulefunction(function(self, source, original)
+	return shallowCopy(source, original)
+end)

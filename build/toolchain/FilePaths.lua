@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local FilePaths = moduleclass('FilePaths')
 
-local tabelize = halimede.table.tabelize.tabelize
+local tabelize = halimede.table.tabelize
 local halimede = require('halimede')
 local Path = halimede.io.paths.Path')
 

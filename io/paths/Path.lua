@@ -8,8 +8,8 @@ local Path = moduleclass('Path')
 
 local halimede = require('halimede')
 local exception = halimede.exception
-local tabelize = halimede.table.tabelize.tabelize
-local shallowCopy = halimede.table.shallowCopy.shallowCopy
+local tabelize = halimede.table.tabelize
+local shallowCopy = halimede.table.shallowCopy
 local equality = halimede.table.equality
 local Object = halimede.class.Object
 local PathStyle = requireSibling('PathStyle')
