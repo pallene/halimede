@@ -79,6 +79,7 @@ function module:initialize(executionEnvironment, recipeName, chosenBuildVariantN
 	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
 	assert.parameterTypeIsString('recipeName', recipeName)
 	
+	self.executionEnvironment = executionEnvironment
 	self.recipesPath = executionEnvironment.recipesPath
 	self.recipeFolderPath = self.recipesPath:appendFolders(recipeName)
 	self.recipeFilePath = self.recipeFolderPath:appendFile('recipe', 'lua')
@@ -92,7 +93,7 @@ function module:initialize(executionEnvironment, recipeName, chosenBuildVariantN
 	self.packageVersion = packageVersion
 	self.consolidatedBuildVariant = consolidatedBuildVariant
 	self.platformConfigHDefinesFunctions = platformConfigHDefinesFunctions
-	self.execute = execute
+	self._execute = execute
 end
 
 function module:buildVariantsString()
@@ -256,9 +257,9 @@ function module:execute()
 	local versionRelativePath = crossShellLanguage:relativeFolderPath(self.recipeName, self.packageVersion, self:buildVariantsString(), 'dependencies-hash')
 	local prefixPath = destinationPath:appendFolders('opt', 'prefix')  -- Mounted noexec, nosuid
 	local execPrefixPath = destinationPath:appendFolders('opt', 'exec-prefix')  -- Mounted exec, nosuid
-	local libPrefixPath = destinationPath:appendFolders('opt', 'lib-prefix')  -- Might be mounted exec, ideally noexec  and nosuid
+	local libPrefixPath = destinationPath:appendFolders('opt', 'lib-prefix')  -- Might be mounted exec, ideally noexec and nosuid
 	
 	local crossToolchainPaths = ToolchainPaths:new(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
-	local shellScript = executionEnvironment:use(crossToolchainPaths, self.recipeSourcePath, self.dependencies, self.consolidatedBuildVariant, self.platformConfigHDefinesFunctions, self.execute)
+	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, self.recipeSourcePath, self.dependencies, self.consolidatedBuildVariant, self.platformConfigHDefinesFunctions, self._execute)
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
