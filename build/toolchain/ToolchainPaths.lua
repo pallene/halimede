@@ -40,9 +40,8 @@ Note that it is still possible to run scripts from a filesystem mounted noexec
 ]]--
 
 moduleclass('ToolchainPaths')
-local Path = halimede.io.paths.Path')
+local Path = halimede.io.paths.Path
 
-local halimede = require('halimede')
 local exception = halimede.exception
 
 

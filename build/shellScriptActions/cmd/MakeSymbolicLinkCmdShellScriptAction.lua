@@ -9,7 +9,7 @@ moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractCmdShellScriptAc
 
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
-local Path = halimede.io.paths.Path')
+local Path = halimede.io.paths.Path
 
 
 function module:initialize(shellScript)

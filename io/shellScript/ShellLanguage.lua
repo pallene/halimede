@@ -6,13 +6,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local ShellLanguage = moduleclass('ShellLanguage')
 
-local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
 local packageConfiguration = require('halimede').packageConfiguration
 local exception = halimede.exception
-local Path = halimede.io.paths.Path')
-local Paths = halimede.io.paths.Paths')
-local PathStyle = halimede.io.paths.PathStyle')
+local Path = halimede.io.paths.Path
+local Paths = halimede.io.paths.Paths
+print(halimede.io.paths)
+local PathStyle = halimede.io.paths.PathStyle
+if PathStyle == nil then
+	error('nil pathstyle')
+end
 
 
 local executeFunction
@@ -148,13 +151,13 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 end
 
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
-	assert.parameterTypeIsNumber('fileDescriptor', fileDescriptor)
+	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
 function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
-	assert.parameterTypeIsNumber('fileDescriptor', fileDescriptor)
+	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end

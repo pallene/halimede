@@ -86,8 +86,8 @@ assert.globalTypeIsFunction('tostring')
 function module.makeCharacterDevice(path, mode, major, minor)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
-	assert.parameterTypeIsNumber('major', major)
-	assert.parameterTypeIsNumber('minor', minor)
+	assert.parameterTypeIsPositiveInteger('major', major)
+	assert.parameterTypeIsPositiveInteger('minor', minor)
 	
 	-- Seems there's a device() method, too
 	local device = {major, minor}

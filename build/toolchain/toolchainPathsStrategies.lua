@@ -4,9 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = halimede.io.paths.Path')
+local Path = halimede.io.paths.Path
 
-local halimede = require('halimede')
 
 
 function module.pathConstant(prefixPath, versionRelativePath, folderRelativePath)

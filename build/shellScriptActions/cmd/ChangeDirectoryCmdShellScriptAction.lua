@@ -8,7 +8,7 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local tabelize = halimede.table.tabelize
-local Path = halimede.io.paths.Path')
+local Path = halimede.io.paths.Path
 
 
 function module:initialize(shellScript)

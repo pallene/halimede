@@ -6,13 +6,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 moduleclass('ExecutionEnvironment')
 
-local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
 local Platform = requireSibling('Platform')
 local Toolchain = requireSibling('Toolchain')
 local ToolchainPaths = requireSibling('ToolchainPaths')
-local Path = halimede.io.paths.Path')
-local ExecutionEnvironmentBufferedShellScript = halimede.build.toolchain.ExecutionEnvironmentBufferedShellScript')
+local Path = halimede.io.paths.Path
+local ExecutionEnvironmentBufferedShellScript = halimede.build.toolchain.ExecutionEnvironmentBufferedShellScript
 
 
 function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)

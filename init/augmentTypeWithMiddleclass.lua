@@ -4,7 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
 local class = halimede.class
 local Object = class.Object
 

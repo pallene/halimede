@@ -253,6 +253,28 @@ local function isTypeOrNil(typeName)
 	end)
 end
 
+-- From http://lua-users.org/lists/lua-l/2008-11/msg00106.html
+-- Neither function is reliable outside of +/-2^51 in range, but that's way beyond 2^32 for a 32-bit unsigned integer
+local function isInteger(value)
+	return (value + (2^52 + 2^51)) - (2^52 + 2^51) == value
+end
+
+local function isPositiveInteger(value)
+	return (value + 2^52) - 2^52 == value
+end
+
+local function isIntegerType()
+	return createNamedCallableFunction('positive integer', function(value)
+		return is(value, 'number') and isInteger(value)
+	end)
+end
+
+local function isPositiveIntegerType()
+	return createNamedCallableFunction('positive integer', function(value)
+		return is(value, 'number') and isPositiveInteger(value)
+	end)
+end
+
 type.isNil = isType('nil')
 type.isNumber = isType('number')
 type.isString = isType('string')
@@ -271,6 +293,8 @@ type.isFunctionOrNil = isTypeOrNil('function')
 type.isThreadOrNil = isTypeOrNil('thread')
 type.isUserdataOrNil = isTypeOrNil('userdata')
 type.isNotNil = isNotType('nil')
+type.isInteger = isIntegerType()
+type.isPositiveInteger = isPositiveIntegerType()
 
 local function hasPackageChildFieldOfType(isOfType, name, ...)
 	assert.parameterTypeIsTable('isOfType', isOfType)
@@ -412,6 +436,10 @@ end
 
 function assert.parameterTypeIsNotNil(parameterName, value)
 	return parameterTypeIs(parameterName, value, type.isNotNil)
+end
+
+function assert.parameterTypeIsPositiveInteger(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isPositiveInteger)
 end
 
 local function globalTypeIs(isOfType, ...)
@@ -771,7 +799,7 @@ local function makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
 			local fullModuleName = ourModuleName .. '.' .. childModuleName
 			local ok, moduleLoaded = pcall(require, fullModuleName)
 			if not ok then
-				error("No known module '%s'", fullModuleName)
+				error(moduleLoaded)
 			end
 			ourModule[childModuleName] = moduleLoaded
 			return moduleLoaded
@@ -781,7 +809,7 @@ local function makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
 	return ourModule
 end
 
-assert.globalTypeIsFunction('ipairs', 'error')
+assert.globalTypeIsFunction('ipairs', 'error', 'setmetatable')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty', 'gsub')
 assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
@@ -805,7 +833,7 @@ loaded[''] = rootParentModule
 loaded[ourModuleName] = ourModule
 loaded[relativeRequireName('assert')] = assert
 loaded[relativeRequireName('type')] = type
-function require(modname)
+local function requireFunction(modname)
 	assert.parameterTypeIsString('modname', modname)
 	
 	if modname:isEmpty() then
@@ -875,6 +903,11 @@ function require(modname)
 	resetModuleGlobals()
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
 end
+require = setmetatable({}, {
+	__call = function(self, ...)
+		return requireFunction(...)
+	end
+})
 
 assert.globalTypeIsFunctionOrCall('require')
 local function relativeRequire(childModuleName)
@@ -914,6 +947,7 @@ end
 
 makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
 halimede = ourModule
+ourModule.require = require
 ourModule.type = type
 ourModule.assert = assert
 ourModule.packageConfiguration = packageConfiguration
@@ -926,7 +960,6 @@ ourModule.modulefunction = modulefunction
 -- At this point in time, we really ought to add a recipesRootPath, and make sure it's absolute
 
 augment('trace')
-augment('requireChild')
 augment('requireSibling')
 augment('augmentTypeWithMiddleclass')
 augment('augmentAssertWithMiddleclass')

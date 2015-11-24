@@ -8,7 +8,7 @@ local isTable = type.isTable
 
 
 assert.globalTypeIsFunction('setmetatable', 'getmetatable', 'next')
-function module.shallowCopy(original)
+local function shallowCopy(original)
 	if not isTable(original) then
 		return original
 	end

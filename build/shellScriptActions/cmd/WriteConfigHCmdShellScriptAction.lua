@@ -8,7 +8,7 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('WriteConfigHCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
-local Path = halimede.io.paths.Path')
+local Path = halimede.io.paths.Path
 
 
 function module:initialize(shellScript)

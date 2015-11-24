@@ -8,7 +8,7 @@ local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptActio
 moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local exception = halimede.exception
-local Path = halimede.io.paths.Path')
+local Path = halimede.io.paths.Path
 local UnsetEnvironmentVariableCmdShellScriptAction = requireSibling('UnsetEnvironmentVariableCmdShellScriptAction')
 local ExportEnvironmentVariableCmdShellScriptAction = requireSibling('ExportEnvironmentVariableCmdShellScriptAction')
 local ChangeDirectoryCmdShellScriptAction = requireSibling('ChangeDirectoryCmdShellScriptAction')

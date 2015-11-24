@@ -13,7 +13,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 -- Also config.guess and config.sub (but these are horrid; they latter should just have used a simple 1:1 string key, string value table to normalize so it was easy to spot obsolete entries and reasoning)
 local GnuTuple = moduleclass('GnuTuple')
 
-local halimede = require('halimede')
 local exception = halimede.exception
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local InstructionSet = requireSibling('InstructionSet')
@@ -126,7 +125,7 @@ function GnuTuple:initialize(triplet, vendor, syscallAbi, linuxLibC, instruction
 	assert.parameterTypeIsStringOrNil('linuxLibC', linuxLibC)
 	assert.parameterTypeIsInstanceOf('instructionSet', instructionSet, InstructionSet)
 	assert.parameterTypeIsInstanceOf('endianness', endianness, Endianness)
-	assert.parameterTypeIsNumber('wordSize', wordSize)
+	assert.parameterTypeIsPositiveInteger('wordSize', wordSize)
 	assert.parameterTypeIsString('description', description)
 	assert.parameterTypeIsFunctionOrCall('newConfigHDefines', newConfigHDefines)
 	
