@@ -7,10 +7,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local Path = moduleclass('Path')
 
 local halimede = require('halimede')
-local exception = require('halimede.exception')
-local tabelize = require('halimede.table.tabelize').tabelize
-local shallowCopy = require('halimede.table.shallowCopy').shallowCopy
-local equality = require('halimede.table.equality')
+local exception = halimede.exception
+local tabelize = halimede.table.tabelize.tabelize
+local shallowCopy = halimede.table.shallowCopy.shallowCopy
+local equality = halimede.table.equality
 local Object = halimede.class.Object
 local PathStyle = requireSibling('PathStyle')
 local PathRelativity = requireSibling('PathRelativity')

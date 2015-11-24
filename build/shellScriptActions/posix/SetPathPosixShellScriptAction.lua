@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('SetPathPosixShellScriptAction', AbstractPosixShellScriptAction)
 
-local Paths = require('halimede.io.paths.Paths')
+local Paths = halimede.io.paths.Paths')
 local UnsetEnvironmentVariablePosixShellScriptAction = requireSibling('UnsetEnvironmentVariablePosixShellScriptAction')
 local ExportEnvironmentVariablePosixShellScriptAction = requireSibling('ExportEnvironmentVariablePosixShellScriptAction')
 

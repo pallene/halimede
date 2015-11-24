@@ -8,8 +8,8 @@ local Defines = requireSibling('Defines')
 local CommandLineDefines = moduleclass('CommandLineDefines', Defines)
 
 local halimede = require('halimede')
-local tabelize = require('halimede.table.tabelize').tabelize
-local CompilerDriverArguments = require('halimede.build.toolchain.CompilerDriverArguments')
+local tabelize = halimede.table.tabelize.tabelize
+local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments')
 
 
 function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros)

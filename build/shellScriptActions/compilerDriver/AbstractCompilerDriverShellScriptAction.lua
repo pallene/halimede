@@ -3,7 +3,7 @@ This file is part of halimede. It is subject to the licence terms in the COPYRIG
 Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/pallene/halimede/master/COPYRIGHT.
 ]]--
 
-local AbstractShellScriptAction = require('halimede.build.shellScriptActions.AbstractShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
 

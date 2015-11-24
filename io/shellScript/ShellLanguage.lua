@@ -7,12 +7,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local ShellLanguage = moduleclass('ShellLanguage')
 
 local halimede = require('halimede')
-local tabelize = require('halimede.table.tabelize').tabelize
+local tabelize = halimede.table.tabelize.tabelize
 local packageConfiguration = require('halimede').packageConfiguration
-local exception = require('halimede.exception')
-local Path = require('halimede.io.paths.Path')
-local Paths = require('halimede.io.paths.Paths')
-local PathStyle = require('halimede.io.paths.PathStyle')
+local exception = halimede.exception
+local Path = halimede.io.paths.Path')
+local Paths = halimede.io.paths.Paths')
+local PathStyle = halimede.io.paths.PathStyle')
 
 
 local executeFunction
@@ -105,7 +105,7 @@ function module:commandIsOnPath(command)
 	
 	-- To avoid pulling in a dependency on io functions unless this function is actually used
 	if openTextModeForReading == nil then
-		openTextModeForReading = require('halimede.io.read').openTextModeForReading
+		openTextModeForReading = halimede.io.read.openTextModeForReading
 	end
 	
 	for path in self:binarySearchPath():iterate() do

@@ -10,7 +10,7 @@ local halimede = require('halimede')
 local CompilerDriver = requireSibling('CompilerDriver')
 local Arguments = requireSibling('Arguments')
 local FilePaths = requireSibling('FilePaths')
-local Path = require('halimede.io.paths.Path')
+local Path = halimede.io.paths.Path')
 
 
 function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath)

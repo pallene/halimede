@@ -7,8 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
 moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractCmdShellScriptAction)
 
-local tabelize = require('halimede.table.tabelize').tabelize
-local Path = require('halimede.io.paths.Path')
+local tabelize = halimede.table.tabelize.tabelize
+local Path = halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)

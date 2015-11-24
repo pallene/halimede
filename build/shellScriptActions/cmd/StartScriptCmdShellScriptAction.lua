@@ -7,8 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractCmdShellScriptAction = requireSibling('AbstractCmdShellScriptAction')
 moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
 
-local exception = require('halimede.exception')
-local Path = require('halimede.io.paths.Path')
+local exception = halimede.exception
+local Path = halimede.io.paths.Path')
 local UnsetEnvironmentVariableCmdShellScriptAction = requireSibling('UnsetEnvironmentVariableCmdShellScriptAction')
 local ExportEnvironmentVariableCmdShellScriptAction = requireSibling('ExportEnvironmentVariableCmdShellScriptAction')
 local ChangeDirectoryCmdShellScriptAction = requireSibling('ChangeDirectoryCmdShellScriptAction')

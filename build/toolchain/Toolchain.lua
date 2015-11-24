@@ -7,8 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 moduleclass('Toolchain')
 
 local halimede = require('halimede')
-local tabelize = require('halimede.table.tabelize').tabelize
-local exception = require('halimede.exception')
+local tabelize = halimede.table.tabelize.tabelize
+local exception = halimede.exception
 local Platform = requireSibling('Platform')
 local ToolchainPaths = requireSibling('ToolchainPaths')
 local FilePaths = requireSibling('FilePaths')

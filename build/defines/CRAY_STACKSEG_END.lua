@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local stringEnumerationClass = require('halimede.enumeration').stringEnumerationClass
+local stringEnumerationClass = halimede.enumeration.stringEnumerationClass
 
 
 return stringEnumerationClass('CRAY_STACKSED_END', '__getb67', 'GETB67', 'getb67')

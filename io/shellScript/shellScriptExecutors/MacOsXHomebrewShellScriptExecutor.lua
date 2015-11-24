@@ -8,8 +8,8 @@ local AbstractShellScriptExecutor = requireSibling('AbstractShellScriptExecutor'
 local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
 
 local halimede = require('halimede')
-local deepCopy = require('halimede.table.deepCopy').deepCopy
-local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
+local deepCopy = halimede.table.deepCopy.deepCopy
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
 function module:initialize()

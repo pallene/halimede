@@ -40,10 +40,10 @@ Note that it is still possible to run scripts from a filesystem mounted noexec
 ]]--
 
 moduleclass('ToolchainPaths')
-local Path = require('halimede.io.paths.Path')
+local Path = halimede.io.paths.Path')
 
 local halimede = require('halimede')
-local exception = require('halimede.exception')
+local exception = halimede.exception
 
 
 local function validatePath(path, name, mustBe)

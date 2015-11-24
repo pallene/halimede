@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local stringEnumerationClass = require('halimede.enumeration').stringEnumerationClass
+local stringEnumerationClass = halimede.enumeration.stringEnumerationClass
 
 
 -- Some of these names will need translation to work on older GNU versions, eg c99 => c9x

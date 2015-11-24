@@ -4,11 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction = require('halimede.build.shellScriptActions.compilerDriver.AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction')
+local AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction = halimede.build.shellScriptActions.compilerDriver.AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction
 moduleclass('PreprocessCompileAndAssembleCompilerDriverCmdShellScriptAction', AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction)
 
-local UnsetEnvironmentVariableCmdShellScriptAction = require('halimede.build.shellScriptActions.cmd.UnsetEnvironmentVariableCmdShellScriptAction')
-local ExportEnvironmentVariableCmdShellScriptAction = require('halimede.build.shellScriptActions.cmd.ExportEnvironmentVariableCmdShellScriptAction')
+local UnsetEnvironmentVariableCmdShellScriptAction = halimede.build.shellScriptActions.cmd.UnsetEnvironmentVariableCmdShellScriptAction
+local ExportEnvironmentVariableCmdShellScriptAction = halimede.build.shellScriptActions.cmd.ExportEnvironmentVariableCmdShellScriptAction
 
 
 function module:initialize(shellScript, dependencies, buildVariant)

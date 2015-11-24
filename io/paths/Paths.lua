@@ -6,10 +6,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local Paths = moduleclass('Paths')
 
-local tabelize = require('halimede.table.tabelize').tabelize
+local tabelize = halimede.table.tabelize.tabelize
 local halimede = require('halimede')
-local Path = require('halimede.io.paths.Path')
-local PathStyle = require('halimede.io.paths.PathStyle')
+local Path = halimede.io.paths.Path')
+local PathStyle = halimede.io.paths.PathStyle')
 
 
 assert.globalTypeIsFunction('ipairs')

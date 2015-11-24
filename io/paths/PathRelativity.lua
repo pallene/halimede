@@ -8,7 +8,7 @@ local PathRelativity = moduleclass('PathRelativity')
 local PathStyle = requireSibling('PathStyle')
 
 local halimede = require('halimede')
-local exception = require('halimede.exception')
+local exception = halimede.exception
 
 
 -- isAbsoluteIncludingDeviceName: C:\path\to\file.txt (no POSIX equivalent unless using an empty device)

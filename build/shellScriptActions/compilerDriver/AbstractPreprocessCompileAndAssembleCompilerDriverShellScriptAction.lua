@@ -8,9 +8,9 @@ local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShe
 moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 local Toolchain = requireSibling('Toolchain')
-local CStandard = require('halimede.build.toolchain.CStandard')
-local LegacyCandCPlusPlusStringLiteralEncoding = require('halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
-local CommandLineDefines = require('halimede.build.defines.CommandLineDefines')
+local CStandard = halimede.build.toolchain.CStandard')
+local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
+local CommandLineDefines = halimede.build.defines.CommandLineDefines
 
 
 function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)

@@ -7,16 +7,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 moduleclass('Recipe')
 
 local halimede = require('halimede')
-local executeFromFile = require('halimede.luacode.executeFromFile').executeFromFile
-local exception = require('halimede.exception')
-local deepMerge = require('halimede.table.deepMerge').deepMerge
-local tabelize = require('halimede.table.tabelize').tabelize
-local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
+local executeFromFile = halimede.luacode.executeFromFile.executeFromFile
+local exception = halimede.exception
+local deepMerge = halimede.table.deepMerge.deepMerge
+local tabelize = halimede.table.tabelize.tabelize
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
 
-local Path = require('halimede.io.paths.Path')
-local ToolchainPaths = require('halimede.build.toolchain.ToolchainPaths')
-local ExecutionEnvironment = require('halimede.build.toolchain.ExecutionEnvironment')
+local Path = halimede.io.paths.Path')
+local ToolchainPaths = halimede.build.toolchain.ToolchainPaths')
+local ExecutionEnvironment = halimede.build.toolchain.ExecutionEnvironment')
 
 local fieldExists = {}
 

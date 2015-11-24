@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
 moduleclass('MakeDirectoryRecursivelyPosixShellScriptAction', AbstractPosixShellScriptAction)
 
-local Path = require('halimede.io.paths.Path')
+local Path = halimede.io.paths.Path')
 
 
 function module:initialize(shellScript)

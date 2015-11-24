@@ -4,7 +4,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local exception = require('halimede.exception')
+local halimede = require('halimede')
+local exception = halimede.exception
+
 
 assert.globalTypeIsFunction('setmetatable')
 local knownLanguageLevelMappings = setmetatable({
@@ -54,4 +56,7 @@ local function detectRuntime()
 	}
 end
 
-return detectRuntime()
+assert.globalTypeIsFunction('pairs')
+for key, value in pairs(detectRuntime()) do
+	module[key] = value
+end

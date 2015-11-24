@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local stringEnumerationClass = require('halimede.enumeration').stringEnumerationClass
+local stringEnumerationClass = halimede.enumeration.stringEnumerationClass
 
 
 -- Similar to Debian architecture but differs, as Debian architecture also includes syscall ABI (effectively, kernel type)

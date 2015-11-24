@@ -4,8 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local exception = require('halimede.exception')
-local runtime = require('halimede.runtime')
+local exception = halimede.exception
+local runtime = halimede.runtime
 
 
 assert.globalTypeIsFunction('pcall')

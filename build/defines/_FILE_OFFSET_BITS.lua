@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local numberEnumerationClass = require('halimede.enumeration').numberEnumerationClass
+local numberEnumerationClass = halimede.enumeration.numberEnumerationClass
 
 
 -- AC_SYS_LARGEFILE

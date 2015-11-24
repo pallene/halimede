@@ -4,10 +4,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local exception = require('halimede.exception')
+local exception = halimede.exception
 local write = requireSibling('write')
-local Path = require('halimede.io.paths.Path')
-local DefaultShellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
+local Path = halimede.io.paths.Path')
+local DefaultShellLanguage = halimede.io.shellScript.ShellLanguage.Default
 
 
 assert.globalTableHasChieldFieldOfTypeFunction('os', 'tmpname')

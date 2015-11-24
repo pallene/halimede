@@ -4,9 +4,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local exception = require('halimede.exception')
+local exception = halimede.exception
 local isTable = type.isTable
-local Path = require('halimede.io.paths.Path')
+local Path = halimede.io.paths.Path')
 
 
 assert.globalTypeIsFunction('setmetatable')

@@ -7,12 +7,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local Platform = moduleclass('Platform')
 
 local halimede = require('halimede')
-local tabelize = require('halimede.table.tabelize').tabelize
-local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')
+local tabelize = halimede.table.tabelize.tabelize
+local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local GnuTuple = requireSibling('GnuTuple')
 local CompilerDriver = requireSibling('CompilerDriver')
 local toolchainPathsStrategies = requireSibling('toolchainPathsStrategies')
-local shellLanguage = require('halimede.io.shellScript.ShellLanguage').Default
+local shellLanguage = halimede.io.shellScript.ShellLanguage.Default
 
 
 function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
@@ -109,9 +109,9 @@ Unix POSIX platforms:-
 -- We really ned a MacOSX / Linux check, too
 local macOsXShellScriptExecutor
 if shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
-	macOsXShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor').MacOsXHomebrewShellScriptExecutor
+	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor.MacOsXHomebrewShellScriptExecutor
 else
-	macOsXShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor').Posix
+	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor.Posix
 end
 
 Platform:new(

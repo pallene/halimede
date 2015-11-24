@@ -330,6 +330,10 @@ function assert.parameterIsNotMessage(parameterName, name)
 end
 
 local function parameterTypeIs(parameterName, value, isOfType)
+	if not type.isString(parameterName) then
+		error('Please supply a string parameter name')
+	end
+	
 	withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, isOfType.name), 4)
 end
 
@@ -618,8 +622,8 @@ local currentFolder = packageConfiguration.currentFolder
 local folderSeparator = packageConfiguration.folderSeparator
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub', 'isEmpty')
 local function findModulesRootPath()
-	if _G.modulesRootPath ~= nil then
-		return _G.modulesRootPath
+	if _G.modulesRootPathString ~= nil then
+		return _G.modulesRootPathString
 	end
 	
 	-- The following logic does not resolve symlinks, unlike the realpath binary
@@ -732,13 +736,13 @@ assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 -- Using a local reference means that we can become detached from other global changes (this matters slightly if we used a default for package.config; highly unlikely)
 local fileExtensionSeparator = packageConfiguration.fileExtensionSeparator
 local luaPathSeparator = packageConfiguration.luaPathSeparator
-local modulesRootPath = findModulesRootPath()
+local modulesRootPathString = findModulesRootPath()
 local function initialiseSearchPaths(moduleNameLocal)
 	for key, fileExtension in pairs(searchPathFileExtensions) do
 		local paths = {}
 		for _, searchPathGenerator in ipairs(searchPathGenerators) do
 			local pathPieces = searchPathGenerator(moduleNameLocal)
-			table.insert(pathPieces, 1, modulesRootPath)
+			table.insert(pathPieces, 1, modulesRootPathString)
 			local searchPath = appendFoldersToPath(unpack(pathPieces)) .. fileExtensionSeparator .. fileExtension
 			table.insert(paths, searchPath)
 		end
@@ -748,6 +752,33 @@ end
 
 local function relativeRequireName(childModuleName)
 	return ourModuleName .. '.' .. childModuleName
+end
+
+assert.globalTypeIsFunction('setmetatable', 'pcall')
+local function makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
+	assert.parameterTypeIsString('ourModuleName', ourModuleName)
+	assert.parameterTypeIsTableOrNil('ourModule', ourModule)
+	
+	if ourModule == nil then
+		ourModule = {}
+	end
+	
+	setmetatable(ourModule, {
+		__index = function(self, childModuleName)
+			assert.parameterTypeIsTable('self', self)
+			assert.parameterTypeIsString('moduleName', moduleName)
+		
+			local fullModuleName = ourModuleName .. '.' .. childModuleName
+			local ok, moduleLoaded = pcall(require, fullModuleName)
+			if not ok then
+				error("No known module '%s'", fullModuleName)
+			end
+			ourModule[childModuleName] = moduleLoaded
+			return moduleLoaded
+		end
+	})
+	
+	return ourModule
 end
 
 assert.globalTypeIsFunction('ipairs', 'error')
@@ -795,7 +826,7 @@ function require(modname)
 	local parentModuleOriginal = parentModule
 	
 	-- Prevent a parent that loads a child then having the parent loaded again in an infinite loop
-	local moduleLocal = {}
+	local moduleLocal = makeModuleLoadChildModulesAutomatically(moduleNameLocal)
 	loaded[moduleNameLocal] = moduleLocal
 	local parentModuleNameLocal, leafModuleNameLocal = parentModuleNameFromModuleName(moduleNameLocal)
 	local parentModuleLocal = requireParentModuleFirst(parentModuleNameLocal)
@@ -829,7 +860,8 @@ function require(modname)
 				if type.isTable(result) then
 					ourResult = result
 				else
-					ourResult = {result}
+					module[1] = result
+					ourResult = module
 				end
 			end
 			loaded[moduleNameLocal] = ourResult
@@ -871,12 +903,17 @@ function moduleclass(...)
 	return moduleClass
 end
 
+makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
+halimede = ourModule
 ourModule.type = type
 ourModule.assert = assert
 ourModule.packageConfiguration = packageConfiguration
 ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
+ourModule.makeModuleLoadChildModulesAutomatically = makeModuleLoadChildModulesAutomatically
 ourModule.class = class
 ourModule.moduleclass = moduleclass
+--ourModule.modulesRootPathString = modulesRootPathString
+-- At this point in time, we really ought to add a recipesRootPath, and make sure it's absolute
 
 augment('trace')
 augment('requireChild')

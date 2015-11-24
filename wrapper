@@ -187,7 +187,7 @@ _program_cleanEnvironment()
 _program_modulePathLuaSingleQuoteEscaped="$(_program_replaceSeparator "$_program_modulesPath" "'" "'\''")"
 
 # We can not set LUA_PATH and LUA_CPATH as we do not know how Lua was configured for things like ';' and '?'
-_program_prepareScript="_G.modulesRootPath = '${_program_modulePathLuaSingleQuoteEscaped}'"'
+_program_prepareScript="_G.modulesRootPathString = '${_program_modulePathLuaSingleQuoteEscaped}'"'
 local function initialisePackageConfiguration()
 	
 	local packageConfigurationMapping = {
@@ -223,6 +223,10 @@ local function toPath(...)
 	return table.concat({...}, folderSeparator)
 end
 
+local function toPathUnderModuleRoot(...)
+	return toPath(_G.modulesRootPathString, ...)
+end
+
 local function toPaths(paths, fileExtension)
 	if #paths == 0 then
 		return ""
@@ -232,8 +236,8 @@ local function toPaths(paths, fileExtension)
 end
 
 local paths = {
-	toPath(_G.modulesRootPath, substitutionPoint),
-	toPath(_G.modulesRootPath, substitutionPoint, "init")
+	toPathUnderModuleRoot(substitutionPoint),
+	toPathUnderModuleRoot(substitutionPoint, "init")
 }
 
 package.path = toPaths(paths, "lua")

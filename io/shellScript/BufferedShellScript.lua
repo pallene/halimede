@@ -7,11 +7,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local BufferedShellScript = moduleclass('BufferedShellScript')
 
 local halimede = require('halimede')
-local tabelize = require('halimede.table.tabelize').tabelize
-local deepCopy = require('halimede.table.deepCopy').deepCopy
-local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
-local AbstractShellScriptExecutor = require('halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor')
-local toTemporaryFileAllContentsInTextModeAndUse = require('halimede.io.temporaryWrite').toTemporaryFileAllContentsInTextModeAndUse
+local tabelize = halimede.table.tabelize.tabelize
+local deepCopy = halimede.table.deepCopy.deepCopy
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
+local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
+local toTemporaryFileAllContentsInTextModeAndUse = halimede.io.temporaryWrite.toTemporaryFileAllContentsInTextModeAndUse
 
 
 function BufferedShellScript:initialize(shellScriptExecutor)

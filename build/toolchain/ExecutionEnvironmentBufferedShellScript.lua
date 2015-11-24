@@ -4,11 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local BufferedShellScript = require('halimede.io.shellScript.BufferedShellScript')
+local BufferedShellScript = halimede.io.shellScript.BufferedShellScript
 moduleclass('ExecutionEnvironmentBufferedShellScript', BufferedShellScript)
 
 local halimede = require('halimede')
-local exception = require('halimede.exception')
+local exception = halimede.exception
 
 
 function module:initialize(shellScriptExecutor, dependencies, buildVariant)
