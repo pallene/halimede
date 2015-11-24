@@ -213,8 +213,16 @@ local function is(value, typeName)
 end
 
 local function isType(typeName)
-	return createNamedCallableFunction(typeName, function(value)
+	local functionName = typeName
+	return createNamedCallableFunction(functionName, function(value)
 		return is(value, typeName)
+	end)
+end
+
+local function isNotType(typeName)
+	local functionName = 'not ' .. typeName
+	return createNamedCallableFunction(functionName, function(value)
+		return not is(value, typeName)
 	end)
 end
 
@@ -262,6 +270,7 @@ type.isTableOrNil = isTypeOrNil('table')
 type.isFunctionOrNil = isTypeOrNil('function')
 type.isThreadOrNil = isTypeOrNil('thread')
 type.isUserdataOrNil = isTypeOrNil('userdata')
+type.isNotNil = isNotType('nil')
 
 local function hasPackageChildFieldOfType(isOfType, name, ...)
 	assert.parameterTypeIsTable('isOfType', isOfType)
@@ -395,6 +404,10 @@ end
 
 function assert.parameterTypeIsUserdataOrNil(parameterName, value)
 	return parameterTypeIs(parameterName, value, type.isUserdataOrNil)
+end
+
+function assert.parameterTypeIsNotNil(parameterName, value)
+	return parameterTypeIs(parameterName, value, type.isNotNil)
 end
 
 local function globalTypeIs(isOfType, ...)

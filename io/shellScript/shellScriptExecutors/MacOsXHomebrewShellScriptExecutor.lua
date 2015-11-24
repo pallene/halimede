@@ -9,7 +9,6 @@ local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScript
 
 local halimede = require('halimede')
 local deepCopy = require('halimede.table.deepCopy').deepCopy
-local executeExpectingSuccess = execute.executeExpectingSuccess
 local ShellLanguage = require('halimede.io.shellScript.ShellLanguage')
 
 

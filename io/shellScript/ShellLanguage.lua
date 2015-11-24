@@ -108,7 +108,7 @@ function module:commandIsOnPath(command)
 		openTextModeForReading = require('halimede.io.read').openTextModeForReading
 	end
 	
-	for path in shellLanguage:binarySearchPath():iterate() do
+	for path in self:binarySearchPath():iterate() do
 		local pathToBinary = path:appendFile(command)
 		
 		local ok, fileHandleOrError = pcall(openTextModeForReading, pathToBinary, command)
@@ -235,7 +235,7 @@ function module:paths(stringPathsTable)
 		assert.parameterTypeIsString('stringPath', stringPath)
 		
 		local path = self.pathStyle:parse(stringPath, false)
-		path:insert(path)
+		paths:insert(path)
 	end
 	
 	return Paths:new(self.pathStyle, paths)

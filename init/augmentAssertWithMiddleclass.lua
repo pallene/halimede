@@ -11,5 +11,8 @@ local Object = class.Object
 
 assert.globalTypeIsFunction('tostring')
 function assert.parameterTypeIsInstanceOf(parameterName, value, Class)
+	assert.parameterTypeIsString('parameterName', parameterName)
+	assert.parameterTypeIsTable('Class', Class)
+	
 	assert.withLevel(Object.isInstanceOf(value, Class), assert.parameterIsNotMessage(parameterName, Class.name), 3)
 end

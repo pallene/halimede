@@ -9,6 +9,7 @@ local Paths = moduleclass('Paths')
 local tabelize = require('halimede.table.tabelize').tabelize
 local halimede = require('halimede')
 local Path = require('halimede.io.paths.Path')
+local PathStyle = require('halimede.io.paths.PathStyle')
 
 
 assert.globalTypeIsFunction('ipairs')
