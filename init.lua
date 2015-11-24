@@ -913,7 +913,7 @@ require.functor = requireFunction
 local function sibling(siblingModuleElementName)
 	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
 	
-	local grandParentModuleName, _ = halimede.parentModuleNameFromModuleName(parentModuleName)
+	local grandParentModuleName, _ = parentModuleNameFromModuleName(parentModuleName)
 	local requiredModuleName
 	if grandParentModuleName == '' then
 		requiredModuleName = siblingModuleElementName
@@ -922,7 +922,7 @@ local function sibling(siblingModuleElementName)
 	end
 	return require(requiredModuleName)
 end
-halimede.require.sibling = sibling
+require.sibling = sibling
 
 assert.globalTypeIsFunctionOrCall('require')
 local function relativeRequire(childModuleName)
@@ -966,7 +966,6 @@ ourModule.require = require
 ourModule.type = type
 ourModule.assert = assert
 ourModule.packageConfiguration = packageConfiguration
-ourModule.parentModuleNameFromModuleName = parentModuleNameFromModuleName
 ourModule.makeModuleLoadChildModulesAutomatically = makeModuleLoadChildModulesAutomatically
 ourModule.class = class
 ourModule.moduleclass = moduleclass
