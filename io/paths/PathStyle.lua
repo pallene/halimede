@@ -11,7 +11,7 @@ local PathStyle = moduleclass('PathStyle')
 local halimede = require('halimede')
 local shallowCopy = halimede.table.shallowCopy
 local exception = halimede.exception
-local windowsPathMultisplitter = halimede.string.multisplitter.multisplitter('\\/')
+local windowsPathMultisplitter = halimede.string.multisplitter('\\/')
 local Path = requireSibling('Path')
 local PathRelativity = requireSibling('PathRelativity')
 
