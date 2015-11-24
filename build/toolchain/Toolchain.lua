@@ -8,9 +8,9 @@ moduleclass('Toolchain')
 
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
-local Platform = requireSibling('Platform')
-local ToolchainPaths = requireSibling('ToolchainPaths')
-local FilePaths = requireSibling('FilePaths')
+local Platform = require.sibling('Platform')
+local ToolchainPaths = require.sibling('ToolchainPaths')
+local FilePaths = require.sibling('FilePaths')
 
 
 function module:initialize(platform, toolchainPaths)

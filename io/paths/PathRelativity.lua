@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local PathRelativity = moduleclass('PathRelativity')
-local PathStyle = requireSibling('PathStyle')
+local PathStyle = require.sibling('PathStyle')
 
 local exception = halimede.exception
 

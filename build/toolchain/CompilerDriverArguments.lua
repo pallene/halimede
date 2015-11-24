@@ -6,9 +6,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 moduleclass('CompilerDriverArguments')
 
-local CompilerDriver = requireSibling('CompilerDriver')
-local Arguments = requireSibling('Arguments')
-local FilePaths = requireSibling('FilePaths')
+local CompilerDriver = require.sibling('CompilerDriver')
+local Arguments = require.sibling('Arguments')
+local FilePaths = require.sibling('FilePaths')
 local Path = halimede.io.paths.Path
 
 

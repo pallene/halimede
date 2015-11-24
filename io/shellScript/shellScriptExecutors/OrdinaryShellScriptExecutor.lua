@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractShellScriptExecutor = requireSibling('AbstractShellScriptExecutor')
+local AbstractShellScriptExecutor = require.sibling('AbstractShellScriptExecutor')
 local OrdinaryShellScriptExecutor = moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
 
 local deepCopy = halimede.table.deepCopy

@@ -8,11 +8,11 @@ local CompilerDriver = moduleclass('CompilerDriver')
 
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
-local CompilerMetadata = requireSibling('CompilerMetadata')
-local CStandard = requireSibling('CStandard')
+local CompilerMetadata = require.sibling('CompilerMetadata')
+local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
-local Arguments = requireSibling('Arguments')
-local FilePaths = requireSibling('FilePaths')
+local Arguments = require.sibling('Arguments')
+local FilePaths = require.sibling('FilePaths')
 
 
 function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)

@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 
-function requireSibling(siblingModuleElementName)
+local function sibling(siblingModuleElementName)
 	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
 	
 	local grandParentModuleName, _ = halimede.parentModuleNameFromModuleName(parentModuleName)
@@ -17,3 +17,4 @@ function requireSibling(siblingModuleElementName)
 	end
 	return require(requiredModuleName)
 end
+halimede.require.sibling = sibling

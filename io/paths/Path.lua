@@ -11,8 +11,8 @@ local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
 local equality = halimede.table.equality
 local Object = halimede.class.Object
-local PathStyle = requireSibling('PathStyle')
-local PathRelativity = requireSibling('PathRelativity')
+local PathStyle = require.sibling('PathStyle')
+local PathRelativity = require.sibling('PathRelativity')
 
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)

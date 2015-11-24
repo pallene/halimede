@@ -4,12 +4,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractPosixShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
+local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
 moduleclass('SetPathPosixShellScriptAction', AbstractPosixShellScriptAction)
 
 local Paths = halimede.io.paths.Paths
-local UnsetEnvironmentVariablePosixShellScriptAction = requireSibling('UnsetEnvironmentVariablePosixShellScriptAction')
-local ExportEnvironmentVariablePosixShellScriptAction = requireSibling('ExportEnvironmentVariablePosixShellScriptAction')
+local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling('UnsetEnvironmentVariablePosixShellScriptAction')
+local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportEnvironmentVariablePosixShellScriptAction')
 
 
 function module:initialize(shellScript)

@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local exception = halimede.exception
-local read = requireSibling('read')
+local read = require.sibling('read')
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'popen')
 local function openShellCommand(mode, shellLanguage, ...)

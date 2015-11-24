@@ -4,10 +4,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCompilerDriverShellScriptAction = requireSibling('AbstractPosixShellScriptAction')
+local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
 moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-local Toolchain = requireSibling('Toolchain')
+local Toolchain = require.sibling('Toolchain')
 local CStandard = halimede.build.toolchain.CStandard')
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
 local CommandLineDefines = halimede.build.defines.CommandLineDefines

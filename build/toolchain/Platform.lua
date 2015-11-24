@@ -8,9 +8,9 @@ local Platform = moduleclass('Platform')
 
 local tabelize = halimede.table.tabelize
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
-local GnuTuple = requireSibling('GnuTuple')
-local CompilerDriver = requireSibling('CompilerDriver')
-local toolchainPathsStrategies = requireSibling('toolchainPathsStrategies')
+local GnuTuple = require.sibling('GnuTuple')
+local CompilerDriver = require.sibling('CompilerDriver')
+local toolchainPathsStrategies = require.sibling('toolchainPathsStrategies')
 local shellLanguage = halimede.io.shellScript.ShellLanguage.Default
 
 

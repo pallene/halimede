@@ -15,7 +15,7 @@ local GnuTuple = moduleclass('GnuTuple')
 
 local exception = halimede.exception
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
-local InstructionSet = requireSibling('InstructionSet')
+local InstructionSet = require.sibling('InstructionSet')
 local ARC = InstructionSet.ARC
 local ARM64 = InstructionSet.ARM64
 local ARM = InstructionSet.ARM
@@ -34,7 +34,7 @@ local SH4 = InstructionSet['SH-4']
 local SPARC = InstructionSet.SPARC
 local SPARC64 = InstructionSet.SPARC64
 local x86_64 = InstructionSet.x86_64
-local Endianness = requireSibling('Endianness')
+local Endianness = require.sibling('Endianness')
 local LittleEndian = Endianness.LittleEndian
 local BigEndian = Endianness.BigEndian
 
@@ -105,8 +105,8 @@ local function macOsXMavericksConfigHDefines()
 	configHDefines:HAVE_WAIT3(true)
 	configHDefines:HAVE_WAITPID(true)
 	configHDefines:PATH_SEPARATOR_CHAR(':')
-	configHDefines:RETSIGTYPE(requireSibling('RETSIGTYPE').void)
-	configHDefines:ST_MTIM_NSEC(requireSibling('ST_MTIM_NSEC')['st_mtimespec.tv_nsec'])
+	configHDefines:RETSIGTYPE(require.sibling('RETSIGTYPE').void)
+	configHDefines:ST_MTIM_NSEC(require.sibling('ST_MTIM_NSEC')['st_mtimespec.tv_nsec'])
 	configHDefines:STDC_HEADERS(true)
 	configHDefines:TIME_WITH_SYS_TIME(true)
 	configHDefines:_DARWIN_USE_64_BIT_INODE(true)
