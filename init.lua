@@ -4,8 +4,25 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ourModule = {}
 local ourModuleName = 'halimede'
+
+-- 	local alreadyLoaded = package.loaded[ourModuleName]
+-- 	print(alreadyLoaded)
+-- 	if alreadyLoaded ~= nil and type(alreadyLoaded) ~= 'userdata' then
+-- 		if alreadyLoaded.name ~= nil then
+-- 			return alreadyLoaded
+-- 		end
+-- 		print('ffff')
+-- 	end
+-- end
+
+-- Loaded twice for some reason. First time the type is 'userdata'
+if package and package.loaded and type then
+	if type(package.loaded[ourModuleName]) == 'table' then
+		return package.loaded[ourModuleName]
+	end
+end
+local ourModule = {}
 
 rootParentModule = {}
 module = rootParentModule
@@ -13,7 +30,6 @@ moduleName = ''
 parentModuleName = ''
 leafModuleName = ''
 parentModule = rootParentModule
-
 
 -- Best efforts for failing if error is missing
 if error == nil then
@@ -173,40 +189,42 @@ if package.loadlib == nil then
 	end
 end
 
-local typeOriginalGlobalFunction = type
-type = setmetatable({}, {
-	__tostring = function()
-		return 'function:type'
-	end,
-	__call = function(self, ...)
-		return typeOriginalGlobalFunction(...)
+local function createNamedCallableFunction(functionName, actualFunction, prefix)
+	if prefix == nil then
+		prefix = 'function'
 	end
-})
-
-local assertOriginalGlobalFunction = assert
-assert = setmetatable({}, {
-	__tostring = function()
-		return 'function:assert'
-	end,
-	__call = function(self, ...)
-		return assertOriginalGlobalFunction(...)
-	end
-})
-
-function assert.createNamedCallableFunction(functionName, actualFunction)
+	
 	return setmetatable({
 		name = functionName,
-		['function'] = actualFunction
+		functor = actualFunction
 	}, {
 		__tostring = function()
-			return 'function:' .. functionName
+			return prefix .. ' ' .. functionName
 		end,
 		__call = function(self, ...)
 			return actualFunction(...)
 		end
 	})
 end
-local createNamedCallableFunction = assert.createNamedCallableFunction
+
+local function relativeRequireName(childModuleName)
+	return ourModuleName .. '.' .. childModuleName
+end
+
+local function createNamedReplacementCallableFunction(functionName)
+	return createNamedCallableFunction(relativeRequireName(functionName), _G[functionName], 'modulefunction')
+end
+
+halimede = ourModule
+
+local requireOriginalGlobalFunction = require
+require = createNamedReplacementCallableFunction('require')
+
+local typeOriginalGlobalFunction = type
+type = createNamedReplacementCallableFunction('type')
+
+local assertOriginalGlobalFunction = assert
+assert = createNamedReplacementCallableFunction('assert')
 
 local function is(value, typeName)
 	return typeOriginalGlobalFunction(value) == typeName
@@ -717,13 +735,15 @@ local function parentModuleNameFromModuleName(moduleName)
 	return parentModuleName, moduleElementNames[size]
 end
 
+local requireFunction
+
 -- assert.globalTypeIsFunction('require')
 local function requireParentModuleFirst(ourParentModuleName)
 	if ourParentModuleName == '' then
 		return rootParentModule
 	else
 		-- Load the parent; recursion is prevented by checking package.loaded
-		return require(ourParentModuleName)
+		return requireFunction(ourParentModuleName)
 	end
 end
 
@@ -778,35 +798,50 @@ local function initialiseSearchPaths(moduleNameLocal)
 	end
 end
 
-local function relativeRequireName(childModuleName)
-	return ourModuleName .. '.' .. childModuleName
-end
-
-assert.globalTypeIsFunction('setmetatable', 'pcall')
-local function makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
-	assert.parameterTypeIsString('ourModuleName', ourModuleName)
-	assert.parameterTypeIsTableOrNil('ourModule', ourModule)
+assert.globalTypeIsFunction('getmetatable', 'setmetatable', 'rawget', 'rawset')
+local function setUpModule(moduleName, module)
+	assert.parameterTypeIsString('moduleName', moduleName)
+	assert.parameterTypeIsTableOrNil('module', module)
 	
-	if ourModule == nil then
-		ourModule = {}
+	if module == nil then
+		module = {}
 	end
 	
-	setmetatable(ourModule, {
-		__index = function(self, childModuleName)
+	local metatable = getmetatable(module)
+	if metatable == nil then
+		metatable = setmetatable(module, {})
+	end
+	
+	if metatable.__index == nil then
+		metatable.__index = function(self, childModuleName)
 			assert.parameterTypeIsTable('self', self)
 			assert.parameterTypeIsString('moduleName', moduleName)
 		
-			local fullModuleName = ourModuleName .. '.' .. childModuleName
-			local ok, moduleLoaded = pcall(require, fullModuleName)
-			if not ok then
-				error(moduleLoaded)
-			end
-			ourModule[childModuleName] = moduleLoaded
+			local fullModuleName = moduleName .. '.' .. childModuleName
+			local moduleLoaded = requireFunction(fullModuleName)
+			module[childModuleName] = moduleLoaded
 			return moduleLoaded
 		end
-	})
+	end
 	
-	return ourModule
+	if metatable.__tostring == nil then
+		metatable.__tostring = function()
+			return 'module ' .. moduleName
+		end
+	end
+	
+	-- WTF is name set on the metatable for???
+	if rawget(module, 'name') == nil then
+		rawset(module, 'name', moduleName)
+	end
+
+	print()
+	print(moduleName)
+	for name, value in pairs(metatable) do
+		print('key ' .. name)
+	end
+	
+	return module
 end
 
 assert.globalTypeIsFunction('ipairs', 'error', 'setmetatable')
@@ -830,10 +865,9 @@ end
 -- Using a local reference means that we can become detached from other global changes
 local loaded = package.loaded
 loaded[''] = rootParentModule
-loaded[ourModuleName] = ourModule
-loaded[relativeRequireName('assert')] = assert
-loaded[relativeRequireName('type')] = type
-local function requireFunction(modname)
+loaded[ourModuleName] = halimede
+local aliasedModules = {}
+requireFunction = function(modname)
 	assert.parameterTypeIsString('modname', modname)
 	
 	if modname:isEmpty() then
@@ -847,6 +881,12 @@ local function requireFunction(modname)
 		return alreadyLoadedOrLoadingResult
 	end
 	
+	local aliasedModule = aliasedModules[moduleNameLocal]
+	if aliasedModule ~= nil then
+		loaded[moduleNameLocal] = aliasedModule
+		return aliasedModule
+	end
+	
 	local moduleOriginal = module
 	local moduleNameOriginal = moduleName
 	local parentModuleNameOriginal = parentModuleName
@@ -854,7 +894,7 @@ local function requireFunction(modname)
 	local parentModuleOriginal = parentModule
 	
 	-- Prevent a parent that loads a child then having the parent loaded again in an infinite loop
-	local moduleLocal = makeModuleLoadChildModulesAutomatically(moduleNameLocal)
+	local moduleLocal = setUpModule(moduleNameLocal)
 	loaded[moduleNameLocal] = moduleLocal
 	local parentModuleNameLocal, leafModuleNameLocal = parentModuleNameFromModuleName(moduleNameLocal)
 	local parentModuleLocal = requireParentModuleFirst(parentModuleNameLocal)
@@ -895,20 +935,18 @@ local function requireFunction(modname)
 			loaded[moduleNameLocal] = ourResult
 			resetModuleGlobals()
 			return ourResult
+		elseif type.isString(moduleLoaderOrFailedToFindExplanationString) then
+			table.insert(failures, moduleLoaderOrFailedToFindExplanationString)
+		else
+			error("Unexpected result type '" .. type(moduleLoaderOrFailedToFindExplanationString) .. "' of searcher")
 		end
-		table.insert(failures, moduleLoaderOrFailedToFindExplanationString)
 	end
 	
 	loaded[moduleNameLocal] = nil
 	resetModuleGlobals()
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
 end
-require = setmetatable({}, {
-	__call = function(self, ...)
-		return requireFunction(...)
-	end
-})
-require.functor = requireFunction
+require = createNamedCallableFunction('require', requireFunction, 'modulefunction')
 
 local function sibling(siblingModuleElementName)
 	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
@@ -920,62 +958,51 @@ local function sibling(siblingModuleElementName)
 	else
 		requiredModuleName = grandParentModuleName .. '.' .. siblingModuleElementName
 	end
-	return require(requiredModuleName)
+	return require.functor(requiredModuleName)
 end
 require.sibling = sibling
 
 assert.globalTypeIsFunctionOrCall('require')
 local function relativeRequire(childModuleName)
-	return require(relativeRequireName(childModuleName))
+	local moduleName = relativeRequireName(childModuleName)
+	return requireFunction(moduleName)
 end
 
 local function augment(moduleLeafName)
 	return relativeRequire('init.' .. moduleLeafName)	
 end
 
+
 -- Used by middleclass
 assert.globalTypeIsFunction('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
 assert.globalTypeIsFunctionOrCall('assert', 'type')
 local class = relativeRequire('middleclass')
+augment('trace')
+augment('moduleclass')
+augment('modulefunction')
 
-assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')
-function moduleclass(...)
-	local newClass = class(...)
-	
-	local moduleClass = module
-	for key, value in pairs(newClass) do
-		moduleClass[key] = newClass[key]
-	end
-	setmetatable(moduleClass, getmetatable(newClass))
-	
-	return moduleClass
-end
+setUpModule(ourModuleName, halimede)
+halimede.name = ourModuleName
 
-assert.globalTypeIsFunction('getmetatable')
-function modulefunction(functor)
-	getmetatable(module).__call = functor
-	module.functor = function(...)
-		return functor(module, ...)
-	end
-	return module
-end
+setUpModule(relativeRequireName('require'), require)
+halimede.require = require
+aliasedModules['require'] = require
 
-makeModuleLoadChildModulesAutomatically(ourModuleName, ourModule)
-halimede = ourModule
-ourModule.require = require
-ourModule.type = type
-ourModule.assert = assert
-ourModule.packageConfiguration = packageConfiguration
-ourModule.makeModuleLoadChildModulesAutomatically = makeModuleLoadChildModulesAutomatically
-ourModule.class = class
-ourModule.moduleclass = moduleclass
-ourModule.modulefunction = modulefunction
---ourModule.modulesRootPathString = modulesRootPathString
+setUpModule(relativeRequireName('type'), type)
+halimede.type = type
+aliasedModules['type'] = type
+
+setUpModule(relativeRequireName('assert'), assert)
+halimede.assert = assert
+aliasedModules['assert'] = assert
+
+halimede.packageConfiguration = packageConfiguration
+halimede.createNamedCallableFunction = createNamedCallableFunction
+halimede.class = class
+halimede.moduleclass = moduleclass
+halimede.modulefunction = modulefunction
+--halimede.modulesRootPathString = modulesRootPathString
 -- At this point in time, we really ought to add a recipesRootPath, and make sure it's absolute
 
-augment('trace')
-augment('augmentTypeWithMiddleclass')
-augment('augmentAssertWithMiddleclass')
 
-
-return ourModule
+return halimede

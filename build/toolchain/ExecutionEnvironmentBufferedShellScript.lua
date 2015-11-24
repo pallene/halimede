@@ -43,7 +43,7 @@ function module:newAction(namespace, actionName)
 		('%s.%s%sShellScriptAction'):format(actionNamespace, actionName, self.titleCasedName),
 		('%s.%sShellScriptAction'):format(actionNamespace, actionName)
 	}) do
-		local ok, resultOrErrorMessage = pcall(require, potentialShellVariantModuleName)
+		local ok, resultOrErrorMessage = pcall(require.functor, potentialShellVariantModuleName)
 		if ok then
 			local ShellScriptActionClass = resultOrErrorMessage
 			return ShellScriptActionClass:new(self)

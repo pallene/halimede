@@ -5,7 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local function traceIfRequired()
-	
 	local environmentVariable = 'LUA_HALIMEDE_TRACE'
 	
 	-- Check for functions in the global namespace that we rely on that might have been removed in a sandbox; don't enable tracing if they're not present.
@@ -45,7 +44,6 @@ local function traceIfRequired()
 	local format = string.format
 	
 	debug.sethook(function(event)
-		
 		assert.parameterTypeIsString('event', event)
 		
 		local nameInfo = getinfo(2, 'n')

@@ -8,7 +8,10 @@ local class = halimede.class
 local Object = class.Object
 
 
-assert.globalTypeIsFunction('ipairs')
-type.isObject = assert.createNamedCallableFunction('Object', function(value)
-	return Object.isInstanceOf(value, Object)
-end)
+assert.globalTypeIsFunction('tostring')
+function module.parameterTypeIsInstanceOf(parameterName, value, Class)
+	assert.parameterTypeIsString('parameterName', parameterName)
+	assert.parameterTypeIsTable('Class', Class)
+	
+	assert.withLevel(Object.isInstanceOf(value, Class), assert.parameterIsNotMessage(parameterName, Class.name), 3)
+end

@@ -17,7 +17,7 @@ function module:initialize(shellScript)
 	self.shellScript = shellScript
 end
 
-function module:__call(self, ...)
+function module:__call(...)
 	return self:execute(...)
 end
 

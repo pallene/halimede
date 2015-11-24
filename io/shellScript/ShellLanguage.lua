@@ -11,11 +11,7 @@ local packageConfiguration = require('halimede').packageConfiguration
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local Paths = halimede.io.paths.Paths
-print(halimede.io.paths)
 local PathStyle = halimede.io.paths.PathStyle
-if PathStyle == nil then
-	error('nil pathstyle')
-end
 
 
 local executeFunction
