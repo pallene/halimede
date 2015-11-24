@@ -908,6 +908,21 @@ require = setmetatable({}, {
 		return requireFunction(...)
 	end
 })
+require.functor = requireFunction
+
+local function sibling(siblingModuleElementName)
+	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
+	
+	local grandParentModuleName, _ = halimede.parentModuleNameFromModuleName(parentModuleName)
+	local requiredModuleName
+	if grandParentModuleName == '' then
+		requiredModuleName = siblingModuleElementName
+	else
+		requiredModuleName = grandParentModuleName .. '.' .. siblingModuleElementName
+	end
+	return require(requiredModuleName)
+end
+halimede.require.sibling = sibling
 
 assert.globalTypeIsFunctionOrCall('require')
 local function relativeRequire(childModuleName)
@@ -960,7 +975,6 @@ ourModule.modulefunction = modulefunction
 -- At this point in time, we really ought to add a recipesRootPath, and make sure it's absolute
 
 augment('trace')
-augment('requireSibling')
 augment('augmentTypeWithMiddleclass')
 augment('augmentAssertWithMiddleclass')
 
