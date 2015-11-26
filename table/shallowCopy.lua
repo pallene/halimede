@@ -23,6 +23,4 @@ local function shallowCopy(original)
 	return copy
 end
 
-modulefunction(function(self, source, original)
-	return shallowCopy(source, original)
-end)
+modulefunction(shallowCopy)

@@ -4,16 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
--- Similar to halimede.createNamedCallableFunction, but has to work on existing module
-assert.globalTypeIsFunction('getmetatable')
-function modulefunction(functor)
-	local metatable = getmetatable(module)
-	metatable.__call = functor
-	metatable.__tostring = function()
-		return 'modulefunction ' .. functionName
-	end
-	module.functor = function(...)
-		return functor(module, ...)
-	end
-	return module
+function modulefunction(actualFunction)
+	return halimede.createNamedCallableFunction(moduleName, actualFunction, module, 'modulefunction')
 end

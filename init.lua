@@ -189,15 +189,28 @@ if package.loadlib == nil then
 	end
 end
 
-local function createNamedCallableFunction(functionName, actualFunction, prefix)
+local function relativeRequireName(childModuleName)
+	return ourModuleName .. '.' .. childModuleName
+end
+
+local function createNamedCallableFunction(functionName, actualFunction, module, prefix)
 	if prefix == nil then
 		prefix = 'function'
 	end
 	
-	return setmetatable({
-		name = functionName,
-		functor = actualFunction
-	}, {
+	if module == nil then
+		module = {}
+	end
+	
+	if rawget(module, 'name') == nil then
+		rawset(module, 'name', functionName)
+	end
+	
+	if rawget(module, 'functor') == nil then
+		rawset(module, 'functor', actualFunction)
+	end
+	
+	return setmetatable(module, {
 		__tostring = function()
 			return prefix .. ' ' .. functionName
 		end,
@@ -207,12 +220,8 @@ local function createNamedCallableFunction(functionName, actualFunction, prefix)
 	})
 end
 
-local function relativeRequireName(childModuleName)
-	return ourModuleName .. '.' .. childModuleName
-end
-
 local function createNamedReplacementCallableFunction(functionName)
-	return createNamedCallableFunction(relativeRequireName(functionName), _G[functionName], 'modulefunction')
+	return createNamedCallableFunction(relativeRequireName(functionName), _G[functionName], {}, 'modulefunction')
 end
 
 halimede = ourModule
@@ -809,7 +818,8 @@ local function setUpModule(moduleName, module)
 	
 	local metatable = getmetatable(module)
 	if metatable == nil then
-		metatable = setmetatable(module, {})
+		metatable = {}
+		setmetatable(module, metatable)
 	end
 	
 	if metatable.__index == nil then
@@ -830,15 +840,8 @@ local function setUpModule(moduleName, module)
 		end
 	end
 	
-	-- WTF is name set on the metatable for???
 	if rawget(module, 'name') == nil then
 		rawset(module, 'name', moduleName)
-	end
-
-	print()
-	print(moduleName)
-	for name, value in pairs(metatable) do
-		print('key ' .. name)
 	end
 	
 	return module
@@ -927,9 +930,12 @@ requireFunction = function(modname)
 			else
 				if type.isTable(result) then
 					ourResult = result
+				elseif type.isFunction(result) then
+					ourResult = createNamedCallableFunction(moduleNameLocal, function(self, ...)
+						return result(...)
+					end, moduleNameLocal, 'modulefunction')
 				else
-					module[1] = result
-					ourResult = module
+					ourResult = result
 				end
 			end
 			loaded[moduleNameLocal] = ourResult
@@ -946,7 +952,7 @@ requireFunction = function(modname)
 	resetModuleGlobals()
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
 end
-require = createNamedCallableFunction('require', requireFunction, 'modulefunction')
+require = createNamedCallableFunction('require', requireFunction, {}, 'modulefunction')
 
 local function sibling(siblingModuleElementName)
 	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
@@ -996,8 +1002,8 @@ setUpModule(relativeRequireName('assert'), assert)
 halimede.assert = assert
 aliasedModules['assert'] = assert
 
-halimede.packageConfiguration = packageConfiguration
 halimede.createNamedCallableFunction = createNamedCallableFunction
+halimede.packageConfiguration = packageConfiguration
 halimede.class = class
 halimede.moduleclass = moduleclass
 halimede.modulefunction = modulefunction

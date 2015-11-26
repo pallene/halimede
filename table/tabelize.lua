@@ -21,6 +21,4 @@ local function tabelize(optionalValueToTabelize)
 	return setmetatable(valueToTabelize, {__index = table})
 end
 
-modulefunction(function(self, optionalValueToTabelize)
-	return tabelize(optionalValueToTabelize)
-end)
+modulefunction(tabelize)

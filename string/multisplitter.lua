@@ -10,6 +10,7 @@ local tabelize = halimede.table.tabelize
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
 local formatString = '([^%s]+)'
 local function multisplitter(separators)
+	print(separators)
 	assert.parameterTypeIsString('separators', separators)
 	
 	local pattern = formatString:format(separators)
@@ -26,6 +27,4 @@ local function multisplitter(separators)
 	end
 end
 
-modulefunction(function(self, separators)
-	return multisplitter(separators)
-end)
+modulefunction(multisplitter)

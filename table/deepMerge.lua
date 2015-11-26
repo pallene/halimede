@@ -32,6 +32,4 @@ local function deepMerge(source, destination)
 	end
 end
 
-modulefunction(function(self, source, original)
-	return deepMerge(source, original)
-end)
+modulefunction(deepMerge)

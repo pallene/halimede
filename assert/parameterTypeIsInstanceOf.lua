@@ -8,10 +8,11 @@ local class = halimede.class
 local Object = class.Object
 
 
-assert.globalTypeIsFunction('tostring')
-function module.parameterTypeIsInstanceOf(parameterName, value, Class)
+local function parameterTypeIsInstanceOf(parameterName, value, Class)
 	assert.parameterTypeIsString('parameterName', parameterName)
 	assert.parameterTypeIsTable('Class', Class)
 	
 	assert.withLevel(Object.isInstanceOf(value, Class), assert.parameterIsNotMessage(parameterName, Class.name), 3)
 end
+
+modulefunction(parameterTypeIsInstanceOf)
