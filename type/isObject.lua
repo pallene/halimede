@@ -8,7 +8,6 @@ local class = halimede.class
 local Object = class.Object
 
 
-assert.globalTypeIsFunction('ipairs')
-module.isObject = halimede.createNamedCallableFunction('Object', function(value)
+modulefunction(function(value)
 	return Object.isInstanceOf(value, Object)
 end)

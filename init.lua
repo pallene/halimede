@@ -847,11 +847,56 @@ local function setUpModule(moduleName, module)
 	return module
 end
 
+assert.globalTypeIsFunction('getmetatable', 'setmetatable', 'rawset')
+local function setAliasedFields(module, aliases)
+	assert.parameterTypeIsTable('module', module)
+	assert.parameterTypeIsTable('aliases', aliases)
+
+	local metatable = getmetatable(module)
+	if metatable == nil then
+		metatable = {}
+		setmetatable(module, metatable)
+	end
+	
+	local existingIndex = metatable.__index
+	if existingIndex == nil then
+		existingIndex = function(self, key)
+			return nil
+		end
+	end
+	
+	metatable.__index = function(self, key)
+		local aliasedToKey = aliases[key]
+		if aliasedToKey == nil then
+			return existingIndex(self, key)
+		end
+		
+		return self[aliasedToKey]
+	end
+	
+	local existingNewIndex = metatable.__newindex
+	if existingNewIndex == nil then
+		existingNewIndex = function(self, key, value)
+			return rawset(self, key, value)
+		end
+	end
+	
+	metatable.__newindex = function(self, key, value)
+		local aliasedToKey = aliases[key]
+		if aliasedToKey == nil then
+			return existingNewIndex(self, key, value)
+		end
+		
+		-- Allows other __newindex behaviours
+		self[aliasedToKey] = value
+	end
+end
+
 assert.globalTypeIsFunction('ipairs', 'error', 'setmetatable')
 assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty', 'gsub')
 assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
--- Lua 5.1 / 5.2 compatibility (a good solution uses a metatable to keep references in sync)
+-- Lua 5.1 / 5.2 compatibility
 local newline = packageConfiguration.newline
 local searchers = package.searchers
 local loaders = package.loaders
@@ -861,10 +906,15 @@ if searchers == nil and loaders == nil then
 	-- We could continue, but we would be unable to load anything
 	error("Please ensure 'package.searchers' or 'package.loaders' exists")
 elseif searchers == nil then
+	package.searches = nil
 	searchers = loaders
 elseif loaders == nil then
+	package.loaders = nil
 	loaders = searchers	
 end
+package.searchers = searchers
+setAliasedFields(package, {loaders = 'searchers'})
+
 -- Using a local reference means that we can become detached from other global changes
 local loaded = package.loaded
 loaded[''] = rootParentModule
@@ -979,16 +1029,23 @@ local function augment(moduleLeafName)
 end
 
 
+setUpModule(ourModuleName, halimede)
+halimede.name = ourModuleName
+
 -- Used by middleclass
 assert.globalTypeIsFunction('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
 assert.globalTypeIsFunctionOrCall('assert', 'type')
 local class = relativeRequire('middleclass')
+aliasedModules['middleclass'] = class
+halimede.class = class
+setAliasedFields(halimede, {middleclass = 'class'})
+
 augment('trace')
+
 augment('moduleclass')
+
 augment('modulefunction')
 
-setUpModule(ourModuleName, halimede)
-halimede.name = ourModuleName
 
 setUpModule(relativeRequireName('require'), require)
 halimede.require = require
@@ -1002,9 +1059,8 @@ setUpModule(relativeRequireName('assert'), assert)
 halimede.assert = assert
 aliasedModules['assert'] = assert
 
-halimede.createNamedCallableFunction = createNamedCallableFunction
 halimede.packageConfiguration = packageConfiguration
-halimede.class = class
+halimede.createNamedCallableFunction = createNamedCallableFunction
 halimede.moduleclass = moduleclass
 halimede.modulefunction = modulefunction
 --halimede.modulesRootPathString = modulesRootPathString
