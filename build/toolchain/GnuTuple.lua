@@ -37,6 +37,9 @@ local x86_64 = InstructionSet.x86_64
 local Endianness = require.sibling('Endianness')
 local LittleEndian = Endianness.LittleEndian
 local BigEndian = Endianness.BigEndian
+local RETSIGTYPE = halimede.build.defines.RETSIGTYPE
+local ST_MTIM_NSEC = halimede.build.defines.ST_MTIM_NSEC
+
 
 local function unknownConfigHDefines()
 	error('Unknown ConfigH')
@@ -105,8 +108,8 @@ local function macOsXMavericksConfigHDefines()
 	configHDefines:HAVE_WAIT3(true)
 	configHDefines:HAVE_WAITPID(true)
 	configHDefines:PATH_SEPARATOR_CHAR(':')
-	configHDefines:RETSIGTYPE(require.sibling('RETSIGTYPE').void)
-	configHDefines:ST_MTIM_NSEC(require.sibling('ST_MTIM_NSEC')['st_mtimespec.tv_nsec'])
+	configHDefines:RETSIGTYPE(RETSIGTYPE.void)
+	configHDefines:ST_MTIM_NSEC(ST_MTIM_NSEC['st_mtimespec.tv_nsec'])
 	configHDefines:STDC_HEADERS(true)
 	configHDefines:TIME_WITH_SYS_TIME(true)
 	configHDefines:_DARWIN_USE_64_BIT_INODE(true)

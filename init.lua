@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local ourModuleName = 'halimede'
+local ourModule = {}
 
 -- Loaded twice for some reason. First time the type is 'userdata'
 if package and package.loaded and type then
@@ -12,13 +13,10 @@ if package and package.loaded and type then
 		return package.loaded[ourModuleName]
 	end
 end
-local ourModule = {}
 
-local rootParentModule = {}
-module = {}
-moduleName = ''
+module = ourModule
+moduleName = ourModuleName
 parentModuleName = ''
-parentModule = rootParentModule
 
 -- Best efforts for failing if error is missing
 if error == nil then
@@ -733,18 +731,6 @@ local function parentModuleNameFromModuleName(moduleName)
 	return parentModuleName
 end
 
-local requireFunction
-
--- assert.globalTypeIsFunction('require')
-local function requireParentModuleFirst(ourParentModuleName)
-	if ourParentModuleName == '' then
-		return rootParentModule
-	else
-		-- Load the parent; recursion is prevented by checking package.loaded
-		return requireFunction(ourParentModuleName)
-	end
-end
-
 local searchPathFileExtensions = {
 	path = 'lua',
 	cpath = packageConfiguration.luaSharedLibraryExtension
@@ -795,6 +781,8 @@ local function initialiseSearchPaths(moduleNameLocal)
 		package[key] = table.concat(paths, luaPathSeparator)
 	end
 end
+
+local requireFunction
 
 assert.globalTypeIsFunction('getmetatable', 'setmetatable', 'rawget', 'rawset')
 local function setUpModule(moduleName, module)
@@ -906,7 +894,6 @@ setAliasedFields(package, {loaders = 'searchers'})
 
 -- Using a local reference means that we can become detached from other global changes
 local loaded = package.loaded
-loaded[''] = rootParentModule
 loaded[ourModuleName] = halimede
 local aliasedModules = {}
 requireFunction = function(modname)
@@ -932,29 +919,25 @@ requireFunction = function(modname)
 	local moduleOriginal = module
 	local moduleNameOriginal = moduleName
 	local parentModuleNameOriginal = parentModuleName
-	local parentModuleOriginal = parentModule
 	
 	-- Prevent a parent that loads a child then having the parent loaded again in an infinite loop
 	local moduleLocal = setUpModule(moduleNameLocal)
 	loaded[moduleNameLocal] = moduleLocal
 	local parentModuleNameLocal = parentModuleNameFromModuleName(moduleNameLocal)
-	local parentModuleLocal = requireParentModuleFirst(parentModuleNameLocal)
 	
 	local function resetModuleGlobals()
 		module = moduleOriginal
 		moduleName = moduleNameOriginal
 		parentModuleName = parentModuleNameOriginal
-		parentModule = parentModuleOriginal
 	end
 	
 	module = moduleLocal
 	moduleName = moduleNameLocal
 	parentModuleName = moduleNameLocal
-	parentModule = loaded[parentModuleNameLocal]
 	
 	initialiseSearchPaths(moduleNameLocal)
 	local failures = {}
-	for _, searcher in ipairs(searchers) do
+	for index, searcher in ipairs(searchers) do
 		-- filePath only in Lua 5.2+, and not set by the preload searcher
 		local moduleLoaderOrFailedToFindExplanationString, filePath = searcher(moduleNameLocal)
 		if type.isFunction(moduleLoaderOrFailedToFindExplanationString) then
@@ -979,8 +962,11 @@ requireFunction = function(modname)
 			return ourResult
 		elseif type.isString(moduleLoaderOrFailedToFindExplanationString) then
 			table.insert(failures, moduleLoaderOrFailedToFindExplanationString)
+		elseif type.isNil(moduleLoaderOrFailedToFindExplanationString) then
+			-- Possible for searcher at index 4 (the loadall searcher)
+			table.insert(failures, newline .. '\t(unknown error)')
 		else
-			error("Unexpected result type '" .. type(moduleLoaderOrFailedToFindExplanationString) .. "' of searcher")
+			error("Unexpected result type '" .. type(moduleLoaderOrFailedToFindExplanationString) .. "' of searcher at index " .. index .. " for module '" .. moduleNameLocal .. "'")
 		end
 	end
 	

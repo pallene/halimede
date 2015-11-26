@@ -99,9 +99,9 @@ function module:buildVariantsString()
 	return self.chosenBuildVariantNames:concat('-')
 end
 
-local function configHDefinesNew(configH, packageOrganisation, packageName, packageVersion, chosenBuildVariantNames)
+local function configHDefinesPrepare(configHDefines, platform, packageOrganisation, packageName, packageVersion, buildVariantsString)
 	
-	local version = packageVersion .. '-' .. self:buildVariantsString()
+	local version = packageVersion .. '-' .. buildVariantsString
 	
 	configHDefines:PACKAGE(packageName)
 	--configHDefines:PACKAGE_BUGREPORT('bug-' .. packageName .. '@gnu.org')
@@ -218,13 +218,13 @@ function module:_validate(result, crossPlatformGnuTuple)
 	local platformConfigHDefinesFunctions = tabelize()	
 	local configH = fieldExists.asTableOrDefaultTo(result, 'configH')
 		
-		local configHDefinesNew = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesNew', configHDefinesNew)
+		local configHDefinesPrepare = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'prepare', configHDefinesPrepare)
 		
 		platformConfigHDefinesFunctions:insert(function(configHDefines, platform)
-			return configHDefinesNew(configHDefines, packageOrganisation, packageName, packageVersion, self.chosenBuildVariantNames)
+			return configHDefinesPrepare(configHDefines, platform, packageOrganisation, packageName, packageVersion, self:buildVariantsString())
 		end)
 		
-		local configHDefinesDefault = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'configHDefinesDefault', configHDefinesDefault)
+		local configHDefinesDefault = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'default', configHDefinesDefault)
 		
 		platformConfigHDefinesFunctions:insert(configHDefinesDefault)
 		

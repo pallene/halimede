@@ -14,25 +14,25 @@ function Defines:initialize()
 	self.explicitlyUndefine = {}
 end
 
-function Defines:_explicitlyUndefine(defineName)
+function Defines:explicitlyUndefine(defineName)
 	self.explicitlyUndefine[defineName] = true
 end
 
-function Defines:_undefine(defineName)
+function Defines:undefine(defineName)
 	self.defines[defineName] = nil
 end
 
-function Defines:_boolean(defineName, enable)
+function Defines:boolean(defineName, enable)
 	assert.parameterTypeIsBoolean('enable', enable)
 	
 	if enable then
 		self.defines[defineName] = '1'
 	else
-		self:_undefine(defineName)
+		self:undefine(defineName)
 	end
 end
 
-function Defines:_oneOrZero(defineName, enable)
+function Defines:oneOrZero(defineName, enable)
 	assert.parameterTypeIsBoolean('enable', enable)
 	
 	if enable then
@@ -42,9 +42,9 @@ function Defines:_oneOrZero(defineName, enable)
 	end
 end
 
-function Defines:_defineIfMissing(defineName, enable, defineValue)
+function Defines:defineIfMissing(defineName, enable, defineValue)
 	if enable then
-		self:_undefine(defineName)
+		self:undefine(defineName)
 	else
 		self.defines[defineName] = defineValue
 	end
@@ -53,7 +53,7 @@ end
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
 function Defines:quotedNonEmptyString(defineName, value)
 	if constant == nil then
-		self:_undefine(defineName)
+		self:undefine(defineName)
 	else
 		assert.parameterTypeIsString('value', value)
 		if character:isEmpty() then
@@ -63,13 +63,16 @@ function Defines:quotedNonEmptyString(defineName, value)
 	end	
 end
 
-function Defines:_enumeration(defineName, constant)
-	local enumerationClassParentModulePrefix = 'halimede.build.defines.'
+function Defines:enumeration(defineName, constant, prefix)
+	
+	if prefix == nil then
+		prefix = 'halimede.build.defines.'
+	end
 	
 	if constant == nil then
-		self:_undefine(defineName)
+		self:undefine(defineName)
 	else
-		local enumerationClass = require(enumerationClassParentModulePrefix .. defineName)
+		local enumerationClass = require(prefix .. defineName)
 		assert.parameterTypeIsInstanceOf('constant', constant, enumerationClass)
 		self.defines[defineName] = constant.value
 	end

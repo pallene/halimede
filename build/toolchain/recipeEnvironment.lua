@@ -16,3 +16,7 @@ module.CRAY_STACKSEG_END = halimede.build.defines.CRAY_STACKSEG_END
 module.RETSIGTYPE = halimede.build.defines.RETSIGTYPE
 module.ST_MTIM_NSEC = halimede.build.defines.ST_MTIM_NSEC
 module.STACK_DIRECTION = halimede.build.defines.STACK_DIRECTION
+
+
+assert.globalTypeIsFunctionOrCall('setmetatable')
+setmetatable(module, nil)
