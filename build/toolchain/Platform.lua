@@ -11,7 +11,6 @@ local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors
 local GnuTuple = require.sibling('GnuTuple')
 local CompilerDriver = require.sibling('CompilerDriver')
 local toolchainPathsStrategies = require.sibling('toolchainPathsStrategies')
-local shellLanguage = halimede.io.shellScript.ShellLanguage.Default
 
 
 function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
@@ -106,6 +105,7 @@ Unix POSIX platforms:-
 ]]--
 
 -- We really ned a MacOSX / Linux check, too
+local shellLanguage = halimede.io.shellScript.ShellLanguage.default()
 local macOsXShellScriptExecutor
 if shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
 	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor.MacOsXHomebrewShellScriptExecutor

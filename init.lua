@@ -1063,8 +1063,6 @@ halimede.packageConfiguration = packageConfiguration
 halimede.createNamedCallableFunction = createNamedCallableFunction
 halimede.moduleclass = moduleclass
 halimede.modulefunction = modulefunction
---halimede.modulesRootPathString = modulesRootPathString
--- At this point in time, we really ought to add a recipesRootPath, and make sure it's absolute
-
+halimede.modulesRootPathString = modulesRootPathString
 
 return halimede

@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local ShellLanguage = moduleclass('ShellLanguage')
 
 local tabelize = halimede.table.tabelize
-local packageConfiguration = require('halimede').packageConfiguration
+local packageConfiguration = halimede.packageConfiguration
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local Paths = halimede.io.paths.Paths
@@ -339,15 +339,52 @@ end
 
 ShellLanguage.static.Cmd = CmdShellLanguage:new()
 
--- Not the best test; doesn't work for Symbian, can't distinguish OpenVms from RISC OS
--- Running uname on the PATH works on POSIX systems, but that rules out Windows... and the shell isn't available on Unikernels like RumpKernel
-local folderSeparator = packageConfiguration.folderSeparator
-local default
-if folderSeparator == '/' then
-	default = ShellLanguage.Posix
-elseif folderSeparator == '\\' then
-	default = ShellLanguage.Cmd
-else
-	exception.throw("Could not determine ShellLanguage using packageConfiguration folderSeparator '%s'", folderSeparator)
+-- Windows, Linux, OSX, BSD, POSIX, Other (not supported)
+local operatingSystemNamesToShellLanguages = {
+	Windows = ShellLanguage.Cmd,
+	Linux = ShellLanguage.Posix,
+	OSX = ShellLanguage.Posix,
+	BSD = ShellLanguage.Posix,
+	POSIX = ShellLanguage.Posix
+}
+
+local cachedDefault = false
+assert.globalTypeIsFunction('pcall')
+ShellLanguage.static.default = function()
+	if cachedDefault ~= false then
+		return cachedDefault
+	end
+	
+	local function determineDefault()
+		if type.hasPackageChildFieldOfTypeString('jit', 'os') then
+		
+			local name = jit.os
+			local shellLanguage = operatingSystemNamesToShellLanguages[name]
+			if shellLanguage ~= nil then
+				return shellLanguage
+			end
+		end
+	
+		-- Not the best test; doesn't work for Symbian, can't distinguish OpenVms from RISC OS
+		-- Running uname on the PATH works on POSIX systems, but that rules out Windows... and the shell isn't available on Unikernels like RumpKernel
+		local folderSeparator = packageConfiguration.folderSeparator
+		if folderSeparator == '/' then
+			return ShellLanguage.Posix
+		elseif folderSeparator == '\\' then
+			return ShellLanguage.Cmd
+			-- Might be Symbian, too, but that's dead
+		elseif folderSeparator == '.' then
+			-- Could be OpenVMS, Could be Risc OS
+			local ok, result = pcall(require, 'riscos')
+			if ok then
+				exception.throw("RISC OS (RiscLua) is not yet supported")
+			end
+			exception.throw("OpenVMS is not yet supported")
+		else
+			exception.throw("Could not determine ShellLanguage using packageConfiguration folderSeparator '%s'", folderSeparator)
+		end
+	end
+	
+	cachedDefault = determineDefault()
+	return cachedDefault
 end
-ShellLanguage.static.Default = default
