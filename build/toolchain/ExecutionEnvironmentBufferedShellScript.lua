@@ -8,6 +8,8 @@ local BufferedShellScript = halimede.io.shellScript.BufferedShellScript
 moduleclass('ExecutionEnvironmentBufferedShellScript', BufferedShellScript)
 
 local exception = halimede.exception
+local tabelize = halimede.table.tabelize
+local newline = halimede.packageConfiguration.newline
 
 
 function module:initialize(shellScriptExecutor, dependencies, buildVariant)
@@ -37,18 +39,20 @@ function module:newAction(namespace, actionName)
 		actionNamespace = namespace
 	end
 	
+	local errors = tabelize()
 	-- Try to see if there's a Posix, Cmd, etc variant
 	for _, potentialModuleName in ipairs({
 		('%s.%s.%s%sShellScriptAction'):format(actionNamespace, self.lowerCasedName, actionName, self.titleCasedName),
 		('%s.%s%sShellScriptAction'):format(actionNamespace, actionName, self.titleCasedName),
 		('%s.%sShellScriptAction'):format(actionNamespace, actionName)
 	}) do
-		local ok, resultOrErrorMessage = pcall(require.functor, potentialShellVariantModuleName)
+		local ok, resultOrErrorMessage = pcall(require.functor, potentialModuleName)
 		if ok then
 			local ShellScriptActionClass = resultOrErrorMessage
 			return ShellScriptActionClass:new(self)
 		end
+		errors:insert(resultOrErrorMessage)
 	end
 	
-	exception.throw("Could not locate an action '%s' in namespace '%s'", actionName, actionNamespace)
+	exception.throw("Could not locate an action '%s' in namespace '%s' because of errors:-%s%s", actionName, actionNamespace, newline, errors:concat(newline .. '\tor'))
 end

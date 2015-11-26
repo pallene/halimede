@@ -63,13 +63,9 @@ function Defines:quotedNonEmptyString(defineName, value)
 	end	
 end
 
-local enumerationClassParentModulePrefix
-if parentModuleName == '' then
-	enumerationClassParentModulePrefix = ''
-else
-	enumerationClassParentModulePrefix = parentModuleName .. '.'
-end
 function Defines:_enumeration(defineName, constant)
+	local enumerationClassParentModulePrefix = 'halimede.build.defines.'
+	
 	if constant == nil then
 		self:_undefine(defineName)
 	else

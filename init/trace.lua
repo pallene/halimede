@@ -4,6 +4,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local newline = halimede.packageConfiguration.newline
+
+
 local function traceIfRequired()
 	local environmentVariable = 'LUA_HALIMEDE_TRACE'
 	
@@ -86,7 +89,7 @@ local function traceIfRequired()
 			sourceText = format(' in %s%s', source, currentLine)
 		end
 		
-		local messageTemplate = "%s %s %s%s '%s'%s\n"
+		local messageTemplate = "%s %s %s%s '%s'%s" .. newline
 		stderr:write(messageTemplate:format(event, language, nameWhat, functionKeyword, functionName, sourceText))
 	end, 'cr')
 end

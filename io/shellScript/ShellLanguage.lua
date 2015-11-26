@@ -199,7 +199,7 @@ function module:appendLinesToScript(tabelizedScriptBuffer, ...)
 end
 
 function module:appendCommandLineToScript(tabelizedScriptBuffer, ...)
-	tabelizedScriptBuffer:insert(self.toShellCommandLine(...))
+	tabelizedScriptBuffer:insert(self:toShellCommandLine(...))
 end
 
 function module:parsePath(pathString, isFile)

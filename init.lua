@@ -6,16 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local ourModuleName = 'halimede'
 
--- 	local alreadyLoaded = package.loaded[ourModuleName]
--- 	print(alreadyLoaded)
--- 	if alreadyLoaded ~= nil and type(alreadyLoaded) ~= 'userdata' then
--- 		if alreadyLoaded.name ~= nil then
--- 			return alreadyLoaded
--- 		end
--- 		print('ffff')
--- 	end
--- end
-
 -- Loaded twice for some reason. First time the type is 'userdata'
 if package and package.loaded and type then
 	if type(package.loaded[ourModuleName]) == 'table' then
@@ -24,11 +14,10 @@ if package and package.loaded and type then
 end
 local ourModule = {}
 
-rootParentModule = {}
-module = rootParentModule
+local rootParentModule = {}
+module = {}
 moduleName = ''
 parentModuleName = ''
-leafModuleName = ''
 parentModule = rootParentModule
 
 -- Best efforts for failing if error is missing
@@ -741,7 +730,7 @@ local function parentModuleNameFromModuleName(moduleName)
 		index = index + 1
 	end
 	
-	return parentModuleName, moduleElementNames[size]
+	return parentModuleName
 end
 
 local requireFunction
@@ -943,27 +932,24 @@ requireFunction = function(modname)
 	local moduleOriginal = module
 	local moduleNameOriginal = moduleName
 	local parentModuleNameOriginal = parentModuleName
-	local leafModuleNameOriginal = leafModuleName
 	local parentModuleOriginal = parentModule
 	
 	-- Prevent a parent that loads a child then having the parent loaded again in an infinite loop
 	local moduleLocal = setUpModule(moduleNameLocal)
 	loaded[moduleNameLocal] = moduleLocal
-	local parentModuleNameLocal, leafModuleNameLocal = parentModuleNameFromModuleName(moduleNameLocal)
+	local parentModuleNameLocal = parentModuleNameFromModuleName(moduleNameLocal)
 	local parentModuleLocal = requireParentModuleFirst(parentModuleNameLocal)
 	
 	local function resetModuleGlobals()
 		module = moduleOriginal
 		moduleName = moduleNameOriginal
 		parentModuleName = parentModuleNameOriginal
-		leadModuleName = leafModuleNameOriginal
 		parentModule = parentModuleOriginal
 	end
 	
 	module = moduleLocal
 	moduleName = moduleNameLocal
 	parentModuleName = moduleNameLocal
-	leafModuleName = leafModuleNameLocal
 	parentModule = loaded[parentModuleNameLocal]
 	
 	initialiseSearchPaths(moduleNameLocal)
@@ -1007,7 +993,7 @@ require = createNamedCallableFunction('require', requireFunction, {}, 'modulefun
 local function sibling(siblingModuleElementName)
 	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
 	
-	local grandParentModuleName, _ = parentModuleNameFromModuleName(parentModuleName)
+	local grandParentModuleName = parentModuleNameFromModuleName(parentModuleName)
 	local requiredModuleName
 	if grandParentModuleName == '' then
 		requiredModuleName = siblingModuleElementName
@@ -1040,13 +1026,6 @@ aliasedModules['middleclass'] = class
 halimede.class = class
 setAliasedFields(halimede, {middleclass = 'class'})
 
-augment('trace')
-
-augment('moduleclass')
-
-augment('modulefunction')
-
-
 setUpModule(relativeRequireName('require'), require)
 halimede.require = require
 aliasedModules['require'] = require
@@ -1061,8 +1040,14 @@ aliasedModules['assert'] = assert
 
 halimede.packageConfiguration = packageConfiguration
 halimede.createNamedCallableFunction = createNamedCallableFunction
-halimede.moduleclass = moduleclass
-halimede.modulefunction = modulefunction
 halimede.modulesRootPathString = modulesRootPathString
+
+augment('trace')
+
+augment('moduleclass')
+halimede.moduleclass = moduleclass
+
+augment('modulefunction')
+halimede.modulefunction = modulefunction
 
 return halimede

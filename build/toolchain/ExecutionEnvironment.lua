@@ -51,7 +51,9 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 	sourcePath:assertIsFolderPath('sourcePath')
 	sourcePath:assertIsEffectivelyAbsolute('sourcePath')
 	
-	local shellScript = self:_newShellScript(self.buildToolchain, dependencies, consolidatedBuildVariant)
+	local buildToolchain = Toolchain:new(self.buildPlatform, self.buildToolchainPaths)
+	
+	local shellScript = self:_newShellScript(buildToolchain, dependencies, consolidatedBuildVariant)
 	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
 	
 	local buildEnvironment = {
@@ -66,7 +68,7 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 			shellScript:newAction(namespace, name):execute(...)
 		end,
 		
-		arguments = buildVariant.arguments,
+		arguments = consolidatedBuildVariant.arguments,
 		
 		configHDefines = self.crossPlatform:createConfigHDefines(platformConfigHDefinesFunctions)
 	}
