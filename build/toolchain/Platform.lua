@@ -62,30 +62,6 @@ function module:toolchainPath(pathFunction)
 	return pathFunction(self.toolchainPathStrategy, self.shellScriptExecutor.shellLanguage)
 end
 
-assert.globalTypeIsFunction('ipairs')
-function module:toObjects(...)
-	local shellLanguage = self.shellScriptExecutor.shellLanguage
-	
-	local result = tabelize()
-	for _, pathString in ipairs(...) do
-		local relativeFilePath = shellLanguage:parsePath(pathString, true)
-		result:insert(relativeFilePath:appendFileExtension(self.objectExtension))
-	end
-	return result
-end
-
-assert.globalTypeIsFunction('ipairs')
-function module:toObjectsWithoutPaths(...)
-	local shellLanguage = self.shellScriptExecutor.shellLanguage
-	
-	local result = tabelize()
-	for _, pathString in ipairs(...) do
-		local relativeFilePath = shellLanguage:parsePath(pathString, true)
-		result:insert(relativeFilePath:appendFileExtension(self.objectExtension):finalPathElementName())
-	end
-	return result
-end
-
 -- MinGW is a toolchain, but 32-bit
 -- MSYS is a colleciton of Unix utilities but with a toolchain for their creation
 -- See here for a Mac OS X / MinGW-w64 toolchain script for inspiration: https://gist.github.com/Drakulix/9881160

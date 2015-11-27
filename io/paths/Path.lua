@@ -149,12 +149,13 @@ else
 	end
 end
 
-function module:finalPathElementName()
+function module:finalPathElementNameAsPath()
 	local length = #self.pathElements
 	if length == 0 then
 		return ''
 	end
-	return self.pathElements[length]
+	local finalPathElementNameAsString = self.pathElements[length]
+	return Path:new(self.pathStyle, PathRelativity.Relative, self.device, {finalPathElementNameAsString}, self.isFile, nil)
 end
 
 assert.globalTypeIsFunction('ipairs')

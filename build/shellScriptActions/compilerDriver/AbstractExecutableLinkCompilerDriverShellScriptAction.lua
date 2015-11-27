@@ -25,10 +25,10 @@ function module:execute(toolchain, compilerDriverFlags, linkerFlags, objects, li
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(objects)
-	compilerDriverArguments:addLinkedLibraries(self.dependencies.linkedLibraries, self.buildVariant.linkedLibraries, linkedLibraries)
+	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
 	
 	self:_unsetEnvironmentVariables(compilerDriverArguments)
-	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
+	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', 'C'})
 	
 	compilerDriverArguments:useUnpacked(function(...)
 		self:_appendCommandLineToScript(...)

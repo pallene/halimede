@@ -173,6 +173,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		defines = {},
 		configHDefines = {},
 		systemIncludePaths = {},
+		linkerFlags = {},
 		libs = {}
 	}
 	
@@ -210,7 +211,9 @@ end
 
 function module:_validate(result, crossPlatformGnuTuple)
 	local dependencies = fieldExists.asTableOrDefaultTo(result, 'dependencies')
-		local systemIncludePaths =fieldExists.asTableOrDefaultTo(dependencies, 'systemIncludePaths')
+		local systemIncludePaths = fieldExists.asTableOrDefaultTo(dependencies, 'systemIncludePaths')
+		local linkerFlags = fieldExists.asTableOrDefaultTo(dependencies, 'linkerFlags')
+		local libs = fieldExists.asTableOrDefaultTo(dependencies, 'libs')
 	local package = fieldExists.asTableOrDefaultTo(result, 'package')
 		local packageOrganisation = fieldExists.asString(package, 'organisation')
 		local packageName = fieldExists.asString(package, 'name')

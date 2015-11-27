@@ -50,7 +50,7 @@ function module:toFileNamePaths()
 	local copy = {}
 	
 	for _, path in ipairs(self.paths) do
-		table.insert(copy, path:finalPathElementName())
+		table.insert(copy, path:finalPathElementNameAsPath())
 	end
 	
 	return FilePaths:new(copy)
