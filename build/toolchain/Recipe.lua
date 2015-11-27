@@ -78,6 +78,7 @@ function module:initialize(executionEnvironment, recipeName, chosenBuildVariantN
 	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
 	assert.parameterTypeIsString('recipeName', recipeName)
 	
+	self.recipeName = recipeName
 	self.executionEnvironment = executionEnvironment
 	self.recipesPath = executionEnvironment.recipesPath
 	self.recipeFolderPath = self.recipesPath:appendFolders(recipeName)
@@ -171,6 +172,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		compilerDriverFlags = {},
 		defines = {},
 		configHDefines = {},
+		systemIncludePaths = {},
 		libs = {}
 	}
 	
@@ -208,6 +210,7 @@ end
 
 function module:_validate(result, crossPlatformGnuTuple)
 	local dependencies = fieldExists.asTableOrDefaultTo(result, 'dependencies')
+		local systemIncludePaths =fieldExists.asTableOrDefaultTo(dependencies, 'systemIncludePaths')
 	local package = fieldExists.asTableOrDefaultTo(result, 'package')
 		local packageOrganisation = fieldExists.asString(package, 'organisation')
 		local packageName = fieldExists.asString(package, 'name')

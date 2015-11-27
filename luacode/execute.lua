@@ -17,30 +17,28 @@ function module.execute(luaCodeString, description, origin, environment)
 	
 	-- Not needed by all logic branches, but needed on Lua 5.1 and whenever a modern load is not detected (a rare case)
 	local setfenvFunction
-	if setenv ~= nil then
+	if type.hasGlobalOfTypeTableOrUserdata('setfenv') then
 		setfenvFunction = setfenv
+	elseif type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'setfenv') then
+		setfenvFunction = debug.setfenv
 	else
-		if debug ~= nil and debug.setfenv ~= nil then
-			setfenvFunction = debug.setfenv
-		else
-			setfenvFunction = nil
-		end
+		setfenvFunction = nil
 	end
 	
 	-- loadstring is not in Lua 5.2/5.3
 	-- loadstring is an alias to load in LuaJIT, but seems not to have reference equality, sadly, hence this detection
 	local canUseModernLoad
 	local loadingFunction
-	if load ~= nil and runtime.isLuaJit then
+	if type.hasGlobalOfTypeFunctionOrCall('load') and runtime.isLuaJit then
 		canUseModernLoad = true
 		loadingFunction = load
-	elseif loadstring ~= nil and runtime.isLuaJit then
+	elseif type.hasGlobalOfTypeFunctionOrCall('loadstring') and runtime.isLuaJit then
 		canUseModernLoad = true
 		loadingFunction = loadstring
-	elseif load ~= nil and runtime.isLanguageLevelMoreModernThan(runtime.Lua51) then
+	elseif type.hasGlobalOfTypeFunctionOrCall('load') and runtime.isLanguageLevelMoreModernThan(runtime.Lua51) then
 		canUseModernLoad = true
 		loadingFunction = load
-	elseif loadstring ~= nil and setfenvFunction ~= nil then
+	elseif type.hasGlobalOfTypeFunctionOrCall('loadstring') and setfenvFunction ~= nil then
 		canUseModernLoad = false
 		loadingFunction = loadstring
 	else

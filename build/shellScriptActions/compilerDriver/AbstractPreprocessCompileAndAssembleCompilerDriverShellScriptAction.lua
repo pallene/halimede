@@ -4,35 +4,34 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
 moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-local Toolchain = require.sibling('Toolchain')
-local CStandard = halimede.build.toolchain.CStandard')
-local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding')
+local Toolchain = halimede.build.toolchain.Toolchain
+local CStandard = halimede.build.toolchain.CStandard
+local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
 
 
-function module:initialize(shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)
-	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator, dependencies, buildVariant)
+function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
+	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 end
 
-function module:execute(toolchain, compilerDriverFlags, standard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
+function module:execute(toolchain, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
 	assert.parameterTypeIsInstanceOf('toolchain', toolchain, Toolchain)
-	assert.parameterTypeIsBoolean('crossCompile', crossCompile)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
-	assert.parameterTypeIsInstanceOf('standard', standard, CStandard)
+	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
 	assert.parameterTypeIsTable('preprocessorFlags', preprocessorFlags)
 	assert.parameterTypeIsInstanceOf('defines', defines, CommandLineDefines)
 	assert.parameterTypeIsTable('sources', sources)
 	
-	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
-	compilerDriverArguments:append(compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
-	compilerDriverArguments:addStandard(standard)
-	compilerDriverArguments:useFileExtensionsToDetermineLanguageFlags()
+	local compilerDriverArguments = self:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
+	compilerDriverArguments:append(compilerDriverArguments.compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
+	compilerDriverArguments:addCStandard(cStandard)
+	compilerDriverArguments:useFileExtensionsToDetermineLanguage()
 	compilerDriverArguments:append(preprocessorFlags)
-	defines:appendToCommandLineArguments(compilerDriverArguments)
+	defines:appendToCompilerDriverArguments(compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
 	compilerDriverArguments:addIncludePaths(sources)
 	compilerDriverArguments:appendFilePaths(sources)

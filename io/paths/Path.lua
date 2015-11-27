@@ -108,6 +108,12 @@ function module:assertIsEffectivelyAbsolute(parameterName)
 	end
 end
 
+function module:assertIsRelative(parameterName)
+	if not self.pathRelativity.isRelative then
+		exception.throw("%s '%s' must be relative", parameterName, self:__tostring())
+	end
+end
+
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
@@ -225,9 +231,7 @@ assert.globalTypeIsFunction('ipairs')
 function module:appendRelativePath(relativePath)
 	assert.parameterTypeIsInstanceOf('relativePath', relativePath, Path)
 	
-	if not self.pathStyle.isRelative then
-		exception.throw("relativePath '%s' is not isRelative", relativePath)
-	end
+	relativePath:assertIsRelative('relativePath')
 
 	self:assertIsFolderPath('self')
 	

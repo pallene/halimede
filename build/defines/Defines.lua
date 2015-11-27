@@ -4,25 +4,27 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Defines = moduleclass('Defines')
-
-local tabelize = halimede.table.tabelize
+moduleclass('Defines')
 
 
-function Defines:initialize()
+function module:initialize()
 	self.defines = {}
 	self.explicitlyUndefine = {}
 end
 
-function Defines:explicitlyUndefine(defineName)
+function module:explicitlyUndefine(defineName)
+	assert.parameterTypeIsString('defineName', defineName)
+	
 	self.explicitlyUndefine[defineName] = true
 end
 
-function Defines:undefine(defineName)
+function module:undefine(defineName)
+	assert.parameterTypeIsString('defineName', defineName)
+	
 	self.defines[defineName] = nil
 end
 
-function Defines:boolean(defineName, enable)
+function module:boolean(defineName, enable)
 	assert.parameterTypeIsBoolean('enable', enable)
 	
 	if enable then
@@ -32,7 +34,7 @@ function Defines:boolean(defineName, enable)
 	end
 end
 
-function Defines:oneOrZero(defineName, enable)
+function module:oneOrZero(defineName, enable)
 	assert.parameterTypeIsBoolean('enable', enable)
 	
 	if enable then
@@ -42,7 +44,10 @@ function Defines:oneOrZero(defineName, enable)
 	end
 end
 
-function Defines:defineIfMissing(defineName, enable, defineValue)
+function module:defineIfMissing(defineName, enable, defineValue)
+	assert.parameterTypeIsString('defineName', defineName)
+	assert.parameterTypeIsBoolean('enable', enable)
+	
 	if enable then
 		self:undefine(defineName)
 	else
@@ -51,29 +56,35 @@ function Defines:defineIfMissing(defineName, enable, defineValue)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
-function Defines:quotedNonEmptyString(defineName, value)
-	if constant == nil then
+function module:quotedNonEmptyString(defineName, value)
+	assert.parameterTypeIsString('defineName', defineName)
+	assert.parameterTypeIsStringOrNil('value', value)
+	
+	if value == nil then
 		self:undefine(defineName)
 	else
 		assert.parameterTypeIsString('value', value)
-		if character:isEmpty() then
-			exception.throw("The %s define can not be empty", defineName)
+		if value:isEmpty() then
+			exception.throw("The '%s' define can not be empty", defineName)
 		end
-		self.defines[defineName] = "'" .. command "'"
+		self.defines[defineName] = "'" .. value .. "'"
 	end	
 end
 
-function Defines:enumeration(defineName, constant, prefix)
+function module:enumeration(defineName, enumeratedConstant, prefix)
+	assert.parameterTypeIsString('defineName', defineName)
+	
+	assert.parameterTypeIsStringOrNil('prefix', prefix)
 	
 	if prefix == nil then
 		prefix = 'halimede.build.defines.'
 	end
 	
-	if constant == nil then
+	if enumeratedConstant == nil then
 		self:undefine(defineName)
 	else
 		local enumerationClass = require(prefix .. defineName)
-		assert.parameterTypeIsInstanceOf('constant', constant, enumerationClass)
-		self.defines[defineName] = constant.value
+		assert.parameterTypeIsInstanceOf('enumeratedConstant', enumeratedConstant, enumerationClass)
+		self.defines[defineName] = enumeratedConstant.value
 	end
 end

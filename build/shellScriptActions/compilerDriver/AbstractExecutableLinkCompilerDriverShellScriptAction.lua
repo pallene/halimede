@@ -4,10 +4,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
 moduleclass('AbstractExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-local Toolchain = require.sibling('Toolchain')
+local Toolchain = halimede.build.toolchain.Toolchain
 
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
@@ -16,14 +16,13 @@ end
 
 function module:execute(toolchain, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
 	assert.parameterTypeIsInstanceOf('toolchain', toolchain, Toolchain)
-	assert.parameterTypeIsBoolean('crossCompile', crossCompile)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('objects', objects)
-	assert.parameterTypeIsTable('additionalLinkedLibraries', additionalLinkedLibraries)
+	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
 	assert.parameterTypeIsString('baseName', baseName)
 	
-	local compilerDriverArguments = self._newCCompilerDriverArguments(toolchain, compilerDriverFlags)
+	local compilerDriverArguments = self:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(objects)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.linkedLibraries, self.buildVariant.linkedLibraries, linkedLibraries)

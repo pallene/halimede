@@ -13,9 +13,10 @@ local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
 local Arguments = require.sibling('Arguments')
 local FilePaths = require.sibling('FilePaths')
+local CompilerDriverArguments = require.sibling('CompilerDriverArguments')
 
 
-function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, environmentVariablesToExport)
 	assert.parameterTypeIsInstanceOf('CompilerMetadata', compilerMetadata, CompilerMetadata)
 	assert.parameterTypeIsTable('commandLineFlags', commandLineFlags)
 	assert.parameterTypeIsTable('onlyRunPreprocessorStepFlags', onlyRunPreprocessorStepFlags)
@@ -23,7 +24,7 @@ function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocess
 	assert.parameterTypeIsTable('onlyRunPreprocessorCompilationAndAssembleStepsFlags', onlyRunPreprocessorCompilationAndAssembleStepsFlags)
 	assert.parameterTypeIsTable('useFileExtensionsToDetermineLanguageFlags', useFileExtensionsToDetermineLanguageFlags)
 	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
-	assert.parameterTypeIsTable('gcc4X_environmentVariablesToExport', gcc4X_environmentVariablesToExport)
+	assert.parameterTypeIsTable('environmentVariablesToExport', environmentVariablesToExport)
 	
 	self.compilerMetadata = compilerMetadata
 	self.commandLineFlags = commandLineFlags
@@ -32,7 +33,7 @@ function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocess
 	self.onlyRunPreprocessorCompilationAndAssembleStepsFlags = onlyRunPreprocessorCompilationAndAssembleStepsFlags
 	self.useFileExtensionsToDetermineLanguageFlags = useFileExtensionsToDetermineLanguageFlags
 	self.environmentVariablesToUnset = environmentVariablesToUnset
-	self.gcc4X_environmentVariablesToExport = gcc4X_environmentVariablesToExport
+	self.environmentVariablesToExport = environmentVariablesToExport
 	
 	-- Override for, say, 'cc' or 'gcc-4.8' or 'x86-pc-linux-musl-gcc-4.8'
 	self.commandLineName = self.compilerMetadata.name
@@ -73,10 +74,13 @@ local function mergeFlags(...)
 end
 
 function module:newArguments(compilerDriverFlags, sysrootPath)
+	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
+	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
+	
 	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath)
 end
 
-function module:useFileExtensionsToDetermineLanguageFlags(arguments)
+function module:useFileExtensionsToDetermineLanguage(arguments)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 
 	arguments:append(self.useFileExtensionsToDetermineLanguageFlags)

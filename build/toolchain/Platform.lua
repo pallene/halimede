@@ -58,8 +58,8 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	return configHDefines
 end
 
-function module:toolchainPath(toolchainPaths, pathName)
-	return toolchainPaths[pathName](self.toolchainPathStrategy, self.shellScriptExecutor.shellLanguage)
+function module:toolchainPath(pathFunction)
+	return pathFunction(self.toolchainPathStrategy, self.shellScriptExecutor.shellLanguage)
 end
 
 assert.globalTypeIsFunction('ipairs')

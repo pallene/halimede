@@ -12,6 +12,7 @@ function moduleclass(...)
 	for key, value in pairs(newClass) do
 		moduleClass[key] = newClass[key]
 	end
+	
 	setmetatable(moduleClass, getmetatable(newClass))
 	
 	return moduleClass

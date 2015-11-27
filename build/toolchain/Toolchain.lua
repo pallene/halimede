@@ -55,7 +55,13 @@ function module:relativeFilePath(...)
 end
 
 function module:toolchainPath(pathName)
-	return self.platform:toolchainPath(self.toolchainPaths, pathName)
+	assert.parameterTypeIsString('pathName', pathName)
+	
+	local function pathFunction(toolchainPathStrategy, shellLanguage)
+		return self.toolchainPaths[pathName](self.toolchainPaths, toolchainPathStrategy, shellLanguage)
+	end
+	
+	return self.platform:toolchainPath(pathFunction)
 end
 
 function module:include()

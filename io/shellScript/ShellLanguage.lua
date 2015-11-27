@@ -65,13 +65,13 @@ function module:execute(standardIn, standardOut, standardError, ...)
 
 	local arguments = tabelize({...})
 	if standardIn then
-		arguments:insert(shellLanguage.redirectStandardInput(standardIn))
+		arguments:insert(shellLanguage:redirectStandardInput(standardIn))
 	end
 	if standardOut then
-		arguments:insert(shellLanguage.redirectStandardOutput(standardOut))
+		arguments:insert(shellLanguage:redirectStandardOutput(standardOut))
 	end
 	if standardError then
-		arguments:insert(shellLanguage.redirectStandardError(standardError))
+		arguments:insert(shellLanguage:redirectStandardError(standardError))
 	end
 
 	local command = shellLanguage.toShellCommand(...)
@@ -132,6 +132,12 @@ function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 end
 
 function module:quoteArgument(argument)
+	assert.parameterTypeIsString('argument', argument)
+	
+	return self:_quoteArgument(argument)
+end
+
+function module:_quoteArgument(argument)
 	exception.throw('AbstractMethod')
 end
 
@@ -148,25 +154,33 @@ end
 
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
 function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
 function module:redirectStandardInput(filePathOrFileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	
 	return self:redirectInput(ShellLanguage.standardIn, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardOutput(filePathOrFileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	
 	return self:redirectOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardError(filePathOrFileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	
 	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
 end
 
@@ -277,9 +291,7 @@ function PosixShellLanguage:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
-function PosixShellLanguage:quoteArgument(argument)
-	assert.parameterTypeIsString('argument', argument)
-	
+function PosixShellLanguage:_quoteArgument(argument)
 	return "'" .. argument:gsub("'", "''") .. "'"
 end
 
@@ -310,9 +322,7 @@ end
 
 -- Quoting is a mess in Cmd; these rules only work for cmd.exe /C (it's a per-program thing)
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
-function CmdShellLanguage:quoteArgument(argument)
-	assert.parameterTypeIsString('argument', argument)
-	
+function CmdShellLanguage:_quoteArgument(argument)
 	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
     if argument:match('^[%.a-zA-Z]?:?[\\/]')  then
        argument = argument:gsub('/', slash)

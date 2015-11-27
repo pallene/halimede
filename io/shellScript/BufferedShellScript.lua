@@ -23,10 +23,14 @@ function BufferedShellScript:initialize(shellScriptExecutor)
 end
 
 function BufferedShellScript:quoteArgument(argument)
+	assert.parameterTypeIsString('argument', argument)
+	
 	return self.shellLanguage:quoteArgument(argument)
 end
 
 function BufferedShellScript:redirectStandardOutput(filePathOrFileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	
 	return self.shellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
 end
 

@@ -47,7 +47,7 @@ local exception = halimede.exception
 local function validatePath(path, name, mustBe)
 	path:assertIsFolderPath(name)
 	
-	if path.pathStyle[mustBe] == false then
+	if path.pathRelativity[mustBe] == false then
 		exception.throw("%s '%s' must be %s", name, path, mustBe)
 	end
 end

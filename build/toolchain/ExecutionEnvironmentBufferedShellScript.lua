@@ -49,7 +49,7 @@ function module:newAction(namespace, actionName)
 		local ok, resultOrErrorMessage = pcall(require.functor, potentialModuleName)
 		if ok then
 			local ShellScriptActionClass = resultOrErrorMessage
-			return ShellScriptActionClass:new(self)
+			return ShellScriptActionClass:new(self, self.dependencies, self.buildVariant)
 		end
 		errors:insert(resultOrErrorMessage)
 	end

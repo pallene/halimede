@@ -7,12 +7,11 @@ local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShel
 moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
 
-
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
-	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableActionCreator', unsetEnvironmentVariableActionCreator)
-	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableActionCreator', exportEnvironmentVariableActionCreator)
 	assert.parameterTypeIsTable('dependencies', dependencies)
 	assert.parameterTypeIsTable('buildVariant', buildVariant)
+	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableActionCreator', unsetEnvironmentVariableActionCreator)
+	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableActionCreator', exportEnvironmentVariableActionCreator)
 	
 	AbstractShellScriptAction.initialize(self, shellScript)
 	
@@ -22,22 +21,22 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionCreator(shellScript)
 end
 
-function AbstractCompileUnitActions:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
-	return toolchain.platform.cCompilerDeriver:newArguments(compilerDriverFlags, toolchain.sysrootPath)
+function module:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
+	return toolchain.platform.cCompilerDriver:newArguments(compilerDriverFlags, toolchain.toolchainPaths.sysrootPath)
 end
 
 function module:_unsetEnvironmentVariables(compilerDriverArguments)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
-		self.unsetEnvironmentVariableAction.execute(environmentVariableName)
+		self.unsetEnvironmentVariableAction:execute(environmentVariableName)
 	end)
 end
 
 function module:_exportEnvironmentVariables(compilerDriverArguments, extras)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
-	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
-		self.exportEnvironmentVariableAction.execute(environmentVariableName, environmentVariableValue)
+	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
+		self.exportEnvironmentVariableAction:execute(environmentVariableName, environmentVariableValue)
 	end, extras)
 end

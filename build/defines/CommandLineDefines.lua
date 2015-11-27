@@ -5,13 +5,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Defines = require.sibling('Defines')
-local CommandLineDefines = moduleclass('CommandLineDefines', Defines)
+moduleclass('CommandLineDefines', Defines)
 
 local tabelize = halimede.table.tabelize
 local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments
 
 
-function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacros)
+function module:initialize(doNotPredefineSystemOrCompilerDriverMacros)
 	assert.parameterTypeIsBoolean('doNotPredefineSystemOrCompilerDriverMacros', doNotPredefineSystemOrCompilerDriverMacros)
 	
 	Defines.initialize(self)
@@ -20,8 +20,8 @@ function CommandLineDefines:initialize(doNotPredefineSystemOrCompilerDriverMacro
 end
 
 assert.globalTypeIsFunction('pairs')
-function CommandLineDefines:appendToCompilerDriverArguments(compilerDriverArguments)
-	assert.parameterTypeIsInstfnceOd(compilerDriverArguments, CompilerDriverArguments)
+function module:appendToCompilerDriverArguments(compilerDriverArguments)
+	assert.parameterTypeIsInstanceOf('compilerDriverArguments', compilerDriverArguments, CompilerDriverArguments)
 	
 	if self.doNotPredefineSystemOrCompilerDriverMacros then
 		compilerDriverArguments:doNotPredefineSystemOrCompilerDriverMacros()
@@ -35,5 +35,5 @@ function CommandLineDefines:appendToCompilerDriverArguments(compilerDriverArgume
 		compilerDriverArguments:definePreprocessorMacro(defineName, defineValue)
 	end
 	
-	return arguments
+	return compilerDriverArguments
 end

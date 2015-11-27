@@ -25,28 +25,30 @@ local function detectRuntime()
 	local virtualMachine
 	local languageName
 	local languageLevel
-	if jit.version then
+	
+	if type.hasPackageChildFieldOfTypeString('jit', 'version') then
 		-- eg 'LuaJIT 2.0.4'
 		virtualMachine = jit.version
-	elseif _VERSION then
+	elseif type.hasGlobalOfTypeString('_VERSION') then
 		virtualMachine = _VERSION
 	else
 		virtualMachine = defaultLanguageLevel
 	end
 	
-	if _VERSION then
+	if type.hasGlobalOfTypeString('_VERSION') then
 		languageLevel = _VERSION
 	else
 		languageLevel = defaultLanguageLevel
 	end
 	
-	local isLuaJit = jit ~= nil
+	-- Not necessarily true
+	local isLuaJit = type.hasGlobalOfTypeTableOrUserdata('jit')
 	
 	local guardLanguageLevelDetected = knownLanguageLevelMappings[languageLevel]
 	
 	return {
 		Lua51 = 'Lua 5.1',
-		virtualMachine = vitualMachine,
+		virtualMachine = virtualMachine,
 		languageLevel = languageLevel,
 		isLuaJit = isLuaJit,
 		isLanguageLevelMoreModernThan = function(olderLanguageLevel)

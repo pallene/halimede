@@ -9,6 +9,7 @@ moduleclass('CompilerDriverArguments')
 local CompilerDriver = require.sibling('CompilerDriver')
 local Arguments = require.sibling('Arguments')
 local FilePaths = require.sibling('FilePaths')
+local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
 
 
@@ -17,11 +18,13 @@ function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	
+	self.compilerDriver = compilerDriver
+	
 	self.arguments = Arguments:new()
-	self.arguments:append(self.commandLineName)
-	self.arguments:append(self.commandLineFlags)
+	self.arguments:append(compilerDriver.commandLineName)
+	self.arguments:append(compilerDriver.commandLineFlags)
 	self.arguments:append(compilerDriverFlags)
-	self.compilerDriver:appendSystemRoot(self.arguments, sysrootPath)
+	compilerDriver:appendSystemRoot(self.arguments, sysrootPath)
 end
 
 function module:append(...)
@@ -40,7 +43,11 @@ end
 function module:addCStandard(cStandard)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	
-	self.compilerDriver:addCStandard(self.arguments)
+	self.compilerDriver:addCStandard(self.arguments, cStandard)
+end
+
+function module:useFileExtensionsToDetermineLanguage()
+	self.compilerDriver:useFileExtensionsToDetermineLanguage(self.arguments)
 end
 
 function module:doNotPredefineSystemOrCompilerDriverMacros()
@@ -89,7 +96,7 @@ function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLink
 	self.compilerDriver:addLinkedLibraries(self.arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 end
 
-function Arguments:useUnpacked(userFunction)
+function module:useUnpacked(userFunction)
 	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
 	
 	return self.arguments:useUnpacked(userFunction)

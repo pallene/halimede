@@ -30,7 +30,9 @@ function module:_quoteArgument(argument)
 end
 
 function module:_redirectStandardOutput(filePathOrFileDescriptor)
-	return self.shellScript:redirectStandardOutput(fileOrFileDescriptor)
+	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	
+	return self.shellScript:redirectStandardOutput(filePathOrFileDescriptor)
 end
 
 function module:_appendLinesToScript(...)

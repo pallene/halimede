@@ -176,6 +176,20 @@ if package.loadlib == nil then
 	end
 end
 
+-- Based on http://www.lua.org/extras/5.1/strict.lua but doesn't use the debug library
+-- Late detection, but better than no detection at all
+-- See also http://lua-users.org/wiki/DetectingUndefinedVariables
+local function throwErrorsIfGlobalFieldNotDefined()
+	local metatable = getmetatable(_G) or {}
+	
+	metatable.__index = function(self, key)
+		error("Global '" .. key .. "' is not defined", 2)
+	end
+	
+	setmetatable(_G, metatable)
+end
+throwErrorsIfGlobalFieldNotDefined()
+
 local function relativeRequireName(childModuleName)
 	return ourModuleName .. '.' .. childModuleName
 end
@@ -310,27 +324,48 @@ type.isNotNil = isNotType('nil')
 type.isInteger = isIntegerType()
 type.isPositiveInteger = isPositiveIntegerType()
 
+local function hasGlobalOfType(isOfType, name)
+	local global = rawget(_G, name)
+	return isOfType(global), global
+end
+
+function type.hasGlobalOfTypeString(name)
+	return hasGlobalOfType(type.isString, name)
+end
+
+function type.hasGlobalOfTypeFunctionOrCall(name)
+	return hasGlobalOfType(type.isFunctionOrCall, name)
+end
+
+function type.hasGlobalOfTypeTableOrUserdata(name)
+	return hasGlobalOfType(type.isTableOrUserdata, name)
+end
+
 local function hasPackageChildFieldOfType(isOfType, name, ...)
-	assert.parameterTypeIsTable('isOfType', isOfType)
-	assert.parameterTypeIsString('name', name)
 	
-	local package = _G[name]
-	if not type.isTable(package) then
+	local ok, package = type.hasGlobalOfTypeTableOrUserdata(name)
+	if not ok then
 		return false
 	end
 	
-	local package = _G[name]
-	
+	if not type.isTableOrUserdata(package) then
+		return false
+	end
+
+	-- We do not use ipairs() in primitive code
 	local childFieldNames = {...}
-	for _, childFieldName in ipairs(childFieldNames) do
-		assert.parameterTypeIsString('childFieldName', childFieldName)
+	local index = 1
+	local length = #childFieldNames
+	while index <= length do
+		local childFieldName = childFieldNames[index]
 		
 		local value = package[childFieldName]
 		if not isOfType(value) then
 			return false
 		end
+		
+		index = index + 1
 	end
-	
 	return true
 end
 
@@ -372,7 +407,7 @@ local function parameterTypeIs(parameterName, value, isOfType)
 		error('Please supply a string parameter name')
 	end
 	
-	withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, isOfType.name), 4)
+	withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, isOfType.name), 3)
 end
 
 -- Would be a bit odd to use this
@@ -457,10 +492,6 @@ function assert.parameterTypeIsPositiveInteger(parameterName, value)
 end
 
 local function globalTypeIs(isOfType, ...)
-	if _G == nil then
-		error(essentialGlobalMissingErrorMessage('_G'), 3)
-	end
-	
 	-- We do not use ipairs() as we may be checking for its existence!
 	local names = {...}
 	local index = 1
@@ -469,8 +500,10 @@ local function globalTypeIs(isOfType, ...)
 		local name = names[index]
 		assert.parameterTypeIsString('name', name)
 		
-		local global = _G[name]
-		withLevel(global ~= nil, essentialGlobalMissingErrorMessage(name), 4)
+		local ok, global = hasGlobalOfType(isOfType, name)
+		if not ok then
+			withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
+		end
 		withLevel(isOfType(global), "The global '" .. name .. "'" .. " is not a " .. isOfType.name, 4)
 		
 		index = index + 1
@@ -496,7 +529,13 @@ end
 local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 	assert.globalTypeIsTable(name)
 	
-	local package = _G[name]
+	local ok, package = hasGlobalOfType(isOfType, name)
+	if not ok then
+		withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
+	end
+	if not type.isTableOrUserdata(package) then
+		withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
+	end
 	
 	local childFieldNames = {...}
 	for _, childFieldName in ipairs(childFieldNames) do
@@ -840,6 +879,10 @@ local function setAliasedFields(module, aliases)
 		existingIndex = function(self, key)
 			return nil
 		end
+	elseif type.isTable(existingIndex) then
+		existingIndex = function(self, key)
+			return existingIndex[key]
+		end
 	end
 	
 	metatable.__index = function(self, key)
@@ -854,7 +897,11 @@ local function setAliasedFields(module, aliases)
 	local existingNewIndex = metatable.__newindex
 	if existingNewIndex == nil then
 		existingNewIndex = function(self, key, value)
-			return rawset(self, key, value)
+			rawset(self, key, value)
+		end
+	elseif type.isTable(existingNewIndex) then
+		existingNewIndex = function(self, key, value)
+			existingNewIndex[key] = value
 		end
 	end
 	
@@ -1007,7 +1054,87 @@ halimede.name = ourModuleName
 -- Used by middleclass
 assert.globalTypeIsFunction('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
 assert.globalTypeIsFunctionOrCall('assert', 'type')
-local class = relativeRequire('middleclass')
+local middleclass = relativeRequire('middleclass')
+
+assert.globalTypeIsFunction('setmetatable', 'getmetatable', 'tostring', 'rawset')
+local function mutateMiddleclassSoThatMissingFieldsCauseErrors()
+	local originalFunction = middleclass.class
+	
+	middleclass.class = function(name, super, ...)
+		local newClass = originalFunction(name, super, ...)
+	
+		local metatable = getmetatable(newClass)
+		local originalIndex = metatable.__index
+		metatable.__index = function(self, key)
+			local value = originalIndex[key]
+			if value ~= nil then
+				return value
+			end
+			error("Class " .. name .. " does not have static field '" .. tostring(key) .. "'", 2)
+		end
+		
+		return newClass
+	end
+	
+	middleclass.Object.static.allocate = function(self)
+		assert(type(self) == 'table', "Make sure that you are using 'Class:allocate' instead of 'Class.allocate'")
+		local metatable = self.__instanceDict
+		
+		local explicitlyNilFields = {}
+		
+		local originalIndex = metatable.__index
+		local underlyingIndexFunction
+		
+		if type.isTable(originalIndex) then
+			underlyingIndexFunction = function(self, key)
+				return originalIndex[key]
+			end
+		else
+			underlyingIndexFunction = originalIndex
+		end
+		
+		metatable.__index = function(self, key)
+			local value = underlyingIndexFunction(self, key)
+			if value ~= nil then
+				return value
+			elseif explicitlyNilFields[key] then
+				return nil
+			end
+			local name = getmetatable(self.class).__tostring()
+			error("Instance of " .. name .. " does not have instance field '" .. tostring(key) .. "'", 2)
+		end
+		
+		-- This logic exists to allow us to specify explicitly 'nil' fields
+		local originalNewIndex = metatable.__newindex
+		local underlyingNewIndexFunction
+		
+		if type.isTable(originalNewIndex) then
+			underlyingNewIndexFunction = function(self, key, value)
+				originalNewIndex[key] = value
+			end
+		elseif type.isNil(originalNewIndex) then
+			underlyingNewIndexFunction = function(self, key, value)
+				rawset(self, key, value)
+			end
+		else
+			underlyingNewIndexFunction = originalNewIndex
+		end
+		
+		metatable.__newindex = function(self, key, value)
+			if value == nil then
+				explicitlyNilFields[key] = true
+			else
+				underlyingNewIndexFunction(self, key, value)
+			end
+		end
+
+		return setmetatable({class = self}, metatable)
+	end
+	
+	return middleclass
+end
+local class = mutateMiddleclassSoThatMissingFieldsCauseErrors()
+
 aliasedModules['middleclass'] = class
 halimede.class = class
 setAliasedFields(halimede, {middleclass = 'class'})
