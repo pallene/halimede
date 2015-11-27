@@ -90,7 +90,7 @@ end
 function module:executeExpectingSuccess(standardIn, standardOut, standardError, ...)
 	local success, terminationKind, exitCode, command = self:execute(standardIn, standardOut, standardError, ...)
 	if not success then
-		exception.throw("Could not execute shell command, returned exitCode '%s' for command [%s]", exitCode, command)
+		exception.throw("Could not execute shell command, returned exitCode '%s' for command (%s)", exitCode, command)
 	end
 end
 
@@ -207,7 +207,7 @@ assert.globalTypeIsFunction('ipairs')
 function module:appendLinesToScript(tabelizedScriptBuffer, ...)
 	local lines = {...}
 	for _, line in ipairs(lines) do
-		tabelizedScriptBuffer:insert(line)
+		tabelizedScriptBuffer:insert(line .. self.newline)
 	end
 end
 
@@ -291,7 +291,7 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
 function PosixShellLanguage:_quoteArgument(argument)
-	return "'" .. argument:gsub("'", "''") .. "'"
+	return "'" .. argument:gsub("'", "'\\''") .. "'"
 end
 
 ShellLanguage.static.Posix = PosixShellLanguage:new()

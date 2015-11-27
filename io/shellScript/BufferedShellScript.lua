@@ -43,7 +43,7 @@ function BufferedShellScript:appendCommandLineToScript(...)
 end
 
 function BufferedShellScript:finish()
-	local script = self.tabelizedScriptBuffer:concat(self.shellLanguage.newline)
+	local script = self.tabelizedScriptBuffer:concat()
 	self.tabelizedScriptBuffer = tabelize()
 	return script
 end

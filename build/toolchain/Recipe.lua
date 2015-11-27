@@ -266,5 +266,6 @@ function module:execute()
 	
 	local crossToolchainPaths = ToolchainPaths:new(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
 	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, self.recipeSourcePath, self.dependencies, self.consolidatedBuildVariant, self.platformConfigHDefinesFunctions, self._execute)
+	
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
