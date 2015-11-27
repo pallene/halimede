@@ -213,7 +213,7 @@ function module:appendFile(fileName, fileExtension, alternateStreamName)
 end
 
 function module:appendFileExtension(fileExtension, alternateStreamName)
-	assert.parameterTypeIsString('fileExtension', fileExtension)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 
 	self:assertIsFilePath('self')

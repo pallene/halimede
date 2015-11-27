@@ -9,7 +9,8 @@ local read = require.sibling('read')
 
 assert.globalTableHasChieldFieldOfTypeFunction('io', 'popen')
 local function openShellCommand(mode, shellLanguage, ...)
-	local command = shellLanguage.toShellCommand(shellLanguage.silentPath, shellLanguage.silentPath, ...)
+	local command = shellLanguage:toShellCommand(...)
+	
 	local fileHandle = io.popen(command, mode)
 	if fileHandle == nil then
 		exception.throw('Could not open shell for command "%s"', command)

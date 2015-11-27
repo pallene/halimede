@@ -61,20 +61,19 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 end
 
 function module:execute(standardIn, standardOut, standardError, ...)
-	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 
 	local arguments = tabelize({...})
 	if standardIn then
-		arguments:insert(shellLanguage:redirectStandardInput(standardIn))
+		arguments:insert(self:redirectStandardInput(standardIn))
 	end
 	if standardOut then
-		arguments:insert(shellLanguage:redirectStandardOutput(standardOut))
+		arguments:insert(self:redirectStandardOutput(standardOut))
 	end
 	if standardError then
-		arguments:insert(shellLanguage:redirectStandardError(standardError))
+		arguments:insert(self:redirectStandardError(standardError))
 	end
 
-	local command = shellLanguage.toShellCommand(...)
+	local command = self:toShellCommand(...)
 
 	-- Lua 5.1: returns an exit code
 	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
@@ -187,7 +186,7 @@ end
 assert.globalTypeIsFunction('ipairs')
 function module:toShellCommand(...)
 	local arguments = {...}
-
+	
 	local commandBuffer = tabelize()
 	
 	for _, argument in ipairs(arguments) do
