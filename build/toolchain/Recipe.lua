@@ -74,6 +74,7 @@ local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	return result
 end
 
+assert.globalTypeIsFunction('pairs')
 function module:initialize(executionEnvironment, recipeName, chosenBuildVariantNames)
 	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
 	assert.parameterTypeIsString('recipeName', recipeName)
@@ -88,12 +89,54 @@ function module:initialize(executionEnvironment, recipeName, chosenBuildVariantN
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
 	local result = self:_load(executionEnvironment)
-	local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(result, executionEnvironment.crossPlatform.gnuTuple)
-	self.dependencies = dependencies
-	self.packageVersion = packageVersion
-	self.consolidatedBuildVariant = consolidatedBuildVariant
-	self.platformConfigHDefinesFunctions = platformConfigHDefinesFunctions
-	self._execute = execute
+	assert.parameterTypeIsTable('result', result)
+	
+	print("TODO: Check that aliases ARE VALID *********************; Make sure that there is at least ONE version; move code out of ctor")
+	local aliases = fieldExists.asTableOrDefaultTo(result, 'aliases')
+	self.aliases = aliases
+	
+	local versions = fieldExists.asTableOrDefaultTo(result, 'versions')
+	
+	for packageVersionName, packageVersionSettings in ipairs(versions) do
+		assert.parameterTypeIsString('versionName', versionName)
+		assert.parameterTypeIsTable('version', version)
+		
+		local ourVersion = {}
+		
+		local dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute = self:_validate(packageVersionName, packageVersionSettings, executionEnvironment.crossPlatform.gnuTuple)
+		ourVersion.dependencies = dependencies
+		ourVersion.consolidatedBuildVariant = consolidatedBuildVariant
+		ourVersion.platformConfigHDefinesFunctions = platformConfigHDefinesFunctions
+		ourVersion.execute = execute
+		
+		if aliases[packageVersionName] then
+			exception.throw("There is an alias for an extant version called '%s' in recipe '%s'", packageVersionName, self.recipeName)
+		end
+	end
+	
+	self.versions = versions
+end
+
+assert.globalTypeIsFunction('pairs')
+function module:_resolveAlias(aliasFrom, alreadyEncounteredAliasFrom)
+	alreadyEncounteredAliasFrom = alreadyEncounteredAliasFrom or {}
+	
+	if self.versions[aliasFrom] then
+		return self.versions[aliasFrom]
+	end
+	
+	local recursiveAliasFrom = self.aliases[aliasFrom]
+	if type.isString(recursiveAliasFrom) then
+		if alreadyEncounteredAliasFrom[alreadyEncounteredAliasFrom] == true then
+			exception.throw("Circular aliases in recipe '%s'", self.recipeName)
+		end
+		alreadyEncounteredAliasFrom[aliasFrom] = true
+		return self:_resolveAlias(recursiveAliasFrom, alreadyEncounteredAliasFrom)
+	elseif recursiveAliasFrom == nil then
+		return nil
+	else
+		exception.throw("There is an alias which is not a string in aliases for recipe '%s'", self.recipeName)
+	end
 end
 
 function module:buildVariantsString()
@@ -209,47 +252,52 @@ function module:_load(executionEnvironment)
 	return executeFromFile('recipe file', self.recipeFilePath, executionEnvironment.recipeEnvironment)
 end
 
-function module:_validate(result, crossPlatformGnuTuple)
-	local dependencies = fieldExists.asTableOrDefaultTo(result, 'dependencies')
+function module:_validate(packageVersion, version, crossPlatformGnuTuple)
+	local dependencies = fieldExists.asTableOrDefaultTo(version, 'dependencies')
 		local systemIncludePaths = fieldExists.asTableOrDefaultTo(dependencies, 'systemIncludePaths')
 		local linkerFlags = fieldExists.asTableOrDefaultTo(dependencies, 'linkerFlags')
 		local libs = fieldExists.asTableOrDefaultTo(dependencies, 'libs')
-	local package = fieldExists.asTableOrDefaultTo(result, 'package')
+	local package = fieldExists.asTableOrDefaultTo(version, 'package')
 		local packageOrganisation = fieldExists.asString(package, 'organisation')
 		local packageName = fieldExists.asString(package, 'name')
-		local packageVersion = fieldExists.asString(package, 'version')  -- TODO: should not really be embedded in the recipe
-	local buildVariants = fieldExists.asTableOrDefaultTo(result, 'buildVariants')
+	local buildVariants = fieldExists.asTableOrDefaultTo(version, 'buildVariants')
 		local consolidatedBuildVariant = validateBuildVariantsAndCreateConsolidatedBuildVariant(self.chosenBuildVariantNames, buildVariants)
-	
+
 	local platformConfigHDefinesFunctions = tabelize()	
-	local configH = fieldExists.asTableOrDefaultTo(result, 'configH')
-		
+	local configH = fieldExists.asTableOrDefaultTo(version, 'configH')
+	
 		local configHDefinesPrepare = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'prepare', configHDefinesPrepare)
-		
+	
 		platformConfigHDefinesFunctions:insert(function(configHDefines, platform)
 			return configHDefinesPrepare(configHDefines, platform, packageOrganisation, packageName, packageVersion, self:buildVariantsString())
 		end)
-		
+	
 		local configHDefinesDefault = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'default', configHDefinesDefault)
-		
+	
 		platformConfigHDefinesFunctions:insert(configHDefinesDefault)
-		
+	
 		local platforms = fieldExists.asTableOrDefaultTo(configH, 'platforms')
 		for platformMatch, platformFunction in pairs(platforms) do
 			assert.parameterTypeIsString('platformMatch', platformMatch)
 			assert.parameterTypeIsFunctionOrCall('platformFunction', platformFunction)
-			
+		
 			if crossPlatformGnuTuple[platformMatch] == true then
 				platformConfigHDefinesFunctions:insert(platformFunction)
 			end
 		end
-	
-	local execute = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(result, 'execute', executeDefault)
-	
+
+	local execute = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(version, 'execute', executeDefault)
+
 	return dependencies, packageVersion, consolidatedBuildVariant, platformConfigHDefinesFunctions, execute
 end
 
-function module:execute()
+function module:execute(packageVersion)
+	assert.parameterTypeIsString('packageVersion', packageVersion)
+	
+	local version = self:_resolveAlias(packageVersion)
+	if version == nil then
+		exception.throw("No known version details for packageVersion '%s' in recipe '%s'", packageVersion, self.recipeName)
+	end
 	
 	local executionEnvironment = self.executionEnvironment
 	
@@ -265,7 +313,7 @@ function module:execute()
 	local libPrefixPath = destinationPath:appendFolders('opt', 'lib-prefix')  -- Might be mounted exec, ideally noexec and nosuid
 	
 	local crossToolchainPaths = ToolchainPaths:new(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
-	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, self.recipeSourcePath, self.dependencies, self.consolidatedBuildVariant, self.platformConfigHDefinesFunctions, self._execute)
+	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, self.recipeSourcePath:appendFolders(packageVersion), version.dependencies, version.consolidatedBuildVariant, version.platformConfigHDefinesFunctions, version.execute)
 	
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
