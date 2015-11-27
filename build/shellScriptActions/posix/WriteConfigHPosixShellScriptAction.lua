@@ -28,7 +28,6 @@ function module:execute(configHDefines, filePath)
 		actualFilePath = filePath:toString(true)
 	end
 
-	local x = self:_redirectStandardOutput(actualFilePath)
-	
-	self:_appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText(), x)
+	local redirected = self:_redirectStandardOutput(actualFilePath)
+	self:_appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText('\n\n'), redirected)
 end

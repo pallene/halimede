@@ -13,7 +13,7 @@ local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors
 local toTemporaryFileAllContentsInTextModeAndUse = halimede.io.temporaryWrite.toTemporaryFileAllContentsInTextModeAndUse
 
 
-function BufferedShellScript:initialize(shellScriptExecutor)
+function module:initialize(shellScriptExecutor)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	
 	self.shellScriptExecutor = shellScriptExecutor
@@ -22,33 +22,34 @@ function BufferedShellScript:initialize(shellScriptExecutor)
 	self.tabelizedScriptBuffer = tabelize()
 end
 
-function BufferedShellScript:quoteArgument(argument)
+function module:quoteArgument(argument)
 	assert.parameterTypeIsString('argument', argument)
 	
 	return self.shellLanguage:quoteArgument(argument)
 end
 
-function BufferedShellScript:redirectStandardOutput(filePathOrFileDescriptor)
+function module:redirectStandardOutput(filePathOrFileDescriptor)
 	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
 	
 	return self.shellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
 end
 
-function BufferedShellScript:appendLinesToScript(...)
+function module:appendLinesToScript(...)
 	self.shellLanguage:appendLinesToScript(self.tabelizedScriptBuffer, ...)
 end
 
-function BufferedShellScript:appendCommandLineToScript(...)
+function module:appendCommandLineToScript(...)
 	self.shellLanguage:appendCommandLineToScript(self.tabelizedScriptBuffer, ...)
 end
 
-function BufferedShellScript:finish()
+function module:finish()
 	local script = self.tabelizedScriptBuffer:concat()
+	print(script)
 	self.tabelizedScriptBuffer = tabelize()
 	return script
 end
 
-function BufferedShellScript:executeScriptExpectingSuccess(standardOut, standardError)
+function module:executeScriptExpectingSuccess(standardOut, standardError)
 	local script = self:finish()
 	
 	toTemporaryFileAllContentsInTextModeAndUse(script, self.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod, function(scriptFilePath)

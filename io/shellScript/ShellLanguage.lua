@@ -12,6 +12,7 @@ local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local Paths = halimede.io.paths.Paths
 local PathStyle = halimede.io.paths.PathStyle
+local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
 
 
 local executeFunction
@@ -131,9 +132,12 @@ function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 end
 
 function module:quoteArgument(argument)
-	assert.parameterTypeIsString('argument', argument)
+	if type.isString(argument) then
+		return self:_quoteArgument(argument)
+	end
 	
-	return self:_quoteArgument(argument)
+	assert.parameterTypeIsInstanceOf('argument', argument, AlreadyEscapedShellArgument)
+	return argument
 end
 
 function module:_quoteArgument(argument)
@@ -148,7 +152,7 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 		redirection = self:quoteArgument(filePathOrFileDescriptor)
 	end
 	
-	return fileDescriptor .. symbol .. redirection
+	return AlreadyEscapedShellArgument:new(fileDescriptor .. symbol .. redirection)
 end
 
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
@@ -191,8 +195,11 @@ function module:toShellCommand(...)
 	
 	for _, argument in ipairs(arguments) do
 		if argument ~= nil then
-			assert.parameterTypeIsString('argument', argument)
-			commandBuffer:insert(self:quoteArgument(argument))
+			if type.isString(argument) then
+				commandBuffer:insert(self:quoteArgument(argument))
+			else
+				commandBuffer:insert(argument.argument)
+			end
 		end
 	end
 

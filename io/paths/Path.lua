@@ -178,11 +178,11 @@ function module:parentPath(alternateStreamName)
 	local length = #self.pathElements
 	
 	if self.pathRelativity.doesNotHaveARoot then
-		if #length == 1 then
-			exception.throw("Has no parent path being a one-element relative path")
+		if length == 1 then
+			return Path:new(self.pathStyle, self.pathRelativity, self.device, {self.pathStyle.currentDirectory}, false, alternateStreamName)
 		end
 	else
-		if #length == 0 then
+		if length == 0 then
 			exception.throw("Is already at the root")
 		end
 	end

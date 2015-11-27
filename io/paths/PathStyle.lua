@@ -192,7 +192,11 @@ function module:toStringRelative(pathElements, isFile, specifyCurrentDirectoryEx
 	
 	local pathElementsToUse
 	if specifyCurrentDirectoryExplicitlyIfAppropriate then
-		pathElementsToUse = self:prependCurrentDirectory(pathElements)
+		if pathElements[1] == self.currentDirectory or pathElements[1] == self.parentDirectory then
+			pathElementsToUse = pathElements
+		else
+			pathElementsToUse = self:prependCurrentDirectory(pathElements)
+		end
 	else
 		pathElementsToUse = pathElements
 	end

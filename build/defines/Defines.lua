@@ -67,7 +67,7 @@ function module:quotedNonEmptyString(defineName, value)
 		if value:isEmpty() then
 			exception.throw("The '%s' define can not be empty", defineName)
 		end
-		self.defines[defineName] = "'" .. value .. "'"
+		self.defines[defineName] = '"' .. value .. '"'
 	end	
 end
 

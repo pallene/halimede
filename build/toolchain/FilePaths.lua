@@ -56,6 +56,24 @@ function module:toFileNamePaths()
 	return FilePaths:new(copy)
 end
 
+assert.globalTypeIsFunction('ipairs', 'pairs')
+assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+function module:withoutFileNames()
+	local copy = {}
+	
+	for _, path in ipairs(self.paths) do
+		local newPath = path:parentPath()
+		copy[newPath:toString(true)] = newPath
+	end
+
+	local set = {}
+	for _, path in pairs(copy) do
+		table.insert(set, path)
+	end
+	
+	return set
+end
+
 function module:toObjectsWithoutPaths(objectFileExtension)
 	assert.parameterTypeIsString('objectFileExtension', objectFileExtension)
 	
