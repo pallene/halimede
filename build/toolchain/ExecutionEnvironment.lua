@@ -40,11 +40,11 @@ function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, cros
 end
 
 assert.globalTypeIsFunction('ipairs')
-function module:createShellScript(crossToolchainPaths, sourcePath, dependencies, consolidatedBuildVariant, platformConfigHDefinesFunctions, userFunction)
+function module:createShellScript(crossToolchainPaths, sourcePath, dependencies, buildVariant, platformConfigHDefinesFunctions, userFunction)
 	assert.parameterTypeIsInstanceOf('crossToolchainPaths', crossToolchainPaths, ToolchainPaths)
 	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
 	assert.parameterTypeIsTable('dependencies', dependencies)
-	assert.parameterTypeIsTable('consolidatedBuildVariant', consolidatedBuildVariant)
+	assert.parameterTypeIsTable('buildVariant', buildVariant)
 	assert.parameterTypeIsTable('platformConfigHDefinesFunctions', platformConfigHDefinesFunctions)
 	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
 	
@@ -53,7 +53,7 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 	
 	local buildToolchain = Toolchain:new(self.buildPlatform, self.buildToolchainPaths)
 	
-	local shellScript = self:_newShellScript(buildToolchain, dependencies, consolidatedBuildVariant)
+	local shellScript = self:_newShellScript(buildToolchain, dependencies, buildVariant)
 	shellScript:newAction(nil, 'StartScript'):execute(sourcePath)
 	
 	local buildEnvironment = {
@@ -68,7 +68,7 @@ function module:createShellScript(crossToolchainPaths, sourcePath, dependencies,
 			shellScript:newAction(namespace, name):execute(...)
 		end,
 		
-		arguments = consolidatedBuildVariant.arguments,
+		arguments = buildVariant.arguments,
 		
 		configHDefines = self.crossPlatform:createConfigHDefines(platformConfigHDefinesFunctions)
 	}
