@@ -83,7 +83,6 @@ function module:initialize(executionEnvironment, recipeName, chosenBuildVariantN
 	self.recipesPath = executionEnvironment.recipesPath
 	self.recipeFolderPath = self.recipesPath:appendFolders(recipeName)
 	self.recipeFilePath = self.recipeFolderPath:appendFile('recipe', 'lua')
-	self.recipeSourcePath = self.recipeFolderPath:appendFolders('source')
 	--self.recipeWorkingDirectoryPath = self.recipeFolderPath:appendFolders('.build')
 	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
@@ -330,9 +329,11 @@ function module:execute(aliasPackageVersion)
 	local prefixPath = destinationPath:appendFolders('opt', 'prefix')  -- Mounted noexec, nosuid
 	local execPrefixPath = destinationPath:appendFolders('opt', 'exec-prefix')  -- Mounted exec, nosuid
 	local libPrefixPath = destinationPath:appendFolders('opt', 'lib-prefix')  -- Might be mounted exec, ideally noexec and nosuid
-	
 	local crossToolchainPaths = ToolchainPaths:new(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
-	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, self.recipeSourcePath:appendFolders(version.packageVersion), version.dependencies, version.buildVariant, version.platformConfigHDefinesFunctions, version.execute)
+
+	local recipeSourcePath = self.recipeFolderPath:appendFolders(version.packageVersion, 'source')
+	
+	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, recipeSourcePath, version.dependencies, version.buildVariant, version.platformConfigHDefinesFunctions, version.execute)
 	
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
