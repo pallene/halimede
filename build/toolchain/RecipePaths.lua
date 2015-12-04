@@ -7,18 +7,26 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
 local Platform = require.sibling('Platform')
-local ToolchainPaths = require.sibling('ToolchainPaths')
+local PlatformPaths = require.sibling('PlatformPaths')
 local FilePaths = require.sibling('FilePaths')
+local validatePath = require.sibling('PlatformPaths').validatePath
 
 
-moduleclass('Toolchain')
+moduleclass('RecipePaths')
 
-function module:initialize(platform, toolchainPaths)
+function module:initialize(platform, platformPaths, versionRelativePathElements)
 	assert.parameterTypeIsInstanceOf('platform', platform, Platform)
-	assert.parameterTypeIsInstanceOf('toolchainPaths', toolchainPaths, ToolchainPaths)
+	assert.parameterTypeIsInstanceOf('platformPaths', platformPaths, PlatformPaths)
+	assert.parameterTypeIsTable('versionRelativePathElements', versionRelativePathElements)
+
+	validatePath(versionRelativePath, 'versionRelativePath', 'isRelative')
 	
 	self.platform = platform
-	self.toolchainPaths = toolchainPaths
+	self.platformPaths = platformPaths
+	self.versionRelativePathElements = versionRelativePathElements
+	
+	self.shellLanguage = platform.shellScriptExecutor.shellLanguage
+	self.objectExtension = platform.objectExtension
 end
 
 assert.globalTypeIsFunction('ipairs', 'unpack')
@@ -43,35 +51,31 @@ end
 function module:toObjectsWithoutPaths(baseFilePaths)
 	assert.parameterTypeIsInstanceOf('baseFilePaths', baseFilePaths, FilePaths)
 	
-	return baseFilePaths:toObjectsWithoutPaths(self.platform.objectExtension)
+	return baseFilePaths:toObjectsWithoutPaths(self.objectExtension)
 end
 
 function module:relativeFolderPath(...)
-	return self.platform.shellScriptExecutor.shellLanguage:relativeFolderPath(...)
+	return self.shellLanguage:relativeFolderPath(...)
 end
 
 function module:relativeFilePath(...)
-	return self.platform.shellScriptExecutor.shellLanguage:relativeFilePath(...)
+	return self.shellLanguage:relativeFilePath(...)
 end
 
-function module:toolchainPath(pathName)
+function module:_platformPath(pathName)
 	assert.parameterTypeIsString('pathName', pathName)
 	
-	local function pathFunction(shellLanguage)
-		return self.toolchainPaths[pathName](self.toolchainPaths, shellLanguage)
-	end
-	
-	return self.platform:toolchainPath(pathFunction)
+	return self.platformPaths[pathName](self.platformPaths, self.versionRelativePathElements)
 end
 
 function module:include()
-	return self:toolchainPath('include')
+	return self:_platformPath('include')
 end
 
 function module:lib()
-	return self:toolchainPath('lib')
+	return self:_platformPath('lib')
 end
 
 function module:locale()
-	return self:toolchainPath('locale')
+	return self:_platformPath('locale')
 end

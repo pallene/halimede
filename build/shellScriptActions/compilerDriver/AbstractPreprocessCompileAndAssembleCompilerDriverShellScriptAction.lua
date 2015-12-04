@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Toolchain = halimede.build.toolchain.Toolchain
+local RecipePaths = halimede.build.toolchain.RecipePaths
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
@@ -18,7 +18,7 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 end
 
 function module:execute(toolchain, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
-	assert.parameterTypeIsInstanceOf('toolchain', toolchain, Toolchain)
+	assert.parameterTypeIsInstanceOf('toolchain', toolchain, RecipePaths)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)

@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Toolchain = halimede.build.toolchain.Toolchain
+local RecipePaths = halimede.build.toolchain.RecipePaths
 local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
 
 
@@ -15,7 +15,7 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 end
 
 function module:execute(toolchain, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
-	assert.parameterTypeIsInstanceOf('toolchain', toolchain, Toolchain)
+	assert.parameterTypeIsInstanceOf('toolchain', toolchain, RecipePaths)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('objects', objects)

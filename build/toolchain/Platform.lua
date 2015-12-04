@@ -8,14 +8,12 @@ local tabelize = halimede.table.tabelize
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local GnuTuple = require.sibling('GnuTuple')
 local CompilerDriver = require.sibling('CompilerDriver')
-local toolchainPathsStrategies = require.sibling('toolchainPathsStrategies')
 
 
 local Platform = moduleclass('Platform')
 
-function Platform:initialize(name, XXXXX, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
+function Platform:initialize(name, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString('name', name)
-	assert.parameterTypeIsFunctionOrCall('toolchainPathStrategy', XXXXXX)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString('objectExtension', objectExtension)
 	assert.parameterTypeIsString('executableExtension', executableExtension)
@@ -28,7 +26,6 @@ function Platform:initialize(name, XXXXX, shellScriptExecutor, objectExtension, 
 	assert.parameterTypeIsInstanceOf('cPlusPlusCompilerDriver', cPlusPlusCompilerDriver, CompilerDriver)
 	
 	self.name = name
-	self.toolchainPathStrategy = XXXXX
 	self.shellScriptExecutor = shellScriptExecutor
 	self.objectExtension = objectExtension
 	self.executableExtension = executableExtension
@@ -41,6 +38,13 @@ function Platform:initialize(name, XXXXX, shellScriptExecutor, objectExtension, 
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
 		
 	Platform.static[name] = self
+end
+
+-- Some of these things may already be known, some may not be...
+-- sysrootPath is either 'compile time' (eg '/') or for-all-recipes (eg /some/output/location) or changes after initial bootstrapping
+--   it is only needed at compile time for includes and linking (but may be encoded as RPATH if not careful)
+-- I really feel the prefixes are for-all-recipes (ie should be )
+function module:newPlatformPaths(perRecipeVersioningStrategy, sysrootPath, readonlyPrefixPath, execPrefixPath, libPrefixPath)
 end
 
 function module:_newConfigHDefines()
@@ -56,10 +60,6 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 		platformConfigHDefinesFunction(configHDefines, self)
 	end
 	return configHDefines
-end
-
-function module:toolchainPath(pathFunction)
-	return pathFunction(self.shellScriptExecutor.shellLanguage)
 end
 
 -- MinGW is a toolchain, but 32-bit
@@ -91,7 +91,6 @@ end
 
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
-	toolchainPathsStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
 	'o',
 	'', -- eg exe on Windows
@@ -106,7 +105,6 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
-	toolchainPathsStrategies.pathVersioned,
 	macOsXShellScriptExecutor,
 	'o',
 	'',

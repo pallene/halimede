@@ -24,7 +24,7 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 end
 
 function module:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
-	return toolchain.platform.cCompilerDriver:newArguments(compilerDriverFlags, toolchain.toolchainPaths.sysrootPath, true)
+	return toolchain.platform.cCompilerDriver:newArguments(compilerDriverFlags, toolchain.platformPaths:sysroot(), true)
 end
 
 function module:_unsetEnvironmentVariables(compilerDriverArguments)

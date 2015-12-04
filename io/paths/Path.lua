@@ -162,8 +162,13 @@ assert.globalTypeIsFunction('ipairs')
 function module:appendFolders(...)
 	self:assertIsFolderPath('self')
 	
+	local asTable = {...}
+	if #asTable == 0 then
+		return self
+	end
+	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
-	for _, childPathElement in ipairs({...}) do
+	for _, childPathElement in ipairs(asTable) do
 		assert.parameterTypeIsString('childPathElement', childPathElement)
 		
 		pathElementsCopy:insert(childPathElement)

@@ -10,10 +10,10 @@ local deepMerge = halimede.table.deepMerge
 local tabelize = halimede.table.tabelize
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
+local Recipes = require.sibling('Recipes')
 local Path = halimede.io.paths.Path
-local ToolchainPaths = halimede.build.toolchain.ToolchainPaths
-local ExecutionEnvironment = halimede.build.toolchain.ExecutionEnvironment
-local AbstractCrossToolchainPathCreator = halimede.build.toolchain.crossToolchainPathCreators.AbstractCrossToolchainPathCreator
+local Platform = halimede.build.toolchain.Platform
+local PlatformPaths = halimede.build.toolchain.PlatformPaths
 
 
 moduleclass('Recipe')
@@ -49,59 +49,40 @@ function fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, d
 end
 
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
-local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
-	assert.parameterTypeIsTable('chosenBuildVariantNames', chosenBuildVariantNames)
-
-	if #chosenBuildVariantNames == 0 then
-		exception.throw('Empty buildVariants')
-	end
-	
-	local encountedBuildVariantNames = {}
-	for _, chosenBuildVariantName in ipairs(chosenBuildVariantNames) do
-		assert.parameterTypeIsString('chosenBuildVariantName', chosenBuildVariantName)
-		if encountedBuildVariantNames[chosenBuildVariantName] then
-			exception.throw("Duplicate build variant name '%s'", chosenBuildVariantName)
-		end
-		encountedBuildVariantNames[chosenBuildVariantName] = true
-	end
-	
-	local result = tabelize()
-	for chosenBuildVariantName, _ in pairs(encountedBuildVariantNames) do
-		result:insert(chosenBuildVariantName)
-	end
-	result:sort()
-	
-	return result
-end
-
-function module:initialize(executionEnvironment, recipeName, chosenBuildVariantNames)
-	assert.parameterTypeIsInstanceOf('executionEnvironment', executionEnvironment, ExecutionEnvironment)
+function module:initialize(executor, recipesPath, crossPlatformGnuTuple, recipeEnvironment, recipeName, validatedAndSortedChosenBuildVariantNames)
+	assert.parameterTypeIsFunctionOrCall('executor', executor)
+	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)
+	assert.parameterTypeIsInstanceOf('crossPlatformGnuTuple', crossPlatformGnuTuple, GnuTuple)
+	assert.parameterTypeIsTable('recipeEnvironment', recipeEnvironment)
 	assert.parameterTypeIsString('recipeName', recipeName)
-	
+	assert.parameterTypeIsTable('validatedAndSortedChosenBuildVariantNames', validatedAndSortedChosenBuildVariantNames)
+
+	self.executor = executor
+	self.recipesPath = recipesPath
 	self.recipeName = recipeName
-	self.executionEnvironment = executionEnvironment
-	self.recipesPath = executionEnvironment.recipesPath
+	self.chosenBuildVariantNames = validatedAndSortedChosenBuildVariantNames
 	self.recipeFolderPath = self.recipesPath:appendFolders(recipeName)
 	self.recipeFilePath = self.recipeFolderPath:appendFile('recipe', 'lua')
-	--self.recipeWorkingDirectoryPath = self.recipeFolderPath:appendFolders('.build')
-	self.chosenBuildVariantNames = validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	
-	local result = self:_load(executionEnvironment)
-	local aliases, versions = self:_processRecipe(result)
+	local result = self:_load(recipeEnvironment)
+	local aliases, versions = self:_processRecipe(result, crossPlatformGnuTuple)
 	self.aliases = aliases
 	self.versions = versions
 end
 
+function module:_load(recipeEnvironment)
+	return executeFromFile('recipe file', self.recipeFilePath, recipeEnvironment)
+end
+
 assert.globalTypeIsFunction('pairs')
-function module:_processRecipe(result)
+function module:_processRecipe(result, crossPlatformGnuTuple)
 	assert.parameterTypeIsTable('result', result)
 	
 	local aliases = fieldExists.asTableOrDefaultTo(result, 'aliases')
 	local versions = fieldExists.asTableOrDefaultTo(result, 'versions')
 	local ourVersions = {}
 	
-	local gnuTuple = self.executionEnvironment.crossPlatform.gnuTuple
+	local crossPlatformGnuTuple = self.executionEnvironment.crossPlatform.gnuTuple
 	
 	local count = 0
 	for packageVersionName, packageVersionSettings in pairs(versions) do
@@ -110,7 +91,7 @@ function module:_processRecipe(result)
 		
 		local ourVersion = {}
 		
-		local dependencies, packageVersion, buildVariant, platformConfigHDefinesFunctions, execute = self:_validate(packageVersionName, packageVersionSettings, gnuTuple)
+		local dependencies, packageVersion, buildVariant, platformConfigHDefinesFunctions, execute = self:_validate(packageVersionName, packageVersionSettings, crossPlatformGnuTuple)
 		ourVersion.dependencies = dependencies
 		ourVersion.buildVariant = buildVariant
 		ourVersion.platformConfigHDefinesFunctions = platformConfigHDefinesFunctions
@@ -268,10 +249,6 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 	return consolidatedBuildVariants
 end
 
-function module:_load(executionEnvironment)
-	return executeFromFile('recipe file', self.recipeFilePath, executionEnvironment.recipeEnvironment)
-end
-
 function module:_validate(packageVersion, version, crossPlatformGnuTuple)
 	local dependencies = fieldExists.asTableOrDefaultTo(version, 'dependencies')
 		local systemIncludePaths = fieldExists.asTableOrDefaultTo(dependencies, 'systemIncludePaths')
@@ -310,28 +287,70 @@ function module:_validate(packageVersion, version, crossPlatformGnuTuple)
 	return dependencies, packageVersion, buildVariant, platformConfigHDefinesFunctions, execute
 end
 
-function module:execute(aliasPackageVersion, crossToolchainPathCreator)
+function module:execute(aliasPackageVersion)
+	self.executor(function(buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
+		return self:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
+	end)
+end
+
+function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
 	assert.parameterTypeIsString('aliasPackageVersion', aliasPackageVersion)
-	assert.parameterTypeIsInstanceOf('crossToolchainPathCreator', crossToolchainPathCreator, AbstractCrossToolchainPathCreator)
+	assert.parameterTypeIsInstanceOf('buildPlatform', buildPlatform, Platform)
+	assert.parameterTypeIsInstanceOf('buildPlatformPaths', buildPlatformPaths, PlatformPaths)
+	assert.parameterTypeIsInstanceOf('crossPlatform', crossPlatform, Platform)
+	assert.parameterTypeIsInstanceOf('crossPlatformPaths', crossPlatformPaths, PlatformPaths)
 	
 	local version = self:_resolveAlias(aliasPackageVersion)
 	if version == nil then
 		exception.throw("No known version details for aliasPackageVersion '%s' in recipe '%s'", aliasPackageVersion, self.recipeName)
 	end
 	
-	local executionEnvironment = self.executionEnvironment
-	
-	local crossShellLanguage = executionEnvironment.crossPlatform.shellScriptExecutor.shellLanguage
-	
-	local versionRelativePath = crossShellLanguage:relativeFolderPath(self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash')
-	
 	-- Instead of dependencies-hash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than a maximum length
 	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
-	local crossToolchainPaths = crossToolchainPathCreator:create(executionEnvironment, versionRelativePath)
+	local versionRelativePathElements = {self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash'}
 
 	local recipeSourcePath = self.recipeFolderPath:appendFolders(version.packageVersion, 'source')
+	recipeSourcePath:assertIsFolderPath('recipeSourcePath')
+	recipeSourcePath:assertIsEffectivelyAbsolute('recipeSourcePath')
+	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
+	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
 	
-	local shellScript = executionEnvironment:createShellScript(crossToolchainPaths, recipeSourcePath, version.dependencies, version.buildVariant, version.platformConfigHDefinesFunctions, version.execute)
+	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentBufferedShellScript, dependencies, consolidatedBuildVariant)
+	
+	self:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, version.dependencies, version.buildVariant, version.platformConfigHDefinesFunctions, version.execute)
 	
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
+end
+
+assert.globalTypeIsFunction('ipairs')
+function module:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, dependencies, buildVariant, crossPlatformConfigHDefinesFunctions, userFunction)
+	
+	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
+
+	shellScript:newAction(nil, 'StartScript'):execute(recipeSourcePath)
+	
+	local buildEnvironment = {
+		
+		recipeSourcePath = recipeSourcePath,
+		
+		buildPlatform = buildPlatform,
+		
+		buildRecipePaths = buildRecipePaths,
+		
+		crossPlatform = crossPlatform,
+		
+		crossRecipePaths = crossRecipePaths,
+		
+		action = function(namespace, name, ...)
+			shellScript:newAction(namespace, name):execute(...)
+		end,
+		
+		arguments = buildVariant.arguments,
+		
+		configHDefines = configHDefines
+	}
+	
+	local result = userFunction(buildEnvironment)
+	
+	shellScript:newAction(nil, 'EndScript'):execute()
 end
