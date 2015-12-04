@@ -5,9 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+
+
 moduleclass('ExportEnvironmentVariablePosixShellScriptAction', AbstractPosixShellScriptAction)
-
-
 
 function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)

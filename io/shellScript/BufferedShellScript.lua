@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local BufferedShellScript = moduleclass('BufferedShellScript')
-
 local tabelize = halimede.table.tabelize
 local deepCopy = halimede.table.deepCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local toTemporaryFileAllContentsInTextModeAndUse = halimede.io.temporaryWrite.toTemporaryFileAllContentsInTextModeAndUse
 
+
+moduleclass('BufferedShellScript')
 
 function module:initialize(shellScriptExecutor)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)

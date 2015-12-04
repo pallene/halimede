@@ -6,7 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 moduleclass('Defines')
 
-
 function module:initialize()
 	self.defines = {}
 	self.explicitlyUndefine = {}

@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('CompilerDriverArguments')
-
 local CompilerDriver = require.sibling('CompilerDriver')
 local Arguments = require.sibling('Arguments')
 local FilePaths = require.sibling('FilePaths')
@@ -13,15 +11,21 @@ local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
 
 
-function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath)
+moduleclass('CompilerDriverArguments')
+
+function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath, isVerbose)
 	assert.parameterTypeIsInstanceOf('compilerDriver', compilerDriver, CompilerDriver)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
+	assert.parameterTypeIsBoolean('isVerbose', isVerbose)
 	
 	self.compilerDriver = compilerDriver
 	
 	self.arguments = Arguments:new()
 	self.arguments:append(compilerDriver.commandLineName)
+	if isVerbose then
+		self.arguments:append(compilerDriver.verboseFlags)
+	end
 	self.arguments:append(compilerDriver.commandLineFlags)
 	self.arguments:append(compilerDriverFlags)
 	compilerDriver:appendSystemRoot(self.arguments, sysrootPath)

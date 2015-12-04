@@ -4,13 +4,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractShellScriptExecutor = require.sibling('AbstractShellScriptExecutor')
-local OrdinaryShellScriptExecutor = moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
-
 local deepCopy = halimede.table.deepCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
+local AbstractShellScriptExecutor = require.sibling('AbstractShellScriptExecutor')
 
+
+local OrdinaryShellScriptExecutor = moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)
 
 function module:initialize(shellLanguage, ...)
 	AbstractShellScriptExecutor.initialize(self, shellLanguage, shellLanguage.commandInterpreterName, ...)

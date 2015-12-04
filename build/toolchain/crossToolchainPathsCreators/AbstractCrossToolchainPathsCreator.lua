@@ -4,19 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = halimede.io.paths.Path
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+moduleclass('AbstractCrossToolchainPathsCreator')
 
-
-moduleclass('MakeDirectoryRecursivelyPosixShellScriptAction', AbstractPosixShellScriptAction)
-
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
-end
-
-function module:execute(path, mode)
-	assert.parameterTypeIsInstanceOf('path', path, Path)
-	assert.parameterTypeIsString('mode', mode)
-	
-	self:_appendCommandLineToScript('mkdir', '-m', mode, '-p', path:toString(true), mode)
+function module:initialize()
 end

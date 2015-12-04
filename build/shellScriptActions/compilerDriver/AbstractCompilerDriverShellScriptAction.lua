@@ -3,9 +3,11 @@ This file is part of halimede. It is subject to the licence terms in the COPYRIG
 Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-level directory of this distribution and at https://raw.githubusercontent.com/pallene/halimede/master/COPYRIGHT.
 ]]--
 
-local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
-moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+
+
+moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 	assert.parameterTypeIsTable('dependencies', dependencies)
@@ -22,7 +24,7 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 end
 
 function module:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
-	return toolchain.platform.cCompilerDriver:newArguments(compilerDriverFlags, toolchain.toolchainPaths.sysrootPath)
+	return toolchain.platform.cCompilerDriver:newArguments(compilerDriverFlags, toolchain.toolchainPaths.sysrootPath, true)
 end
 
 function module:_unsetEnvironmentVariables(compilerDriverArguments)

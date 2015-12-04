@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
-moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
-
 local Toolchain = halimede.build.toolchain.Toolchain
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
+local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
 
+
+moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)

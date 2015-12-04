@@ -5,9 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+
+
 moduleclass('UnsetEnvironmentVariableCmdShellScriptAction', AbstractCmdShellScriptAction)
-
-
 
 function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)

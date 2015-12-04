@@ -4,12 +4,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
-moduleclass('WriteConfigHCmdShellScriptAction', AbstractCmdShellScriptAction)
-
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local Path = halimede.io.paths.Path
+local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
 
+
+moduleclass('WriteConfigHCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)

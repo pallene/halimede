@@ -4,15 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
--- supposedly machine-vendor-operatingSystem, but in reality, a mess, especially as operatingSystem can be two parts (eg x86_64-unknown-linux-gnu)
--- config.guess tries to normalize, but it littered with obsolete systems
--- vendor is typically 'pc' (32-bit i?86 alike), 'unknown' or 'none', and can often be omitted
--- http://wiki.osdev.org/Target_Triplet
--- Also useful: https://bazaar.launchpad.net/~vorlon/+junk/multiarch-tools/view/head:/config.multiarch
--- Also https://gcc.gnu.org/install/specific.html
--- Also config.guess and config.sub (but these are horrid; they latter should just have used a simple 1:1 string key, string value table to normalize so it was easy to spot obsolete entries and reasoning)
-local GnuTuple = moduleclass('GnuTuple')
-
 local exception = halimede.exception
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local InstructionSet = require.sibling('InstructionSet')
@@ -40,6 +31,15 @@ local BigEndian = Endianness.BigEndian
 local RETSIGTYPE = halimede.build.defines.RETSIGTYPE
 local ST_MTIM_NSEC = halimede.build.defines.ST_MTIM_NSEC
 
+
+-- supposedly machine-vendor-operatingSystem, but in reality, a mess, especially as operatingSystem can be two parts (eg x86_64-unknown-linux-gnu)
+-- config.guess tries to normalize, but it littered with obsolete systems
+-- vendor is typically 'pc' (32-bit i?86 alike), 'unknown' or 'none', and can often be omitted
+-- http://wiki.osdev.org/Target_Triplet
+-- Also useful: https://bazaar.launchpad.net/~vorlon/+junk/multiarch-tools/view/head:/config.multiarch
+-- Also https://gcc.gnu.org/install/specific.html
+-- Also config.guess and config.sub (but these are horrid; they latter should just have used a simple 1:1 string key, string value table to normalize so it was easy to spot obsolete entries and reasoning)
+local GnuTuple = moduleclass('GnuTuple')
 
 local function unknownConfigHDefines()
 	error('Unknown ConfigH')

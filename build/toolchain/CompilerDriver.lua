@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local CompilerDriver = moduleclass('CompilerDriver')
-
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
 local CompilerMetadata = require.sibling('CompilerMetadata')
@@ -16,8 +14,12 @@ local FilePaths = require.sibling('FilePaths')
 local CompilerDriverArguments = require.sibling('CompilerDriverArguments')
 
 
-function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, environmentVariablesToExport)
+local CompilerDriver = moduleclass('CompilerDriver')
+
+function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, environmentVariablesToExport)
+	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsInstanceOf('CompilerMetadata', compilerMetadata, CompilerMetadata)
+	assert.parameterTypeIsTable('verboseFlags', verboseFlags)
 	assert.parameterTypeIsTable('commandLineFlags', commandLineFlags)
 	assert.parameterTypeIsTable('onlyRunPreprocessorStepFlags', onlyRunPreprocessorStepFlags)
 	assert.parameterTypeIsTable('onlyRunPreprocessorAndCompilationStepsFlags', onlyRunPreprocessorAndCompilationStepsFlags)
@@ -27,6 +29,7 @@ function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocess
 	assert.parameterTypeIsTable('environmentVariablesToExport', environmentVariablesToExport)
 	
 	self.compilerMetadata = compilerMetadata
+	self.verboseFlags = verboseFlags
 	self.commandLineFlags = commandLineFlags
 	self.onlyRunPreprocessorStepFlags = onlyRunPreprocessorStepFlags
 	self.onlyRunPreprocessorAndCompilationStepsFlags = onlyRunPreprocessorAndCompilationStepsFlags
@@ -50,6 +53,8 @@ function module:initialize(compilerMetadata, commandLineFlags, onlyRunPreprocess
 	self.systemIncludePathOption = '-isystem'
 	self.includePathOption = '-I'
 	self.linkedLibraryOption = '-l'
+	
+	CompilerDriver.static[name] = self
 end
 
 assert.globalTypeIsFunction('ipairs')
@@ -73,11 +78,12 @@ local function mergeFlags(...)
 	return result	
 end
 
-function module:newArguments(compilerDriverFlags, sysrootPath)
+function module:newArguments(compilerDriverFlags, sysrootPath, isVerbose)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
+	assert.parameterTypeIsBoolean('isVerbose', isVerbose)
 	
-	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath)
+	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath, isVerbose)
 end
 
 function module:useFileExtensionsToDetermineLanguage(arguments)
@@ -215,7 +221,7 @@ local gcc4X_environmentVariablesToExport = {LANG = 'C', LC_CTYPE = 'C', LC_MESSA
 
 -- 'native' and 'generic' are dangerous, in that they change in gcc releases
 -- '-pipe' might not work on some systems (?weird windows ones?)
-CompilerDriver.static.gcc49_systemNativeHostX86_64 =     CompilerDriver:new(CompilerMetadata['gcc 4.9'],     {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-CompilerDriver.static.gccxx49_systemNativeHostX86_64 =   CompilerDriver:new(CompilerMetadata['g++ 4.9'],     {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-CompilerDriver.static.clang34_systemNativeHostX86_64 =   CompilerDriver:new(CompilerMetadata['clang 3.4'],   {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
-CompilerDriver.static.clangxx34_systemNativeHostX86_64 = CompilerDriver:new(CompilerMetadata['clang++ 3.4'], {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver:new('gcc49_systemNativeHostX86_64',     CompilerMetadata['gcc 4.9'],     {'-v'}, {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver:new('gccxx49_systemNativeHostX86_64',   CompilerMetadata['g++ 4.9'],     {'-v'}, {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver:new('clang34_systemNativeHostX86_64',   CompilerMetadata['clang 3.4'],   {'-v'}, {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)
+CompilerDriver:new('clangxx34_systemNativeHostX86_64', CompilerMetadata['clang++ 3.4'], {'-v'}, {'-pipe', '-mtune=native', '-march=native'}, {'-E'}, {'-S'}, {'-c'}, {'-x', 'none'}, gcc4X_environmentVariablesToUnset, gcc4X_environmentVariablesToExport)

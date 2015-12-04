@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ShellLanguage = moduleclass('ShellLanguage')
-
 local tabelize = halimede.table.tabelize
 local packageConfiguration = halimede.packageConfiguration
 local exception = halimede.exception
@@ -14,6 +12,8 @@ local Paths = halimede.io.paths.Paths
 local PathStyle = halimede.io.paths.PathStyle
 local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
 
+
+local ShellLanguage = moduleclass('ShellLanguage')
 
 local executeFunction
 if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
@@ -28,13 +28,13 @@ else
 		return nil, 'exit', 126
 	end
 end
-ShellLanguage.static.shellIsAvailable = executeFunction() == true
+module.static.shellIsAvailable = executeFunction() == true
 
 
-ShellLanguage.static.noRedirection = false  -- Bizarre but works
-ShellLanguage.static.standardIn = 0
-ShellLanguage.static.standardOut = 1
-ShellLanguage.static.standardError = 2
+module.static.noRedirection = false  -- Bizarre but works
+module.static.standardIn = 0
+module.static.standardOut = 1
+module.static.standardError = 2
 
 -- The reason we have a lower case and title case variant is that we avoid the need to use string:lower(), which depends on os.setlocale('all', 'C') to be deterministic, which isn't safe to use (we could be Lua code in a thread or embedded in an application that has already set setlocale())
 function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionExcludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)

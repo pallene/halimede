@@ -38,11 +38,12 @@ libPrefixPath		defaults to prefixPath; exists because it is debateable whether l
 Note that it is still possible to run scripts from a filesystem mounted noexec
 ]]--
 
-moduleclass('ToolchainPaths')
 local Path = halimede.io.paths.Path
-
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local exception = halimede.exception
 
+
+moduleclass('ToolchainPaths')
 
 local function validatePath(path, name, mustBe)
 	path:assertIsFolderPath(name)
@@ -52,9 +53,9 @@ local function validatePath(path, name, mustBe)
 	end
 end
 
-function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
+function module:initialize(toolchainPathsStrategy, sysrootPath, prefixPath, execPrefixPath, libPrefixPath)
+	assert.parameterTypeIsFunctionOrCall('toolchainPathsStrategy', toolchainPathsStrategy)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
-	assert.parameterTypeIsInstanceOf('versionRelativePath', versionRelativePath, Path)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsInstanceOf('execPrefixPath', execPrefixPath, Path)
 	
@@ -63,6 +64,7 @@ function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPre
 	validatePath(prefixPath, 'prefixPath', 'isEffectivelyAbsolute')
 	validatePath(execPrefixPath, 'execPrefixPath', 'isEffectivelyAbsolute')
 	
+	self.toolchainPathsStrategy = toolchainPathsStrategy
 	self.sysrootPath = sysrootPath
 	self.versionRelativePath = versionRelativePath
 	self.prefixPath = prefixPath
@@ -76,120 +78,122 @@ function module:initialize(sysrootPath, versionRelativePath, prefixPath, execPre
 	end
 end
 
-function module:_path(toolchainPathStrategy, shellLanguage, path, ...)
+function module:_path(shellLanguage, path, ...)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
+	assert.parameterTypeIsInstanceOf('versionRelativePath', versionRelativePath, Path)
+	
 	local folderRelativePath = shellLanguage:relativeFolderPath(...)
-	return toolchainPathStrategy(path, self.versionRelativePath, folderRelativePath)
+	return self.toolchainPathsStrategy(path, self.versionRelativePath, folderRelativePath)
 end
 
-function module:_prefixPath(toolchainPathStrategy, shellLanguage, ...)
-	return self:_path(toolchainPathStrategy, shellLanguage, self.prefixPath, ...)
+function module:_prefixPath(shellLanguage, ...)
+	return self:_path(shellLanguage, self.prefixPath, ...)
 end
 
-function module:_execPrefixPath(toolchainPathStrategy, shellLanguage, ...)
-	return self:_path(toolchainPathStrategy, shellLanguage, self.execPrefixPath, ...)
+function module:_execPrefixPath(shellLanguage, ...)
+	return self:_path(shellLanguage, self.execPrefixPath, ...)
 end
 
-function module:_libPrefixPath(toolchainPathStrategy, shellLanguage, ...)
-	return self:_path(toolchainPathStrategy, shellLanguage, self.libPrefixPath, ...)
+function module:_libPrefixPath(shellLanguage, ...)
+	return self:_path(shellLanguage, self.libPrefixPath, ...)
 end
 
 -- User Executables (bindir)
-function module:bin(toolchainPathStrategy, shellLanguage)
-	return self:_execPrefixPath(toolchainPathStrategy, shellLanguage, 'bin')
+function module:bin(shellLanguage)
+	return self:_execPrefixPath(shellLanguage, 'bin')
 end
 
 -- System Administrator Executables (sbindir)
-function module:sbin(toolchainPathStrategy, shellLanguage)
-	return self:_execPrefixPath(toolchainPathStrategy, shellLanguage, 'sbin')
+function module:sbin(shellLanguage)
+	return self:_execPrefixPath(shellLanguage, 'sbin')
 end
 
 -- Program Executables (libexecdir)
-function module:libexec(toolchainPathStrategy, shellLanguage)
-	return self:_execPrefixPath(toolchainPathStrategy, shellLanguage, 'libexec')
+function module:libexec(shellLanguage)
+	return self:_execPrefixPath(shellLanguage, 'libexec')
 end
 
 -- TODO: Needs to go into a per-machine location so it can be modified / mounted independently of build
 -- TODO: Probably some sort of overlay approach using rsync (ie replacements for default config)
 -- Read-only single-machine data (sysconfdir)
-function module:etc(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'etc')
+function module:etc(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'etc')
 end
 
 -- Modifiable architecture-independent data (sharedstatedir)
-function module:com(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'com')
+function module:com(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'com')
 end
 
--- TODO: Needs a different toolchainPathStrategy
 -- TODO: Probably needs to go into a per-machine location so can be independently mountained (we will want to retain state)
 -- TODO: We may not want to self.version this
 -- Modifiable single-machine data (localstatedir)
-function module:var(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'var')
+function module:var(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'var')
 end
 
 -- TODO: Consider splitting out .a from .so during installs
 -- Object code libraries (libdir)  (can contain both static .a and dynamic .so libraries as well as pkgconfig .pc cruft; the former is only needed at compile-time)
-function module:lib(toolchainPathStrategy, shellLanguage)
-	return self:_libPrefixPath(toolchainPathStrategy, shellLanguage, 'lib')
+function module:lib(shellLanguage)
+	return self:_libPrefixPath(shellLanguage, 'lib')
 end
 
 -- C header files (includedir)
-function module:include(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'include')
+function module:include(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'include')
 end
 
 -- C header files for non-gcc (oldincludedir)
-function module:oldinclude(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'oldinclude')  -- GNU configure default is /usr/include
+function module:oldinclude(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'oldinclude')  -- GNU configure default is /usr/include
 end
 
 -- Read-only archictecture-independent data root (datarootdir)
-function module:share(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share')
+function module:share(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share')
 end
 
 -- Read-only idiosyncratic read-only architecture-independent data (datadir)
-function module:data(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'data')  -- GNU configure default is == datarootdir
+function module:data(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'data')  -- GNU configure default is == datarootdir
 end
 
 -- info documentation (infodir)
-function module:info(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'info')
+function module:info(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'info')
 end
 
 -- locale-dependent data (localedir)
-function module:locale(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'locale')
+function module:locale(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'locale')
 end
 
 -- man documentation (mandir)
-function module:man(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'man')
+function module:man(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'man')
 end
 
 -- documentation root (docdir)
-function module:doc(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'doc')
+function module:doc(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'doc')
 end
 
 -- html documentation (htmldir)
-function module:html(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'doc', 'html')
+function module:html(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'doc', 'html')
 end
 
 -- dvi documentation (dvidir)
-function module:dvi(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'doc', 'dvi')
+function module:dvi(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'doc', 'dvi')
 end
 
 -- pdf documentation (pdfdir)
-function module:doc(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'doc', 'pdf')
+function module:doc(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'doc', 'pdf')
 end
 
 -- ps documentation (psdir)
-function module:ps(toolchainPathStrategy, shellLanguage)
-	return self:_prefixPath(toolchainPathStrategy, shellLanguage, 'share', 'doc', 'ps')
+function module:ps(shellLanguage)
+	return self:_prefixPath(shellLanguage, 'share', 'doc', 'ps')
 end

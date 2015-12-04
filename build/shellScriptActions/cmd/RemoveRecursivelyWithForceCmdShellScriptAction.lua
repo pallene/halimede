@@ -4,11 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
-moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractCmdShellScriptAction)
-
 local Path = halimede.io.paths.Path
+local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
 
+
+moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)

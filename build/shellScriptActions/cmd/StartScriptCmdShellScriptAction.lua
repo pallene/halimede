@@ -4,15 +4,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
-moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
-
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local UnsetEnvironmentVariableCmdShellScriptAction = require.sibling('UnsetEnvironmentVariableCmdShellScriptAction')
 local ExportEnvironmentVariableCmdShellScriptAction = require.sibling('ExportEnvironmentVariableCmdShellScriptAction')
 local ChangeDirectoryCmdShellScriptAction = require.sibling('ChangeDirectoryCmdShellScriptAction')
+local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
 
+
+moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 local environmentVariablesToUnset = {
 }

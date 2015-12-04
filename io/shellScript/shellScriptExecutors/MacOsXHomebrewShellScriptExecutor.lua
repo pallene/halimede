@@ -4,12 +4,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractShellScriptExecutor = require.sibling('AbstractShellScriptExecutor')
-local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
-
 local deepCopy = halimede.table.deepCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
+local AbstractShellScriptExecutor = require.sibling('AbstractShellScriptExecutor')
 
+
+local MacOsXHomebrewShellScriptExecutor = moduleclass('MacOsXHomebrewShellScriptExecutor', AbstractShellScriptExecutor)
 
 function module:initialize()
 	AbstractShellScriptExecutor.initialize(self, ShellLanguage.Posix, 'brew', 'sh')
@@ -20,4 +20,4 @@ function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, stan
 	self.shellLanguage:executeExpectingSuccess(scriptFilePath:toString(true), standardOut, standardError, unpack(arguments))
 end
 
-MacOsXHomebrewShellScriptExecutor.static.MacOsXHomebrewShellScriptExecutor = MacOsXHomebrewShellScriptExecutor:new()
+module.static.MacOsXHomebrewShellScriptExecutor = MacOsXHomebrewShellScriptExecutor:new()

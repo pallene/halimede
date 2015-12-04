@@ -4,12 +4,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
-moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractCmdShellScriptAction)
-
 local tabelize = halimede.table.tabelize
 local Path = halimede.io.paths.Path
+local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
 
+
+moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractCmdShellScriptAction)
 
 function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)

@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('Toolchain')
-
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
 local Platform = require.sibling('Platform')
 local ToolchainPaths = require.sibling('ToolchainPaths')
 local FilePaths = require.sibling('FilePaths')
 
+
+moduleclass('Toolchain')
 
 function module:initialize(platform, toolchainPaths)
 	assert.parameterTypeIsInstanceOf('platform', platform, Platform)
@@ -57,8 +57,8 @@ end
 function module:toolchainPath(pathName)
 	assert.parameterTypeIsString('pathName', pathName)
 	
-	local function pathFunction(toolchainPathStrategy, shellLanguage)
-		return self.toolchainPaths[pathName](self.toolchainPaths, toolchainPathStrategy, shellLanguage)
+	local function pathFunction(shellLanguage)
+		return self.toolchainPaths[pathName](self.toolchainPaths, shellLanguage)
 	end
 	
 	return self.platform:toolchainPath(pathFunction)

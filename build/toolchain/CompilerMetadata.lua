@@ -4,14 +4,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local CompilerMetadata = moduleclass('CompilerMetadata')
-
 local CompilerName = require.sibling('CompilerName')
 local gcc = CompilerName.gcc
 local gxx = CompilerName['g++']
 local clang = CompilerName.clang
 local clangxx = CompilerName['clang++']
 
+local CompilerMetadata = moduleclass('CompilerMetadata')
 
 function CompilerMetadata:initialize(compilerName, version, supportsC, supportsCPlusPlus)
 	assert.parameterTypeIsInstanceOf('compilerName', compilerName, CompilerName)

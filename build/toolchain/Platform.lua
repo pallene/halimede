@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Platform = moduleclass('Platform')
-
 local tabelize = halimede.table.tabelize
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local GnuTuple = require.sibling('GnuTuple')
@@ -13,9 +11,11 @@ local CompilerDriver = require.sibling('CompilerDriver')
 local toolchainPathsStrategies = require.sibling('toolchainPathsStrategies')
 
 
-function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
+local Platform = moduleclass('Platform')
+
+function Platform:initialize(name, XXXXX, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
 	assert.parameterTypeIsString('name', name)
-	assert.parameterTypeIsFunctionOrCall('toolchainPathStrategy', toolchainPathStrategy)
+	assert.parameterTypeIsFunctionOrCall('toolchainPathStrategy', XXXXXX)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString('objectExtension', objectExtension)
 	assert.parameterTypeIsString('executableExtension', executableExtension)
@@ -28,7 +28,7 @@ function Platform:initialize(name, toolchainPathStrategy, shellScriptExecutor, o
 	assert.parameterTypeIsInstanceOf('cPlusPlusCompilerDriver', cPlusPlusCompilerDriver, CompilerDriver)
 	
 	self.name = name
-	self.toolchainPathStrategy = toolchainPathStrategy
+	self.toolchainPathStrategy = XXXXX
 	self.shellScriptExecutor = shellScriptExecutor
 	self.objectExtension = objectExtension
 	self.executableExtension = executableExtension
@@ -59,7 +59,7 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 end
 
 function module:toolchainPath(pathFunction)
-	return pathFunction(self.toolchainPathStrategy, self.shellScriptExecutor.shellLanguage)
+	return pathFunction(self.shellScriptExecutor.shellLanguage)
 end
 
 -- MinGW is a toolchain, but 32-bit

@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('ExecutionEnvironment')
-
 local tabelize = halimede.table.tabelize
 local Platform = require.sibling('Platform')
 local Toolchain = require.sibling('Toolchain')
@@ -13,6 +11,8 @@ local ToolchainPaths = require.sibling('ToolchainPaths')
 local Path = halimede.io.paths.Path
 local ExecutionEnvironmentBufferedShellScript = halimede.build.toolchain.ExecutionEnvironmentBufferedShellScript
 
+
+moduleclass('ExecutionEnvironment')
 
 function module:initialize(recipesPath, buildPlatform, buildToolchainPaths, crossPlatform, destinationPath, recipeEnvironment)
 	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)

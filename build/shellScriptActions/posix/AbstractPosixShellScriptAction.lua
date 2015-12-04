@@ -5,8 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
-moduleclass('AbstractPosixShellScriptAction', AbstractShellScriptAction)
 
+
+moduleclass('AbstractPosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize(shellScript)
 	AbstractShellScriptAction.initialize(self, shellScript)

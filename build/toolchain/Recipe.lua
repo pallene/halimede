@@ -4,18 +4,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('Recipe')
-
 local executeFromFile = halimede.luacode.executeFromFile.executeFromFile
 local exception = halimede.exception
 local deepMerge = halimede.table.deepMerge
 local tabelize = halimede.table.tabelize
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
-
 local Path = halimede.io.paths.Path
 local ToolchainPaths = halimede.build.toolchain.ToolchainPaths
 local ExecutionEnvironment = halimede.build.toolchain.ExecutionEnvironment
+local AbstractCrossToolchainPathCreator = halimede.build.toolchain.crossToolchainPathCreators.AbstractCrossToolchainPathCreator
+
+
+moduleclass('Recipe')
 
 local fieldExists = {}
 
@@ -309,8 +310,9 @@ function module:_validate(packageVersion, version, crossPlatformGnuTuple)
 	return dependencies, packageVersion, buildVariant, platformConfigHDefinesFunctions, execute
 end
 
-function module:execute(aliasPackageVersion)
+function module:execute(aliasPackageVersion, crossToolchainPathCreator)
 	assert.parameterTypeIsString('aliasPackageVersion', aliasPackageVersion)
+	assert.parameterTypeIsInstanceOf('crossToolchainPathCreator', crossToolchainPathCreator, AbstractCrossToolchainPathCreator)
 	
 	local version = self:_resolveAlias(aliasPackageVersion)
 	if version == nil then
@@ -321,15 +323,11 @@ function module:execute(aliasPackageVersion)
 	
 	local crossShellLanguage = executionEnvironment.crossPlatform.shellScriptExecutor.shellLanguage
 	
+	local versionRelativePath = crossShellLanguage:relativeFolderPath(self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash')
+	
 	-- Instead of dependencies-hash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than a maximum length
 	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
-	local sysrootPath = executionEnvironment.destinationPath
-	local destinationPath = executionEnvironment.destinationPath
-	local versionRelativePath = crossShellLanguage:relativeFolderPath(self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash')
-	local prefixPath = destinationPath:appendFolders('opt', 'prefix')  -- Mounted noexec, nosuid
-	local execPrefixPath = destinationPath:appendFolders('opt', 'exec-prefix')  -- Mounted exec, nosuid
-	local libPrefixPath = destinationPath:appendFolders('opt', 'lib-prefix')  -- Might be mounted exec, ideally noexec and nosuid
-	local crossToolchainPaths = ToolchainPaths:new(sysrootPath, versionRelativePath, prefixPath, execPrefixPath, libPrefixPath)
+	local crossToolchainPaths = crossToolchainPathCreator:create(executionEnvironment, versionRelativePath)
 
 	local recipeSourcePath = self.recipeFolderPath:appendFolders(version.packageVersion, 'source')
 	

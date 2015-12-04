@@ -4,12 +4,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractExecutableLinkCompilerDriverShellScriptAction = halimede.build.shellScriptActions.compilerDriver.AbstractExecutableLinkCompilerDriverShellScriptAction
-moduleclass('ExecutableLinkCompilerDriverPosixShellScriptAction', AbstractExecutableLinkCompilerDriverShellScriptAction)
-
 local UnsetEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.posix.UnsetEnvironmentVariablePosixShellScriptAction
 local ExportEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.posix.ExportEnvironmentVariablePosixShellScriptAction
+local AbstractExecutableLinkCompilerDriverShellScriptAction = halimede.build.shellScriptActions.compilerDriver.AbstractExecutableLinkCompilerDriverShellScriptAction
 
+
+moduleclass('ExecutableLinkCompilerDriverPosixShellScriptAction', AbstractExecutableLinkCompilerDriverShellScriptAction)
 
 function module:initialize(shellScript, dependencies, buildVariant)
 	AbstractExecutableLinkCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction)

@@ -4,8 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = moduleclass('Path')
-
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
@@ -14,6 +12,8 @@ local Object = halimede.class.Object
 local PathStyle = require.sibling('PathStyle')
 local PathRelativity = require.sibling('PathRelativity')
 
+
+local Path = moduleclass('Path')
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)

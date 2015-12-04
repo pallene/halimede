@@ -4,16 +4,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
--- https://en.wikipedia.org/wiki/Path_%28computing%29
-
-local PathStyle = moduleclass('PathStyle')
-
 local shallowCopy = halimede.table.shallowCopy
 local exception = halimede.exception
 local windowsPathMultisplitter = halimede.string.multisplitter('\\/')
 local Path = require.sibling('Path')
 local PathRelativity = require.sibling('PathRelativity')
 
+
+-- https://en.wikipedia.org/wiki/Path_%28computing%29
+local PathStyle = moduleclass('PathStyle')
 
 assert.globalTypeIsFunction('pairs', 'ipairs')
 function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator, currentDirectory, parentDirectory, fileExtensionSeparator, alternateStreamSeparator, hasDevices, additionalCharactersNotAllowedInPathElements, ...)
