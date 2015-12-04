@@ -18,8 +18,6 @@ function module:initialize(platform, platformPaths, versionRelativePathElements)
 	assert.parameterTypeIsInstanceOf('platform', platform, Platform)
 	assert.parameterTypeIsInstanceOf('platformPaths', platformPaths, PlatformPaths)
 	assert.parameterTypeIsTable('versionRelativePathElements', versionRelativePathElements)
-
-	validatePath(versionRelativePath, 'versionRelativePath', 'isRelative')
 	
 	self.platform = platform
 	self.platformPaths = platformPaths

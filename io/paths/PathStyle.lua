@@ -218,7 +218,7 @@ end
 
 local Posix = PathStyle:new('Posix', ':', '/', nil, '.', '..', '.', nil, false, {})
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub', 'split')
+assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub', 'split', 'isEmpty')
 Posix._parse = function(self, stringPath, isFile)
 	
 	local pathElements = stringPath:split('/')
@@ -228,6 +228,9 @@ Posix._parse = function(self, stringPath, isFile)
 		pathRelativity = PathRelativity.RelativeToCurrentDeviceAndAbsoluteOnPosix
 	else
 		pathRelativity = PathRelativity.Relative
+	end
+	if #pathElements == 1 and pathElements[1]:isEmpty() and not isFile then
+		return Path:new(self, pathRelativity, nil, {}, isFile, nil)
 	end
 	return Path:new(self, pathRelativity, nil, pathElements, isFile, nil)
 end

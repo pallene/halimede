@@ -12,8 +12,11 @@ local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
 local Recipes = require.sibling('Recipes')
 local Path = halimede.io.paths.Path
-local Platform = halimede.build.toolchain.Platform
-local PlatformPaths = halimede.build.toolchain.PlatformPaths
+local Platform = require.sibling('Platform')
+local PlatformPaths = require.sibling('PlatformPaths')
+local GnuTuple = require.sibling('GnuTuple')
+local RecipePaths = require.sibling('RecipePaths')
+local ExecutionEnvironmentBufferedShellScript = require.sibling('ExecutionEnvironmentBufferedShellScript')
 
 
 moduleclass('Recipe')
@@ -81,8 +84,6 @@ function module:_processRecipe(result, crossPlatformGnuTuple)
 	local aliases = fieldExists.asTableOrDefaultTo(result, 'aliases')
 	local versions = fieldExists.asTableOrDefaultTo(result, 'versions')
 	local ourVersions = {}
-	
-	local crossPlatformGnuTuple = self.executionEnvironment.crossPlatform.gnuTuple
 	
 	local count = 0
 	for packageVersionName, packageVersionSettings in pairs(versions) do
@@ -315,15 +316,17 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
 	
-	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentBufferedShellScript, dependencies, consolidatedBuildVariant)
+	local buildVariant = version.buildVariant
 	
-	self:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, version.dependencies, version.buildVariant, version.platformConfigHDefinesFunctions, version.execute)
+	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentBufferedShellScript, version.dependencies, buildVariant)
+	
+	self:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
 	
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function module:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, dependencies, buildVariant, crossPlatformConfigHDefinesFunctions, userFunction)
+function module:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 
@@ -345,7 +348,7 @@ function module:_populateShellScript(shellScript, buildPlatform, buildRecipePath
 			shellScript:newAction(namespace, name):execute(...)
 		end,
 		
-		arguments = buildVariant.arguments,
+		arguments = arguments,
 		
 		configHDefines = configHDefines
 	}

@@ -9,6 +9,7 @@ local Path = halimede.io.paths.Path
 local Recipe = require.sibling('Recipe')
 local Platform = require.sibling('Platform')
 local PlatformPaths = require.sibling('PlatformPaths')
+local tabelize = halimede.table.tabelize
 
 
 moduleclass('Recipes')
@@ -69,8 +70,4 @@ function module:load(recipeName, chosenBuildVariantNames)
 	end
 	
 	return Recipe:new(executor, self.recipesPath, self.crossPlatformGnuTuple, self.recipeEnvironment, recipeName, validatedAndSortedChosenBuildVariantNames)
-end
-
-function module:execute(aliasPackageVersion, callback)
-	return callback(aliasPackageVersion, self.buildPlatform, self.buildPlatformPaths, self.crossPlatform, self.crossPlatformPaths)
 end
