@@ -16,7 +16,7 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString('objectExtension', objectExtension)
-	assert.parameterTypeIsString('executableExtension', executableExtension)
+	assert.parameterTypeIsStringOrNil('executableExtension', executableExtension)
 	assert.parameterTypeIsString('staticLibraryPrefix', staticLibraryPrefix)
 	assert.parameterTypeIsString('staticLibraryExtension', staticLibraryExtension)
 	assert.parameterTypeIsString('dynamicLibraryPrefix', dynamicLibraryPrefix)
@@ -93,7 +93,7 @@ Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
 	macOsXShellScriptExecutor,
 	'o',
-	'', -- eg exe on Windows
+	nil, -- eg exe on Windows
 	'lib',
 	'a',
 	'lib',
@@ -107,7 +107,7 @@ Platform:new(
 	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
 	macOsXShellScriptExecutor,
 	'o',
-	'',
+	nil,
 	'lib',
 	'a',
 	'lib',

@@ -44,7 +44,6 @@ end
 
 function module:finish()
 	local script = self.tabelizedScriptBuffer:concat()
-	print(script)
 	self.tabelizedScriptBuffer = tabelize()
 	return script
 end

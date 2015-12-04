@@ -14,18 +14,19 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 end
 
-function module:execute(toolchain, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
-	assert.parameterTypeIsInstanceOf('toolchain', toolchain, RecipePaths)
+function module:execute(crossRecipePaths, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
+	assert.parameterTypeIsInstanceOf('crossRecipePaths', crossRecipePaths, RecipePaths)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('objects', objects)
 	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
 	assert.parameterTypeIsString('baseName', baseName)
 	
-	local compilerDriverArguments = self:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
+	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(objects)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
+	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(baseName))
 	
 	self:_unsetEnvironmentVariables(compilerDriverArguments)
 	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', 'C'})

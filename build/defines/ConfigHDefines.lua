@@ -57,42 +57,42 @@ end
 
 -- Name of package
 function module:PACKAGE(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE', stringToQuote)
 end
 
 -- Define to the address where bug reports for this package should be sent.
 function module:PACKAGE_BUGREPORT(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE_BUGREPORT', stringToQuote)
 end
 
 -- Define to the full name of this package.
 function module:PACKAGE_NAME(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE_NAME', stringToQuote)
 end
 
 -- Define to the full name and version of this package.
 function module:PACKAGE_STRING(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE_STRING', stringToQuote)
 end
 
 -- Define to the one symbol short name of this package.
 function module:PACKAGE_TARNAME(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE_TARNAME', stringToQuote)
 end
 
 -- Define to the home page for this package.
 function module:PACKAGE_URL(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE_URL', stringToQuote)
 end
 
 -- Define to the version of this package.
 function module:PACKAGE_VERSION(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('PACKAGE_VERSION', stringToQuote)
 end
 
 -- Version number of package
 function module:VERSION(stringToQuote)
-	self:quotedNonEmptyString(stringToQuote)
+	self:quotedNonEmptyString('VERSION', stringToQuote)
 end
 
 
@@ -538,7 +538,7 @@ function module:PATH_SEPARATOR_CHAR(character)
 		exception.throw("The path separator character must be exactly one character, it can not be '%s'", character)
 	end
 	
-	self.defines.PATH_SEPARATOR_CHAR = character
+	self.defines.PATH_SEPARATOR_CHAR = "'" .. character .. "'"
 end
 
 -- Mandatory

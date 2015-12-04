@@ -25,6 +25,7 @@ function module:initialize(platform, platformPaths, versionRelativePathElements)
 	
 	self.shellLanguage = platform.shellScriptExecutor.shellLanguage
 	self.objectExtension = platform.objectExtension
+	self.executableExtension = platform.executableExtension
 end
 
 assert.globalTypeIsFunction('ipairs', 'unpack')
@@ -50,6 +51,10 @@ function module:toObjectsWithoutPaths(baseFilePaths)
 	assert.parameterTypeIsInstanceOf('baseFilePaths', baseFilePaths, FilePaths)
 	
 	return baseFilePaths:toObjectsWithoutPaths(self.objectExtension)
+end
+
+function module:toExecutableRelativeFilePath(...)
+	return self:relativeFilePath(...):appendFileExtension(self.executableExtension)
 end
 
 function module:relativeFolderPath(...)

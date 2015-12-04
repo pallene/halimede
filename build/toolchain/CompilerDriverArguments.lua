@@ -100,6 +100,14 @@ function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLink
 	self.compilerDriver:addLinkedLibraries(self.arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 end
 
+function module:addOutput(outputFilePath)
+	assert.parameterTypeIsInstanceOf('outputFilePath', outputFilePath, Path)
+	
+	outputFilePath:assertIsFilePath('outputFilePath')
+	
+	self.compilerDriver:addOutput(self.arguments, outputFilePath)
+end
+
 function module:useUnpacked(userFunction)
 	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
 	

@@ -53,6 +53,7 @@ function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlag
 	self.systemIncludePathOption = '-isystem'
 	self.includePathOption = '-I'
 	self.linkedLibraryOption = '-l'
+	self.outputOption = '-o'
 	
 	CompilerDriver.static[name] = self
 end
@@ -190,6 +191,15 @@ function module:addLinkedLibraries(arguments, dependenciesLinkedLibraries, build
 	for _, linkedLibrary in ipairs(mergeFlags(self.linkedLibraries, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)) do
 		arguments:append(self.linkedLibraryOption .. linkedLibrary)
 	end
+end
+
+function module:addOutput(arguments, outputFilePath)
+	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsInstanceOf('outputFilePath', outputFilePath, Path)
+	
+	outputFilePath:assertIsFilePath('outputFilePath')
+	
+	arguments:append(self.outputOption .. outputFilePath:toString(true))
 end
 
 assert.globalTypeIsFunction('ipairs')

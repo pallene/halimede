@@ -17,8 +17,8 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 end
 
-function module:execute(toolchain, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
-	assert.parameterTypeIsInstanceOf('toolchain', toolchain, RecipePaths)
+function module:execute(crossRecipePaths, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources)
+	assert.parameterTypeIsInstanceOf('crossRecipePaths', crossRecipePaths, RecipePaths)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
@@ -26,7 +26,7 @@ function module:execute(toolchain, compilerDriverFlags, cStandard, legacyCandCPl
 	assert.parameterTypeIsInstanceOf('defines', defines, CommandLineDefines)
 	assert.parameterTypeIsTable('sources', sources)
 	
-	local compilerDriverArguments = self:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
+	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
 	compilerDriverArguments:append(compilerDriverArguments.compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
 	compilerDriverArguments:addCStandard(cStandard)
 	compilerDriverArguments:useFileExtensionsToDetermineLanguage()

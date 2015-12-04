@@ -23,8 +23,8 @@ function module:initialize(shellScript, dependencies, buildVariant, unsetEnviron
 	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionCreator(shellScript)
 end
 
-function module:_newCCompilerDriverArguments(toolchain, compilerDriverFlags)
-	return toolchain.platform.cCompilerDriver:newArguments(compilerDriverFlags, toolchain.platformPaths:sysroot(), true)
+function module:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
+	return crossRecipePaths.platform.cCompilerDriver:newArguments(compilerDriverFlags, crossRecipePaths.platformPaths:sysroot(), true)
 end
 
 function module:_unsetEnvironmentVariables(compilerDriverArguments)
