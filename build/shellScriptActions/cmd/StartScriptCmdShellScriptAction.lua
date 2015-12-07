@@ -10,6 +10,7 @@ local UnsetEnvironmentVariableCmdShellScriptAction = require.sibling('UnsetEnvir
 local ExportEnvironmentVariableCmdShellScriptAction = require.sibling('ExportEnvironmentVariableCmdShellScriptAction')
 local ChangeDirectoryCmdShellScriptAction = require.sibling('ChangeDirectoryCmdShellScriptAction')
 local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local RemoveRecursivelyWithForceCmdShellScriptAction = require.sibling('RemoveRecursivelyWithForceCmdShellScriptAction')
 
 
 moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
@@ -25,10 +26,13 @@ function module:initialize(shellScript)
 end
 
 assert.globalTypeIsFunction('ipairs')
-function module:execute(sourcePath)
+function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
 	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
+	assert.parameterTypeIsString('sourceFolderName', sourceFolderName)
+	assert.parameterTypeIsString('buildFolderName', buildFolderName)
+	assert.parameterTypeIsString('patchFolderName', patchFolderName)
 	
-	sourcePath:assertIsFolderPath('sourcePath')
+	recipeFolderPath:assertIsFolderPath('recipeFolderPath')
 
 	self:_appendLinesToScript(
 		'@ECHO OFF',
@@ -46,5 +50,8 @@ function module:execute(sourcePath)
 	end
 	
 	local changeDirectoryShellScriptAction = ChangeDirectoryCmdShellScriptAction:new(self.shellScript)
-	changeDirectoryShellScriptAction:execute(sourcePath)
+	changeDirectoryShellScriptAction:execute(recipeFolderPath)
+	
+	local removeRecursivelyWithForceCmdShellScriptAction = RemoveRecursivelyWithForceCmdShellScriptAction:new(self.shellScript)
+	removeRecursivelyWithForceCmdShellScriptAction:execute(buildFolderName)
 end

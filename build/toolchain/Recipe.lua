@@ -309,10 +309,12 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	-- Instead of dependencies-hash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than a maximum length
 	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
 	local versionRelativePathElements = {self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash'}
-
-	local recipeSourcePath = self.recipeFolderPath:appendFolders(version.packageVersion, 'source')
-	recipeSourcePath:assertIsFolderPath('recipeSourcePath')
-	recipeSourcePath:assertIsEffectivelyAbsolute('recipeSourcePath')
+	
+	local recipeFolderPath = self.recipeFolderPath:appendFolders(version.packageVersion)
+	
+	local recipeSourcePath = self:recipeFolderPath(version, 'source')
+	local recipeBuildPath = self:recipeFolderPath(version, 'build')
+	local recipePatchPath = self:recipeFolderPath(version, 'patch')
 	
 	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
@@ -321,21 +323,30 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	
 	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentBufferedShellScript, version.dependencies, buildVariant)
 	
-	self:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
+	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
 	
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
+local sourceFolderName = 'source'
+local buildFolderName = 'build'
+local patchFolderName = 'patch'
 assert.globalTypeIsFunction('ipairs')
-function module:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
+function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 
-	shellScript:newAction(nil, 'StartScript'):execute(recipeSourcePath)
+	shellScript:newAction(nil, 'StartScript'):execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
 	
 	local buildEnvironment = {
 		
-		recipeSourcePath = recipeSourcePath,
+		recipeFolderPath = recipeFolderPath,
+		
+		sourceFolderName = sourceFolderName,
+		
+		buildFolderName = buildFolderName,
+		
+		patchFolderName = patchFolderName,
 		
 		buildPlatform = buildPlatform,
 		
