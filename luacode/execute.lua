@@ -9,7 +9,7 @@ local runtime = halimede.runtime
 
 
 assert.globalTypeIsFunction('pcall')
-function module.execute(luaCodeString, description, origin, environment)
+local function execute(luaCodeString, description, origin, environment)
 	assert.parameterTypeIsString('luaCodeString', luaCodeString)
 	assert.parameterTypeIsString('description', description)
 	assert.parameterTypeIsString('origin', origin)
@@ -68,3 +68,5 @@ function module.execute(luaCodeString, description, origin, environment)
 	end
 	exception.throw("Could not run %s '%s' because of error '%s'", description, origin, resultOrError)
 end
+
+modulefunction(execute)

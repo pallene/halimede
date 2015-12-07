@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local executeFromFile = halimede.luacode.executeFromFile.executeFromFile
+local executeFromFile = halimede.luacode.executeFromFile
 local exception = halimede.exception
 local deepMerge = halimede.table.deepMerge
 local tabelize = halimede.table.tabelize
@@ -313,6 +313,7 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	local recipeSourcePath = self.recipeFolderPath:appendFolders(version.packageVersion, 'source')
 	recipeSourcePath:assertIsFolderPath('recipeSourcePath')
 	recipeSourcePath:assertIsEffectivelyAbsolute('recipeSourcePath')
+	
 	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
 	

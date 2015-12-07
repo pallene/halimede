@@ -594,6 +594,15 @@ function string.isEmpty(value)
 	return value:len() == 0
 end
 
+-- WARN: Lua's random number generator is not cryptographically secure
+-- For that, we need to wrap CryptGenRandom on Windows and use /dev/urandom on Linux
+local function initialiseTheRandomNumberGenerator()
+	if type.globalTableHasChieldFieldOfTypeFunction('math', 'randomseed') and type.globalTableHasChieldFieldOfTypeFunction('os', 'time') then
+		math.randomseed(os.time())
+	end
+end
+initialiseTheRandomNumberGenerator
+
 local packageConfigurationMapping = {
 	'folderSeparator', -- eg '/' on POSIX
 	'luaPathSeparator', -- usually ';' (even on POSIX)

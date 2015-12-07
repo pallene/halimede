@@ -8,7 +8,7 @@ local tabelize = halimede.table.tabelize
 local deepCopy = halimede.table.deepCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
-local toTemporaryFileAllContentsInTextModeAndUse = halimede.io.temporaryWrite.toTemporaryFileAllContentsInTextModeAndUse
+local useTemporaryTextFileAfterWritingAllContentsAndClosing = halimede.io.temporary.useTemporaryTextFileAfterWritingAllContentsAndClosing
 
 
 moduleclass('BufferedShellScript')
@@ -51,7 +51,7 @@ end
 function module:executeScriptExpectingSuccess(standardOut, standardError)
 	local script = self:finish()
 	
-	toTemporaryFileAllContentsInTextModeAndUse(script, self.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod, function(scriptFilePath)
+	useTemporaryTextFileAfterWritingAllContentsAndClosing(self.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod, script, function(scriptFilePath)
 		self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 	end)
 end

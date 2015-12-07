@@ -11,6 +11,7 @@ local Path = halimede.io.paths.Path
 local Paths = halimede.io.paths.Paths
 local PathStyle = halimede.io.paths.PathStyle
 local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
+local FileHandleStream = halimede.io.FileHandleStream
 
 
 local ShellLanguage = moduleclass('ShellLanguage')
@@ -30,8 +31,31 @@ else
 end
 module.static.shellIsAvailable = executeFunction() == true
 
+-- other things returning (read) file handles are io.open(file) and io.tmpfile()
+local validModes = {
+	'r',
+	'w'
+}
+local popenFunction
+if type.hasPackageChildFieldOfTypeFunctionOrCall('io', 'popen') then
+	popenFunction = io.popen
+else
+	popenFunction = function(command, mode)
+		assert.parameterTypeIsString('command', command)
+		assert.parameterTypeIsStringOrNil('mode', mode)
+		
+		if mode ~= nil then
+			if validModes[mode] == nil then
+				return nil, "mode '" .. mode .. "' is not valid"
+			end
+		end
+		
+		return nil, 'io.popen is not available'
+	end
+end
 
-module.static.noRedirection = false  -- Bizarre but works
+local noRedirection = false
+module.static.noRedirection = noRedirection  -- Bizarre but works
 module.static.standardIn = 0
 module.static.standardOut = 1
 module.static.standardError = 2
@@ -55,15 +79,17 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.silenced = silenced
 	self.searchesCurrentPath = searchesCurrentPath
 	self.commandInterpreterName = commandInterpreterName
+end
 
-	self.silenceStandardIn = self:redirectStandardInput(silenced)
-	self.silenceStandardOut = self:redirectStandardOutput(silenced)
-	self.silenceStandardError = self:redirectStandardError(silenced)
+function module:executeExpectingSuccess(standardIn, standardOut, standardError, ...)
+	local success, terminationKind, exitCode, command = self:execute(standardIn, standardOut, standardError, ...)
+	if not success then
+		exception.throw("Could not execute shell command, returned exitCode '%s' for command (%s)", exitCode, command)
+	end
 end
 
 assert.globalTypeIsFunction('unpack')
-function module:execute(standardIn, standardOut, standardError, ...)
-
+function module:_appendRedirectionsAndCreateCommandString(standardIn, standardOut, standardError, ...)
 	local arguments = tabelize({...})
 	if standardIn then
 		arguments:insert(self:redirectStandardInput(standardIn))
@@ -75,7 +101,11 @@ function module:execute(standardIn, standardOut, standardError, ...)
 		arguments:insert(self:redirectStandardError(standardError))
 	end
 
-	local command = self:toShellCommand(unpack(arguments))
+	return self:toShellCommand(unpack(arguments))
+end
+
+function module:execute(standardIn, standardOut, standardError, ...)
+	local command = self:_appendRedirectionsAndCreateCommandString(standardIn, standardOut, standardError, ...)
 
 	-- Lua 5.1: returns an exit code
 	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
@@ -89,32 +119,38 @@ function module:execute(standardIn, standardOut, standardError, ...)
 	end
 end
 
-function module:executeExpectingSuccess(standardIn, standardOut, standardError, ...)
-	local success, terminationKind, exitCode, command = self:execute(standardIn, standardOut, standardError, ...)
-	if not success then
-		exception.throw("Could not execute shell command, returned exitCode '%s' for command (%s)", exitCode, command)
+function module:_popen(standardIn, standardOut, standardError, mode, ...)
+	assert.parameterTypeIsStringOrNil('mode', mode)
+
+	local command = self:_appendRedirectionsAndCreateCommandString(standardIn, standardOut, standardError, ...)
+	
+	local fileHandle, errorMessage = popenFunction(command, mode)
+	if fileHandle == nil then
+		exception.throw("Could not popen shell because of error '%s' for command (%s)", errorMessage, command)
 	end
+	return FileHandleStream:new(fileHandle, 'popen (' .. command .. ')')
+end
+
+function module:popenReadingFromSubprocess(standardIn, standardError, ...)
+	return self:_popen(standardIn, noRedirection, standardError, 'r', ...)
+end
+
+function module:popenWritingToSubprocess(standardOut, standardError, ...)
+	return self:_popen(noRedirection, standardOut, standardError, 'w', ...)
 end
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
-local openTextModeForReading
 assert.globalTypeIsFunction('pcall')
 function module:commandIsOnPath(command)
 	assert.parameterTypeIsString('command', command)
 	
-	-- To avoid pulling in a dependency on io functions unless this function is actually used
-	if openTextModeForReading == nil then
-		openTextModeForReading = halimede.io.read.openTextModeForReading
-	end
-	
 	for path in self:binarySearchPath():iterate() do
 		local pathToBinary = path:appendFile(command)
 		
-		local ok, fileHandleOrError = pcall(openTextModeForReading, pathToBinary, command)
+		local ok, fileHandleStreamOrError = pcall(FileHandleStream.openBinaryFileForReading, pathToBinary, command)
 		if ok then
-			local fileHandle = fileHandleOrError
-			fileHandle:close()
+			fileHandleStreamOrError:close()
 			return true, pathToBinary
 		end
 	end
