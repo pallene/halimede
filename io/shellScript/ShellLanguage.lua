@@ -61,6 +61,7 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.silenceStandardError = self:redirectStandardError(silenced)
 end
 
+assert.globalTypeIsFunction('unpack')
 function module:execute(standardIn, standardOut, standardError, ...)
 
 	local arguments = tabelize({...})
@@ -74,7 +75,7 @@ function module:execute(standardIn, standardOut, standardError, ...)
 		arguments:insert(self:redirectStandardError(standardError))
 	end
 
-	local command = self:toShellCommand(...)
+	local command = self:toShellCommand(unpack(arguments))
 
 	-- Lua 5.1: returns an exit code
 	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
