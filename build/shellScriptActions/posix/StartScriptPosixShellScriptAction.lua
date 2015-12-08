@@ -9,6 +9,7 @@ local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling('UnsetEnv
 local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportEnvironmentVariablePosixShellScriptAction')
 local ChangeDirectoryPosixShellScriptAction = require.sibling('ChangeDirectoryPosixShellScriptAction')
 local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local RemoveRecursivelyWithForcePosixShellScriptAction = require.sibling('RemoveRecursivelyWithForcePosixShellScriptAction')
 
 
 moduleclass('StartScriptPosixShellScriptAction', AbstractPosixShellScriptAction)
@@ -33,11 +34,15 @@ function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
-assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(sourcePath)
-	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
+assert.globalTypeIsFunction('ipairs')
+function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
+	assert.parameterTypeIsInstanceOf('recipeFolderPath', sourcePath, Path)
+	assert.parameterTypeIsString('sourceFolderName', sourceFolderName)
+	assert.parameterTypeIsString('buildFolderName', buildFolderName)
+	assert.parameterTypeIsString('patchFolderName', patchFolderName)
 	
-	sourcePath:assertIsFolderPath('sourcePath')
+	recipeFolderPath:assertIsFolderPath('recipeFolderPath')
+	recipeFolderPath:assertIsEffectivelyAbsolute('recipeFolderPath')
 	
 	local ifsValue=' \t\n'
 	self:_appendLinesToScript(
@@ -67,11 +72,14 @@ function module:execute(sourcePath)
 		exportEnvironmentVariableShellScriptAction:execute(environmentVariableName, environmentVariableValue)
 	end
 	
-	-- Actually, change to the folder above sourceFolder
+	-- Actually, change to the folder above sourceFolder (ie recipe folder)
 	-- Consider allowing expandable-arguments so we can have settings at shell script start we can change (eg if not supplied on the command line)
 	-- Consider switching to actual shell script path
 	local changeDirectoryShellScriptAction = ChangeDirectoryPosixShellScriptAction:new(self.shellScript)
-	changeDirectoryShellScriptAction:execute(sourcePath)
+	changeDirectoryShellScriptAction:execute(recipeFolderPath)
+	
+	local removeRecursivelyWithForcePosixShellScriptAction = RemoveRecursivelyWithForcePosixShellScriptAction:new(self.shellScript)
+	removeRecursivelyWithForcePosixShellScriptAction:execute(buildFolderName)
 end
 
 --[[

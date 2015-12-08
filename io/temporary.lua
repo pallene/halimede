@@ -18,7 +18,7 @@ else
 	-- Insecure but usable temporary file function
 	if type.hasPackageChildFieldOfTypeFunctionOrCall('math', 'random') then
 		
-		-- Poor man's check of running on Windows
+		-- Poor man's check of running on Windows; ignores OpenVMS' SYS$SCRATCH and AmigaDOS T:
 		local defaultTemporaryPath
 		local environmentVariables
 		if packageConfiguration.folderSeparator == '/' then
@@ -26,8 +26,8 @@ else
 			environmentVariables = {'TMPDIR'}
 			-- HOME is also probably writable
 		else
-			-- Probably wrong
-			defaultTemporaryPath = '\\tmp'
+			-- Probably wrong: https://en.wikipedia.org/wiki/Temporary_folder
+			defaultTemporaryPath = 'C:\\temp'
 			environmentVariables = {'TEMP', 'TMP'}
 		end
 		
