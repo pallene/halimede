@@ -4,6 +4,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Path = halimede.io.paths.Path
+
+
 moduleclass('Defines')
 
 function module:initialize()
@@ -62,7 +65,6 @@ function module:quotedNonEmptyString(defineName, value)
 	if value == nil then
 		self:undefine(defineName)
 	else
-		assert.parameterTypeIsString('value', value)
 		if value:isEmpty() then
 			exception.throw("The '%s' define can not be empty", defineName)
 		end
@@ -70,9 +72,19 @@ function module:quotedNonEmptyString(defineName, value)
 	end	
 end
 
+function module:quotedPathString(defineName, value)
+	assert.parameterTypeIsString('defineName', defineName)
+	assert.parameterTypeIsInstanceOfOrNil('value', value, Path)
+	
+	if value == nil then
+		self:undefine(defineName)
+	else
+		self.defines[defineName] = '"' .. value:toString(true) .. '"'
+	end	
+end
+
 function module:enumeration(defineName, enumeratedConstant, prefix)
 	assert.parameterTypeIsString('defineName', defineName)
-	
 	assert.parameterTypeIsStringOrNil('prefix', prefix)
 	
 	if prefix == nil then
