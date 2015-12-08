@@ -25,7 +25,7 @@ function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
 	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
 	assert.parameterTypeIsString('sourceFolderName', sourceFolderName)
