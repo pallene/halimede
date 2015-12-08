@@ -69,8 +69,8 @@ local function useTemporaryFile(fileExtension, fileHandleStreamUser, opener, des
 	
 	local fileHandleStream = opener(temporaryFilePathWithFileExtension, description)
 	local ok, result = pcall(fileHandleStreamUser, temporaryFilePathWithFileExtension, fileHandleStream)
-	if fileHandleStream.fileHandle ~= nil then
-		fileHandleStream:close(contents)
+	if fileHandleStream.isOpen then
+		fileHandleStream:close()
 	end
 
 	if temporaryFilePathWithFileExtension ~= temporaryFilePath then

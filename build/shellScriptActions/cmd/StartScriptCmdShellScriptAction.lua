@@ -27,12 +27,13 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
-	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
+	assert.parameterTypeIsInstanceOf('recipeFolderPath', recipeFolderPath, Path)
 	assert.parameterTypeIsString('sourceFolderName', sourceFolderName)
 	assert.parameterTypeIsString('buildFolderName', buildFolderName)
 	assert.parameterTypeIsString('patchFolderName', patchFolderName)
 	
 	recipeFolderPath:assertIsFolderPath('recipeFolderPath')
+	recipeFolderPath:assertIsEffectivelyAbsolute('recipeFolderPath')
 
 	self:_appendLinesToScript(
 		'@ECHO OFF',
@@ -53,5 +54,5 @@ function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, pat
 	changeDirectoryShellScriptAction:execute(recipeFolderPath)
 	
 	local removeRecursivelyWithForceCmdShellScriptAction = RemoveRecursivelyWithForceCmdShellScriptAction:new(self.shellScript)
-	removeRecursivelyWithForceCmdShellScriptAction:execute(buildFolderName)
+	removeRecursivelyWithForceCmdShellScriptAction:execute(self:_relativeFolderPath(buildFolderName))
 end

@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
-local FileHandleStream = halimede.io.FileHandleStream
+local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
 local execute = halimede.luacode.execute
 
 
@@ -22,7 +22,7 @@ local function executeFromFile(fileDescription, luaCodeFilePath, environment)
 	
 	luaCodeFilePath:assertIsFilePath('luaCodeFilePath')
 	
-	local luaCodeStringWithAnyLeadingShaBang = FileHandleStream:openBinaryFileForReading(luaCodeFilePath, fileDescription):readAllContentsAndClose()
+	local luaCodeStringWithAnyLeadingShaBang = openBinaryFileForReading(luaCodeFilePath, fileDescription):readAllContentsAndClose()
 	local luaCodeString = removeInitialShaBang(luaCodeStringWithAnyLeadingShaBang)
 	
 	return execute(luaCodeString, fileDescription, luaCodeFilePath:toString(true), environment)

@@ -7,16 +7,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local newline = halimede.packageConfiguration.newline
-local BufferedShellScript = halimede.io.shellScript.BufferedShellScript
+local ShellScript = halimede.io.shellScript.ShellScript
 
 
-moduleclass('ExecutionEnvironmentBufferedShellScript', BufferedShellScript)
+moduleclass('ExecutionEnvironmentShellScript', ShellScript)
 
 function module:initialize(shellScriptExecutor, dependencies, buildVariant)
 	assert.parameterTypeIsTable('dependencies', dependencies)
 	assert.parameterTypeIsTable('buildVariant', buildVariant)
 	
-	BufferedShellScript.initialize(self, shellScriptExecutor)
+	ShellScript.initialize(self, shellScriptExecutor)
 	
 	self.dependencies = dependencies
 	self.buildVariant = buildVariant

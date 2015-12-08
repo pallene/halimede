@@ -20,10 +20,10 @@ function module:initialize(shellLanguage, ...)
 	self.shellScriptExecutionCommand = tabelize({...})
 end
 
-function module:newShellScript(ShellScriptClass, ...)
-	assert.parameterTypeIsTable('ShellScriptClass', ShellScriptClass)
+function module:newShellScript(shellScriptClass, ...)
+	assert.parameterTypeIsTable('shellScriptClass', shellScriptClass)
 	
-	return ShellScriptClass:new(self, ...)
+	return shellScriptClass:new(self, ...)
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')

@@ -23,14 +23,10 @@ local function traceIfRequired()
 		return
 	end
 	
-	if not type.hasPackageChildFieldOfTypeTableOrUserdata('io', 'stderr') then
+	if not type.hasWritableStandardError then
 		return
 	end
-	
 	local write = io.stderr.write
-	if not type.isFunctionOrCall(write) then
-		return
-	end
 	
 	local enableTracing = os.getenv(environmentVariable)
 	

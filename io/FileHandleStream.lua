@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local exception = halimede.exception
+local Path = halimede.io.paths.Path
 
 
 local FileHandleStream = moduleclass('FileHandleStream')
@@ -96,11 +97,12 @@ module.static.openTemporaryFileForUpdate = function()
 end
 
 function module:initialize(fileHandle, description)
-	assert.parameterTypeIsTableOrUserdata(fileHandle)
-	assert.parameterTypeIsString(description)
+	assert.parameterTypeIsTableOrUserdata('fileHandle', fileHandle)
+	assert.parameterTypeIsString('description', description)
 	
 	self.fileHandle = fileHandle
 	self.description = description
+	self.isOpen = true
 end
 
 function module:__tostring()
@@ -116,7 +118,7 @@ function module:readAllContentsAndClose()
 	return contents
 end
 
-function module.writeAllContentsAndClose(contents)
+function module:writeAllContentsAndClose(contents)
 	assert.parameterTypeIsString('contents', contents)
 	
 	self.fileHandle:setvbuf('full', 4096)
@@ -125,10 +127,11 @@ function module.writeAllContentsAndClose(contents)
 end
 
 function module:close()
-	if self.fileHandle == nil then
+	if not self.isOpen then
 		exception.throw('Already closed')
 	end
 	
 	self.fileHandle:close()
 	self.fileHandle = nil
+	self.isOpen = false
 end

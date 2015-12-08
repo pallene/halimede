@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local BufferedShellScript = halimede.io.shellScript.BufferedShellScript
+local ShellScript = halimede.io.shellScript.ShellScript
 local exception = halimede.exception
 
 
 moduleclass('AbstractShellScriptAction')
 
 function module:initialize(shellScript)
-	assert.parameterTypeIsInstanceOf('shellScript', shellScript, BufferedShellScript)
+	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
 	
 	self.shellScript = shellScript
 end
@@ -22,6 +22,10 @@ end
 
 function module:execute(...)
 	exception.throw('Abstract Method')
+end
+
+function module:_relativeFolderPath(...)
+	return self.shellScript:relativeFolderPath(...)
 end
 
 function module:_quoteArgument(argument)

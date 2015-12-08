@@ -16,7 +16,7 @@ local Platform = require.sibling('Platform')
 local PlatformPaths = require.sibling('PlatformPaths')
 local GnuTuple = require.sibling('GnuTuple')
 local RecipePaths = require.sibling('RecipePaths')
-local ExecutionEnvironmentBufferedShellScript = require.sibling('ExecutionEnvironmentBufferedShellScript')
+local ExecutionEnvironmentShellScript = require.sibling('ExecutionEnvironmentShellScript')
 
 
 moduleclass('Recipe')
@@ -311,17 +311,14 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	local versionRelativePathElements = {self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash'}
 	
 	local recipeFolderPath = self.recipeFolderPath:appendFolders(version.packageVersion)
-	
-	local recipeSourcePath = self:recipeFolderPath(version, 'source')
-	local recipeBuildPath = self:recipeFolderPath(version, 'build')
-	local recipePatchPath = self:recipeFolderPath(version, 'patch')
-	
+		
 	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
 	
 	local buildVariant = version.buildVariant
 	
-	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentBufferedShellScript, version.dependencies, buildVariant)
+	local displayScriptToStandardError = true
+	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentShellScript, version.dependencies, buildVariant, displayScriptToStandardError)
 	
 	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
 	
