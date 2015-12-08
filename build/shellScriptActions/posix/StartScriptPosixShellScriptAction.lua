@@ -10,6 +10,7 @@ local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportE
 local ChangeDirectoryPosixShellScriptAction = require.sibling('ChangeDirectoryPosixShellScriptAction')
 local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
 local RemoveRecursivelyWithForcePosixShellScriptAction = require.sibling('RemoveRecursivelyWithForcePosixShellScriptAction')
+local MakeDirectoryRecursivelyPosixShellScriptAction = require.sibling('MakeDirectoryRecursivelyPosixShellScriptAction')
 
 
 moduleclass('StartScriptPosixShellScriptAction', AbstractPosixShellScriptAction)
@@ -35,58 +36,51 @@ function module:initialize(shellScript)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
+function module:execute(recipeFolderPath, sourceFolderRelativePath, buildFolderRelativePath, patchFolderRelativePath)
 	assert.parameterTypeIsInstanceOf('recipeFolderPath', recipeFolderPath, Path)
-	assert.parameterTypeIsString('sourceFolderName', sourceFolderName)
-	assert.parameterTypeIsString('buildFolderName', buildFolderName)
-	assert.parameterTypeIsString('patchFolderName', patchFolderName)
+	assert.parameterTypeIsInstanceOf('sourceFolderRelativePath', sourceFolderRelativePath, Path)
+	assert.parameterTypeIsInstanceOf('buildFolderRelativePath', buildFolderRelativePath, Path)
+	assert.parameterTypeIsInstanceOf('patchFolderRelativePath', patchFolderRelativePath, Path)
 	
 	recipeFolderPath:assertIsFolderPath('recipeFolderPath')
 	recipeFolderPath:assertIsEffectivelyAbsolute('recipeFolderPath')
 	
-	local ifsValue=' \t\n'
-	self:_appendLinesToScript(
-		'#!/usr/bin/env sh',
-		'set -e',
-		'set -u',
-		'set -f',
-		'(set -o posix) 1>/dev/null 2>/dev/null && set -o posix',  -- For bash
-		'export DUALCASE=1',  -- For MKS Shell
-		'if [ -n "${ZSH_VERSION+set}" ]; then',  -- For zsh
-		'    emulate sh',
-		'    NULLCMD=:',
-		'    # Pre-4.2 versions of Zsh (superseded as of 2004-03-19) do word splitting on ${1+"$[@]"}, which is not wanted',
-		[[    alias -g '${1+"$[@]"}'='"$[@]"']],
-		'    setopt NO_GLOB_SUBST',
-		'fi',
-		'IFS="' .. ifsValue .. '"'
-	)
+	sourceFolderRelativePath:assertIsFolderPath('sourceFolderRelativePath')
+	sourceFolderRelativePath:assertIsRelative('sourceFolderRelativePath')
 	
-	local unsetEnvironmentVariableShellScriptAction = UnsetEnvironmentVariablePosixShellScriptAction:new(self.shellScript)
-	for _, environmentVariableName in ipairs(environmentVariablesToUnset) do
-		unsetEnvironmentVariableShellScriptAction:execute(environmentVariableName)
-	end
+	buildFolderRelativePath:assertIsFolderPath('buildFolderRelativePath')
+	buildFolderRelativePath:assertIsRelative('buildFolderRelativePath')
 	
-	local exportEnvironmentVariableShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(self.shellScript)
-	for environmentVariableName, environmentVariableValue in pairs(environmentVariablesToExport) do
-		exportEnvironmentVariableShellScriptAction:execute(environmentVariableName, environmentVariableValue)
-	end
+	patchFolderRelativePath:assertIsFolderPath('patchFolderRelativePath')
+	patchFolderRelativePath:assertIsRelative('patchFolderRelativePath')
 	
-	-- Actually, change to the folder above sourceFolder (ie recipe folder)
-	-- Consider allowing expandable-arguments so we can have settings at shell script start we can change (eg if not supplied on the command line)
-	-- Consider switching to actual shell script path
-	local changeDirectoryShellScriptAction = ChangeDirectoryPosixShellScriptAction:new(self.shellScript)
-	changeDirectoryShellScriptAction:execute(recipeFolderPath)
-	
-	local removeRecursivelyWithForcePosixShellScriptAction = RemoveRecursivelyWithForcePosixShellScriptAction:new(self.shellScript)
-	removeRecursivelyWithForcePosixShellScriptAction:execute(self:_relativeFolderPath(buildFolderName))
-end
+	-- This script logic assumes a modern, POSIX-compatible shell, with a baseline of the last release of pdksh in 1999
+	-- It also tries to work around deficiencies in bash versions (eg IFS) and support zsh and MKS Shell (but these aren't common or suitable for anything but bootstrap builds)
+	self:_appendLinesToScript([=[#!/usr/bin/env sh
+set -e
+set -u
+set -f
 
---[[
-# pdksh / mksh have problems with unsetting a variable that was never set...
-if [ "${CDPATH+set}" = 'set' ]; then
-	unset CDPATH
+# For bash
+(set -o posix) 1>/dev/null 2>/dev/null && set -o posix
+
+# For MKS Shell
+export DUALCASE=1
+
+# For zsh
+if [ -n "${ZSH_VERSION+set}" ]; then
+	emulate sh
+	NULLCMD=:
+	# Pre-4.2 versions of Zsh (superseded as of 2004-03-19) do word splitting on ${1+"$[@]"}, which is not wanted
+	[[alias -g ${1+"$[@]"}="$[@]"]]
+	setopt NO_GLOB_SUBST
 fi
+
+# Make sure IFS is set to something sensible
+IFS="$(printf ' \t\n')"
+
+# Make sure CDPATH doesn't interfere
+(unset CDPATH) 1>/dev/null 2>/dev/null && unset CDPATH
 
 # Find the absolute path containing this script
 _program_path_find()
@@ -146,7 +140,32 @@ _program_path_find()
 		
 	fi
 }
-_program_path="$(_program_path_find)"
+cd "$(_program_path_find)" 1>/dev/null
+unset _program_path_find 1>/dev/null 2>/dev/null
 
-cd "$_program_path" 1>/dev/null
-]]--
+]=])
+	
+	local unsetEnvironmentVariableShellScriptAction = UnsetEnvironmentVariablePosixShellScriptAction:new(self.shellScript)
+	for _, environmentVariableName in ipairs(environmentVariablesToUnset) do
+		unsetEnvironmentVariableShellScriptAction:execute(environmentVariableName)
+	end
+	
+	local exportEnvironmentVariableShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(self.shellScript)
+	for environmentVariableName, environmentVariableValue in pairs(environmentVariablesToExport) do
+		exportEnvironmentVariableShellScriptAction:execute(environmentVariableName, environmentVariableValue)
+	end
+	
+	-- Actually, change to the folder above sourceFolder (ie recipe folder)
+	-- Consider allowing expandable-arguments so we can have settings at shell script start we can change (eg if not supplied on the command line)
+	-- Consider switching to actual shell script path
+	local changeDirectoryShellScriptAction = ChangeDirectoryPosixShellScriptAction:new(self.shellScript)
+	changeDirectoryShellScriptAction:execute(recipeFolderPath)
+		
+	local removeRecursivelyWithForceShellScriptAction = RemoveRecursivelyWithForcePosixShellScriptAction:new(self.shellScript)
+	removeRecursivelyWithForceShellScriptAction:execute(buildFolderRelativePath)
+	
+	local makeDirectoryRecursivelyShellScriptAction = MakeDirectoryRecursivelyPosixShellScriptAction:new(self.shellScript)
+	makeDirectoryRecursivelyShellScriptAction:execute(buildFolderRelativePath, '0755')
+	
+	changeDirectoryShellScriptAction:execute(buildFolderRelativePath)
+end

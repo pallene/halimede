@@ -10,6 +10,7 @@ local Platform = require.sibling('Platform')
 local PlatformPaths = require.sibling('PlatformPaths')
 local FilePaths = require.sibling('FilePaths')
 local validatePath = require.sibling('PlatformPaths').validatePath
+local Path = halimede.io.paths.Path
 
 
 moduleclass('RecipePaths')
@@ -30,7 +31,9 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
-function module:baseFilePaths(...)
+function module:baseFilePaths(prefixWithPath, ...)
+	assert.parameterTypeIsInstanceOf('prefixWithPath', prefixWithPath, Path)
+	
 	local baseFilePaths = {}
 	
 	for _, stringOrTable in ipairs({...}) do
@@ -42,7 +45,7 @@ function module:baseFilePaths(...)
 		else
 			exception.throw('baseFilePaths should only contain strings or tables of string')
 		end
-		table.insert(baseFilePaths, path)
+		table.insert(baseFilePaths, prefixWithPath:appendRelativePath(path))
 	end
 	return FilePaths:new(baseFilePaths)
 end
@@ -55,6 +58,10 @@ end
 
 function module:toExecutableRelativeFilePath(...)
 	return self:relativeFilePath(...):appendFileExtension(self.executableExtension)
+end
+
+function module:parentPath()
+	return self.shellLanguage.parentPath
 end
 
 function module:relativeFolderPath(...)

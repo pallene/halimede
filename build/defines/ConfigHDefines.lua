@@ -531,10 +531,9 @@ end
 
 -- Mandatory
 -- Define to the character that separates directories in PATH.
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len')
 function module:PATH_SEPARATOR_CHAR(character)
 	assert.parameterTypeIsString('character', character)
-	if character:len() ~= 1 then
+	if #character ~= 1 then
 		exception.throw("The path separator character must be exactly one character, it can not be '%s'", character)
 	end
 	

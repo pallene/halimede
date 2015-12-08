@@ -155,15 +155,20 @@ function module:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths,
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
-function module:addIncludePaths(arguments, sourceFilePaths)
+function module:addIncludePaths(arguments, currentDirectoryString, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
+	assert.parameterTypeIsString('currentDirectoryString', currentDirectoryString)
 	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
 	
 	local includePaths = {}
+	
+	populateIncludePaths(includePaths, currentDirectoryString)
+	
 	for _, sourceFilePath in ipairs(sourceFilePaths:withoutFileNames()) do
 		local stringPath = sourceFilePath:toString(true)
 		populateIncludePaths(includePaths, stringPath)
 	end
+	
 	for includePath, _ in pairs(includePaths) do
 		arguments:append(self.includePathOption .. includePath)
 	end	

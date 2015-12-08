@@ -15,6 +15,7 @@ local PathRelativity = require.sibling('PathRelativity')
 local PathStyle = moduleclass('PathStyle')
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator, currentDirectory, parentDirectory, fileExtensionSeparator, alternateStreamSeparator, hasDevices, additionalCharactersNotAllowedInPathElements, ...)
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsStringOrNil('pathSeparator', pathSeparator)
@@ -57,6 +58,12 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	
 	self.doesNotSupportAlternateStreams = alternateStreamSeparator == nil
 	PathStyle.static[name] = self
+
+	if parentDirectory and not parentDirectory:isEmpty() then
+		self.parentPath = self:relativeFolderPath(parentDirectory)
+	else
+		self.parentPath = nil
+	end
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')

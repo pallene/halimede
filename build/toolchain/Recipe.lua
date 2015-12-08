@@ -317,12 +317,11 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	
 	local buildVariant = version.buildVariant
 	
-	local displayScriptToStandardError = true
-	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentShellScript, version.dependencies, buildVariant, displayScriptToStandardError)
+	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentShellScript, version.dependencies, buildVariant)
 	
 	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
 	
-	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
+	shellScript:writeToFileAndExecute(recipeFolderPath:appendFile('recipe-build', buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod), noRedirection, noRedirection)
 end
 
 local sourceFolderName = 'source'
@@ -331,18 +330,22 @@ local patchFolderName = 'patch'
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
+	
+	local sourceFolderRelativePath = buildRecipePaths:parentPath():appendFolders(sourceFolderName)
+	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName)
+	local patchFolderRelativePath = buildRecipePaths:parentPath():appendFolders(patchFolderName)
 
-	shellScript:newAction(nil, 'StartScript'):execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
+	shellScript:newAction(nil, 'StartScript'):execute(recipeFolderPath, sourceFolderRelativePath, buildFolderRelativePath, patchFolderRelativePath)
 	
 	local buildEnvironment = {
 		
 		recipeFolderPath = recipeFolderPath,
 		
-		sourceFolderName = sourceFolderName,
+		sourceFolderRelativePath = sourceFolderRelativePath,
 		
-		buildFolderName = buildFolderName,
+		buildFolderRelativePath = buildFolderRelativePath,
 		
-		patchFolderName = patchFolderName,
+		patchFolderRelativePath = patchFolderRelativePath,
 		
 		buildPlatform = buildPlatform,
 		

@@ -78,10 +78,11 @@ function module:addSystemIncludePaths(dependenciesSystemIncludePaths, buildVaria
 	self.compilerDriver:addSystemIncludePaths(self.arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 end
 
-function module:addIncludePaths(sourceFilePaths)
+function module:addIncludePaths(currentDirectoryString, sourceFilePaths)
+	assert.parameterTypeIsString('currentDirectoryString', currentDirectoryString)
 	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
 	
-	self.compilerDriver:addIncludePaths(self.arguments, sourceFilePaths)
+	self.compilerDriver:addIncludePaths(self.arguments, currentDirectoryString, sourceFilePaths)
 end
 
 function module:addLinkerFlags(dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)

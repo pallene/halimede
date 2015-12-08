@@ -33,7 +33,7 @@ function module:execute(crossRecipePaths, compilerDriverFlags, cStandard, legacy
 	compilerDriverArguments:append(preprocessorFlags)
 	defines:appendToCompilerDriverArguments(compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
-	compilerDriverArguments:addIncludePaths(sources)
+	compilerDriverArguments:addIncludePaths(self.shellScript.shellLanguage.pathStyle.currentDirectory, sources)
 	compilerDriverArguments:appendFilePaths(sources)
 	
 	self:_unsetEnvironmentVariables(compilerDriverArguments)

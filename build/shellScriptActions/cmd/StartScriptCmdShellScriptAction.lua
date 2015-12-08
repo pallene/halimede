@@ -11,6 +11,7 @@ local ExportEnvironmentVariableCmdShellScriptAction = require.sibling('ExportEnv
 local ChangeDirectoryCmdShellScriptAction = require.sibling('ChangeDirectoryCmdShellScriptAction')
 local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
 local RemoveRecursivelyWithForceCmdShellScriptAction = require.sibling('RemoveRecursivelyWithForceCmdShellScriptAction')
+local MakeDirectoryRecursivelyCmdShellScriptAction = require.sibling('MakeDirectoryRecursivelyCmdShellScriptAction')
 
 
 moduleclass('StartScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
@@ -26,18 +27,29 @@ function module:initialize(shellScript)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, patchFolderName)
+function module:execute(recipeFolderPath, sourceFolderRelativePath, buildFolderRelativePath, patchFolderRelativePath)
 	assert.parameterTypeIsInstanceOf('recipeFolderPath', recipeFolderPath, Path)
-	assert.parameterTypeIsString('sourceFolderName', sourceFolderName)
-	assert.parameterTypeIsString('buildFolderName', buildFolderName)
-	assert.parameterTypeIsString('patchFolderName', patchFolderName)
+	assert.parameterTypeIsInstanceOf('sourceFolderRelativePath', sourceFolderRelativePath, Path)
+	assert.parameterTypeIsInstanceOf('buildFolderRelativePath', buildFolderRelativePath, Path)
+	assert.parameterTypeIsInstanceOf('patchFolderRelativePath', patchFolderRelativePath, Path)
 	
 	recipeFolderPath:assertIsFolderPath('recipeFolderPath')
 	recipeFolderPath:assertIsEffectivelyAbsolute('recipeFolderPath')
+	
+	sourceFolderRelativePath:assertIsFolderPath('sourceFolderRelativePath')
+	sourceFolderRelativePath:assertIsRelative('sourceFolderRelativePath')
+	
+	buildFolderRelativePath:assertIsFolderPath('buildFolderRelativePath')
+	buildFolderRelativePath:assertIsRelative('buildFolderRelativePath')
+	
+	patchFolderRelativePath:assertIsFolderPath('patchFolderRelativePath')
+	patchFolderRelativePath:assertIsRelative('patchFolderRelativePath')
 
 	self:_appendLinesToScript(
 		'@ECHO OFF',
-		'SETLOCAL EnableExtensions'
+		'SETLOCAL EnableExtensions',
+		'SETLOCAL',
+		'CD /D "%~dp0"'
 	)
 	
 	local unsetEnvironmentVariableShellScriptAction = UnsetEnvironmentVariableCmdShellScriptAction:new(self.shellScript)
@@ -53,6 +65,11 @@ function module:execute(recipeFolderPath, sourceFolderName, buildFolderName, pat
 	local changeDirectoryShellScriptAction = ChangeDirectoryCmdShellScriptAction:new(self.shellScript)
 	changeDirectoryShellScriptAction:execute(recipeFolderPath)
 	
-	local removeRecursivelyWithForceCmdShellScriptAction = RemoveRecursivelyWithForceCmdShellScriptAction:new(self.shellScript)
-	removeRecursivelyWithForceCmdShellScriptAction:execute(self:_relativeFolderPath(buildFolderName))
+	local removeRecursivelyWithForceShellScriptAction = RemoveRecursivelyWithForceCmdShellScriptAction:new(self.shellScript)
+	removeRecursivelyWithForceShellScriptAction:execute(buildFolderRelativePath)
+	
+	local makeDirectoryRecursivelyShellScriptAction = MakeDirectoryRecursivelyCmdShellScriptAction:new(self.shellScript)
+	makeDirectoryRecursivelyShellScriptAction:execute(buildFolderRelativePath, '0755')
+	
+	changeDirectoryShellScriptAction:execute(buildFolderRelativePath)
 end

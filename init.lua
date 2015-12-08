@@ -555,15 +555,14 @@ function assert.globalTableHasChieldFieldOfTypeString(name, ...)
 	return globalTableHasChieldFieldOfType(type.isString, name, ...)
 end
 
-assert.globalTypeIsTable('string')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len', 'find', 'sub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'sub')
 function string.split(value, separator)
 	assert.parameterTypeIsString('value', value)
 	assert.parameterTypeIsString('separator', separator)
 	
 	local result = {}
-	local length = value:len()
+	local length = #value
 	
 	local start
 	local finish
@@ -581,12 +580,10 @@ function string.split(value, separator)
 	return result
 end
 
-assert.globalTypeIsTable('string')
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len')
 function string.isEmpty(value)
 	assert.parameterTypeIsString('value', value)
 	
-	return value:len() == 0
+	return #value == 0
 end
 
 -- WARN: Lua's random number generator is not cryptographically secure

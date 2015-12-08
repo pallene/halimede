@@ -96,14 +96,56 @@ module.static.openTemporaryFileForUpdate = function()
 	return FileHandleStream:new(fileHandle, 'temporary file handle (a+b)')
 end
 
-function module:initialize(fileHandle, description)
-	assert.parameterTypeIsTableOrUserdata('fileHandle', fileHandle)
-	assert.parameterTypeIsString('description', description)
-	
-	self.fileHandle = fileHandle
-	self.description = description
-	self.isOpen = true
+local ioTypeFunction
+if type.hasPackageChildFieldOfTypeFunctionOrCall('io', 'type') then
+	ioTypeFunction = io.type
+else
+	ioTypeFunction = function(obj)
+		return 'file'
+	end
 end
+function module:initialize(fileHandle, description)
+	assert.parameterTypeIsString('description', description)
+
+	self.description = description
+	
+	if fileHandle == nil then
+		self.fileHandle = nil
+	else
+		assert.parameterTypeIsTableOrUserdata('fileHandle', fileHandle)
+		local fileHandleState = ioTypeFunction(fileHandle)
+		if fileHandleState == nil then
+			exception.throw('fileHandle is not a valid fileHandle')
+		elseif fileHandleState == 'file' then
+			self.fileHandle = fileHandle
+			self.isOpen = true
+		elseif fileHandleState == 'closed file' then
+			self.fileHandle = nil
+			self.isOpen = false
+		else
+			exception.throw("fileHandle state '%s' is not known", fileHandleState)
+		end
+	end
+end
+
+assert.globalTypeIsFunctionOrCall('pairs')
+local function createFileHandleStreamsForStandardFileDescriptors()
+	local mappings = {
+		StandardIn = 'stdin',
+		StandardOut = 'stdout',
+		StandardError = 'stderr'
+	}
+	for to, from in pairs(mappings) do
+		local fileHandleStream
+		if type.hasPackageChildFieldOfTypeTableOrUserdata('io', from) then
+			fileHandleStream = FileHandleStream:new(io[from], to)
+		else
+			fileHandleStream = FileHandleStream:new(nil, to .. ' (Unavailable)')
+		end
+		module.static[to] = fileHandleStream
+	end
+end
+createFileHandleStreamsForStandardFileDescriptors()
 
 function module:__tostring()
 	return ('%s(%s)'):format(self.class.name, self.description)
@@ -118,11 +160,21 @@ function module:readAllContentsAndClose()
 	return contents
 end
 
-function module:writeAllContentsAndClose(contents)
+function module:write(contents)
 	assert.parameterTypeIsString('contents', contents)
 	
-	self.fileHandle:setvbuf('full', 4096)
 	self.fileHandle:write(contents)
+end
+
+function module:writeIfOpen(contents)
+	if self.isOpen then
+		self:write(contents)
+	end
+end
+
+function module:writeAllContentsAndClose(contents)
+	self.fileHandle:setvbuf('full', 4096)
+	self:write(contents)
 	self:close()
 end
 

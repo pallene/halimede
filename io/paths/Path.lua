@@ -114,6 +114,13 @@ function module:assertIsRelative(parameterName)
 	end
 end
 
+function module:openFile(fileHandleStreamOpenerFunction, fileDescription)
+	assert.parameterTypeIsFunctionOrCall('fileHandleStreamOpenerFunction', fileHandleStreamOpenerFunction)
+	assert.parameterTypeIsString('fileDescription', fileDescription)
+	
+	return fileHandleStreamOpenerFunction(self, fileDescription)
+end
+
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	

@@ -79,6 +79,8 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.silenced = silenced
 	self.searchesCurrentPath = searchesCurrentPath
 	self.commandInterpreterName = commandInterpreterName
+
+	self.parentPath = pathStyle.parentPath
 end
 
 function module:executeExpectingSuccess(standardIn, standardOut, standardError, ...)

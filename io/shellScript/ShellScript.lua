@@ -9,16 +9,16 @@ local deepCopy = halimede.table.deepCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local useTemporaryTextFileAfterWritingAllContentsAndClosing = halimede.io.temporary.useTemporaryTextFileAfterWritingAllContentsAndClosing
+local Path = halimede.io.paths.Path
+local openBinaryFileForWriting = halimede.io.FileHandleStream.openBinaryFileForWriting
 
 
 moduleclass('ShellScript')
 
-function module:initialize(shellScriptExecutor, displayScriptToStandardError)
+function module:initialize(shellScriptExecutor)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
-	assert.parameterTypeIsBoolean('displayScriptToStandardError', displayScriptToStandardError)
 	
 	self.shellScriptExecutor = shellScriptExecutor
-	self.displayScriptToStandardError = displayScriptToStandardError
 	
 	local shellLanguage = shellScriptExecutor.shellLanguage
 	self.shellLanguage = shellLanguage
@@ -32,20 +32,17 @@ function module:finish()
 	return script
 end
 
-function module:executeScriptExpectingSuccess(standardOut, standardError)
-	local script = self:finish()
-	
-	if self.displayScriptToStandardOut && type.hasWritableStandardError then
-		local write = io.stderr.write
-		write(script)
-	end	
-	
-	useTemporaryTextFileAfterWritingAllContentsAndClosing(self.shellScriptFileExtensionExcludingLeadingPeriod, script, function(scriptFilePath)
-		self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
-	end)
-end
-
 -- take another look at 'brew sh': it's really part of how we execute [indeed, we should probably look at that in more depth, with perhaps a wrapper script]
+function module:writeToFileAndExecute(scriptFilePath, standardOut, standardError)
+	assert.parameterTypeIsInstanceOf('scriptFilePath', scriptFilePath, Path)
+	
+	scriptFilePath:assertIsFilePath('scriptFilePath')
+	
+	local fileHandleStream = scriptFilePath:openFile(openBinaryFileForWriting, 'build script')
+	fileHandleStream:writeAllContentsAndClose(self:finish())
+	
+	self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
+end
 
 
 
