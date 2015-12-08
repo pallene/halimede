@@ -10,7 +10,7 @@ local Path = halimede.io.paths.Path
 local executeFromFile = halimede.luacode.executeFromFile
 
 
-assert.globalTypeIsFunction('setmetatable')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 local function wrapWithReadOnlyProxy(object)
 	if not isTable(object) then
 		return object
@@ -26,7 +26,7 @@ local function wrapWithReadOnlyProxy(object)
 	})
 end
 
-assert.globalTypeIsFunction('setmetatable')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 local function wrapWithReadOnlyProxyButCanAddFieldsToProxy(object)
 	if not isTable(object) then
 		return object
@@ -48,7 +48,7 @@ local function wrapWithReadOnlyProxyButCanAddFieldsToProxy(object)
 end
 
 -- An inefficient multiple inheritance
-assert.globalTypeIsFunction('setmetatable')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 local function wrapWithMultipleInheritanceProxy(initialState, ...)
 	assert.parameterTypeIsString('initialState', initialState)
 	
@@ -72,7 +72,7 @@ local function wrapWithMultipleInheritanceProxy(initialState, ...)
 end
 
 -- http://lua-users.org/wiki/SandBoxes
-assert.globalTypeIsFunction('assert', 'error', 'ipairs', 'next', 'pairs', 'pcall', 'tonumber', 'tostring', 'type', 'unpack', 'xpcall')
+assert.globalTypeIsFunctionOrCall('assert', 'error', 'ipairs', 'next', 'pairs', 'pcall', 'tonumber', 'tostring', 'type', 'unpack', 'xpcall')
 assert.globalTypeIsString('_VERSION')
 assert.globalTypeIsTable('coroutine', 'string', 'table', 'math', 'os')
 module.sandboxEnvironmentToPreserve = {

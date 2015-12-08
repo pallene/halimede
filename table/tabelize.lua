@@ -6,8 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 -- Adds the table.concat, table.insert, etc methods to optionalValueToTabelize, or returns an empty table with them added
 assert.globalTypeIsTable('table')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat', 'insert', 'remove', 'sort')
-assert.globalTypeIsFunction('setmetatable')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'concat', 'insert', 'remove', 'sort')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 local function tabelize(optionalValueToTabelize)
 	assert.parameterTypeIsTableOrNil('optionalValueToTabelize', optionalValueToTabelize)
 	

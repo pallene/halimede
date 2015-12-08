@@ -14,7 +14,7 @@ local PathRelativity = require.sibling('PathRelativity')
 -- https://en.wikipedia.org/wiki/Path_%28computing%29
 local PathStyle = moduleclass('PathStyle')
 
-assert.globalTypeIsFunction('pairs', 'ipairs')
+assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
 function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator, currentDirectory, parentDirectory, fileExtensionSeparator, alternateStreamSeparator, hasDevices, additionalCharactersNotAllowedInPathElements, ...)
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsStringOrNil('pathSeparator', pathSeparator)
@@ -59,7 +59,7 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	PathStyle.static[name] = self
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 function module:parse(stringPath, isFile)
 	assert.parameterTypeIsString('stringPath', stringPath)
 	assert.parameterTypeIsBoolean('isFile', isFile)
@@ -83,8 +83,8 @@ function module:relativeFilePath(...)
 	return Path:new(self, PathRelativity.Relative, nil, {...}, true, nil)
 end
 
-assert.globalTypeIsFunction('ipairs')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
+assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len')
 function module:guardPathElements(pathElements)
 	assert.parameterTypeIsTable('pathElements', pathElements)
 	
@@ -97,8 +97,8 @@ function module:guardPathElements(pathElements)
 	end
 end
 
-assert.globalTypeIsFunction('ipairs')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match')
+assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match')
 function module:isReservedPathElement(pathElement)
 	assert.parameterTypeIsString('pathElement', pathElement)
 		
@@ -218,7 +218,7 @@ end
 
 local Posix = PathStyle:new('Posix', ':', '/', nil, '.', '..', '.', nil, false, {})
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'sub', 'split', 'isEmpty')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len', 'sub', 'split', 'isEmpty')
 Posix._parse = function(self, stringPath, isFile)
 	
 	local pathElements = stringPath:split('/')
@@ -249,7 +249,7 @@ Cmd.toStringRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements,
 	return device .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'split', 'find', 'sub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split', 'find', 'sub')
 Cmd._parse = function(self, stringPath, isFile)
 
 	local pathElements

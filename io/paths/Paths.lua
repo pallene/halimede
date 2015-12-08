@@ -11,7 +11,7 @@ local PathStyle = halimede.io.paths.PathStyle
 
 moduleclass('Paths')
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:initialize(pathStyle, paths)
 	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
 	assert.parameterTypeIsTable('paths', paths)

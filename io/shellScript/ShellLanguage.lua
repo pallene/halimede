@@ -88,7 +88,7 @@ function module:executeExpectingSuccess(standardIn, standardOut, standardError, 
 	end
 end
 
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module:_appendRedirectionsAndCreateCommandString(standardIn, standardOut, standardError, ...)
 	local arguments = tabelize({...})
 	if standardIn then
@@ -141,7 +141,7 @@ end
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
-assert.globalTypeIsFunction('pcall')
+assert.globalTypeIsFunctionOrCall('pcall')
 function module:commandIsOnPath(command)
 	assert.parameterTypeIsString('command', command)
 	
@@ -224,7 +224,7 @@ function module:redirectStandardError(filePathOrFileDescriptor)
 	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:toShellCommand(...)
 	local arguments = {...}
 	
@@ -247,7 +247,7 @@ function module:toShellCommandLine(...)
 	return self:toShellCommand(...) .. self.newline
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendLinesToScript(tabelizedScriptBuffer, ...)
 	local lines = {...}
 	for _, line in ipairs(lines) do
@@ -281,7 +281,7 @@ function module:appendFileExtension(fileName, fileExtension)
 	return self.pathStyle:appendFileExtension(fileName, fileExtension)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:paths(stringPathsTable)
 	assert.parameterTypeIsTable('stringPathsTable', stringPathsTable)
 	
@@ -297,7 +297,7 @@ function module:paths(stringPathsTable)
 	return Paths:new(self.pathStyle, paths)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split')
 function module:binarySearchPath()
 	local PATH
 	local searchPaths
@@ -333,7 +333,7 @@ function PosixShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, '/dev/null', false, 'sh')
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gsub')
 function PosixShellLanguage:_quoteArgument(argument)
 	return "'" .. argument:gsub("'", "'\\''") .. "'"
 end
@@ -354,7 +354,7 @@ local cmdCharactersToEscape = {
   ['"'] = '\\"',
 }
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'rep')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'rep')
 local function cmdEscaperA(capture1, capture2)
   return slash:rep(2 * #capture1 - 1) .. (capture2 or slash)
 end
@@ -364,7 +364,7 @@ local function cmdEscaperB(value)
 end
 
 -- Quoting is a mess in Cmd; these rules only work for cmd.exe /C (it's a per-program thing)
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'gsub')
 function CmdShellLanguage:_quoteArgument(argument)
 	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
     if argument:match('^[%.a-zA-Z]?:?[\\/]')  then
@@ -402,7 +402,7 @@ local operatingSystemNamesToShellLanguages = {
 }
 
 local cachedDefault = false
-assert.globalTypeIsFunction('pcall')
+assert.globalTypeIsFunctionOrCall('pcall')
 ShellLanguage.static.default = function()
 	if cachedDefault ~= false then
 		return cachedDefault

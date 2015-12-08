@@ -54,8 +54,8 @@ else
 	end
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('os', 'tmpname')
-assert.globalTypeIsFunction('pcall')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('os', 'tmpname')
+assert.globalTypeIsFunctionOrCall('pcall')
 local function useTemporaryFile(fileExtension, fileHandleStreamUser, opener, description)
 	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	assert.parameterTypeIsFunctionOrCall('fileHandleStreamUser', fileHandleStreamUser)

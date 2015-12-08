@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local tabelize = halimede.table.tabelize
 
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 local formatString = '([^%s]+)'
 local function multisplitter(separators)
 	assert.parameterTypeIsString('separators', separators)

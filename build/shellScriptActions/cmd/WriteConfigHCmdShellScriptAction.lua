@@ -17,7 +17,7 @@ end
 
 -- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:execute(configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	local actualFilePath

@@ -8,7 +8,7 @@ local Path = halimede.io.paths.Path
 
 
 -- eg returns '/opt/bin' if prefixPath == '/opt', perRecipeVersionRelativePathElements == {'package', 'version', 'dependencies'} and folderRelativePathElements == '{bin}'
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module.constant(prefixPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsTable('folderRelativePathElements', folderRelativePathElements)
@@ -18,7 +18,7 @@ function module.constant(prefixPath, folderRelativePathElements, perRecipeVersio
 end
 	
 -- eg returns '/opt/bin/package/version/dependencies' if prefixPath == '/opt', perRecipeVersionRelativePathElements == {'package', 'version', 'dependencies'} and folderRelativePathElements == '{bin}'
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module.versionAfter(prefixPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsTable('folderRelativePathElements', folderRelativePathElements)

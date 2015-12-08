@@ -58,7 +58,7 @@ function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlag
 	CompilerDriver.static[name] = self
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 local function mergeFlags(...)
 	local result = tabelize()
 	for _, flagSet in ipairs({...}) do
@@ -138,7 +138,7 @@ local function populateIncludePaths(includePaths, includePath)
 	end
 end
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
+assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 function module:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesSystemIncludePaths', dependenciesSystemIncludePaths)
@@ -154,7 +154,7 @@ function module:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths,
 	end	
 end
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
+assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 function module:addIncludePaths(arguments, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
@@ -169,7 +169,7 @@ function module:addIncludePaths(arguments, sourceFilePaths)
 	end	
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesLinkerFlags', dependenciesLinkerFlags)
@@ -181,7 +181,7 @@ function module:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantL
 	end
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:addLinkedLibraries(arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesLinkedLibraries', dependenciesLinkedLibraries)
@@ -202,7 +202,7 @@ function module:addOutput(arguments, outputFilePath)
 	arguments:append(self.outputOption .. outputFilePath:toString(true))
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:unsetEnvironmentVariables(unsetEnvironmentVariableFunction)
 	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableFunction', unsetEnvironmentVariableFunction)
 	
@@ -211,7 +211,7 @@ function module:unsetEnvironmentVariables(unsetEnvironmentVariableFunction)
 	end
 end
 
-assert.globalTypeIsFunction('pairs')
+assert.globalTypeIsFunctionOrCall('pairs')
 function module:exportEnvironmentVariables(exportEnvironmentVariableFunction, environmentVariableOverrides)
 	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableFunction', exportEnvironmentVariableFunction)
 	assert.parameterTypeIsTable('environmentVariableOverrides', environmentVariableOverrides)

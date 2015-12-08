@@ -4,8 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-assert.globalTypeIsFunction('unpack', 'ipairs', 'tostring')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
+assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'tostring')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module.throwWithLevelIncrement(levelIncrement, template, ...)
 	assert.parameterTypeIsPositiveInteger('levelIncrement', levelIncrement)
 	assert.parameterTypeIsString('template', template)

@@ -54,7 +54,7 @@ function module:defineIfMissing(defineName, enable, defineValue)
 	end
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 function module:quotedNonEmptyString(defineName, value)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsStringOrNil('value', value)

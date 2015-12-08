@@ -8,7 +8,7 @@ local exception = halimede.exception
 local runtime = halimede.runtime
 
 
-assert.globalTypeIsFunction('pcall')
+assert.globalTypeIsFunctionOrCall('pcall')
 local function execute(luaCodeString, description, origin, environment)
 	assert.parameterTypeIsString('luaCodeString', luaCodeString)
 	assert.parameterTypeIsString('description', description)

@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-assert.globalTypeIsFunction('pairs', 'setmetatable', 'getmetatable')
+assert.globalTypeIsFunctionOrCall('pairs', 'setmetatable', 'getmetatable')
 function moduleclass(...)
 	local newClass = halimede.class(...)
 	

@@ -77,7 +77,7 @@ function module:_load(recipeEnvironment)
 	return executeFromFile('recipe file', self.recipeFilePath, recipeEnvironment)
 end
 
-assert.globalTypeIsFunction('pairs')
+assert.globalTypeIsFunctionOrCall('pairs')
 function module:_processRecipe(result, crossPlatformGnuTuple)
 	assert.parameterTypeIsTable('result', result)
 	
@@ -119,7 +119,7 @@ function module:_processRecipe(result, crossPlatformGnuTuple)
 	return aliases, ourVersions
 end
 
-assert.globalTypeIsFunction('pairs')
+assert.globalTypeIsFunctionOrCall('pairs')
 function module:_resolveAlias(aliasFrom, alreadyEncounteredAliasFrom)
 	alreadyEncounteredAliasFrom = alreadyEncounteredAliasFrom or {}
 	
@@ -165,7 +165,7 @@ end
 local function executeDefault(buildEnvironmentLight)
 end
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
+assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuildVariantNames, buildVariants)
 			
 	for buildVariantName, buildVariantSettings in pairs(buildVariants) do
@@ -326,7 +326,7 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	shellScript:executeScriptExpectingSuccess(noRedirection, noRedirection)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_populateShellScript(shellScript, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, recipeSourcePath, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)

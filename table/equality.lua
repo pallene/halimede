@@ -21,7 +21,7 @@ function module.isUnequalWithNil(left, right)
 	return false
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module.isArrayShallowUnequal(left, right)
 	if not isTable(left) then
 		return false

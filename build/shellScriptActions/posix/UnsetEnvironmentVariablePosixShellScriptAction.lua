@@ -15,7 +15,7 @@ function module:initialize(shellScript)
 end
 
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:execute(variableName)
 	assert.parameterTypeIsString('variableName', variableName)
 	

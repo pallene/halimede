@@ -19,7 +19,7 @@ function module:initialize(doNotPredefineSystemOrCompilerDriverMacros)
 	self.doNotPredefineSystemOrCompilerDriverMacros = doNotPredefineSystemOrCompilerDriverMacros
 end
 
-assert.globalTypeIsFunction('pairs')
+assert.globalTypeIsFunctionOrCall('pairs')
 function module:appendToCompilerDriverArguments(compilerDriverArguments)
 	assert.parameterTypeIsInstanceOf('compilerDriverArguments', compilerDriverArguments, CompilerDriverArguments)
 	

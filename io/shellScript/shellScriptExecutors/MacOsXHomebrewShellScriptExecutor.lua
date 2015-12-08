@@ -15,7 +15,7 @@ function module:initialize()
 	AbstractShellScriptExecutor.initialize(self, ShellLanguage.Posix, 'brew', 'sh')
 end
 
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	self.shellLanguage:executeExpectingSuccess(scriptFilePath:toString(true), standardOut, standardError, unpack(arguments))
 end

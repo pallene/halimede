@@ -24,8 +24,8 @@ local function assertTableOrEmpty(value)
 	return value
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('os', 'getenv')
-assert.globalTypeIsFunction('tostring')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('os', 'getenv')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.cmakebuild(rockspec, parentFolderOfCmakeListsPath)
 	assert.parameterTypeIsTable('rockspec', rockspec)
 	assert.parameterTypeIsInstanceOf('parentFolderOfCmakeListsPath', parentFolderOfCmakeListsPath, Path)
@@ -102,7 +102,7 @@ end
 
 -- "$(XYZ)" will have this substring replaced by vars["XYZ"]
 local makeVariableFormatPattern = '%$%((%a[%a%d_]+)%)'
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gsub')
 function module.makeStyleVariableSubstitutions(makeReplacementsIntoHereWith, variables)
 	assert.parameterTypeIsTable('makeReplacementsIntoHereWith', makeReplacementsIntoHereWith)
 	assert.parameterTypeIsTable('variables', variables)
@@ -120,7 +120,7 @@ function module.makeStyleVariableSubstitutions(makeReplacementsIntoHereWith, var
 	end
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gmatch')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'gmatch')
 local function throwExceptionIfThereAreFailingMatches(line)
 	local hasFailingMatches = false
 	local failingMatches = tabelize()

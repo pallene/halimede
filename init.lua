@@ -342,7 +342,6 @@ function type.hasGlobalOfTypeTableOrUserdata(name)
 end
 
 local function hasPackageChildFieldOfType(isOfType, name, ...)
-	
 	local ok, package = type.hasGlobalOfTypeTableOrUserdata(name)
 	if not ok then
 		return false
@@ -514,10 +513,6 @@ function assert.globalTypeIsTable(...)
 	return globalTypeIs(type.isTable, ...)
 end
 
-function assert.globalTypeIsFunction(...)
-	return globalTypeIs(type.isFunction, ...)
-end
-
 function assert.globalTypeIsFunctionOrCall(...)
 	return globalTypeIs(type.isFunctionOrCall, ...)
 end
@@ -552,8 +547,8 @@ function assert.globalTableHasChieldFieldOfTypeTable(name, ...)
 	return globalTableHasChieldFieldOfType(type.isTable, name, ...)
 end
 
-function assert.globalTableHasChieldFieldOfTypeFunction(name, ...)
-	return globalTableHasChieldFieldOfType(type.isFunction, name, ...)
+function assert.globalTableHasChieldFieldOfTypeFunctionOrCall(name, ...)
+	return globalTableHasChieldFieldOfType(type.isFunctionOrCall, name, ...)
 end
 
 function assert.globalTableHasChieldFieldOfTypeString(name, ...)
@@ -561,8 +556,8 @@ function assert.globalTableHasChieldFieldOfTypeString(name, ...)
 end
 
 assert.globalTypeIsTable('string')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len', 'find', 'sub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len', 'find', 'sub')
 function string.split(value, separator)
 	assert.parameterTypeIsString('value', value)
 	assert.parameterTypeIsString('separator', separator)
@@ -587,7 +582,7 @@ function string.split(value, separator)
 end
 
 assert.globalTypeIsTable('string')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len')
 function string.isEmpty(value)
 	assert.parameterTypeIsString('value', value)
 	
@@ -597,11 +592,11 @@ end
 -- WARN: Lua's random number generator is not cryptographically secure
 -- For that, we need to wrap CryptGenRandom on Windows and use /dev/urandom on Linux
 local function initialiseTheRandomNumberGenerator()
-	if type.globalTableHasChieldFieldOfTypeFunction('math', 'randomseed') and type.globalTableHasChieldFieldOfTypeFunction('os', 'time') then
+	if type.hasPackageChildFieldOfTypeFunctionOrCall('math', 'randomseed') and type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'time') then
 		math.randomseed(os.time())
 	end
 end
-initialiseTheRandomNumberGenerator
+initialiseTheRandomNumberGenerator()
 
 local packageConfigurationMapping = {
 	'folderSeparator', -- eg '/' on POSIX
@@ -620,8 +615,8 @@ local defaultConfigurationIfMissing = {
 	markToIgnoreTestWhenBuildLuaOpen = '-'
 }
 
-assert.globalTypeIsFunction('pairs')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
+assert.globalTypeIsFunctionOrCall('pairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gmatch')
 local function initialisePackageConfiguration()
 	local configuration = {}
 	
@@ -680,9 +675,9 @@ local function initialisePackageConfiguration()
 end
 local packageConfiguration = initialisePackageConfiguration()
 
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'concat')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format', 'isEmpty', 'find')
-assert.globalTypeIsFunction('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'concat')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format', 'isEmpty', 'find')
+assert.globalTypeIsFunctionOrCall('ipairs')
 local folderSeparator = packageConfiguration.folderSeparator
 local function appendFoldersToPath(...)
 	local folders = {...}
@@ -710,7 +705,7 @@ end
 local parentFolder = packageConfiguration.parentFolder
 local currentFolder = packageConfiguration.currentFolder
 local folderSeparator = packageConfiguration.folderSeparator
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'match', 'gsub', 'sub', 'isEmpty')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'gsub', 'sub', 'isEmpty')
 local function findModulesRootPath()
 	if _G.modulesRootPathString ~= nil then
 		return _G.modulesRootPathString
@@ -757,8 +752,8 @@ local function findModulesRootPath()
 	return appendFoldersToPath(ourFolderPath, parentFolder)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'gmatch')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gmatch')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 local function parentModuleNameFromModuleName(moduleName)
 	local moduleElementNames = {}
 	for moduleElementName in moduleName:gmatch('[^%.]+') do
@@ -784,8 +779,8 @@ local searchPathFileExtensions = {
 	cpath = packageConfiguration.luaSharedLibraryExtension
 }
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'split')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 local searchPathGenerators = {
 	function(moduleName)
 		-- eg halimede.html5 => halimede/html5.lua
@@ -811,8 +806,8 @@ local searchPathGenerators = {
 	end	
 }
 
-assert.globalTypeIsFunction('ipairs', 'unpack')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
+assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert', 'concat')
 -- Using a local reference means that we can become detached from other global changes (this matters slightly if we used a default for package.config; highly unlikely)
 local fileExtensionSeparator = packageConfiguration.fileExtensionSeparator
 local luaPathSeparator = packageConfiguration.luaPathSeparator
@@ -832,7 +827,7 @@ end
 
 local requireFunction
 
-assert.globalTypeIsFunction('getmetatable', 'setmetatable', 'rawget', 'rawset')
+assert.globalTypeIsFunctionOrCall('getmetatable', 'setmetatable', 'rawget', 'rawset')
 local function setUpModule(moduleName, module)
 	assert.parameterTypeIsString('moduleName', moduleName)
 	assert.parameterTypeIsTableOrNil('module', module)
@@ -872,7 +867,7 @@ local function setUpModule(moduleName, module)
 	return module
 end
 
-assert.globalTypeIsFunction('getmetatable', 'setmetatable', 'rawset')
+assert.globalTypeIsFunctionOrCall('getmetatable', 'setmetatable', 'rawset')
 local function setAliasedFields(module, aliases)
 	assert.parameterTypeIsTable('module', module)
 	assert.parameterTypeIsTable('aliases', aliases)
@@ -925,9 +920,9 @@ local function setAliasedFields(module, aliases)
 	end
 end
 
-assert.globalTypeIsFunction('ipairs', 'error', 'setmetatable')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert', 'concat')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'isEmpty', 'gsub')
+assert.globalTypeIsFunctionOrCall('ipairs', 'error', 'setmetatable')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert', 'concat')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty', 'gsub')
 assert.globalTableHasChieldFieldOfTypeTable('package', 'loaded')
 -- Lua 5.1 / 5.2 compatibility
 local newline = packageConfiguration.newline
@@ -1061,11 +1056,11 @@ setUpModule(ourModuleName, halimede)
 halimede.name = ourModuleName
 
 -- Used by middleclass
-assert.globalTypeIsFunction('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
+assert.globalTypeIsFunctionOrCall('setmetatable', 'rawget', 'tostring', 'ipairs', 'pairs')
 assert.globalTypeIsFunctionOrCall('assert', 'type')
 local middleclass = relativeRequire('middleclass')
 
-assert.globalTypeIsFunction('setmetatable', 'getmetatable', 'tostring', 'rawset')
+assert.globalTypeIsFunctionOrCall('setmetatable', 'getmetatable', 'tostring', 'rawset')
 local function mutateMiddleclassSoThatMissingFieldsCauseErrors()
 	local originalFunction = middleclass.class
 	

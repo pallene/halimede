@@ -28,8 +28,8 @@ function module:initialize(platform, platformPaths, versionRelativePathElements)
 	self.executableExtension = platform.executableExtension
 end
 
-assert.globalTypeIsFunction('ipairs', 'unpack')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:baseFilePaths(...)
 	local baseFilePaths = {}
 	

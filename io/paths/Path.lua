@@ -58,7 +58,7 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 	self.isDeviceOrRoot = length < 2
 end
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:__tostring()
 	return ('%s(%s)'):format(self.class.name, self:toString(false))
 end
@@ -158,7 +158,7 @@ function module:finalPathElementNameAsPath()
 	return Path:new(self.pathStyle, PathRelativity.Relative, self.device, {finalPathElementNameAsString}, self.isFile, nil)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendFolders(...)
 	self:assertIsFolderPath('self')
 	
@@ -233,7 +233,7 @@ function module:appendFileExtension(fileExtension, alternateStreamName)
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, true, alternateStreamName)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendRelativePath(relativePath)
 	assert.parameterTypeIsInstanceOf('relativePath', relativePath, Path)
 	

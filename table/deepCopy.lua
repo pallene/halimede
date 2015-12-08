@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local isTable = type.isTable
 
 
-assert.globalTypeIsFunction('setmetatable', 'getmetatable', 'next')
+assert.globalTypeIsFunctionOrCall('setmetatable', 'getmetatable', 'next')
 local function deepCopyWithState(original, encountered)
 	if not isTable(original) then
 		return original

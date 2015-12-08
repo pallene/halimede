@@ -51,7 +51,7 @@ function module:_newConfigHDefines()
 	return self.gnuTuple:newConfigHDefines()
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	assert.parameterTypeIsTable('platformConfigHDefinesFunctions', platformConfigHDefinesFunctions)
 	

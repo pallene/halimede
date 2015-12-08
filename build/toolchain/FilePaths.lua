@@ -10,7 +10,7 @@ local Path = halimede.io.paths.Path
 
 local FilePaths = moduleclass('FilePaths')
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:initialize(paths)
 	assert.parameterTypeIsTable('paths', paths)
 	
@@ -22,8 +22,8 @@ function module:initialize(paths)
 	self.paths = paths
 end
 
-assert.globalTypeIsFunction('ipairs')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:appendFileExtension(fileExtension)
 	assert.parameterTypeIsString('fileExtension', fileExtension)
 
@@ -44,8 +44,8 @@ function module:toCxxFiles()
 	return self:appendFileExtension('cxx')
 end
 
-assert.globalTypeIsFunction('ipairs')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:toFileNamePaths()
 	local copy = {}
 	
@@ -56,8 +56,8 @@ function module:toFileNamePaths()
 	return FilePaths:new(copy)
 end
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
-assert.globalTableHasChieldFieldOfTypeFunction('table', 'insert')
+assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:withoutFileNames()
 	local copy = {}
 	

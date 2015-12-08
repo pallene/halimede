@@ -14,7 +14,7 @@ local function fail = function(syscallName, path, becauseOfReason)
 end
 
 -- returns a table containing fields: dev, ino, typename (st_mode), nlink, uid, gid, rdev, access, modification, change, size, blocks, blksize, islnk, isreg, ischr, isfifo, rdev.major, rdev.minor, rdev.device
-assert.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.stat(path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
@@ -48,7 +48,7 @@ function module.stat(path)
 end
 local stat = module.stat
 
-assert.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.lstat(path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
@@ -82,7 +82,7 @@ function module.lstat(path)
 end
 local lstat = module.lstat
 
-assert.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.makeCharacterDevice(path, mode, major, minor)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
@@ -130,7 +130,7 @@ function module.makeCharacterDevice(path, mode, major, minor)
 end
 local makeCharacterDevice = module.makeCharacterDevice
 
-assert.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.mkfifo(path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
@@ -166,7 +166,7 @@ function module.mkfifo(path, mode)
 end
 local mkfifo = module.mkfifo
 
-assert.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.chmod(path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
@@ -214,7 +214,7 @@ end
 local chmod = module.chmod
 
 -- Can not make C:\ or / or C: or UNC-based paths
-assert.globalTypeIsFunction('tostring')
+assert.globalTypeIsFunctionOrCall('tostring')
 function module.mkdir(path, mode, isLeaf)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)

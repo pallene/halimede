@@ -26,7 +26,7 @@ function module:newShellScript(ShellScriptClass, ...)
 	return ShellScriptClass:new(self, ...)
 end
 
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 	assert.parameterTypeIsInstanceOf('scriptFilePath', scriptFilePath, Path)
 

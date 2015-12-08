@@ -15,7 +15,7 @@ function module:initialize(shellScript)
 	AbstractCmdShellScriptAction.initialize(self, shellScript)
 end
 
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module:execute(path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	

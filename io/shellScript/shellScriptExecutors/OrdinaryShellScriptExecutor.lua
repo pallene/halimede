@@ -18,7 +18,7 @@ function module:initialize(shellLanguage, ...)
 	OrdinaryShellScriptExecutor.static[shellLanguage.titleCasedName] = self
 end
 
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	arguments:insert(scriptFilePath:toString(true))
 	self.shellLanguage:executeExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))

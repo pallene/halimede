@@ -15,7 +15,7 @@ function module:initialize()
 	self.ensureDefinitions = {}
 end
 
-assert.globalTypeIsFunction('pairs')
+assert.globalTypeIsFunctionOrCall('pairs')
 function module:toCPreprocessorTextLines()	
 	local buffer = tabelize()
 	for defineName, _ in pairs(self.explicitlyUndefine) do
@@ -531,7 +531,7 @@ end
 
 -- Mandatory
 -- Define to the character that separates directories in PATH.
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'len')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len')
 function module:PATH_SEPARATOR_CHAR(character)
 	assert.parameterTypeIsString('character', character)
 	if character:len() ~= 1 then

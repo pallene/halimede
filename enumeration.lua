@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local class = halimede.class
 
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module.stringEnumerationClass(className, ...)
 	assert.parameterTypeIsString('className', className)
 	

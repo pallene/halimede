@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local exception = halimede.exception
 
 
-assert.globalTypeIsFunction('setmetatable')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 local knownLanguageLevelMappings = setmetatable({
 	['Lua 5.0'] = 1,
 	['Lua 5.1'] = 2,
@@ -20,7 +20,7 @@ local knownLanguageLevelMappings = setmetatable({
 local defaultLanguageLevel = 'Lua 5.1'
 local defaultVirtualMachine = defaultLanguageLevel
 
-assert.globalTypeIsFunction('tonumber')
+assert.globalTypeIsFunctionOrCall('tonumber')
 local function detectRuntime()
 	local virtualMachine
 	local languageName
@@ -57,7 +57,7 @@ local function detectRuntime()
 	}
 end
 
-assert.globalTypeIsFunction('pairs')
+assert.globalTypeIsFunctionOrCall('pairs')
 for key, value in pairs(detectRuntime()) do
 	module[key] = value
 end

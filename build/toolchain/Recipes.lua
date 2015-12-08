@@ -14,7 +14,7 @@ local tabelize = halimede.table.tabelize
 
 moduleclass('Recipes')
 
-assert.globalTypeIsFunction('ipairs', 'pairs')
+assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 local function validateAndSortChosenBuildVariantNames(chosenBuildVariantNames)
 	assert.parameterTypeIsTable('chosenBuildVariantNames', chosenBuildVariantNames)
 

@@ -33,7 +33,7 @@ function module:initialize(shellScript)
 	AbstractPosixShellScriptAction.initialize(self, shellScript)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:execute(sourcePath)
 	assert.parameterTypeIsInstanceOf('sourcePath', sourcePath, Path)
 	

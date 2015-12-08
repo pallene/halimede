@@ -8,7 +8,7 @@ local configure = halimede.luacode.configure
 local deepMerge = halimede.table.deepMerge
 local isTable = type.isTable
 
-assert.globalTypeIsFunction('setmetatable')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 local platformsInOrderByOperatingSystem = setmetatable({
 	FreeBSD = {'unix', 'bsd', 'freebsd'},
 	OpenBSD = {'unix', 'bsd', 'openbsd'},

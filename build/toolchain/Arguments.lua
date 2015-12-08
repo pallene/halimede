@@ -18,7 +18,7 @@ function module:_append(argument)
 	self.arguments:insert(argument)
 end
 
-assert.globalTypeIsFunction('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:append(...)
 	local arguments = {...}
 	for _, argument in ipairs(arguments) do
@@ -32,7 +32,7 @@ function module:append(...)
 	end
 end
 
-assert.globalTypeIsFunction('unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
 function module:useUnpacked(userFunction)
 	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
 	

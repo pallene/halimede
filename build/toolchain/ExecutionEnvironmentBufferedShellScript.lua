@@ -26,8 +26,8 @@ function module:initialize(shellScriptExecutor, dependencies, buildVariant)
 	self.titleCasedName = shellLanguage.titleCasedName
 end
 
-assert.globalTypeIsFunction('pcall')
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'format')
+assert.globalTypeIsFunctionOrCall('pcall')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:newAction(namespace, actionName)
 	assert.parameterTypeIsString('actionName', actionName)
 	

@@ -10,7 +10,7 @@ local FileHandleStream = halimede.io.FileHandleStream
 local execute = halimede.luacode.execute
 
 
-assert.globalTableHasChieldFieldOfTypeFunction('string', 'gsub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gsub')
 local function removeInitialShaBang(fileContents)
 	return fileContents:gsub('^#![^\n]*\n', '')
 end
