@@ -101,6 +101,10 @@ function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLink
 	self.compilerDriver:addLinkedLibraries(self.arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 end
 
+function module:addCombine()
+	self.compilerDriver:addCombine(self.arguments)
+end
+
 function module:addOutput(outputFilePath)
 	assert.parameterTypeIsInstanceOf('outputFilePath', outputFilePath, Path)
 	

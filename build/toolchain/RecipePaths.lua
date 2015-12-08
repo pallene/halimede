@@ -60,6 +60,10 @@ function module:toExecutableRelativeFilePath(...)
 	return self:relativeFilePath(...):appendFileExtension(self.executableExtension)
 end
 
+function module:objectRelativeFilePath(...)
+	return self:relativeFilePath(...):appendFileExtension(self.objectExtension)
+end
+
 function module:parentPath()
 	return self.shellLanguage.parentPath
 end

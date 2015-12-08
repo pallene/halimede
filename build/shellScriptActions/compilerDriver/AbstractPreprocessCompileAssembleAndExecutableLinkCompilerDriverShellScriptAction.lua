@@ -12,13 +12,13 @@ local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompile
 local Path = halimede.io.paths.Path
 
 
-moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
+moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 function module:initialize(shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 	AbstractCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
 end
 
-function module:execute(crossRecipePaths, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, combinedOutputFilePath)
+function module:execute(crossRecipePaths, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, baseName)
 	assert.parameterTypeIsInstanceOf('crossRecipePaths', crossRecipePaths, RecipePaths)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
@@ -26,22 +26,21 @@ function module:execute(crossRecipePaths, compilerDriverFlags, cStandard, legacy
 	assert.parameterTypeIsTable('preprocessorFlags', preprocessorFlags)
 	assert.parameterTypeIsInstanceOf('defines', defines, CommandLineDefines)
 	assert.parameterTypeIsTable('sources', sources)
-	assert.parameterTypeIsInstanceOfOrNil('combinedOutputFilePath', combinedOutputFilePath, Path)
+	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
+	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
+	assert.parameterTypeIsString('baseName', baseName)
 	
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
-	compilerDriverArguments:append(compilerDriverArguments.compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
 	compilerDriverArguments:addCStandard(cStandard)
 	compilerDriverArguments:useFileExtensionsToDetermineLanguage()
 	compilerDriverArguments:append(preprocessorFlags)
 	defines:appendToCompilerDriverArguments(compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
 	compilerDriverArguments:addIncludePaths(self.shellScript.shellLanguage.pathStyle.currentDirectory, sources)
-	if combinedOutputFilePath ~= nil then
-		combinedOutputFilePath:assertIsFilePath('combinedOutputFilePath')
-		compilerDriverArguments:addCombine()
-		compilerDriverArguments:addOutput(combinedOutputFilePath)
-	end
+	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(sources)
+	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
+	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(baseName))
 	
 	self:_unsetEnvironmentVariables(compilerDriverArguments)
 	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
