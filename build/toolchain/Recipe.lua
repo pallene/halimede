@@ -306,9 +306,9 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 		exception.throw("No known version details for aliasPackageVersion '%s' in recipe '%s'", aliasPackageVersion, self.recipeName)
 	end
 	
-	-- Instead of dependencies-hash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than the maximum path length
+	-- Instead of dependencieshash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than the maximum path length
 	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
-	local versionRelativePathElements = {self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencies-hash'}
+	local versionRelativePathElements = tabelize({self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencieshash'})
 	
 	local recipeFolderPath = self.recipeFolderPath:appendFolders(version.packageVersion)
 		
@@ -321,7 +321,7 @@ function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths,
 	
 	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
 	
-	shellScript:writeToFileAndExecute(recipeFolderPath:appendFile('recipe-build', buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod), noRedirection, noRedirection)
+	shellScript:writeToFileAndExecute(recipeFolderPath:appendFile('recipe-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod), noRedirection, noRedirection)
 end
 
 local sourceFolderName = 'source'
