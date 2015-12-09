@@ -30,7 +30,7 @@ local environmentVariablesToExport = {
 	LANG = 'C'
 }
 
-local initialLines = [=[#!/usr/bin/env sh
+local initialScriptLines = [=[#!/usr/bin/env sh
 set -e
 set -u
 set -f
@@ -120,5 +120,5 @@ unset _program_path_find 1>/dev/null 2>/dev/null
 ]=]
 
 function module:initialize()
-	AbstractStartShellScriptAction.initialize(self, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, initialLines)
+	AbstractStartShellScriptAction.initialize(self, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, initialScriptLines)
 end

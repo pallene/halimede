@@ -26,7 +26,7 @@ function module:initialize(shellScriptExecutor, dependencies, buildVariant)
 	self.titleCasedName = shellLanguage.titleCasedName
 end
 
-assert.globalTypeIsFunctionOrCall('pcall')
+assert.globalTypeIsFunctionOrCall('require')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:newAction(namespace, actionName)
 	assert.parameterTypeIsString('actionName', actionName)
@@ -39,20 +39,6 @@ function module:newAction(namespace, actionName)
 		actionNamespace = namespace
 	end
 	
-	local errors = tabelize()
-	-- Try to see if there's a Posix, Cmd, etc variant
-	for _, potentialModuleName in ipairs({
-		('%s.%s.%s%sShellScriptAction'):format(actionNamespace, self.lowerCasedName, actionName, self.titleCasedName),
-		('%s.%s%sShellScriptAction'):format(actionNamespace, actionName, self.titleCasedName),
-		('%s.%sShellScriptAction'):format(actionNamespace, actionName)
-	}) do
-		local ok, resultOrErrorMessage = pcall(require.functor, potentialModuleName)
-		if ok then
-			local ShellScriptActionClass = resultOrErrorMessage
-			return ShellScriptActionClass:new(self, self.dependencies, self.buildVariant)
-		end
-		errors:insert(resultOrErrorMessage)
-	end
-	
-	exception.throw("Could not locate an action '%s' in namespace '%s' because of errors:-%s%s", actionName, actionNamespace, newline, errors:concat(newline .. '\tor'))
+	local actionClass = require(actionNamespace .. '.' .. actionName .. ('%sShellScriptAction'):format(self.titleCasedName))
+	return actionClass:new(self.dependencies, self.buildVariant)
 end

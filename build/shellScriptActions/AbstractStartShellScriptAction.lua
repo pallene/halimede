@@ -19,7 +19,7 @@ function module:initialize(unsetEnvironmentVariableShellScriptActionClass, expor
 	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
 	assert.parameterTypeIsTable('environmentVariablesToExport', environmentVariablesToExport)
 	
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+	AbstractShellScriptAction.initialize(self)
 	
 	self.unsetEnvironmentVariableShellScriptAction = unsetEnvironmentVariableShellScriptActionClass:new()
 	self.exportEnvironmentVariableShellScriptAction = exportEnvironmentVariableShellScriptActionClass:new()

@@ -351,7 +351,7 @@ function PosixShellLanguage:_quoteArgument(argument)
 	return "'" .. argument:gsub("'", "'\\''") .. "'"
 end
 
-function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+function PosixShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
 end
 
 ShellLanguage.static.Posix = PosixShellLanguage:new()
@@ -406,8 +406,8 @@ function CmdShellLanguage:toShellCommand(...)
 	return ShellLanguage.toShellCommand(self, 'type NUL &&', ...)
 end
 
-function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
-	tabelizedScriptBuffer:insert('IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
+function CmdShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+	self:appendLinesToScript(tabelizedScriptBuffer, 'IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
 end
 
 ShellLanguage.static.Cmd = CmdShellLanguage:new()

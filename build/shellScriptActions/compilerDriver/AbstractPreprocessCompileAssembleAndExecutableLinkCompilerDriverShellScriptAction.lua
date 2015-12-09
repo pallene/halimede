@@ -14,8 +14,8 @@ local Path = halimede.io.paths.Path
 
 moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
-	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
+function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
+	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
 function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, baseName)
@@ -36,14 +36,14 @@ function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, cSta
 	compilerDriverArguments:append(preprocessorFlags)
 	defines:appendToCompilerDriverArguments(compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
-	compilerDriverArguments:addIncludePaths(self.shellScript.shellLanguage.pathStyle.currentDirectory, sources)
+	compilerDriverArguments:addIncludePaths(shellScript.shellLanguage.pathStyle.currentDirectory, sources)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(sources)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
 	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(baseName))
 	
-	self:_unsetEnvironmentVariables(compilerDriverArguments)
-	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
+	self:_unsetEnvironmentVariables(shellScript, compilerDriverArguments)
+	self:_unsetEnvironmentVariables(shellScript, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 	
 	compilerDriverArguments:useUnpacked(function(...)
 		shellScript:appendCommandLineToScript(...)

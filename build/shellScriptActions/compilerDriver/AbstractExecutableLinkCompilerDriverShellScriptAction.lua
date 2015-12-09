@@ -10,8 +10,8 @@ local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompile
 
 moduleclass('AbstractExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
-function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
-	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
+function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
+	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
 function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, linkerFlags, objects, linkedLibraries, baseName)
@@ -28,8 +28,8 @@ function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, link
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
 	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(baseName))
 	
-	self:_unsetEnvironmentVariables(compilerDriverArguments)
-	self:_exportEnvironmentVariables(compilerDriverArguments, {'LANG', 'C'})
+	self:_unsetEnvironmentVariables(shellScript, compilerDriverArguments)
+	self:_unsetEnvironmentVariables(shellScript, compilerDriverArguments, {'LANG', 'C'})
 	
 	compilerDriverArguments:useUnpacked(function(...)
 		shellScript:appendCommandLineToScript(...)

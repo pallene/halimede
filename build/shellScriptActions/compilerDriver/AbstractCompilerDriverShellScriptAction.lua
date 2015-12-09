@@ -9,25 +9,25 @@ local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShel
 
 moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionCreator, exportEnvironmentVariableActionCreator)
+function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 	assert.parameterTypeIsTable('dependencies', dependencies)
 	assert.parameterTypeIsTable('buildVariant', buildVariant)
-	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableActionCreator', unsetEnvironmentVariableActionCreator)
-	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableActionCreator', exportEnvironmentVariableActionCreator)
+	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableActionClass', unsetEnvironmentVariableActionClass)
+	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableActionClass', exportEnvironmentVariableActionClass)
 	
 	AbstractShellScriptAction.initialize(self)
 	
 	self.dependencies = dependencies
 	self.buildVariant = buildVariant
-	self.unsetEnvironmentVariableAction = unsetEnvironmentVariableActionCreator(shellScript)
-	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionCreator(shellScript)
+	self.unsetEnvironmentVariableAction = unsetEnvironmentVariableActionClass:new()
+	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionClass:new()
 end
 
 function module:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
 	return crossRecipePaths.platform.cCompilerDriver:newArguments(compilerDriverFlags, crossRecipePaths.platformPaths:sysroot(), true)
 end
 
-function module:_unsetEnvironmentVariables(compilerDriverArguments)
+function module:_unsetEnvironmentVariables(shellScript, compilerDriverArguments)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
@@ -35,7 +35,7 @@ function module:_unsetEnvironmentVariables(compilerDriverArguments)
 	end)
 end
 
-function module:_exportEnvironmentVariables(compilerDriverArguments, extras)
+function module:_exportEnvironmentVariables(shellScript, compilerDriverArguments, extras)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
