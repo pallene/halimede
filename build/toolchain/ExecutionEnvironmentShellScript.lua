@@ -29,16 +29,9 @@ end
 assert.globalTypeIsFunctionOrCall('require')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:newAction(namespace, actionName)
+	assert.parameterTypeIsString('namespace', namespace)
 	assert.parameterTypeIsString('actionName', actionName)
 	
-	local actionNamespace
-	if namespace == nil then
-		actionNamespace = 'halimede.build.shellScriptActions'
-	else
-		assert.parameterTypeIsString('namespace', namespace)
-		actionNamespace = namespace
-	end
-	
-	local actionClass = require(actionNamespace .. '.' .. actionName .. ('%sShellScriptAction'):format(self.titleCasedName))
+	local actionClass = require(namespace .. '.' .. actionName .. ('%sShellScriptAction'):format(self.titleCasedName))
 	return actionClass:new(self.dependencies, self.buildVariant)
 end

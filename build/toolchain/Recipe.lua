@@ -351,7 +351,7 @@ local sourceFolderName = 'source'
 local buildFolderName = 'build'
 local patchFolderName = 'patch'
 local destFolderName = 'dest'
-assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTypeIsFunctionOrCall('setmetatable')
 function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 	
@@ -387,23 +387,34 @@ function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatfor
 		strip = strip
 	}
 	
-	local action = function(namespace, name, ...)
-		shellScript:newAction(namespace, name):execute(shellScript, buildEnvironment, ...)
+	local function createActionsHolder(namespace)
+		return setmetatable({}, {
+			__call = function(self, childNamespaceElement, ...)
+				return createActionsHolder(namespace .. '.' .. childNamespaceElement)
+			end,
+
+			__index = function(self, key)
+				return function(...)
+					return shellScript:newAction(namespace, key):execute(shellScript, buildEnvironment, ...)
+				end
+			end
+		})
 	end
 	
+	local action = createActionsHolder('halimede.build.shellScriptActions')
 	buildEnvironment.action = action
 	
-	action(nil, 'StartScript')
+	action.StartScript()
 	
-	action(nil, 'RemoveRecursivelyWithForce', destFolderRelativePath)
-	action(nil, 'MakeDirectoryRecursively', destFolderRelativePath, '0755')
+	action.RemoveRecursivelyWithForce(destFolderRelativePath)
+	action.MakeDirectoryRecursively(destFolderRelativePath, '0755')
 	
-	action(nil, 'RemoveRecursivelyWithForce', buildFolderRelativePath)
-	action(nil, 'MakeDirectoryRecursively', buildFolderRelativePath, '0755')
+	action.RemoveRecursivelyWithForce(buildFolderRelativePath)
+	action.MakeDirectoryRecursively(buildFolderRelativePath, '0755')
 	
-	action(nil, 'ChangeDirectory', buildFolderRelativePath)
+	action.ChangeDirectory(buildFolderRelativePath)
 	
 	userFunction(buildEnvironment)
 	
-	action(nil, 'EndScript', shellScript)
+	action.EndScript()
 end
