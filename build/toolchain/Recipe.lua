@@ -288,13 +288,13 @@ function module:_validate(packageVersion, version, crossPlatformGnuTuple)
 	return dependencies, packageVersion, buildVariant, platformConfigHDefinesFunctions, execute
 end
 
-function module:execute(aliasPackageVersion)
+function module:cook(aliasPackageVersion)
 	self.executor(function(buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
-		return self:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
+		return self:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
 	end)
 end
 
-function module:_execute(aliasPackageVersion, buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
+function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, crossPlatform, crossPlatformPaths)
 	assert.parameterTypeIsString('aliasPackageVersion', aliasPackageVersion)
 	assert.parameterTypeIsInstanceOf('buildPlatform', buildPlatform, Platform)
 	assert.parameterTypeIsInstanceOf('buildPlatformPaths', buildPlatformPaths, PlatformPaths)
@@ -327,6 +327,7 @@ end
 local sourceFolderName = 'source'
 local buildFolderName = 'build'
 local patchFolderName = 'patch'
+local destFolderName = 'dest'
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
@@ -334,8 +335,11 @@ function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatfor
 	local sourceFolderRelativePath = buildRecipePaths:parentPath():appendFolders(sourceFolderName)
 	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName)
 	local patchFolderRelativePath = buildRecipePaths:parentPath():appendFolders(patchFolderName)
-
-	shellScript:newAction(nil, 'StartScript'):execute(recipeFolderPath, sourceFolderRelativePath, buildFolderRelativePath, patchFolderRelativePath)
+	local destFolderRelativePath = buildRecipePaths:parentPath():appendFolders(destFolderName)
+	
+	local action = function(namespace, name, ...)
+		shellScript:newAction(namespace, name):execute(shellScript, ...)
+	end
 	
 	local buildEnvironment = {
 		
@@ -347,6 +351,8 @@ function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatfor
 		
 		patchFolderRelativePath = patchFolderRelativePath,
 		
+		destFolderRelativePath = destFolderRelativePath,
+		
 		buildPlatform = buildPlatform,
 		
 		buildRecipePaths = buildRecipePaths,
@@ -355,16 +361,20 @@ function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatfor
 		
 		crossRecipePaths = crossRecipePaths,
 		
-		action = function(namespace, name, ...)
-			shellScript:newAction(namespace, name):execute(...)
-		end,
+		action = action,
 		
 		arguments = arguments,
 		
 		configHDefines = configHDefines
 	}
 	
-	local result = userFunction(buildEnvironment)
+	action(nil, 'StartScript')
 	
-	shellScript:newAction(nil, 'EndScript'):execute()
+	action(nil, 'RemoveRecursivelyWithForce', buildFolderRelativePath)
+	action(nil, 'MakeDirectoryRecursively', buildFolderRelativePath, '0755')
+	action(nil, 'ChangeDirectory', buildFolderRelativePath)
+	
+	userFunction(buildEnvironment)
+	
+	action(nil, 'EndScript', shellScript)
 end

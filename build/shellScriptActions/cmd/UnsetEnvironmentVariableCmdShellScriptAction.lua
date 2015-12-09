@@ -4,18 +4,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('UnsetEnvironmentVariableCmdShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('UnsetEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(variableName)
+function module:execute(shellScript, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
 	
-	self:_appendCommandLineToScript('UNSET', '/Q', variableName)
+	shellScript:appendCommandLineToScript('UNSET', '/Q', variableName)
 end

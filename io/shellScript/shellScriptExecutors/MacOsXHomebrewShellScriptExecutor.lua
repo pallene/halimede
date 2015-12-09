@@ -17,7 +17,7 @@ end
 
 assert.globalTypeIsFunctionOrCall('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
-	self.shellLanguage:executeExpectingSuccess(scriptFilePath:toString(true), standardOut, standardError, unpack(arguments))
+	self.shellLanguage:executeCommandExpectingSuccess(scriptFilePath:toString(true), standardOut, standardError, unpack(arguments))
 end
 
 module.static.MacOsXHomebrewShellScriptExecutor = MacOsXHomebrewShellScriptExecutor:new()

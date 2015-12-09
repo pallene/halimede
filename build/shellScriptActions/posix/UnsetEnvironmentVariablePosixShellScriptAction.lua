@@ -5,21 +5,21 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local PosixShellLanguage = halimede.io.shellScript.ShellLanguage.Posix
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('UnsetEnvironmentVariablePosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('UnsetEnvironmentVariablePosixShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(variableName)
+function module:execute(shellScript, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
 	
 	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)
 	local quotedVariableName = PosixShellLanguage:quoteArgument(variableName)
-	self:_appendLinesToScript(("(unset %s) 1>/dev/null 2>/dev/null && unset %s"):format(quotedVariableName, quotedVariableName))
+	shellScript:appendLinesToScript(("(unset %s) 1>/dev/null 2>/dev/null && unset %s"):format(quotedVariableName, quotedVariableName))
 end

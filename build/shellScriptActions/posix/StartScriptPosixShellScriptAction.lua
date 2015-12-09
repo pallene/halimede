@@ -4,19 +4,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = halimede.io.paths.Path
+local AbstractStartShellScriptAction = halimede.build.shellScriptActions.AbstractStartShellScriptAction
 local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling('UnsetEnvironmentVariablePosixShellScriptAction')
 local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportEnvironmentVariablePosixShellScriptAction')
 local ChangeDirectoryPosixShellScriptAction = require.sibling('ChangeDirectoryPosixShellScriptAction')
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
 local RemoveRecursivelyWithForcePosixShellScriptAction = require.sibling('RemoveRecursivelyWithForcePosixShellScriptAction')
 local MakeDirectoryRecursivelyPosixShellScriptAction = require.sibling('MakeDirectoryRecursivelyPosixShellScriptAction')
+local Path = halimede.io.paths.Path
 
 
-moduleclass('StartScriptPosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('StartScriptPosixShellScriptAction', AbstractStartShellScriptAction)
 
 local environmentVariablesToUnset = {
-	'CDPATH',
 	'BASH_ENV',
 	'ENV',
 	'MAIL',
@@ -31,32 +30,7 @@ local environmentVariablesToExport = {
 	LANG = 'C'
 }
 
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
-end
-
-assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(recipeFolderPath, sourceFolderRelativePath, buildFolderRelativePath, patchFolderRelativePath)
-	assert.parameterTypeIsInstanceOf('recipeFolderPath', recipeFolderPath, Path)
-	assert.parameterTypeIsInstanceOf('sourceFolderRelativePath', sourceFolderRelativePath, Path)
-	assert.parameterTypeIsInstanceOf('buildFolderRelativePath', buildFolderRelativePath, Path)
-	assert.parameterTypeIsInstanceOf('patchFolderRelativePath', patchFolderRelativePath, Path)
-	
-	recipeFolderPath:assertIsFolderPath('recipeFolderPath')
-	recipeFolderPath:assertIsEffectivelyAbsolute('recipeFolderPath')
-	
-	sourceFolderRelativePath:assertIsFolderPath('sourceFolderRelativePath')
-	sourceFolderRelativePath:assertIsRelative('sourceFolderRelativePath')
-	
-	buildFolderRelativePath:assertIsFolderPath('buildFolderRelativePath')
-	buildFolderRelativePath:assertIsRelative('buildFolderRelativePath')
-	
-	patchFolderRelativePath:assertIsFolderPath('patchFolderRelativePath')
-	patchFolderRelativePath:assertIsRelative('patchFolderRelativePath')
-	
-	-- This script logic assumes a modern, POSIX-compatible shell, with a baseline of the last release of pdksh in 1999
-	-- It also tries to work around deficiencies in bash versions (eg IFS) and support zsh and MKS Shell (but these aren't common or suitable for anything but bootstrap builds)
-	self:_appendLinesToScript([=[#!/usr/bin/env sh
+local initialLines = [=[#!/usr/bin/env sh
 set -e
 set -u
 set -f
@@ -143,29 +117,8 @@ _program_path_find()
 cd "$(_program_path_find)" 1>/dev/null
 unset _program_path_find 1>/dev/null 2>/dev/null
 
-]=])
-	
-	local unsetEnvironmentVariableShellScriptAction = UnsetEnvironmentVariablePosixShellScriptAction:new(self.shellScript)
-	for _, environmentVariableName in ipairs(environmentVariablesToUnset) do
-		unsetEnvironmentVariableShellScriptAction:execute(environmentVariableName)
-	end
-	
-	local exportEnvironmentVariableShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(self.shellScript)
-	for environmentVariableName, environmentVariableValue in pairs(environmentVariablesToExport) do
-		exportEnvironmentVariableShellScriptAction:execute(environmentVariableName, environmentVariableValue)
-	end
-	
-	-- Actually, change to the folder above sourceFolder (ie recipe folder)
-	-- Consider allowing expandable-arguments so we can have settings at shell script start we can change (eg if not supplied on the command line)
-	-- Consider switching to actual shell script path
-	local changeDirectoryShellScriptAction = ChangeDirectoryPosixShellScriptAction:new(self.shellScript)
-	changeDirectoryShellScriptAction:execute(recipeFolderPath)
-		
-	local removeRecursivelyWithForceShellScriptAction = RemoveRecursivelyWithForcePosixShellScriptAction:new(self.shellScript)
-	removeRecursivelyWithForceShellScriptAction:execute(buildFolderRelativePath)
-	
-	local makeDirectoryRecursivelyShellScriptAction = MakeDirectoryRecursivelyPosixShellScriptAction:new(self.shellScript)
-	makeDirectoryRecursivelyShellScriptAction:execute(buildFolderRelativePath, '0755')
-	
-	changeDirectoryShellScriptAction:execute(buildFolderRelativePath)
+]=]
+
+function module:initialize()
+	AbstractStartShellScriptAction.initialize(self, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, initialLines)
 end

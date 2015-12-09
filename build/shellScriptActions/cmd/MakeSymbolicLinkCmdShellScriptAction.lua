@@ -7,18 +7,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local Path = halimede.io.paths.Path
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:execute(linkContentsPath, linkFilePath)
+function module:execute(shellScript, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
 	
@@ -34,5 +34,5 @@ function module:execute(linkContentsPath, linkFilePath)
 	command:insert(linkFilePath:toString(false))
 	command:insert(linkContentsPath:toString(false))
 	
-	self:_appendCommandLineToScript(unpack(command))
+	shellScript:appendCommandLineToScript(unpack(command))
 end

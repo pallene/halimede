@@ -6,19 +6,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local Path = halimede.io.paths.Path
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('WriteConfigHCmdShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('WriteConfigHCmdShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
 -- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(configHDefines, filePath)
+function module:execute(shellScript, configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	local actualFilePath
 	if filePath == nil then
@@ -40,6 +40,6 @@ function module:execute(configHDefines, filePath)
 			redirectionOperator = '>>'
 		end
 		
-		self:_appendLinesToScript('ECHO ' .. self:_quoteArgument(line) .. ' ' .. redirectionOperator .. self:_quoteArgument(actualFilePath))
+		shellScript:appendLinesToScript('ECHO ' .. shellScript:quoteArgument(line) .. ' ' .. redirectionOperator .. shellScript:quoteArgument(actualFilePath))
 	end
 end

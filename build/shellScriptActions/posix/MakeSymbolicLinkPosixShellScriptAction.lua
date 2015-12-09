@@ -5,20 +5,20 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Path = halimede.io.paths.Path
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeSymbolicLinkPosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('MakeSymbolicLinkPosixShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(linkContentsPath, linkFilePath)
+function module:execute(shellScript, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
 	
-	self:_appendCommandLineToScript('ln', '-s', linkContentsPath:toString(false), linkFilePath:toString(false))
+	shellScript:appendCommandLineToScript('ln', '-s', linkContentsPath:toString(false), linkFilePath:toString(false))
 end

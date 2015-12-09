@@ -11,6 +11,6 @@ local AbstractExecutableLinkCompilerDriverShellScriptAction = halimede.build.she
 
 moduleclass('ExecutableLinkCompilerDriverPosixShellScriptAction', AbstractExecutableLinkCompilerDriverShellScriptAction)
 
-function module:initialize(shellScript, dependencies, buildVariant)
-	AbstractExecutableLinkCompilerDriverShellScriptAction.initialize(self, shellScript, dependencies, buildVariant, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction)
+function module:initialize(dependencies, buildVariant)
+	AbstractExecutableLinkCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction)
 end

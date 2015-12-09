@@ -83,8 +83,8 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.parentPath = pathStyle.parentPath
 end
 
-function module:executeExpectingSuccess(standardIn, standardOut, standardError, ...)
-	local success, terminationKind, exitCode, command = self:execute(standardIn, standardOut, standardError, ...)
+function module:executeCommandExpectingSuccess(standardIn, standardOut, standardError, ...)
+	local success, terminationKind, exitCode, command = self:executeCommand(standardIn, standardOut, standardError, ...)
 	if not success then
 		exception.throw("Could not execute shell command, returned exitCode '%s' for command (%s)", exitCode, command)
 	end
@@ -106,7 +106,7 @@ function module:_appendRedirectionsAndCreateCommandString(standardIn, standardOu
 	return self:toShellCommand(unpack(arguments))
 end
 
-function module:execute(standardIn, standardOut, standardError, ...)
+function module:executeCommand(standardIn, standardOut, standardError, ...)
 	local command = self:_appendRedirectionsAndCreateCommandString(standardIn, standardOut, standardError, ...)
 
 	-- Lua 5.1: returns an exit code
@@ -251,14 +251,25 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendLinesToScript(tabelizedScriptBuffer, ...)
+	assert.parameterTypeIsTable('tabelizedScriptBuffer', tabelizedScriptBuffer)
+	
 	local lines = {...}
 	for _, line in ipairs(lines) do
+		assert.parameterTypeIsString('line', line)
+		
 		tabelizedScriptBuffer:insert(line .. self.newline)
 	end
 end
 
 function module:appendCommandLineToScript(tabelizedScriptBuffer, ...)
+	assert.parameterTypeIsTable('tabelizedScriptBuffer', tabelizedScriptBuffer)
+	
 	tabelizedScriptBuffer:insert(self:toShellCommandLine(...))
+	self:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+end
+
+function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+	exception.throw('Abstract Method')
 end
 
 function module:parsePath(pathString, isFile)
@@ -340,6 +351,9 @@ function PosixShellLanguage:_quoteArgument(argument)
 	return "'" .. argument:gsub("'", "'\\''") .. "'"
 end
 
+function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+end
+
 ShellLanguage.static.Posix = PosixShellLanguage:new()
 
 
@@ -390,6 +404,10 @@ end
 -- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
 function CmdShellLanguage:toShellCommand(...)
 	return ShellLanguage.toShellCommand(self, 'type NUL &&', ...)
+end
+
+function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+	tabelizedScriptBuffer:insert('IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
 end
 
 ShellLanguage.static.Cmd = CmdShellLanguage:new()

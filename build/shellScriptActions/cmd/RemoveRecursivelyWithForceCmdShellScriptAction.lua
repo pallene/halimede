@@ -5,19 +5,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Path = halimede.io.paths.Path
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(path)
+function module:execute(shellScript, path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 
 	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows
-	self:_appendCommandLineToScript('RD', '/S', '/Q', path:toString(true))
+	shellScript:appendCommandLineToScript('RD', '/S', '/Q', path:toString(true))
 end

@@ -5,18 +5,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Path = halimede.io.paths.Path
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(path)
+function module:execute(shellScript, path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
-	self:_appendCommandLineToScript('rm', '-rf', path:toString(true))
+	shellScript:appendCommandLineToScript('rm', '-rf', path:toString(true))
 end

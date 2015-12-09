@@ -6,16 +6,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local Path = halimede.io.paths.Path
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('WriteConfigHPosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('WriteConfigHPosixShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(configHDefines, filePath)
+function module:execute(shellScript, configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	
 	local actualFilePath
@@ -28,6 +28,6 @@ function module:execute(configHDefines, filePath)
 		actualFilePath = filePath:toString(true)
 	end
 
-	local redirected = self:_redirectStandardOutput(actualFilePath)
-	self:_appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText('\n\n'), redirected)
+	local redirected = shellScript:redirectStandardOutput(actualFilePath)
+	shellScript:appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText('\n\n'), redirected)
 end

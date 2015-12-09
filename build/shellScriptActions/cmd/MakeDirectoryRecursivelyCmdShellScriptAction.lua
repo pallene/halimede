@@ -5,20 +5,20 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Path = halimede.io.paths.Path
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeDirectoryRecursivelyCmdShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('MakeDirectoryRecursivelyCmdShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(path, mode)
+function module:execute(shellScript, path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
 	
 	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	self:_appendCommandLineToScript('MD', path:toString(true))
+	shellScript:appendCommandLineToScript('MD', path:toString(true))
 end

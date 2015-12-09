@@ -5,19 +5,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Paths = halimede.io.paths.Paths
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('SetPathCmdShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('SetPathCmdShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(paths)
+function module:execute(shellScript, paths)
 	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
 
 	-- http://ss64.com/nt/path.html
-	self:_appendCommandLineToScript('PATH', ';')
-	self:_appendCommandLineToScript('PATH', paths:toStrings(true))
+	shellScript:appendCommandLineToScript('PATH', ';')
+	shellScript:appendCommandLineToScript('PATH', paths:toStrings(true))
 end

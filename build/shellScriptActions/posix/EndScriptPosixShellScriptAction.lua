@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractPosixShellScriptAction = require.sibling('AbstractPosixShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('EndScriptPosixShellScriptAction', AbstractPosixShellScriptAction)
+moduleclass('EndScriptPosixShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractPosixShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute()
+function module:execute(shellScript)
 end

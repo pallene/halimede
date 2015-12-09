@@ -21,7 +21,7 @@ end
 assert.globalTypeIsFunctionOrCall('unpack')
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	arguments:insert(scriptFilePath:toString(true))
-	self.shellLanguage:executeExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))
+	self.shellLanguage:executeCommandExpectingSuccess(noRedirection, standardOut, standardError, unpack(arguments))
 end
 
 OrdinaryShellScriptExecutor:new(ShellLanguage.Posix)

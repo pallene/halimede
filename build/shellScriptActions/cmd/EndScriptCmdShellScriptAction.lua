@@ -4,15 +4,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractCmdShellScriptAction = require.sibling('AbstractCmdShellScriptAction')
+local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('EndScriptCmdShellScriptAction', AbstractCmdShellScriptAction)
+moduleclass('EndScriptCmdShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(shellScript)
-	AbstractCmdShellScriptAction.initialize(self, shellScript)
+function module:initialize()
+	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute()
-	self:_appendLinesToScript('ENDLOCAL')
+function module:execute(shellScript)
+	shellScript:appendLinesToScript('ENDLOCAL')
 end

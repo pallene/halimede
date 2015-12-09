@@ -39,6 +39,8 @@ function module:newAction(namespace, actionName)
 		actionNamespace = namespace
 	end
 	
+	print(actionNamespace)
+	
 	local errors = tabelize()
 	-- Try to see if there's a Posix, Cmd, etc variant
 	for _, potentialModuleName in ipairs({

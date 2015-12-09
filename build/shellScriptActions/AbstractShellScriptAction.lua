@@ -10,38 +10,13 @@ local exception = halimede.exception
 
 moduleclass('AbstractShellScriptAction')
 
-function module:initialize(shellScript)
-	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
-	
-	self.shellScript = shellScript
+function module:initialize()
 end
 
 function module:__call(...)
 	return self:execute(...)
 end
 
-function module:execute(...)
+function module:execute(shellScript, ...)
 	exception.throw('Abstract Method')
-end
-
-function module:_relativeFolderPath(...)
-	return self.shellScript:relativeFolderPath(...)
-end
-
-function module:_quoteArgument(argument)
-	return self.shellScript:quoteArgument(argument)
-end
-
-function module:_redirectStandardOutput(filePathOrFileDescriptor)
-	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
-	
-	return self.shellScript:redirectStandardOutput(filePathOrFileDescriptor)
-end
-
-function module:_appendLinesToScript(...)
-	self.shellScript:appendLinesToScript(...)
-end
-
-function module:_appendCommandLineToScript(...)
-	self.shellScript:appendCommandLineToScript(...)
 end
