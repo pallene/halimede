@@ -18,7 +18,7 @@ end
 
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:execute(shellScript, linkContentsPath, linkFilePath)
+function module:execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
 	

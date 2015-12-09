@@ -8,11 +8,13 @@ local tabelize = halimede.table.tabelize
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local GnuTuple = require.sibling('GnuTuple')
 local CompilerDriver = require.sibling('CompilerDriver')
+local AbstractStrip = halimede.build.shellScriptActions.strip.AbstractStrip
+local MacOsXStrip = halimede.build.shellScriptActions.strip.MacOsXStrip
 
 
 local Platform = moduleclass('Platform')
 
-function Platform:initialize(name, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver)
+function Platform:initialize(name, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver, strip)
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString('objectExtension', objectExtension)
@@ -24,6 +26,7 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	assert.parameterTypeIsInstanceOf('gnuTuple', gnuTuple, GnuTuple)
 	assert.parameterTypeIsInstanceOf('cCompilerDriver', cCompilerDriver, CompilerDriver)
 	assert.parameterTypeIsInstanceOf('cPlusPlusCompilerDriver', cPlusPlusCompilerDriver, CompilerDriver)
+	assert.parameterTypeIsInstanceOfOrNil('strip', strip, AbstractStrip)
 	
 	self.name = name
 	self.shellScriptExecutor = shellScriptExecutor
@@ -36,6 +39,7 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	self.gnuTuple = gnuTuple
 	self.cCompilerDriver = cCompilerDriver
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
+	self.strip = strip
 		
 	Platform.static[name] = self
 end
@@ -89,6 +93,8 @@ else
 	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor.Posix
 end
 
+local macOsXStrip = MacOsXStrip:new()
+
 Platform:new(
 	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
 	macOsXShellScriptExecutor,
@@ -100,7 +106,8 @@ Platform:new(
 	'dylib',
 	GnuTuple['x86_64-apple-darwin13.4.0'],
 	CompilerDriver.gcc49_systemNativeHostX86_64,
-	CompilerDriver.gccxx49_systemNativeHostX86_64
+	CompilerDriver.gccxx49_systemNativeHostX86_64,
+	macOsXStrip
 )
 
 Platform:new(
@@ -114,5 +121,6 @@ Platform:new(
 	'dylib',
 	GnuTuple['x86_64-apple-darwin14'],
 	CompilerDriver.gcc49_systemNativeHostX86_64,
-	CompilerDriver.gccxx49_systemNativeHostX86_64
+	CompilerDriver.gccxx49_systemNativeHostX86_64,
+	macOsXStrip
 )

@@ -16,7 +16,7 @@ function module:initialize()
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:execute(shellScript, path)
+function module:execute(shellScript, buildEnvironment, path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	local command = tabelize({'CD'})

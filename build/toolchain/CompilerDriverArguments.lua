@@ -9,6 +9,7 @@ local Arguments = require.sibling('Arguments')
 local FilePaths = require.sibling('FilePaths')
 local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
+local ShellScript = halimede.io.shellScript.ShellScript
 
 
 moduleclass('CompilerDriverArguments')
@@ -113,8 +114,8 @@ function module:addOutput(outputFilePath)
 	self.compilerDriver:addOutput(self.arguments, outputFilePath)
 end
 
-function module:useUnpacked(userFunction)
-	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
+function module:appendCommandLineToScript(shellScript)
+	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
 	
-	return self.arguments:useUnpacked(userFunction)
+	self.arguments:appendCommandLineToScript(shellScript)
 end

@@ -15,7 +15,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, configHDefines, filePath)
+function module:execute(shellScript, buildEnvironment, configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	
 	local actualFilePath

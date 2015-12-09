@@ -51,6 +51,16 @@ function fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, d
 	return fieldValue
 end
 
+function fieldExists.asBooleanFieldExistsOrDefaultTo(parent, fieldName, default)
+	local fieldValue = parent[fieldName]
+	if fieldValue == nil then
+		parent[fieldName] = default
+		return default
+	end
+	assert.parameterTypeIsBoolean('fieldValue', fieldValue)
+	return fieldValue
+end
+
 
 function module:initialize(executor, recipesPath, crossPlatformGnuTuple, recipeEnvironment, recipeName, validatedAndSortedChosenBuildVariantNames)
 	assert.parameterTypeIsFunctionOrCall('executor', executor)
@@ -206,6 +216,8 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		for _, lib in ipairs(libs) do
 			assert.parameterTypeIsString('lib', lib)
 		end
+		
+		local strip = fieldExists.asBooleanFieldExistsOrDefaultTo(buildVariantSettings, 'strip', true)
 	end
 	
 	if buildVariants['default'] == nil then
@@ -217,9 +229,11 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		compilerDriverFlags = {},
 		defines = {},
 		configHDefines = {},
-		systemIncludePaths = {},
+		libs = {},
+		strip = true,
+		
 		linkerFlags = {},
-		libs = {}
+		systemIncludePaths = {}
 	}
 	
 	for _, chosenBuildVariantName in ipairs(chosenBuildVariantNames) do
@@ -245,6 +259,9 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		deepMerge(buildVariantSettings.defines, consolidatedBuildVariants.defines)
 		deepMerge(buildVariantSettings.configHDefines, consolidatedBuildVariants.configHDefines)
 		deepMerge(buildVariantSettings.libs, consolidatedBuildVariants.libs)
+		if buildVariantSettings.strip == false then
+			consolidatedBuildVariants.strip = false
+		end
 	end
 	
 	return consolidatedBuildVariants
@@ -316,10 +333,16 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
 	
 	local buildVariant = version.buildVariant
-	
 	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentShellScript, version.dependencies, buildVariant)
 	
-	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, version.platformConfigHDefinesFunctions, version.execute)
+	local strip
+	if buildVariant.strip then
+		strip = crossPlatform.strip
+	else
+		strip = nil
+	end
+	
+	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
 	
 	shellScript:writeToFileAndExecute(recipeFolderPath:appendFile('recipe-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod), noRedirection, noRedirection)
 end
@@ -329,17 +352,13 @@ local buildFolderName = 'build'
 local patchFolderName = 'patch'
 local destFolderName = 'dest'
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, crossPlatformConfigHDefinesFunctions, userFunction)
+function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 	
 	local sourceFolderRelativePath = buildRecipePaths:parentPath():appendFolders(sourceFolderName)
 	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName)
 	local patchFolderRelativePath = buildRecipePaths:parentPath():appendFolders(patchFolderName)
 	local destFolderRelativePath = buildRecipePaths:parentPath():appendFolders(destFolderName)
-	
-	local action = function(namespace, name, ...)
-		shellScript:newAction(namespace, name):execute(shellScript, ...)
-	end
 	
 	local buildEnvironment = {
 		
@@ -361,17 +380,27 @@ function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatfor
 		
 		crossRecipePaths = crossRecipePaths,
 		
-		action = action,
-		
 		arguments = arguments,
 		
-		configHDefines = configHDefines
+		configHDefines = configHDefines,
+		
+		strip = strip
 	}
+	
+	local action = function(namespace, name, ...)
+		shellScript:newAction(namespace, name):execute(shellScript, buildEnvironment, ...)
+	end
+	
+	buildEnvironment.action = action
 	
 	action(nil, 'StartScript')
 	
+	action(nil, 'RemoveRecursivelyWithForce', destFolderRelativePath)
+	action(nil, 'MakeDirectoryRecursively', destFolderRelativePath, '0755')
+	
 	action(nil, 'RemoveRecursivelyWithForce', buildFolderRelativePath)
 	action(nil, 'MakeDirectoryRecursively', buildFolderRelativePath, '0755')
+	
 	action(nil, 'ChangeDirectory', buildFolderRelativePath)
 	
 	userFunction(buildEnvironment)

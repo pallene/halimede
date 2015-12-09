@@ -15,7 +15,7 @@ function module:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, path)
+function module:execute(shellScript, buildEnvironment, path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 
 	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows

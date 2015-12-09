@@ -17,6 +17,6 @@ function module:__call(...)
 	return self:execute(...)
 end
 
-function module:execute(shellScript, ...)
+function module:execute(shellScript, buildEnvironment, ...)
 	exception.throw('Abstract Method')
 end

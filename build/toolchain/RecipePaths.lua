@@ -56,12 +56,28 @@ function module:toObjectsWithoutPaths(baseFilePaths)
 	return baseFilePaths:toObjectsWithoutPaths(self.objectExtension)
 end
 
-function module:toExecutableRelativeFilePath(...)
-	return self:relativeFilePath(...):appendFileExtension(self.executableExtension)
+function module:toExecutableRelativeFilePathFromStrings(...)
+	return self:toExecutableRelativeFilePath(self:relativeFilePath(...))
+end
+
+function module:toExecutableRelativeFilePath(filePath)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
+	
+	filePath:assertIsFilePath('filePath')
+	
+	return filePath:appendFileExtension(self.executableExtension)
+end
+
+function module:objectRelativeFilePathFromStrings(...)
+	return self:toExecutableRelativeFilePath(self:relativeFilePath(...))
 end
 
 function module:objectRelativeFilePath(...)
-	return self:relativeFilePath(...):appendFileExtension(self.objectExtension)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
+	
+	filePath:assertIsFilePath('filePath')
+	
+	return filePath:appendFileExtension(self.objectExtension)
 end
 
 function module:parentPath()
@@ -80,6 +96,10 @@ function module:_platformPath(pathName)
 	assert.parameterTypeIsString('pathName', pathName)
 	
 	return self.platformPaths[pathName](self.platformPaths, self.versionRelativePathElements)
+end
+
+function module:bin()
+	return self:_platformPath('bin')
 end
 
 function module:include()

@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local tabelize = halimede.table.tabelize
+local ShellScript = halimede.io.shellScript.ShellScript
 
 
 moduleclass('Arguments')
@@ -33,8 +34,8 @@ function module:append(...)
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:useUnpacked(userFunction)
-	assert.parameterTypeIsFunctionOrCall('userFunction', userFunction)
+function module:appendCommandLineToScript(shellScript)
+	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
 	
-	return userFunction(unpack(self.arguments))
+	shellScript:appendCommandLineToScript(unpack(self.arguments))
 end

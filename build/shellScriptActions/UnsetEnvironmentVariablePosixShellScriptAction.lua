@@ -14,9 +14,8 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, variableName)
+function module:execute(shellScript, buildEnvironment, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
 	
 	-- Complexity is to cope with the mksh and pdksh shells, which don't like to unset something not set (when using set -u)

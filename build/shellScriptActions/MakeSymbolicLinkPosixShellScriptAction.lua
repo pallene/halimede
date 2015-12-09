@@ -14,7 +14,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, linkContentsPath, linkFilePath)
+function module:execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
 

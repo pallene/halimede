@@ -15,7 +15,7 @@ function module:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, path)
+function module:execute(shellScript, buildEnvironment, path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	shellScript:appendCommandLineToScript('rm', '-rf', path:toString(true))

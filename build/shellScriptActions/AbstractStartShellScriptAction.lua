@@ -29,14 +29,14 @@ function module:initialize(unsetEnvironmentVariableShellScriptActionClass, expor
 end
 
 assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'pairs')
-function module:execute(shellScript)
+function module:execute(shellScript, buildEnvironment)
 	shellScript:appendLinesToScript(unpack(self.initialScriptLines))
 	
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
-		self.unsetEnvironmentVariableShellScriptAction:execute(shellScript, environmentVariableName)
+		self.unsetEnvironmentVariableShellScriptAction:execute(shellScript, buildEnvironment, environmentVariableName)
 	end
 	
 	for environmentVariableName, environmentVariableValue in pairs(self.environmentVariablesToExport) do
-		self.exportEnvironmentVariableShellScriptAction:execute(shellScript, environmentVariableName, environmentVariableValue)
+		self.exportEnvironmentVariableShellScriptAction:execute(shellScript, buildEnvironment, environmentVariableName, environmentVariableValue)
 	end
 end

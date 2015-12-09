@@ -4,12 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local RecipePaths = halimede.build.toolchain.RecipePaths
+local Path = halimede.io.paths.Path
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
 local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
-local Path = halimede.io.paths.Path
 
 
 moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
@@ -18,8 +17,7 @@ function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableA
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
-function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, baseName)
-	assert.parameterTypeIsInstanceOf('crossRecipePaths', crossRecipePaths, RecipePaths)
+function module:execute(shellScript, buildEnvironment, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
@@ -28,7 +26,11 @@ function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, cSta
 	assert.parameterTypeIsTable('sources', sources)
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
-	assert.parameterTypeIsString('baseName', baseName)
+	assert.parameterTypeIsInstanceOf('executableFilePathWithoutExtension', executableFilePathWithoutExtension, Path)
+	
+	executableFilePathWithoutExtension:assertIsFilePath('executableFilePathWithoutExtension')
+	
+	local crossRecipePaths = buildEnvironment.crossRecipePaths
 	
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
 	compilerDriverArguments:addCStandard(cStandard)
@@ -40,12 +42,10 @@ function module:execute(shellScript, crossRecipePaths, compilerDriverFlags, cSta
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(sources)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
-	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(baseName))
+	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(executableFilePathWithoutExtension))
 	
-	self:_unsetEnvironmentVariables(shellScript, compilerDriverArguments)
-	self:_unsetEnvironmentVariables(shellScript, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
+	self:_unsetEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments)
+	self:_exportEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 	
-	compilerDriverArguments:useUnpacked(function(...)
-		shellScript:appendCommandLineToScript(...)
-	end)
+	compilerDriverArguments:appendCommandLineToScript(shellScript)
 end

@@ -19,9 +19,9 @@ function module:initialize()
 	self.exportEnvironmentVariablePosixShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(shellScript)
 end
 
-function module:execute(shellScript, paths)
+function module:execute(shellScript, buildEnvironment, paths)
 	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
 	
-	self.unsetEnvironmentVariablePosixShellScriptAction:execute(shellScript, 'PATH')
-	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, 'PATH', paths:toStrings(true))
+	self.unsetEnvironmentVariablePosixShellScriptAction:execute(shellScript, buildEnvironment, 'PATH')
+	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, buildEnvironment, 'PATH', paths:toStrings(true))
 end

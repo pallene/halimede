@@ -242,18 +242,27 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendRelativePath(relativePath)
-	assert.parameterTypeIsInstanceOf('relativePath', relativePath, Path)
-	
-	relativePath:assertIsRelative('relativePath')
+	return self:_appendPathAsRelativePath(relativePath, 'relativePath', 'assertIsRelative')
+end
 
+assert.globalTypeIsFunctionOrCall('ipairs')
+function module:appendAbsolutePathAsRelativePath(absolutePath)
+	return self:_appendPathAsRelativePath(absolutePath, 'absolutePath', 'assertIsEffectivelyAbsolute')
+end
+
+function module:_appendPathAsRelativePath(path, parameterName, assertionName)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
+	
+	path[assertionName](path, parameterName)
+	
 	self:assertIsFolderPath('self')
 	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
-	for _, childPathElement in ipairs(relativePath.pathElements) do
+	for _, childPathElement in ipairs(path.pathElements) do
 		assert.parameterTypeIsString('childPathElement', childPathElement)
 		
 		pathElementsCopy:insert(childPathElement)
 	end
 	
-	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, relativePath.isFile, relativePath.alternateStreamName)
+	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, path.isFile, path.alternateStreamName)
 end

@@ -4,19 +4,24 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Path = halimede.io.paths.Path
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('ExportEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
+moduleclass('StripExecutablePosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, variableName, variableValue)
-	assert.parameterTypeIsString('variableName', variableName)
-	assert.parameterTypeIsString('variableValue', variableValue)
+function module:execute(shellScript, buildEnvironment, executableFilePath)
+	assert.parameterTypeIsInstanceOf('executableFilePath', executableFilePath, Path)
 	
-	shellScript:appendCommandLineToScript('SET', variableName .. '=' .. variableValue)
+	executableFilePath:assertIsFilePath('executableFilePath')
+	
+	local strip = buildEnvironment.strip
+	if strip then
+		strip:executable(shellScript, executableFilePath:toString(true))
+	end
 end

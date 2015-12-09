@@ -14,7 +14,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, path)
+function module:execute(shellScript, buildEnvironment, path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
 	shellScript:appendCommandLineToScript('cd', path:toString(true))

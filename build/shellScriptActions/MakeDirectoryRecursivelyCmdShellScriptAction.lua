@@ -14,7 +14,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, path, mode)
+function module:execute(shellScript, buildEnvironment, path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
 	

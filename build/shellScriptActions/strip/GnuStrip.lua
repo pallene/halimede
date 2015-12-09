@@ -4,19 +4,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local AbstractStrip = require.sibling('AbstractStrip')
 
 
-moduleclass('ExportEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
+moduleclass('GnuStrip', AbstractStrip)
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self)
+	AbstractStrip.initialize(self, true)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, variableName, variableValue)
-	assert.parameterTypeIsString('variableName', variableName)
-	assert.parameterTypeIsString('variableValue', variableValue)
-	
-	shellScript:appendCommandLineToScript('SET', variableName .. '=' .. variableValue)
+function module:_executable(executableFilePathString)
+	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', '--strip-unneeded', executableFilePathString
+end
+
+function module:_library(libraryFilePathString)
+	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', executableFilePathString
 end

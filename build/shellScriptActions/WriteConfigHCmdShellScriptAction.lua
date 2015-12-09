@@ -18,7 +18,7 @@ end
 -- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(shellScript, configHDefines, filePath)
+function module:execute(shellScript, buildEnvironment, configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	local actualFilePath
 	if filePath == nil then
