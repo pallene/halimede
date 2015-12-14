@@ -22,7 +22,7 @@ local function executeFromFile(fileDescription, luaCodeFilePath, environment)
 	
 	luaCodeFilePath:assertIsFilePath('luaCodeFilePath')
 	
-	local luaCodeStringWithAnyLeadingShaBang = openBinaryFileForReading(luaCodeFilePath, fileDescription):readAllContentsAndClose()
+	local luaCodeStringWithAnyLeadingShaBang = openBinaryFileForReading(luaCodeFilePath, fileDescription):readAllRemainingContentsAndClose()
 	local luaCodeString = removeInitialShaBang(luaCodeStringWithAnyLeadingShaBang)
 	
 	return execute(luaCodeString, fileDescription, luaCodeFilePath:toString(true), environment)

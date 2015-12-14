@@ -151,7 +151,16 @@ function module:__tostring()
 	return ('%s(%s)'):format(self.class.name, self.description)
 end
 
-function module:readAllContentsAndClose()
+function module:readByte()
+	local byte = self.fileHandle:read(1)
+	if byte == nil then
+		self:close()
+		return false
+	end
+	return byte
+end
+
+function module:readAllRemainingContentsAndClose()
 	local contents = self.fileHandle:read('*a')
 	self:close()
 	if contents == nil then
