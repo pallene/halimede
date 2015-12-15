@@ -296,7 +296,7 @@ function module.mkdirs(path, mode, isLeaf)
 		isLeafActual = isLeaf
 	end
 	
-	local parentSuccess = mkdirs(path:parentPath(), '0700', false)
+	local parentSuccess = mkdirs(path:strippedOfFinalPathElement(), '0700', false)
 	if not parentSuccess then
 		return false
 	end

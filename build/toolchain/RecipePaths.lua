@@ -80,8 +80,8 @@ function module:objectRelativeFilePath(...)
 	return filePath:appendFileExtension(self.objectExtension)
 end
 
-function module:parentPath()
-	return self.shellLanguage.parentPath
+function module:parentPaths(count)
+	return self.shellLanguage:parentPaths(count)
 end
 
 function module:relativeFolderPath(...)

@@ -62,7 +62,7 @@ function module:withoutFileNames()
 	local copy = {}
 	
 	for _, path in ipairs(self.paths) do
-		local newPath = path:parentPath()
+		local newPath = path:strippedOfFinalPathElement()
 		copy[newPath:toString(true)] = newPath
 	end
 

@@ -184,7 +184,7 @@ function module:appendFolders(...)
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, false, self.alternateStreamName)
 end
 
-function module:parentPath(alternateStreamName)
+function module:strippedOfFinalPathElement(alternateStreamName)
 	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 	
 	local length = #self.pathElements

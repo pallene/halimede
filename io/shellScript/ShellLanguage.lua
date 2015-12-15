@@ -272,6 +272,28 @@ function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
 	exception.throw('Abstract Method')
 end
 
+function module:parentPaths(count)
+	assert.parameterTypeIsNumberOrNil('count', count)
+	
+	if count == nil then
+		return self.parentPath
+	end
+	
+	assert.parameterTypeIsPositiveInteger('count', count)
+	if count == 0 then
+		exception.throw("Parameter 'count' can not be zero")
+	end
+	
+	local parentPath = self.parentPath
+	local remaining = count
+	while remaining > 1
+	do
+		parentPath = parentPath:appendRelativePath(self.parentPath)
+		
+		remaining = remaining - 1
+	end
+end
+
 function module:parsePath(pathString, isFile)
 	assert.parameterTypeIsString('pathString', pathString)
 	assert.parameterTypeIsBoolean('isFile', isFile)

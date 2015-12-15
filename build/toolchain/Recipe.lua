@@ -8,6 +8,7 @@ local executeFromFile = halimede.luacode.executeFromFile
 local exception = halimede.exception
 local deepMerge = halimede.table.deepMerge
 local tabelize = halimede.table.tabelize
+local shallowCopy = halimede.table.shallowCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
 local Recipes = require.sibling('Recipes')
@@ -18,8 +19,6 @@ local GnuTuple = require.sibling('GnuTuple')
 local RecipePaths = require.sibling('RecipePaths')
 local ExecutionEnvironmentShellScript = require.sibling('ExecutionEnvironmentShellScript')
 
-
-moduleclass('Recipe')
 
 local fieldExists = {}
 
@@ -62,6 +61,14 @@ function fieldExists.asBooleanFieldExistsOrDefaultTo(parent, fieldName, default)
 end
 
 
+moduleclass('Recipe')
+
+local definitionsFolderName = 'definitions'
+local sourceFolderName = 'source'
+local buildFolderName = 'build'
+local patchFolderName = 'patch'
+local destFolderName = 'dest'
+
 function module:initialize(executor, recipesPath, crossPlatformGnuTuple, recipeEnvironment, recipeName, validatedAndSortedChosenBuildVariantNames)
 	assert.parameterTypeIsFunctionOrCall('executor', executor)
 	assert.parameterTypeIsInstanceOf('recipesPath', recipesPath, Path)
@@ -74,7 +81,7 @@ function module:initialize(executor, recipesPath, crossPlatformGnuTuple, recipeE
 	self.recipesPath = recipesPath
 	self.recipeName = recipeName
 	self.chosenBuildVariantNames = validatedAndSortedChosenBuildVariantNames
-	self.recipeFolderPath = self.recipesPath:appendFolders(recipeName)
+	self.recipeFolderPath = self.recipesPath:appendFolders(definitionsFolderName, recipeName)
 	self.recipeFilePath = self.recipeFolderPath:appendFile('recipe', 'lua')
 	
 	local result = self:_load(recipeEnvironment)
@@ -327,7 +334,6 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
 	local versionRelativePathElements = tabelize({self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencieshash'})
 	
-	local recipeFolderPath = self.recipeFolderPath:appendFolders(version.packageVersion)
 		
 	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
@@ -342,32 +348,46 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 		strip = nil
 	end
 	
-	self:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
+	self:_populateShellScript(shellScript, versionRelativePathElements, version.packageVersion, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
 	
-	shellScript:writeToFileAndExecute(recipeFolderPath:appendFile('recipe-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod), noRedirection, noRedirection)
+	local scriptFileName = 'build-' .. crossPlatform.name .. '-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod
+	local scriptFilePath = self.recipeFolderPath:appendFolders:appendFile(scriptFileName)
+	shellScript:writeToFileAndExecute(scriptFilePath, noRedirection, noRedirection)
 end
 
-local sourceFolderName = 'source'
-local buildFolderName = 'build'
-local patchFolderName = 'patch'
-local destFolderName = 'dest'
 assert.globalTypeIsFunctionOrCall('setmetatable')
-function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
-	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
+function module:_populateShellScript(shellScript, versionRelativePathElements, versionFolderName, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	
-	local sourceFolderRelativePath = buildRecipePaths:parentPath():parentPath():appendFolders(sourceFolderName)
-	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName, crossPlatform.name)
-	local patchFolderRelativePath = buildRecipePaths:parentPath():appendFolders(patchFolderName)
-	-- The only other safe locationare somewhere under either TMPDIR, HOME or perhaps recipesPath (as we're using relative paths for everything)
-	local destFolderRelativePath = buildRecipePaths:parentPath():parentPath():parentPath():parentPath():appendFolders(destFolderName, crossPlatform.name)
+	-- The shell script will change CWD to the absolute, fully-resolved path containing itself
+	-- This path is currently recipes/
+	-- The script then changes to execute from within the build folder, hence all other paths are relative to the build folder
+	
+	local buildFolderRelativeFromRecipes = shallowCopy(versionRelativePathElements)
+	buildFolderRelativeFromRecipes:insert(1, crossPlatform.name)
+	buildFolderRelativeFromRecipes:insert(1, buildFolderName)
+	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderRelativeFromRecipes)
+	
+	local upToRecipesFolderFromBuildFolderRelativePath = buildRecipePaths:parentPaths(#buildFolderRelativeFromRecipes)
+	
+	local sourceFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName)
+	
+	local patchFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName)
+	
+	local destFolderRelativeFromRecipes = shallowCopy(versionRelativePathElements)
+	destFolderRelativeFromRecipes:insert(1, crossPlatform.name)
+	destFolderRelativeFromRecipes:insert(1, destFolderName)
+	local destFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(destFolderRelativeFromRecipes)
+	
+	
+	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 	
 	local buildEnvironment = {
 		
-		recipeFolderPath = recipeFolderPath,
+		buildFolderRelativePath = buildFolderRelativePath,
+		
+		upToRecipesFolderFromBuildFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath,
 		
 		sourceFolderRelativePath = sourceFolderRelativePath,
-		
-		buildFolderRelativePath = buildFolderRelativePath,
 		
 		patchFolderRelativePath = patchFolderRelativePath,
 		
