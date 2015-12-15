@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local tabelize = halimede.table.tabelize
+local exception = exception.throw
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local GnuTuple = require.sibling('GnuTuple')
 local CompilerDriver = require.sibling('CompilerDriver')
@@ -27,6 +28,10 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	assert.parameterTypeIsInstanceOf('cCompilerDriver', cCompilerDriver, CompilerDriver)
 	assert.parameterTypeIsInstanceOf('cPlusPlusCompilerDriver', cPlusPlusCompilerDriver, CompilerDriver)
 	assert.parameterTypeIsInstanceOfOrNil('strip', strip, AbstractStrip)
+	
+	if shellScriptExecutor.shellLanguage.pathStyle:isReservedPathElement(name) then
+		exception.throw("The name 'name' contains a character that isn't permitted in a file name on this platform; the platform's name may be used in folder paths")
+	end
 	
 	self.name = name
 	self.shellScriptExecutor = shellScriptExecutor
@@ -96,7 +101,7 @@ end
 local macOsXStrip = MacOsXStrip:new()
 
 Platform:new(
-	'Mac OS X Mavericks GCC / G++ 4.9 Homebrew',
+	'Mac OS X Mavericks GCC 4.9 Homebrew',
 	macOsXShellScriptExecutor,
 	'o',
 	nil, -- eg exe on Windows
@@ -111,7 +116,7 @@ Platform:new(
 )
 
 Platform:new(
-	'Mac OS X Yosemite GCC / G++ 4.9 Homebrew',
+	'Mac OS X Yosemite GCC 4.9 Homebrew',
 	macOsXShellScriptExecutor,
 	'o',
 	nil,

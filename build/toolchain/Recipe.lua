@@ -358,7 +358,8 @@ function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatfor
 	local sourceFolderRelativePath = buildRecipePaths:parentPath():appendFolders(sourceFolderName)
 	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName)
 	local patchFolderRelativePath = buildRecipePaths:parentPath():appendFolders(patchFolderName)
-	local destFolderRelativePath = buildRecipePaths:parentPath():appendFolders(destFolderName)
+	-- The only other safe locationare somewhere under either TMPDIR, HOME or perhaps recipesPath (as we're using relative paths for everything)
+	local destFolderRelativePath = buildRecipePaths:parentPath():parentPath():parentPath():appendFolders(destFolderName, crossPlatform.name)
 	
 	local buildEnvironment = {
 		
