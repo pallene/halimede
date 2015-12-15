@@ -355,11 +355,11 @@ assert.globalTypeIsFunctionOrCall('setmetatable')
 function module:_populateShellScript(shellScript, recipeFolderPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 	
-	local sourceFolderRelativePath = buildRecipePaths:parentPath():appendFolders(sourceFolderName)
-	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName)
+	local sourceFolderRelativePath = buildRecipePaths:parentPath():parentPath():appendFolders(sourceFolderName)
+	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderName, crossPlatform.name)
 	local patchFolderRelativePath = buildRecipePaths:parentPath():appendFolders(patchFolderName)
 	-- The only other safe locationare somewhere under either TMPDIR, HOME or perhaps recipesPath (as we're using relative paths for everything)
-	local destFolderRelativePath = buildRecipePaths:parentPath():parentPath():parentPath():appendFolders(destFolderName, crossPlatform.name)
+	local destFolderRelativePath = buildRecipePaths:parentPath():parentPath():parentPath():parentPath():appendFolders(destFolderName, crossPlatform.name)
 	
 	local buildEnvironment = {
 		
