@@ -5,11 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local CommentCmdShellScriptAction = require.sibling('CommentCmdShellScriptAction')
 local UnsetEnvironmentVariableCmdShellScriptAction = require.sibling('UnsetEnvironmentVariableCmdShellScriptAction')
 local ExportEnvironmentVariableCmdShellScriptAction = require.sibling('ExportEnvironmentVariableCmdShellScriptAction')
-local ChangeDirectoryCmdShellScriptAction = require.sibling('ChangeDirectoryCmdShellScriptAction')
-local RemoveRecursivelyWithForceCmdShellScriptAction = require.sibling('RemoveRecursivelyWithForceCmdShellScriptAction')
-local MakeDirectoryRecursivelyCmdShellScriptAction = require.sibling('MakeDirectoryRecursivelyCmdShellScriptAction')
 local Path = halimede.io.paths.Path
 
 
@@ -22,7 +20,7 @@ local environmentVariablesToExport = {
 }
 
 function module:initialize()
-	AbstractStartShellScriptAction.initialize(self, UnsetEnvironmentVariableCmdShellScriptAction, ExportEnvironmentVariableCmdShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, 
+	AbstractStartShellScriptAction.initialize(self, CommentCmdShellScriptAction, UnsetEnvironmentVariableCmdShellScriptAction, ExportEnvironmentVariableCmdShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, 
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions',
 		'SETLOCAL',

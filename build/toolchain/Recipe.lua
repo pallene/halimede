@@ -351,11 +351,11 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 	self:_populateShellScript(shellScript, versionRelativePathElements, version.packageVersion, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
 	
 	local scriptFileName = 'build-' .. crossPlatform.name .. '-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod
-	local scriptFilePath = self.recipeFolderPath:appendFolders:appendFile(scriptFileName)
+	local scriptFilePath = self.recipeFolderPath:appendFile(scriptFileName)
 	shellScript:writeToFileAndExecute(scriptFilePath, noRedirection, noRedirection)
 end
 
-assert.globalTypeIsFunctionOrCall('setmetatable')
+assert.globalTypeIsFunctionOrCall('setmetatable', 'unpack')
 function module:_populateShellScript(shellScript, versionRelativePathElements, versionFolderName, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	
 	-- The shell script will change CWD to the absolute, fully-resolved path containing itself
@@ -365,7 +365,7 @@ function module:_populateShellScript(shellScript, versionRelativePathElements, v
 	local buildFolderRelativeFromRecipes = shallowCopy(versionRelativePathElements)
 	buildFolderRelativeFromRecipes:insert(1, crossPlatform.name)
 	buildFolderRelativeFromRecipes:insert(1, buildFolderName)
-	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(buildFolderRelativeFromRecipes)
+	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(unpack(buildFolderRelativeFromRecipes))
 	
 	local upToRecipesFolderFromBuildFolderRelativePath = buildRecipePaths:parentPaths(#buildFolderRelativeFromRecipes)
 	
@@ -376,7 +376,7 @@ function module:_populateShellScript(shellScript, versionRelativePathElements, v
 	local destFolderRelativeFromRecipes = shallowCopy(versionRelativePathElements)
 	destFolderRelativeFromRecipes:insert(1, crossPlatform.name)
 	destFolderRelativeFromRecipes:insert(1, destFolderName)
-	local destFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(destFolderRelativeFromRecipes)
+	local destFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(unpack(destFolderRelativeFromRecipes))
 	
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
@@ -424,18 +424,30 @@ function module:_populateShellScript(shellScript, versionRelativePathElements, v
 	
 	local action = createActionsHolder('halimede.build.shellScriptActions')
 	buildEnvironment.action = action
+
+	local function comment(value)
+		assert.parameterTypeIsString('value', value)
+		
+		action.Comment(value)
+	end
+	buildEnvironment.comment = comment
 	
 	action.StartScript()
 	
+	comment('Create empty dest folder')
 	action.RemoveRecursivelyWithForce(destFolderRelativePath)
 	action.MakeDirectoryRecursively(destFolderRelativePath, '0755')
 	
+	comment('Create empty build folder')
 	action.RemoveRecursivelyWithForce(buildFolderRelativePath)
 	action.MakeDirectoryRecursively(buildFolderRelativePath, '0755')
 	
+	comment('Perform all script actions from the safety of the build folder')
 	action.ChangeDirectory(buildFolderRelativePath)
 	
+	comment('Recipe-specific functionality starts here')
 	userFunction(buildEnvironment)
+	comment('Recipe-specific functionality ends here')
 	
 	action.EndScript()
 end

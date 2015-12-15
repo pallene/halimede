@@ -4,42 +4,31 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ConfigHDefines = halimede.build.defines.ConfigHDefines
-local Path = halimede.io.paths.Path
-local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local AbstractConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractConfigHShellScriptAction
+local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmdShellScriptAction
 
 
-moduleclass('WriteConfigHCmdShellScriptAction', AbstractShellScriptAction)
+moduleclass('WriteConfigHCmdShellScriptAction', AbstractConfigHShellScriptAction)
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self)
+	AbstractConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction)
 end
 
 -- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:execute(shellScript, buildEnvironment, configHDefines, filePath)
-	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
-	local actualFilePath
-	if filePath == nil then
-		actualFilePath = './config.h'
-	else
-		assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
-		filePath:assertIsFilePath('filePath')
-		
-		actualFilePath = filePath:toString(true)
-	end
-	
-	local lines = configHDefines:toCPreprocessorTextLines()
+function module:_append(shellScript, stringFilePath, configHDefines)
+	local quotedStringFilePath = shellScript:quoteArgument(stringFilePath)
+	local lines = configHDefines:toCPreprocessorTextLines('\r\n\r\n')
 	for index, line in ipairs(lines) do
-		
+	
 		local redirectionOperator
 		if index == 1 then
 			redirectionOperator = '>'
 		else
 			redirectionOperator = '>>'
 		end
-		
-		shellScript:appendLinesToScript('ECHO ' .. shellScript:quoteArgument(line) .. ' ' .. redirectionOperator .. shellScript:quoteArgument(actualFilePath))
+	
+		shellScript:appendLinesToScript('ECHO ' .. shellScript:quoteArgument(line) .. ' ' .. redirectionOperator .. quotedStringFilePath)
 	end
 end

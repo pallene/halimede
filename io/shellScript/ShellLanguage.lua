@@ -292,6 +292,8 @@ function module:parentPaths(count)
 		
 		remaining = remaining - 1
 	end
+	
+	return parentPath
 end
 
 function module:parsePath(pathString, isFile)
@@ -368,8 +370,12 @@ function PosixShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, '/dev/null', false, 'sh')
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gsub')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'gsub')
 function PosixShellLanguage:_quoteArgument(argument)
+	if argument:find('\0') ~= nil then
+		print(argument:find('\0'))
+		exception.throw("POSIX shell script arguments can not contain ASCII NUL (0x00)")
+	end
 	return "'" .. argument:gsub("'", "'\\''") .. "'"
 end
 

@@ -4,30 +4,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local ConfigHDefines = halimede.build.defines.ConfigHDefines
-local Path = halimede.io.paths.Path
-local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local AbstractConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractConfigHShellScriptAction
+local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentPosixShellScriptAction
 
 
-moduleclass('WriteConfigHPosixShellScriptAction', AbstractShellScriptAction)
+moduleclass('WriteConfigHPosixShellScriptAction', AbstractConfigHShellScriptAction)
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self)
+	AbstractConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
 end
 
-function module:execute(shellScript, buildEnvironment, configHDefines, filePath)
-	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
-	
-	local actualFilePath
-	if filePath == nil then
-		actualFilePath = './config.h'
-	else
-		assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
-		filePath:assertIsFilePath('filePath')
-		
-		actualFilePath = filePath:toString(true)
-	end
-
-	local redirected = shellScript:redirectStandardOutput(actualFilePath)
+function module:_append(shellScript, stringFilePath, configHDefines)
+	local redirected = shellScript:redirectStandardOutput(stringFilePath)
 	shellScript:appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText('\n\n'), redirected)
 end

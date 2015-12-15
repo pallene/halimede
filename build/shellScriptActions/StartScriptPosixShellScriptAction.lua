@@ -5,11 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local AbstractStartShellScriptAction = halimede.build.shellScriptActions.AbstractStartShellScriptAction
+local CommentPosixShellScriptAction = require.sibling('CommentPosixShellScriptAction')
 local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling('UnsetEnvironmentVariablePosixShellScriptAction')
 local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportEnvironmentVariablePosixShellScriptAction')
-local ChangeDirectoryPosixShellScriptAction = require.sibling('ChangeDirectoryPosixShellScriptAction')
-local RemoveRecursivelyWithForcePosixShellScriptAction = require.sibling('RemoveRecursivelyWithForcePosixShellScriptAction')
-local MakeDirectoryRecursivelyPosixShellScriptAction = require.sibling('MakeDirectoryRecursivelyPosixShellScriptAction')
 local Path = halimede.io.paths.Path
 
 
@@ -53,8 +51,14 @@ fi
 # Make sure IFS is set to something sensible
 IFS="$(printf ' \t\n')"
 
+# Common functionality to unset a variable safely on all shells (ie mksh and pdksh, which don't like to unset something not set (when using set -u))
+_program_unset()
+{
+	(unset "$1") 1>/dev/null 2>/dev/null && unset "$1"
+}
+
 # Make sure CDPATH doesn't interfere
-(unset CDPATH) 1>/dev/null 2>/dev/null && unset CDPATH
+_program_unset CDPATH
 
 # Find the absolute path containing this script
 _program_path_find()
@@ -115,10 +119,8 @@ _program_path_find()
 	fi
 }
 cd "$(_program_path_find)" 1>/dev/null
-unset _program_path_find 1>/dev/null 2>/dev/null
-
-]=]
+unset _program_path_find 1>/dev/null 2>/dev/null]=]
 
 function module:initialize()
-	AbstractStartShellScriptAction.initialize(self, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, initialScriptLines)
+	AbstractStartShellScriptAction.initialize(self, CommentPosixShellScriptAction, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, initialScriptLines)
 end

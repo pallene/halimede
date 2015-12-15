@@ -6,21 +6,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local Path = halimede.io.paths.Path
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
-local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling('UnsetEnvironmentVariablePosixShellScriptAction')
-local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportEnvironmentVariablePosixShellScriptAction')
-local ChangeDirectoryPosixShellScriptAction = require.sibling('ChangeDirectoryPosixShellScriptAction')
-local RemoveRecursivelyWithForcePosixShellScriptAction = require.sibling('RemoveRecursivelyWithForcePosixShellScriptAction')
-local MakeDirectoryRecursivelyPosixShellScriptAction = require.sibling('MakeDirectoryRecursivelyPosixShellScriptAction')
 
 
 moduleclass('AbstractStartShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(unsetEnvironmentVariableShellScriptActionClass, exportEnvironmentVariableShellScriptActionClass, environmentVariablesToUnset, environmentVariablesToExport, ...)
+function module:initialize(commentShellScriptActionClass, unsetEnvironmentVariableShellScriptActionClass, exportEnvironmentVariableShellScriptActionClass, environmentVariablesToUnset, environmentVariablesToExport, ...)
+	assert.parameterTypeIsTable('commentShellScriptActionClass', commentShellScriptActionClass)
 	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
 	assert.parameterTypeIsTable('environmentVariablesToExport', environmentVariablesToExport)
 	
 	AbstractShellScriptAction.initialize(self)
 	
+	self.commentShellScriptAction = commentShellScriptActionClass:new()
 	self.unsetEnvironmentVariableShellScriptAction = unsetEnvironmentVariableShellScriptActionClass:new()
 	self.exportEnvironmentVariableShellScriptAction = exportEnvironmentVariableShellScriptActionClass:new()
 	self.environmentVariablesToUnset = environmentVariablesToUnset
@@ -32,10 +29,12 @@ assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'pairs')
 function module:execute(shellScript, buildEnvironment)
 	shellScript:appendLinesToScript(unpack(self.initialScriptLines))
 	
+	self.commentShellScriptAction:execute(shellScript, buildEnvironment, 'Unsetting unreliable and polluting environment variables')
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
 		self.unsetEnvironmentVariableShellScriptAction:execute(shellScript, buildEnvironment, environmentVariableName)
 	end
 	
+	self.commentShellScriptAction:execute(shellScript, buildEnvironment, 'Exporting useful environment variables')
 	for environmentVariableName, environmentVariableValue in pairs(self.environmentVariablesToExport) do
 		self.exportEnvironmentVariableShellScriptAction:execute(shellScript, buildEnvironment, environmentVariableName, environmentVariableValue)
 	end

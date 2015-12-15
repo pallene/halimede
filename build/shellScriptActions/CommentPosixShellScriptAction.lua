@@ -4,19 +4,20 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local Path = halimede.io.paths.Path
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('UnsetEnvironmentVariablePosixShellScriptAction', AbstractShellScriptAction)
+moduleclass('CommentPosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, variableName)
-	assert.parameterTypeIsString('variableName', variableName)
+function module:execute(shellScript, buildEnvironment, comment)
+	assert.parameterTypeIsString('comment', comment)
 	
-	-- Relies on function definition _program_unset() in StartPosixShellScriptAction
-	shellScript:appendCommandLineToScript('_program_unset', variableName)
+	local safeComment = comment:gsub('\0', ''):gsub('\n', '\n# ')
+	
+	shellScript:appendLinesToScript('\n# ' .. safeComment)
 end

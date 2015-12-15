@@ -114,4 +114,23 @@ Bootstrapping to a build system
 * build binutils
 	* needs a lot of things in place already
 	* not needed for Mac OS X
-*
+* build buysbox (see <https://github.com/daliworks/busybox-osx> and <https://github.com/pclouds/busybox-w32>) to have a consistent build environment
+
+
+#### Notes on Perl 5 `Configure`
+
+* Currently autoconf uses Perl 5 (although with quite a small feature set, it still does)
+* It may be possible to use Micro perl, but current attempts have failed on Mac OS X Yosemite
+* It's actually a very clever script that handles a lot of, fortunately now, obsolete, use cases
+* Seems `bash 2.02` had problems with an empty `CDPATH` (setting to . works)
+* Programs needed:-
+  * `cat`
+  * `sed`
+  * `uname` (perhaps)
+  * `grep` (perhaps)
+  * `mkdir`
+  * `rm`
+  * `awk`
+  * `chmod`
+  * And probably many more
+  
