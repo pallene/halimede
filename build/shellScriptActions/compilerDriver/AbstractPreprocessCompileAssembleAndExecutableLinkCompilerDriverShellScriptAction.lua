@@ -17,7 +17,7 @@ function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableA
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
-function module:execute(shellScript, buildEnvironment, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
+function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)

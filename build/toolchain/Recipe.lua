@@ -351,32 +351,46 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 	self:_populateShellScript(shellScript, versionRelativePathElements, version.packageVersion, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
 	
 	local scriptFileName = 'build-' .. crossPlatform.name .. '-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod
-	local scriptFilePath = self.recipeFolderPath:appendFile(scriptFileName)
+	local scriptFilePath = self.recipesPath:appendFile(scriptFileName)
 	shellScript:writeToFileAndExecute(scriptFilePath, noRedirection, noRedirection)
 end
 
-assert.globalTypeIsFunctionOrCall('setmetatable', 'unpack')
+assert.globalTypeIsFunctionOrCall('unpack')
+local function toVersionPath(recipePaths, folderName, crossPlatform, versionRelativePathElements)
+	local relativeFromRecipes = shallowCopy(versionRelativePathElements)
+	relativeFromRecipes:insert(1, crossPlatform.name)
+	relativeFromRecipes:insert(1, folderName)
+	return recipePaths:relativeFolderPath(unpack(relativeFromRecipes))
+end
+
+local function toUpPath(recipePaths, relativeFolderPath)
+	assert.parameterTypeIsInstanceOf('recipePaths', recipePaths, RecipePaths)
+	assert.parameterTypeIsInstanceOf('relativeFolderPath', relativeFolderPath, Path)
+	
+	relativeFolderPath:assertIsRelative('relativeFolderPath')
+	relativeFolderPath:assertIsFolderPath('relativeFolderPath')
+	
+	return recipePaths:relativeFolderPath(relativeFolderPath.numberOfPathElements)
+end
+
+assert.globalTypeIsFunctionOrCall('setmetatable')
 function module:_populateShellScript(shellScript, versionRelativePathElements, versionFolderName, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	
 	-- The shell script will change CWD to the absolute, fully-resolved path containing itself
 	-- This path is currently recipes/
 	-- The script then changes to execute from within the build folder, hence all other paths are relative to the build folder
 	
-	local buildFolderRelativeFromRecipes = shallowCopy(versionRelativePathElements)
-	buildFolderRelativeFromRecipes:insert(1, crossPlatform.name)
-	buildFolderRelativeFromRecipes:insert(1, buildFolderName)
-	local buildFolderRelativePath = buildRecipePaths:relativeFolderPath(unpack(buildFolderRelativeFromRecipes))
+	local buildFolderRelativePath = toVersionPath(buildRecipePaths, buildFolderName, crossPlatform, versionRelativePathElements)
+	local upFromBuildFolderRelativePath = toUpPath(buildRecipePaths, buildFolderRelativeFromRecipes)
 	
-	local upToRecipesFolderFromBuildFolderRelativePath = buildRecipePaths:parentPaths(#buildFolderRelativeFromRecipes)
+	local sourceFolderRelativePath = buildRecipePaths:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName)
+	local upFromSourceFolderRelativePath = toUpPath(buildRecipePaths, sourceFolderRelativePath)
 	
-	local sourceFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName)
+	local patchFolderRelativePath = buildRecipePaths:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName)
+	local upFromPatchFolderRelativePath = toUpPath(buildRecipePaths, patchFolderRelativePath)
 	
-	local patchFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName)
-	
-	local destFolderRelativeFromRecipes = shallowCopy(versionRelativePathElements)
-	destFolderRelativeFromRecipes:insert(1, crossPlatform.name)
-	destFolderRelativeFromRecipes:insert(1, destFolderName)
-	local destFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath:appendFolders(unpack(destFolderRelativeFromRecipes))
+	local destFolderRelativePath = toVersionPath(buildRecipePaths, destFolderName, crossPlatform, versionRelativePathElements)
+	local upFromDestFolderRelativePath = toUpPath(buildRecipePaths, destFolderRelativePath)
 	
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
@@ -385,13 +399,19 @@ function module:_populateShellScript(shellScript, versionRelativePathElements, v
 		
 		buildFolderRelativePath = buildFolderRelativePath,
 		
-		upToRecipesFolderFromBuildFolderRelativePath = upToRecipesFolderFromBuildFolderRelativePath,
+		upFromBuildFolderRelativePath = upFromBuildFolderRelativePath,
 		
 		sourceFolderRelativePath = sourceFolderRelativePath,
 		
+		upFromSourceFolderRelativePath = upFromSourceFolderRelativePath,
+		
 		patchFolderRelativePath = patchFolderRelativePath,
 		
+		upFromPatchFolderRelativePath = upFromPatchFolderRelativePath,
+		
 		destFolderRelativePath = destFolderRelativePath,
+		
+		upFromDestFolderRelativePath = upFromDestFolderRelativePath,
 		
 		buildPlatform = buildPlatform,
 		
@@ -442,8 +462,8 @@ function module:_populateShellScript(shellScript, versionRelativePathElements, v
 	action.RemoveRecursivelyWithForce(buildFolderRelativePath)
 	action.MakeDirectoryRecursively(buildFolderRelativePath, '0755')
 	
-	comment('Perform all script actions from the safety of the build folder')
-	action.ChangeDirectory(buildFolderRelativePath)
+	--comment('Perform all script actions from the safety of the build folder')
+	--action.Pushd(buildFolderRelativePath)
 	
 	comment('Recipe-specific functionality starts here')
 	userFunction(buildEnvironment)

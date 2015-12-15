@@ -56,6 +56,8 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 	
 	self.isDirectory = not isFile
 	self.isDeviceOrRoot = length < 2
+	
+	self.numberOfPathElements = #self.pathElements
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')

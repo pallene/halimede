@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
@@ -15,8 +15,8 @@ function module:initialize()
 end
 
 function module:execute(shellScript, buildEnvironment, path, mode)
-	assert.parameterTypeIsInstanceOf('path', path, Path)
+	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	assert.parameterTypeIsString('mode', mode)
 	
-	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', path:toString(true))
+	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', self:_quoteShellPath(path, true))
 end

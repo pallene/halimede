@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
-local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
@@ -18,21 +18,21 @@ end
 
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
-	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
-	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
+function module:_execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
+	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, ShellPath)
+	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, ShellPath)
 	
 	linkFilePath:assertIsFilePath('linkFilePath')
 	
 	local command = tabelize({'MKLINK'})
 	
-	if not linkContentsPath.isFile then
+	if linkContentsPath.isDirectory then
 		command:insert('/D')
 	end
 	
 	-- Note that order is reverse of that for POSIX ln -s
-	command:insert(linkFilePath:toString(false))
-	command:insert(linkContentsPath:toString(false))
+	command:insert(self:_quoteShellPath(linkFilePath, false))
+	command:insert(self:_quoteShellPath(linkContentsPath, false))
 	
 	shellScript:appendCommandLineToScript(unpack(command))
 end

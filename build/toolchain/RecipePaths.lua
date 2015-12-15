@@ -31,13 +31,14 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
-function module:baseFilePaths(prefixWithPath, ...)
+function module:filePaths(prefixWithPath, fileExtension ...)
 	assert.parameterTypeIsInstanceOf('prefixWithPath', prefixWithPath, Path)
 	
-	local baseFilePaths = {}
+	local filePaths = {}
 	
 	for _, stringOrTable in ipairs({...}) do
 		local path
+		local pathWithExtension
 		if type.isTable(stringOrTable) then
 			path = self:relativeFilePath(unpack(stringOrTable))
 		elseif type.isString(stringOrTable) then
@@ -45,9 +46,30 @@ function module:baseFilePaths(prefixWithPath, ...)
 		else
 			exception.throw('baseFilePaths should only contain strings or tables of string')
 		end
-		table.insert(baseFilePaths, prefixWithPath:appendRelativePath(path))
+		pathWithExtension = path:appendFileExtension(path)
+		table.insert(baseFilePaths, prefixWithPath:appendRelativePath(pathWithExtension))
 	end
 	return FilePaths:new(baseFilePaths)
+end
+
+function module:files(...)
+	assert.parameterTypeIsString('fileExtension', fileExtension)
+	local baseFilePaths = {}
+	
+	for _, stringOrTable in ipairs({...}) do
+		local path
+		local pathWithExtension
+		if type.isTable(stringOrTable) then
+			path = self:relativeFilePath(unpack(stringOrTable))
+		elseif type.isString(stringOrTable) then
+			path = self:relativeFilePath(stringOrTable)
+		else
+			exception.throw('baseFilePaths should only contain strings or tables of string')
+		end
+		table.insert(baseFilePaths, path)
+	end
+	return FilePaths:new(baseFilePaths)
+	
 end
 
 function module:toObjectsWithoutPaths(baseFilePaths)

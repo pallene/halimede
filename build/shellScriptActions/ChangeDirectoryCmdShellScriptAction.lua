@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local tabelize = halimede.table.tabelize
-local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
@@ -16,17 +16,16 @@ function module:initialize()
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:execute(shellScript, buildEnvironment, path)
-	assert.parameterTypeIsInstanceOf('path', path, Path)
+function module:_execute(shellScript, buildEnvironment, path)
+	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	
 	local command = tabelize({'CD'})
 	
-	local formattedPath = abstractPath:toString(true)
 	if path:hasNonEmptyDevice() then
 		command:insert('/D')
 	end
 	
-	command:insert(formattedPath)
+	command:insert(self:_quoteShellPath(path, true))
 	
 	shellScript:appendCommandLineToScript(unpack(command))
 end

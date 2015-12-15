@@ -52,6 +52,10 @@ function module:quoteArgument(argument)
 	return self.shellLanguage:quoteArgument(argument)
 end
 
+function module:quoteEnvironmentVariable(argument)
+	return self.shellLanguage:quoteEnvironmentVariable(argument)
+end
+
 function module:redirectStandardOutput(filePathOrFileDescriptor)
 	return self.shellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
 end

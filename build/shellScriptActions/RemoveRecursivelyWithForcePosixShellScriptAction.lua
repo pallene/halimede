@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
@@ -14,9 +14,8 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, path)
-	assert.parameterTypeIsInstanceOf('path', path, Path)
+function module:_execute(shellScript, buildEnvironment, path)
+	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	
-	shellScript:appendCommandLineToScript('rm', '-rf', path:toString(true))
+	shellScript:appendCommandLineToScript('rm', '-rf', self:_quoteShellPath(path, true))
 end

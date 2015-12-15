@@ -5,8 +5,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Paths = halimede.io.paths.Paths
-local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling('UnsetEnvironmentVariablePosixShellScriptAction')
-local ExportEnvironmentVariablePosixShellScriptAction = require.sibling('ExportEnvironmentVariablePosixShellScriptAction')
+local UnsetEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.UnsetEnvironmentVariablePosixShellScriptAction
+local ExportEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.ExportEnvironmentVariablePosixShellScriptActio)
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
@@ -19,7 +19,7 @@ function module:initialize()
 	self.exportEnvironmentVariablePosixShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(shellScript)
 end
 
-function module:execute(shellScript, buildEnvironment, paths)
+function module:_execute(shellScript, buildEnvironment, paths)
 	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
 	
 	self.unsetEnvironmentVariablePosixShellScriptAction:execute(shellScript, buildEnvironment, 'PATH')

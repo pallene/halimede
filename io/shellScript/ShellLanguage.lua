@@ -7,6 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local tabelize = halimede.table.tabelize
 local packageConfiguration = halimede.packageConfiguration
 local exception = halimede.exception
+local Object = halimede.class.Object
 local Path = halimede.io.paths.Path
 local Paths = halimede.io.paths.Paths
 local PathStyle = halimede.io.paths.PathStyle
@@ -179,14 +180,26 @@ function module:quoteArgument(argument)
 	return argument
 end
 
+function module:quoteEnvironmentVariable(argument)
+	assert.parameterTypeIsString('argument', argument)
+	
+	return self:_quoteEnvironmentVariable(argument)
+end
+
 function module:_quoteArgument(argument)
-	exception.throw('AbstractMethod')
+	exception.throw('Abstract Method')
+end
+
+function module:_quoteEnvironmentVariable(argument)
+	exception.throw('Abstract Method')
 end
 
 function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
+	elseif Object.isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
+		redirection = filePathOrFileDescriptor.argument
 	else
 		redirection = self:quoteArgument(filePathOrFileDescriptor)
 	end
@@ -194,34 +207,50 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	return AlreadyEscapedShellArgument:new(fileDescriptor .. symbol .. redirection)
 end
 
+local function assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
+	if type.isNumber(filePathOrFileDescriptor) then
+		assert.parameterTypeIsPositiveInteger('filePathOrFileDescriptor', filePathOrFileDescriptor)
+		return
+	end
+	
+	if type.isString(filePathOrFileDescriptor) then
+		return
+	end
+	
+	if Object.isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
+		return
+	end
+	exception.throw("The parameter 'filePathOrFileDescriptor' is not a positive integer, string or already escaped argument")
+end
+
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
-	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
 function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
-	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 	
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
 function module:redirectStandardInput(filePathOrFileDescriptor)
-	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 	
 	return self:redirectInput(ShellLanguage.standardIn, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardOutput(filePathOrFileDescriptor)
-	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 	
 	return self:redirectOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardError(filePathOrFileDescriptor)
-	assert.parameterTypeIsNumberOrString('filePathOrFileDescriptor', filePathOrFileDescriptor)
+	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 	
 	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
 end
@@ -373,10 +402,13 @@ end
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'gsub')
 function PosixShellLanguage:_quoteArgument(argument)
 	if argument:find('\0') ~= nil then
-		print(argument:find('\0'))
 		exception.throw("POSIX shell script arguments can not contain ASCII NUL (0x00)")
 	end
 	return "'" .. argument:gsub("'", "'\\''") .. "'"
+end
+
+function PosixShellLanguage:_quoteEnvironmentVariable(argument)
+	return '"${' .. argument .. '}"'
 end
 
 function PosixShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
@@ -427,6 +459,10 @@ function CmdShellLanguage:_quoteArgument(argument)
    argument = argument:gsub('(\\*)%%', cmdEscaperB)
    
    return '"' .. argument .. '"'
+end
+
+function PosixShellLanguage:_quoteEnvironmentVariable(argument)
+	return '"%' .. argument .. '%"'
 end
 
 -- http://lua-users.org/lists/lua-l/2013-11/msg00367.html

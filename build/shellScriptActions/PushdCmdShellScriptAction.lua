@@ -4,21 +4,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeSymbolicLinkPosixShellScriptAction', AbstractShellScriptAction)
+moduleclass('PushdCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
-	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, Path)
-	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, Path)
-
-	linkFilePath:assertIsFilePath('linkFilePath')
+function module:_execute(shellScript, buildEnvironment, path)
+	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	
-	shellScript:appendCommandLineToScript('ln', '-s', linkContentsPath:toString(false), linkFilePath:toString(false))
+	shellScript:appendCommandLineToScript('PUSHD', self:_quoteShellPath(path, true))
 end

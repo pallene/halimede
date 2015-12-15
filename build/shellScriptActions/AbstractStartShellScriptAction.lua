@@ -26,7 +26,7 @@ function module:initialize(commentShellScriptActionClass, unsetEnvironmentVariab
 end
 
 assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'pairs')
-function module:execute(shellScript, buildEnvironment)
+function module:_execute(shellScript, buildEnvironment)
 	shellScript:appendLinesToScript(unpack(self.initialScriptLines))
 	
 	self.commentShellScriptAction:execute(shellScript, buildEnvironment, 'Unsetting unreliable and polluting environment variables')

@@ -13,8 +13,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, variableName, variableValue)
+function module:_execute(shellScript, buildEnvironment, variableName, variableValue)
 	assert.parameterTypeIsString('variableName', variableName)
 	assert.parameterTypeIsString('variableValue', variableValue)
 	

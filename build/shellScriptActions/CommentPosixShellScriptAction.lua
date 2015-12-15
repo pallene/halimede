@@ -14,10 +14,10 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, buildEnvironment, comment)
+function module:_execute(shellScript, buildEnvironment, comment)
 	assert.parameterTypeIsString('comment', comment)
 	
 	local safeComment = comment:gsub('\0', ''):gsub('\n', '\n# ')
 	
-	shellScript:appendLinesToScript('\n# ' .. safeComment)
+	shellScript:appendLinesToScript('\n\n# ' .. safeComment)
 end

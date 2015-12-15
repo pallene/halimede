@@ -14,7 +14,7 @@ function module:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, variableName)
+function module:_execute(shellScript, buildEnvironment, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
 	
 	-- Relies on function definition _program_unset() in StartPosixShellScriptAction

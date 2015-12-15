@@ -4,11 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local AbstractConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractConfigHShellScriptAction
+local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmdShellScriptAction
 
 
-moduleclass('WriteConfigHCmdShellScriptAction', AbstractConfigHShellScriptAction)
+moduleclass('WriteConfigHCmdShellScriptAction', AbstractWriteConfigHShellScriptAction)
 
 function module:initialize()
 	AbstractConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction)

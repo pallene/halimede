@@ -15,7 +15,7 @@ function module:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:execute(shellScript, buildEnvironment, executableFilePath)
+function module:_execute(shellScript, buildEnvironment, executableFilePath)
 	assert.parameterTypeIsInstanceOf('executableFilePath', executableFilePath, Path)
 	
 	executableFilePath:assertIsFilePath('executableFilePath')

@@ -18,5 +18,16 @@ function module:__call(...)
 end
 
 function module:execute(shellScript, buildEnvironment, ...)
+	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
+	assert.parameterTypeIsTable('buildEnvironment', buildEnvironment)
+	
+	return module:_execute(shellScript, buildEnvironment, ...)
+end
+
+function module:_execute(shellScript, buildEnvironment, ...)
 	exception.throw('Abstract Method')
+end
+
+function module:_quoteShellPath(path, specifyCurrentDirectoryExplicitlyIfAppropriate)
+	return path:quoteArgument(self.shellLanguage, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end

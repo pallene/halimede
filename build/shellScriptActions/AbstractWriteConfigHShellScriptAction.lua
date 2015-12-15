@@ -6,11 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local AbstractShellScriptAction = require.sibling('AbstractShellScriptAction')
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
-local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local exception = halimede.exception
 
 
-moduleclass('AbstractConfigHShellScriptAction')
+moduleclass('AbstractWriteConfigHShellScriptAction')
 
 function module:initialize(commentShellScriptActionClass)
 	assert.parameterTypeIsTable('commentShellScriptActionClass', commentShellScriptActionClass)
@@ -20,13 +20,13 @@ function module:initialize(commentShellScriptActionClass)
 	self.commentShellScriptAction = commentShellScriptActionClass:new()
 end
 
-function module:execute(shellScript, buildEnvironment, configHDefines, filePath)
+function module:_execute(shellScript, buildEnvironment, configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
-	assert.parameterTypeIsInstanceOfOrNil('filePath', filePath, Path)
+	assert.parameterTypeIsInstanceOfOrNil('filePath', filePath, ShellPath)
 	
 	local actualFilePath
 	if filePath == nil then
-		actualFilePath = buildEnvironment.buildRecipePaths:relativeFilePath('config.h')
+		actualFilePath = ShellPath.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(buildEnvironment.buildFolderRelativePath:relativeFilePath('config.h'))
 	else
 		filePath:assertIsFilePath('filePath')
 		
