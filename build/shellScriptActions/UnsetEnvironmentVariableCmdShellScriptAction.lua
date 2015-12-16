@@ -14,7 +14,7 @@ function module:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:_execute(shellScript, buildEnvironment, variableName)
+function module:_execute(shellScript, builder, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
 	
 	shellScript:appendCommandLineToScript('UNSET', '/Q', variableName)

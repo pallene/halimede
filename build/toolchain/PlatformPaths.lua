@@ -198,7 +198,7 @@ function module:dvi(perRecipeVersionRelativePathElements)
 end
 
 -- pdf documentation (pdfdir)
-function module:doc(perRecipeVersionRelativePathElements)
+function module:pdf(perRecipeVersionRelativePathElements)
 	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'doc', 'pdf')
 end
 

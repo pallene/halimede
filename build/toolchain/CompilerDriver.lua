@@ -10,7 +10,7 @@ local CompilerMetadata = require.sibling('CompilerMetadata')
 local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
 local Arguments = require.sibling('Arguments')
-local FilePaths = require.sibling('FilePaths')
+local FilePaths = halimede.io.paths.FilePaths
 local CompilerDriverArguments = require.sibling('CompilerDriverArguments')
 
 

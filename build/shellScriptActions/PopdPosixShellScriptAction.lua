@@ -13,7 +13,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment)
+function module:_execute(shellScript, builder)
 	-- Relies on compatibility functions in StartPosixShellScriptAction
 	shellScript:appendCommandLineToScript('popd', path:toString(true))
 end

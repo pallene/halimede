@@ -17,7 +17,10 @@ local Platform = require.sibling('Platform')
 local PlatformPaths = require.sibling('PlatformPaths')
 local GnuTuple = require.sibling('GnuTuple')
 local RecipePaths = require.sibling('RecipePaths')
-local ExecutionEnvironmentShellScript = require.sibling('ExecutionEnvironmentShellScript')
+local ShellScript = halimede.io.shellScript.ShellScript
+local ShellPath = halimede.io.shellScript.ShellPath
+local HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH = ShellPath.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH
+local Builder = require.sibling('Builder')
 
 
 local fieldExists = {}
@@ -179,7 +182,7 @@ end
 local function configHDefinesDefault(configHDefines, platform)
 end
 
-local function executeDefault(buildEnvironmentLight)
+local function executeDefault(builderLight)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
@@ -339,7 +342,7 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
 	
 	local buildVariant = version.buildVariant
-	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ExecutionEnvironmentShellScript, version.dependencies, buildVariant)
+	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ShellScript)
 	
 	local strip
 	if buildVariant.strip then
@@ -348,7 +351,7 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 		strip = nil
 	end
 	
-	self:_populateShellScript(shellScript, versionRelativePathElements, version.packageVersion, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
+	self:_populateShellScript(shellScript, version.dependencies, buildVariant, versionRelativePathElements, version.packageVersion, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
 	
 	local scriptFileName = 'build-' .. crossPlatform.name .. '-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod
 	local scriptFilePath = self.recipesPath:appendFile(scriptFileName)
@@ -356,118 +359,44 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')
-local function toVersionPath(recipePaths, folderName, crossPlatform, versionRelativePathElements)
+local function toVersionPath(platform, folderName, crossPlatform, versionRelativePathElements)
 	local relativeFromRecipes = shallowCopy(versionRelativePathElements)
 	relativeFromRecipes:insert(1, crossPlatform.name)
 	relativeFromRecipes:insert(1, folderName)
-	return recipePaths:relativeFolderPath(unpack(relativeFromRecipes))
-end
-
-local function toUpPath(recipePaths, relativeFolderPath)
-	assert.parameterTypeIsInstanceOf('recipePaths', recipePaths, RecipePaths)
-	assert.parameterTypeIsInstanceOf('relativeFolderPath', relativeFolderPath, Path)
-	
-	relativeFolderPath:assertIsRelative('relativeFolderPath')
-	relativeFolderPath:assertIsFolderPath('relativeFolderPath')
-	
-	return recipePaths:relativeFolderPath(relativeFolderPath.numberOfPathElements)
+	return platform:relativeFolderPath(unpack(relativeFromRecipes))
 end
 
 assert.globalTypeIsFunctionOrCall('setmetatable')
-function module:_populateShellScript(shellScript, versionRelativePathElements, versionFolderName, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
+function module:_populateShellScript(shellScript, dependencies, buildVariant, versionRelativePathElements, versionFolderName, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
 	
 	-- The shell script will change CWD to the absolute, fully-resolved path containing itself
 	-- This path is currently recipes/
 	-- The script then changes to execute from within the build folder, hence all other paths are relative to the build folder
 	
-	local buildFolderRelativePath = toVersionPath(buildRecipePaths, buildFolderName, crossPlatform, versionRelativePathElements)
-	local upFromBuildFolderRelativePath = toUpPath(buildRecipePaths, buildFolderRelativeFromRecipes)
+	local buildFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(toVersionPath(buildPlatform, buildFolderName, crossPlatform, versionRelativePathElements))
 	
-	local sourceFolderRelativePath = buildRecipePaths:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName)
-	local upFromSourceFolderRelativePath = toUpPath(buildRecipePaths, sourceFolderRelativePath)
+	local sourceFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName))
 	
-	local patchFolderRelativePath = buildRecipePaths:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName)
-	local upFromPatchFolderRelativePath = toUpPath(buildRecipePaths, patchFolderRelativePath)
+	local patchFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName))
 	
-	local destFolderRelativePath = toVersionPath(buildRecipePaths, destFolderName, crossPlatform, versionRelativePathElements)
-	local upFromDestFolderRelativePath = toUpPath(buildRecipePaths, destFolderRelativePath)
-	
+	local destFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(toVersionPath(buildPlatform, destFolderName, crossPlatform, versionRelativePathElements))
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 	
-	local buildEnvironment = {
-		
-		buildFolderRelativePath = buildFolderRelativePath,
-		
-		upFromBuildFolderRelativePath = upFromBuildFolderRelativePath,
-		
-		sourceFolderRelativePath = sourceFolderRelativePath,
-		
-		upFromSourceFolderRelativePath = upFromSourceFolderRelativePath,
-		
-		patchFolderRelativePath = patchFolderRelativePath,
-		
-		upFromPatchFolderRelativePath = upFromPatchFolderRelativePath,
-		
-		destFolderRelativePath = destFolderRelativePath,
-		
-		upFromDestFolderRelativePath = upFromDestFolderRelativePath,
-		
-		buildPlatform = buildPlatform,
-		
-		buildRecipePaths = buildRecipePaths,
-		
-		crossPlatform = crossPlatform,
-		
-		crossRecipePaths = crossRecipePaths,
-		
-		arguments = arguments,
-		
-		configHDefines = configHDefines,
-		
-		strip = strip
-	}
+	local builder = Builder:new(shellScript, dependencies, buildVariant, sourceFolderShellPath, patchFolderShellPath, buildFolderShellPath, destFolderShellPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, configHDefines)
 	
-	local function createActionsHolder(namespace)
-		return setmetatable({}, {
-			__call = function(self, childNamespaceElement, ...)
-				return createActionsHolder(namespace .. '.' .. childNamespaceElement)
-			end,
-
-			__index = function(self, key)
-				return function(...)
-					return shellScript:newAction(namespace, key):execute(shellScript, buildEnvironment, ...)
-				end
-			end
-		})
-	end
+	builder.StartScript()
 	
-	local action = createActionsHolder('halimede.build.shellScriptActions')
-	buildEnvironment.action = action
-
-	local function comment(value)
-		assert.parameterTypeIsString('value', value)
-		
-		action.Comment(value)
-	end
-	buildEnvironment.comment = comment
+	builder.RecreateFolderPath(buildFolderShellPath)
 	
-	action.StartScript()
+	builder.RecreateFolderPath(destFolderShellPath)
 	
-	comment('Create empty dest folder')
-	action.RemoveRecursivelyWithForce(destFolderRelativePath)
-	action.MakeDirectoryRecursively(destFolderRelativePath, '0755')
+	builder.Comment('Perform all script actions from the safety of the build folder')
+	builder.Pushd(buildFolderShellPath)
 	
-	comment('Create empty build folder')
-	action.RemoveRecursivelyWithForce(buildFolderRelativePath)
-	action.MakeDirectoryRecursively(buildFolderRelativePath, '0755')
+	builder.Comment('Recipe-specific functionality starts here')
+	userFunction(builder)
+	builder.Comment('Recipe-specific functionality ends here')
 	
-	--comment('Perform all script actions from the safety of the build folder')
-	--action.Pushd(buildFolderRelativePath)
-	
-	comment('Recipe-specific functionality starts here')
-	userFunction(buildEnvironment)
-	comment('Recipe-specific functionality ends here')
-	
-	action.EndScript()
+	builder.EndScript()
 end

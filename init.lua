@@ -1058,79 +1058,108 @@ assert.globalTypeIsFunctionOrCall('setmetatable', 'rawget', 'tostring', 'ipairs'
 assert.globalTypeIsFunctionOrCall('assert', 'type')
 local middleclass = relativeRequire('middleclass')
 
-assert.globalTypeIsFunctionOrCall('setmetatable', 'getmetatable', 'tostring', 'rawset')
+assert.globalTypeIsFunctionOrCall('rawset')
+local function allowExplicityNilFields(note, metatable, missingIndexFunction)
+	assert.parameterTypeIsTable('metatable', metatable)
+	assert.parameterTypeIsFunction('missingIndexFunction', missingIndexFunction)
+	
+	metatable.___missingIndexFunction = missingIndexFunction
+	metatable.___explicitlyNilFields = {}
+	
+	local originalIndex = metatable.__index
+	local underlyingIndexFunction
+	if type.isNil(originalIndex) then
+		underlyingNewIndexFunction = function(self, key)
+			return nil
+		end
+	elseif type.isTable(originalIndex) then
+		underlyingIndexFunction = function(self, key)
+			return originalIndex[key]
+		end
+	elseif type.isFunction(originalIndex) then
+		underlyingIndexFunction = originalIndex
+	else
+		error("__index in metatable must be of type nil, table or function")
+	end
+	
+	metatable.__index = function(self, key)
+		if metatable.___explicitlyNilFields[key] then
+			return nil
+		end
+		
+		local value = underlyingIndexFunction(self, key)
+		if value ~= nil then
+			return value
+		end
+		return metatable.___missingIndexFunction(self, key)
+	end
+	
+	local originalNewIndex = metatable.__newindex
+	local underlyingNewIndexFunction
+	if type.isNil(originalNewIndex) then
+		underlyingNewIndexFunction = function(self, key, value)
+			rawset(self, key, value)
+		end
+	elseif type.isTable(originalNewIndex) then
+		underlyingNewIndexFunction = function(self, key, value)
+			originalNewIndex[key] = value
+		end
+	elseif type.isFunction(originalNewIndex) then
+		underlyingNewIndexFunction = originalNewIndex
+	else
+		error("__newindex in metatable must be of type nil, table or function")
+	end
+	
+	metatable.__newindex = function(self, key, value)
+		if value == nil then
+			metatable.___explicitlyNilFields[key] = true
+		else
+			metatable.___explicitlyNilFields[key] = nil
+			underlyingNewIndexFunction(self, key, value)
+		end
+	end
+end
+
+assert.globalTypeIsFunctionOrCall('tostring')
+local function errorClassMissingIndex(name)
+	return function(self, key)
+		error("Class " .. name .. " does not have static field '" .. tostring(key) .. "'", 3)
+	end
+end
+
+assert.globalTypeIsFunctionOrCall('tostring')
+local function errorInstanceMissingIndex(name)
+	return function(self, key)
+		error("Instance of " .. name .. " does not have instance field '" .. tostring(key) .. "'", 3)
+	end
+end
+
+assert.globalTypeIsFunctionOrCall('getmetatable')
 local function mutateMiddleclassSoThatMissingFieldsCauseErrors()
 	local originalFunction = middleclass.class
 	
 	middleclass.class = function(name, super, ...)
 		local newClass = originalFunction(name, super, ...)
 	
-		local metatable = getmetatable(newClass)
-		local originalIndex = metatable.__index
-		metatable.__index = function(self, key)
-			local value = originalIndex[key]
-			if value ~= nil then
-				return value
-			end
-			error("Class " .. name .. " does not have static field '" .. tostring(key) .. "'", 2)
+		local classFieldsMetatable = getmetatable(newClass)
+		allowExplicityNilFields('class ' .. name, classFieldsMetatable, errorClassMissingIndex(name))
+		
+		newClass.setClassMissingIndex = function(classMissingIndexFunction)
+			assert.parameterTypeIsFunctionOrCall('classMissingIndexFunction', classMissingIndexFunction)
+			
+			classFieldsMetatable.___missingIndexFunction = classMissingIndexFunction
+		end
+		
+		local instanceFieldsMetatable = newClass.__instanceDict
+		allowExplicityNilFields('instance ' .. name, instanceFieldsMetatable, errorInstanceMissingIndex(name))
+		
+		newClass.setInstanceMissingIndex = function(instanceMissingIndexFunction)
+			assert.parameterTypeIsFunctionOrCall('instanceMissingIndexFunction', instanceMissingIndexFunction)
+			
+			instanceFieldsMetatable.___missingIndexFunction = instanceMissingIndexFunction
 		end
 		
 		return newClass
-	end
-	
-	middleclass.Object.static.allocate = function(self)
-		assert(type(self) == 'table', "Make sure that you are using 'Class:allocate' instead of 'Class.allocate'")
-		local metatable = self.__instanceDict
-		
-		local explicitlyNilFields = {}
-		
-		local originalIndex = metatable.__index
-		local underlyingIndexFunction
-		
-		if type.isTable(originalIndex) then
-			underlyingIndexFunction = function(self, key)
-				return originalIndex[key]
-			end
-		else
-			underlyingIndexFunction = originalIndex
-		end
-		
-		metatable.__index = function(self, key)
-			local value = underlyingIndexFunction(self, key)
-			if value ~= nil then
-				return value
-			elseif explicitlyNilFields[key] then
-				return nil
-			end
-			local name = getmetatable(self.class).__tostring()
-			error("Instance of " .. name .. " does not have instance field '" .. tostring(key) .. "'", 2)
-		end
-		
-		-- This logic exists to allow us to specify explicitly 'nil' fields
-		local originalNewIndex = metatable.__newindex
-		local underlyingNewIndexFunction
-		
-		if type.isTable(originalNewIndex) then
-			underlyingNewIndexFunction = function(self, key, value)
-				originalNewIndex[key] = value
-			end
-		elseif type.isNil(originalNewIndex) then
-			underlyingNewIndexFunction = function(self, key, value)
-				rawset(self, key, value)
-			end
-		else
-			underlyingNewIndexFunction = originalNewIndex
-		end
-		
-		metatable.__newindex = function(self, key, value)
-			if value == nil then
-				explicitlyNilFields[key] = true
-			else
-				underlyingNewIndexFunction(self, key, value)
-			end
-		end
-
-		return setmetatable({class = self}, metatable)
 	end
 	
 	return middleclass
@@ -1156,6 +1185,9 @@ aliasedModules['assert'] = assert
 halimede.packageConfiguration = packageConfiguration
 halimede.createNamedCallableFunction = createNamedCallableFunction
 halimede.modulesRootPathString = modulesRootPathString
+halimede.allowExplicityNilFields = allowExplicityNilFields
+
+halimede.init = {}
 
 augment('trace')
 
@@ -1164,5 +1196,8 @@ halimede.moduleclass = moduleclass
 
 augment('modulefunction')
 halimede.modulefunction = modulefunction
+
+augment('delegateclass')
+halimede.delegateclass = delegateclass
 
 return halimede

@@ -14,7 +14,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment, comment)
+function module:_execute(shellScript, builder, comment)
 	assert.parameterTypeIsString('comment', comment)
 	
 	local safeComment = comment:gsub('\0', ''):gsub('\r\n', '\r\nREM ')

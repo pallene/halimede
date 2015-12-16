@@ -26,16 +26,16 @@ function module:initialize(commentShellScriptActionClass, unsetEnvironmentVariab
 end
 
 assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'pairs')
-function module:_execute(shellScript, buildEnvironment)
+function module:_execute(shellScript, builder)
 	shellScript:appendLinesToScript(unpack(self.initialScriptLines))
 	
-	self.commentShellScriptAction:execute(shellScript, buildEnvironment, 'Unsetting unreliable and polluting environment variables')
+	self.commentShellScriptAction:execute(shellScript, builder, 'Unsetting unreliable and polluting environment variables')
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
-		self.unsetEnvironmentVariableShellScriptAction:execute(shellScript, buildEnvironment, environmentVariableName)
+		self.unsetEnvironmentVariableShellScriptAction:execute(shellScript, builder, environmentVariableName)
 	end
 	
-	self.commentShellScriptAction:execute(shellScript, buildEnvironment, 'Exporting useful environment variables')
+	self.commentShellScriptAction:execute(shellScript, builder, 'Exporting useful environment variables')
 	for environmentVariableName, environmentVariableValue in pairs(self.environmentVariablesToExport) do
-		self.exportEnvironmentVariableShellScriptAction:execute(shellScript, buildEnvironment, environmentVariableName, environmentVariableValue)
+		self.exportEnvironmentVariableShellScriptAction:execute(shellScript, builder, environmentVariableName, environmentVariableValue)
 	end
 end

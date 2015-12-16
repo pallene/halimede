@@ -17,7 +17,7 @@ function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableA
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
-function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
+function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
@@ -30,7 +30,7 @@ function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cSt
 	
 	executableFilePathWithoutExtension:assertIsFilePath('executableFilePathWithoutExtension')
 	
-	local crossRecipePaths = buildEnvironment.crossRecipePaths
+	local crossRecipePaths = builder.crossRecipePaths
 	
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
 	compilerDriverArguments:addCStandard(cStandard)
@@ -44,8 +44,8 @@ function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cSt
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
 	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(executableFilePathWithoutExtension))
 	
-	self:_unsetEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments)
-	self:_exportEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
+	self:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
+	self:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 	
 	compilerDriverArguments:appendCommandLineToScript(shellScript)
 end

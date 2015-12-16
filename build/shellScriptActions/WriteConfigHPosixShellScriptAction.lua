@@ -11,7 +11,7 @@ local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentP
 moduleclass('WriteConfigHPosixShellScriptAction', AbstractWriteConfigHShellScriptAction)
 
 function module:initialize()
-	AbstractConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
+	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
 end
 
 function module:_append(shellScript, stringFilePath, configHDefines)

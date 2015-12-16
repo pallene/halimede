@@ -14,9 +14,9 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment, path)
+function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 
 	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows
-	shellScript:appendCommandLineToScript('RD', '/S', '/Q', self:_quoteShellPath(path, true))
+	shellScript:appendCommandLineToScript('RD', '/S', '/Q', self:_quoteShellPath(shellScript, path, true))
 end

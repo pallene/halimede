@@ -45,7 +45,9 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	self.cCompilerDriver = cCompilerDriver
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
 	self.strip = strip
-		
+	
+	self.shellLanguage = shellScriptExecutor.shellLanguage
+	
 	Platform.static[name] = self
 end
 
@@ -70,6 +72,35 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	end
 	return configHDefines
 end
+
+function module:toExecutableRelativeFilePath(filePath)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
+	
+	filePath:assertIsFilePath('filePath')
+	
+	return filePath:appendFileExtension(self.executableExtension)
+end
+
+function module:objectRelativeFilePath(...)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
+	
+	filePath:assertIsFilePath('filePath')
+	
+	return filePath:appendFileExtension(self.objectExtension)
+end
+
+function module:parentPaths(count)
+	return self.shellLanguage:parentPaths(count)
+end
+
+function module:relativeFolderPath(...)
+	return self.shellLanguage:relativeFolderPath(...)
+end
+
+function module:relativeFilePath(...)
+	return self.shellLanguage:relativeFilePath(...)
+end
+
 
 -- MinGW is a toolchain, but 32-bit
 -- MSYS is a colleciton of Unix utilities but with a toolchain for their creation

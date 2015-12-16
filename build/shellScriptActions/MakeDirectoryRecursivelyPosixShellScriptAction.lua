@@ -14,9 +14,9 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, buildEnvironment, path, mode)
+function module:execute(shellScript, builder, path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	assert.parameterTypeIsString('mode', mode)
 	
-	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', self:_quoteShellPath(path, true))
+	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', self:_quoteShellPath(shellScript, path, true))
 end

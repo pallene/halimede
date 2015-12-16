@@ -8,7 +8,7 @@ local newline = halimede.packageConfiguration.newline
 
 
 local function traceIfRequired()
-	local environmentVariable = 'LUA_HALIMEDE_TRACE'
+	local environmentVariable = 'HALIMEDE_TRACE'
 	
 	-- Check for functions in the global namespace that we rely on that might have been removed in a sandbox; don't enable tracing if they're not present.
 	if not type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'getenv') then

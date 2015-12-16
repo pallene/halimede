@@ -14,11 +14,11 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment, path, mode)
+function module:_execute(shellScript, builder, path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	assert.parameterTypeIsString('mode', mode)
 	
 	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	shellScript:appendCommandLineToScript('MD', self:_quoteShellPath(path, true))
+	shellScript:appendCommandLineToScript('MD', self:_quoteShellPath(shellScript, path, true))
 end

@@ -17,7 +17,7 @@ function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableA
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
-function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, combinedOutputFilePath)
+function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, combinedOutputFilePath)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
@@ -26,7 +26,7 @@ function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cSt
 	assert.parameterTypeIsTable('sources', sources)
 	assert.parameterTypeIsInstanceOfOrNil('combinedOutputFilePath', combinedOutputFilePath, Path)
 	
-	local crossRecipePaths = buildEnvironment.crossRecipePaths
+	local crossRecipePaths = builder.crossRecipePaths
 	
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
 	compilerDriverArguments:append(compilerDriverArguments.compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
@@ -43,8 +43,8 @@ function module:_execute(shellScript, buildEnvironment, compilerDriverFlags, cSt
 	end
 	compilerDriverArguments:appendFilePaths(sources)
 	
-	self:_unsetEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments)
-	self:_exportEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
+	self:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
+	self:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 	
 	compilerDriverArguments:appendCommandLineToScript(shellScript)
 end

@@ -17,17 +17,17 @@ function module:__call(...)
 	return self:execute(...)
 end
 
-function module:execute(shellScript, buildEnvironment, ...)
+function module:execute(shellScript, builder, ...)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
-	assert.parameterTypeIsTable('buildEnvironment', buildEnvironment)
+	assert.parameterTypeIsTable('builder', builder)
 	
-	return module:_execute(shellScript, buildEnvironment, ...)
+	return self:_execute(shellScript, builder, ...)
 end
 
-function module:_execute(shellScript, buildEnvironment, ...)
+function module:_execute(shellScript, builder, ...)
 	exception.throw('Abstract Method')
 end
 
-function module:_quoteShellPath(path, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	return path:quoteArgument(self.shellLanguage, specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:_quoteShellPath(shellScript, path, specifyCurrentDirectoryExplicitlyIfAppropriate)
+	return path:quoteArgument(shellScript.shellLanguage, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end

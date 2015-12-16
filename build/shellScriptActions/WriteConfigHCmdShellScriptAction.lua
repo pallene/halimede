@@ -11,7 +11,7 @@ local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmd
 moduleclass('WriteConfigHCmdShellScriptAction', AbstractWriteConfigHShellScriptAction)
 
 function module:initialize()
-	AbstractConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction)
+	AbstractWriteConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction)
 end
 
 -- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch

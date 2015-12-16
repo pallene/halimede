@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local CompilerDriver = require.sibling('CompilerDriver')
 local Arguments = require.sibling('Arguments')
-local FilePaths = require.sibling('FilePaths')
+local FilePaths = halimede.io.paths.FilePaths
 local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
 local ShellScript = halimede.io.shellScript.ShellScript

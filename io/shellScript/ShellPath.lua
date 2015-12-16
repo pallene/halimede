@@ -10,7 +10,7 @@ local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument
 local ShellLanguage = require.sibling('ShellLanguage')
 
 
-moduleclass('ShellPath')
+local ShellPath = delegateclass('ShellPath', 'path')
 
 module.static.HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY = function(path)
 	return ShellPath:new('HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY', path)
@@ -20,6 +20,8 @@ module.static.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH = function(path)
 	return ShellPath:new('HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH', path)
 end
 
+assert.globalTypeIsFunctionOrCall('ipairs', 'error', 'setmetatable')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match')
 function module:initialize(environmentVariablePrefixOrNil, path)
 	assert.parameterTypeIsStringOrNil('environmentVariablePrefixOrNil', environmentVariablePrefixOrNil)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
@@ -27,13 +29,19 @@ function module:initialize(environmentVariablePrefixOrNil, path)
 	if environmentVariablePrefixOrNil ~= nil then
 		path:assertIsRelative('path')
 		
-		if environmentVariablePrefixOrNil:find('[_A-Z][_A-Z0-9]*') ~= nil then
-			exception.throw('environmentVariablePrefixOrNil is restricted (for Windows compatibility) to A-Z, 0-9 and underscore, but 0-9 is not allowed for the first character')
+		if environmentVariablePrefixOrNil:match('[_A-Z][_A-Z0-9]*') ~= environmentVariablePrefixOrNil then
+			exception.throw("environmentVariablePrefixOrNil '%s' is restricted (for Windows compatibility) to A-Z, 0-9 and underscore, but 0-9 is not allowed for the first character", environmentVariablePrefixOrNil)
 		end
 	end
 	
 	self.environmentVariablePrefixOrNil = environmentVariablePrefixOrNil
 	self.path = path
+end
+
+assert.globalTypeIsFunctionOrCall('tostring')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
+function module:__tostring()
+	return ('%s(%s, %s)'):format(self.class.name, self.environmentVariablePrefixOrNil, self.path)
 end
 
 function module:quoteArgument(shellLanguage, specifyCurrentDirectoryExplicitlyIfAppropriate)

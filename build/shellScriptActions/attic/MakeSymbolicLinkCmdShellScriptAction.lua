@@ -18,7 +18,7 @@ end
 
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:_execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
+function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, ShellPath)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, ShellPath)
 	
@@ -31,8 +31,8 @@ function module:_execute(shellScript, buildEnvironment, linkContentsPath, linkFi
 	end
 	
 	-- Note that order is reverse of that for POSIX ln -s
-	command:insert(self:_quoteShellPath(linkFilePath, false))
-	command:insert(self:_quoteShellPath(linkContentsPath, false))
+	command:insert(self:_quoteShellPath(shellScript, linkFilePath, false))
+	command:insert(self:_quoteShellPath(shellScript, linkContentsPath, false))
 	
 	shellScript:appendCommandLineToScript(unpack(command))
 end

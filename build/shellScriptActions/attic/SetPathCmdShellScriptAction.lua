@@ -14,7 +14,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment, paths)
+function module:_execute(shellScript, builder, paths)
 	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
 
 	-- http://ss64.com/nt/path.html

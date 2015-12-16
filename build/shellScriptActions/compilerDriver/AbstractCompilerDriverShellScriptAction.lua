@@ -27,18 +27,18 @@ function module:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFla
 	return crossRecipePaths.platform.cCompilerDriver:newArguments(compilerDriverFlags, crossRecipePaths.platformPaths:sysroot(), true)
 end
 
-function module:_unsetEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments)
+function module:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
-		self.unsetEnvironmentVariableAction:execute(shellScript, buildEnvironment, environmentVariableName)
+		self.unsetEnvironmentVariableAction:execute(shellScript, builder, environmentVariableName)
 	end)
 end
 
-function module:_exportEnvironmentVariables(shellScript, buildEnvironment, compilerDriverArguments, extras)
+function module:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, extras)
 	local compilerDriver = compilerDriverArguments.compilerDriver
 	
 	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
-		self.exportEnvironmentVariableAction:execute(shellScript, buildEnvironment, environmentVariableName, environmentVariableValue)
+		self.exportEnvironmentVariableAction:execute(shellScript, builder, environmentVariableName, environmentVariableValue)
 	end, extras)
 end

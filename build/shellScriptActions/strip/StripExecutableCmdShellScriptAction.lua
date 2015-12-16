@@ -15,12 +15,12 @@ function module:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-function module:_execute(shellScript, buildEnvironment, executableFilePath)
+function module:_execute(shellScript, builder, executableFilePath)
 	assert.parameterTypeIsInstanceOf('executableFilePath', executableFilePath, Path)
 	
 	executableFilePath:assertIsFilePath('executableFilePath')
 	
-	local strip = buildEnvironment.strip
+	local strip = builder.strip
 	if strip then
 		return
 	end

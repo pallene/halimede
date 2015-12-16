@@ -13,5 +13,5 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment)
+function module:_execute(shellScript, builder)
 end

@@ -36,14 +36,6 @@ function module:appendFileExtension(fileExtension)
 	return FilePaths:new(copy)
 end
 
-function module:toCFiles()
-	return self:appendFileExtension('c')
-end
-
-function module:toCxxFiles()
-	return self:appendFileExtension('cxx')
-end
-
 assert.globalTypeIsFunctionOrCall('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:toFileNamePaths()
@@ -74,12 +66,6 @@ function module:withoutFileNames()
 	return set
 end
 
-function module:toObjectsWithoutPaths(objectFileExtension)
-	assert.parameterTypeIsString('objectFileExtension', objectFileExtension)
-	
-	return self:toFileNamePaths():appendFileExtension(objectFileExtension)
-end
-
 function module:iterate()
 	local index = 0
 	local count = #self.paths
@@ -91,3 +77,17 @@ function module:iterate()
 		return self.paths[index]
 	end
 end
+
+-- function module:toCFiles()
+-- 	return self:appendFileExtension('c')
+-- end
+--
+-- function module:toCxxFiles()
+-- 	return self:appendFileExtension('cxx')
+-- end
+--
+-- function module:toObjectsWithoutPaths(objectFileExtension)
+-- 	assert.parameterTypeIsString('objectFileExtension', objectFileExtension)
+--
+-- 	return self:toFileNamePaths():appendFileExtension(objectFileExtension)
+-- end

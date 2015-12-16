@@ -13,7 +13,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment, variableName, variableValue)
+function module:_execute(shellScript, builder, variableName, variableValue)
 	assert.parameterTypeIsString('variableName', variableName)
 	assert.parameterTypeIsString('variableValue', variableValue)
 

@@ -16,7 +16,7 @@ function module:initialize()
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')
-function module:_execute(shellScript, buildEnvironment, path)
+function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	
 	local command = tabelize({'CD'})
@@ -25,7 +25,7 @@ function module:_execute(shellScript, buildEnvironment, path)
 		command:insert('/D')
 	end
 	
-	command:insert(self:_quoteShellPath(path, true))
+	command:insert(self:_quoteShellPath(shellScript, path, true))
 	
 	shellScript:appendCommandLineToScript(unpack(command))
 end

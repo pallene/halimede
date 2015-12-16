@@ -11,6 +11,7 @@ local equality = halimede.table.equality
 local Object = halimede.class.Object
 local PathStyle = require.sibling('PathStyle')
 local PathRelativity = require.sibling('PathRelativity')
+local FilePaths = require.sibling('FilePaths')
 
 
 local Path = moduleclass('Path')
@@ -158,13 +159,25 @@ else
 	end
 end
 
-function module:finalPathElementNameAsPath()
+function module:finalPathElementNameAsString()
 	local length = #self.pathElements
 	if length == 0 then
 		return ''
 	end
 	local finalPathElementNameAsString = self.pathElements[length]
-	return Path:new(self.pathStyle, PathRelativity.Relative, self.device, {finalPathElementNameAsString}, self.isFile, nil)
+	return finalPathElementNameAsString
+end
+
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
+function module:finalPathElementNameAsPath()
+	local finalPathElementNameAsString = self:finalPathElementNameAsString()
+	local pathElements
+	if finalPathElementNameAsString:isEmpty() then
+		pathElements = {}
+	else
+		pathElements = {finalPathElementNameAsString}
+	end
+	return Path:new(self.pathStyle, PathRelativity.Relative, self.device, pathElements, self.isFile, nil)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
@@ -267,4 +280,31 @@ function module:_appendPathAsRelativePath(path, parameterName, assertionName)
 	end
 	
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, path.isFile, path.alternateStreamName)
+end
+
+assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
+function module:filePaths(fileExtension, baseFilePaths)
+	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
+	assert.parameterTypeIsTable('baseFilePaths', baseFilePaths)
+	
+	local prefixWithPath = self
+	prefixWithPath:assertIsFolderPath('self')
+	
+	local filePaths = {}
+	
+	for _, stringOrTable in ipairs(baseFilePaths) do
+		local path
+		local pathWithExtension
+		if type.isTable(stringOrTable) then
+			path = self:relativeFilePath(unpack(stringOrTable))
+		elseif type.isString(stringOrTable) then
+			path = self:relativeFilePath(stringOrTable)
+		else
+			exception.throw('baseFilePaths should only contain strings or tables of string')
+		end
+		pathWithExtension = path:appendFileExtension(path)
+		table.insert(baseFilePaths, prefixWithPath:appendRelativePath(pathWithExtension))
+	end
+	return FilePaths:new(baseFilePaths)
 end

@@ -14,11 +14,11 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, buildEnvironment, linkContentsPath, linkFilePath)
+function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, ShellPath)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, ShellPath)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
 	
-	shellScript:appendCommandLineToScript('ln', '-s', self:_quoteShellPath(linkFilePath, false), self:_quoteShellPath(linkFilePath, false))
+	shellScript:appendCommandLineToScript('ln', '-s', self:_quoteShellPath(shellScript, linkFilePath, false), self:_quoteShellPath(shellScript, linkFilePath, false))
 end

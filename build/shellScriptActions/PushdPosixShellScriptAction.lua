@@ -14,9 +14,9 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:execute(shellScript, buildEnvironment, path)
+function module:execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	
 	-- Relies on compatibility functions in StartPosixShellScriptAction
-	shellScript:appendCommandLineToScript('pushd', self:_quoteShellPath(path, true))
+	shellScript:appendCommandLineToScript('pushd', self:_quoteShellPath(shellScript, path, true))
 end
