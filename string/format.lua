@@ -4,26 +4,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
-local Path = halimede.io.paths.Path
-local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
-
-
--- builtin macros
-moduleclass('Builtin')
-
-function module:initialize(name, expansionText, symbolLookupMode)
+assert.globalTypeIsFunctionOrCall('ipairs', 'tostring', 'unpack')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
+local function warning(template, ...)
+	local formatArguments = {...}
+	for index, formatArgument in ipairs(formatArguments) do
+		if type.isObject(formatArgument) then
+			formatArguments[index] = tostring(formatArgument)
+		end
+	end
+	
+	template:format(unpack(formatArguments))
 end
 
---[[
-Hashtable operations
-
-enum symbol_lookup
-{
-  SYMBOL_LOOKUP,
-  SYMBOL_INSERT,
-  SYMBOL_DELETE,
-  SYMBOL_PUSHDEF,
-  SYMBOL_POPDEF
-};
-]]--
+modulefunction(warning)

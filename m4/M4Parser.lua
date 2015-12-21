@@ -57,8 +57,17 @@ function module:_readLoop(byteUserFunction, bytesFinishedFunction)
 end
 
 
-
 local function readTokensByteUser(self, prefix, state)
+	
+	-- Comments, Macros, Quoted Strings
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	if self.commenting:prefixMatchesBeginComment(prefix) then
 		self:readComment(prefix)

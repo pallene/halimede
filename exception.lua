@@ -4,20 +4,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local format = halimede.string.format
+
 assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'tostring')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module.throwWithLevelIncrement(levelIncrement, template, ...)
 	assert.parameterTypeIsPositiveInteger('levelIncrement', levelIncrement)
 	assert.parameterTypeIsString('template', template)
 	
-	local formatArguments = {...}
-	for index, formatArgument in ipairs(formatArguments) do
-		if type.isObject(formatArgument) then
-			formatArguments[index] = tostring(formatArgument)
-		end
-	end
+	local message = format(template, ...)
 	
-	error(template:format(unpack(formatArguments)), 2 + levelIncrement)
+	error(message, 2 + levelIncrement)
 end
 local throwWithLevelIncrement = module.throwWithLevelIncrement
 

@@ -5,35 +5,58 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local exception = halimede.exception
+
+
+local QuotingRules = moduleclass('QuotingRules')
+
+function module:initialize(beginQuoteDelimiter, endQuoteDelimiter)
+	assert.parameterTypeIsString('beginQuoteDelimiter', beginQuoteDelimiter)
+	assert.parameterTypeIsString('endQuoteDelimiter', endQuoteDelimiter)
+	
+	self.beginQuoteDelimiter = beginQuoteDelimiter
+	self.endQuoteDelimiter = endQuoteDelimiter
+	
+	self.beginQuoteDelimiterLength = #beginQuoteDelimiter
+end
+
+function module:quote(argument)
+	assert.parameterTypeIsString('argument', argument)
+	
+	return self.beginQuoteDelimiter .. argument .. self.endQuoteDelimiter
+end
+
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'sub')
+function module:couldBeStartOfQuotedString(prefix)
+	assert.parameterTypeIsString('prefix', prefix)
+	
+	local prefixLength = #prefix
+	local beginQuoteDelimiter = self.beginQuoteDelimiter
+	local beginQuoteDelimiterLength = self.beginQuoteDelimiterLength
+	
+	if prefixLength == '' then
+		exception.throw("Do not call this function with an empty prefix")
+	end
+	
+	if prefixLength > beginQuoteDelimiterLength then
+		return false
+	end
+	
+	if prefixLength == beginQuoteDelimiterLength then
+		return prefix = beginQuoteDelimiter
+	end
+	
+	beginQuoteDelimiter:sub(1, prefixLength)
+end
+
+
+
+
 local m4Assert = require.sibling('m4Assert')
 local Void = m4Assert.Void
 local isVoid = m4Assert.isVoid
 local isMissing = m4Assert.isMissing
 local isMissingOrVoid = m4Assert.isMissingOrVoid
-
-
-local Quoting = moduleclass('Quoting')
-
-function module:initialize(beginQuoteDelimiter, endQuoteDelimiter)
-	assert.parameterTypeIsString(beginQuoteDelimiter)
-	assert.parameterTypeIsString(endQuoteDelimiter)
-	
-	self.beginQuoteDelimiter = beginQuoteDelimiter
-	self.endQuoteDelimiter = endQuoteDelimiter
-end
-
--- Should be called after sequenceMatchesBeginMacro
-function module:prefixMatchesBeginQuote(prefix)
-	assert.parameterTypeIsString(prefix)
-	
-	return prefix == self.beginQuoteDelimiter
-end
-
-function module:prefixMatchesEndQuote(prefix)
-	assert.parameterTypeIsString(prefix)
-	
-	return prefix == self.endQuoteDelimiter
-end
 
 -- TODO: It is an error if the end of file occurs within a quoted string. 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
