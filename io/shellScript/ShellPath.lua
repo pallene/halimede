@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
-local AlreadyEscapedShellArgument = require.sibling.AlreadyEscapedShellArgument
+local ShellArgument = require.sibling.ShellArgument
 local ShellLanguage = require.sibling.ShellLanguage
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local tabelize = halimede.table.tabelize
@@ -71,6 +71,13 @@ function module:initialize(shellLanguage, environmentVariablePrefixOrNil, path)
 	self.path = path
 end
 
+
+-- Replacements for Path functions
+
+function module:remove()
+	return false, 'remove is not available for a ShellPath'
+end
+
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:filePaths(fileExtension, baseFilePaths)
 	-- No type checks
@@ -83,14 +90,17 @@ function module:filePaths(fileExtension, baseFilePaths)
 	return result
 end
 
+function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	exception.throw('Do not use this method willy-nilly; there are argument impacts')
+end
+
+
+
+
 assert.globalTypeIsFunctionOrCall('tostring')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:__tostring()
 	return ('%s(%s, %s)'):format(self.class.name, self.environmentVariablePrefixOrNil, self.path)
-end
-
-function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	exception.throw('Do not use this method willy-nilly; there are argument impacts')
 end
 
 function module:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -107,5 +117,5 @@ end
 function module:quoteArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
-	return AlreadyEscapedShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	return ShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end

@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local AlreadyEscapedShellArgument = moduleclass('AlreadyEscapedShellArgument')
+local ShellArgument = moduleclass('ShellArgument')
 
 function module:initialize(argument)
 	assert.parameterTypeIsString('argument', argument)
@@ -16,5 +16,5 @@ end
 function module:prepend(text)
 	assert.parameterTypeIsString('text', text)
 	
-	return AlreadyEscapedShellArgument:new(text .. self.argument)
+	return ShellArgument:new(text .. self.argument)
 end

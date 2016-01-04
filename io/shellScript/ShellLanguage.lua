@@ -11,7 +11,7 @@ local exception = halimede.exception
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local Path = halimede.io.paths.Path
 local PathStyle = halimede.io.paths.PathStyle
-local AlreadyEscapedShellArgument = require.sibling.AlreadyEscapedShellArgument
+local ShellArgument = require.sibling.ShellArgument
 local FileHandleStream = halimede.io.FileHandleStream
 
 
@@ -207,7 +207,7 @@ function module:quoteArgument(argument)
 		return self:_quoteArgument(argument)
 	end
 	
-	assert.parameterTypeIsInstanceOf('argument', argument, AlreadyEscapedShellArgument)
+	assert.parameterTypeIsInstanceOf('argument', argument, ShellArgument)
 	return argument
 end
 
@@ -229,13 +229,13 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
-	elseif isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
+	elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		redirection = filePathOrFileDescriptor.argument
 	else
 		redirection = self:quoteArgument(filePathOrFileDescriptor)
 	end
 	
-	return AlreadyEscapedShellArgument:new(fileDescriptor .. symbol .. redirection)
+	return ShellArgument:new(fileDescriptor .. symbol .. redirection)
 end
 
 local function assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
@@ -248,7 +248,7 @@ local function assertParameterIsAcceptableForRedirection(filePathOrFileDescripto
 		return
 	end
 	
-	if isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
+	if isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		return
 	end
 	exception.throw("The parameter 'filePathOrFileDescriptor' is not a positive integer, string or already escaped argument")

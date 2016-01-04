@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local exception = halimede.exception
 local ShellScript = halimede.io.shellScript.ShellScript
-local AlreadyEscapedShellArgument = halimede.io.shellScript.AlreadyEscapedShellArgument
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 moduleclass('AbstractStrip')
@@ -20,14 +20,14 @@ end
 
 function module:executable(shellScript, executableFilePathArgument)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
-	assert.parameterTypeIsInstanceOf('executableFilePathArgument', executableFilePathArgument, AlreadyEscapedShellArgument)
+	assert.parameterTypeIsInstanceOf('executableFilePathArgument', executableFilePathArgument, ShellArgument)
 	
 	shellScript:appendCommandLineToScript(self:_executable(executableFilePathArgument))
 end
 
 function module:library(shellScript, libraryFilePathArgument)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
-	assert.parameterTypeIsInstanceOf('libraryFilePathArgument', libraryFilePathArgument, AlreadyEscapedShellArgument)
+	assert.parameterTypeIsInstanceOf('libraryFilePathArgument', libraryFilePathArgument, ShellArgument)
 	
 	if self.supportsLibraryStripping then
 		shellScript:appendCommandLineToScript(self:_library(libraryFilePathArgument))

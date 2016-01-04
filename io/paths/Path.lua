@@ -18,6 +18,10 @@ local Path = moduleclass('Path')
 
 
 error('Fix me for ShellPath which has a different idea of toString() vs quoteArgumentX()')
+	uniquePaths
+	toPathsString
+	CompilerDriver 219
+	
 assert.globalTypeIsFunctionOrCall('ipairs')
 module.static.uniquePaths = function(paths)
 	assert.parameterTypeIsTable('paths', paths)
