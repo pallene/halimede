@@ -7,8 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
-local GnuTuple = require.sibling('GnuTuple')
-local CompilerDriver = require.sibling('CompilerDriver')
+local GnuTuple = require.sibling.GnuTuple
+local CompilerDriver = require.sibling.CompilerDriver
 local AbstractStrip = halimede.build.shellScriptActions.strip.AbstractStrip
 local MacOsXStrip = halimede.build.shellScriptActions.strip.MacOsXStrip
 

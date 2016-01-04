@@ -52,7 +52,7 @@ end
 
 
 
-local m4Assert = require.sibling('m4Assert')
+local m4Assert = require.sibling.m4Assert
 local Void = m4Assert.Void
 local isVoid = m4Assert.isVoid
 local isMissing = m4Assert.isMissing

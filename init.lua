@@ -1025,19 +1025,33 @@ requireFunction = function(modname)
 end
 require = createNamedCallableFunction('require', requireFunction, {}, 'modulefunction')
 
-local function sibling(siblingModuleElementName)
-	assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
-	
-	local grandParentModuleName = parentModuleNameFromModuleName(parentModuleName)
-	local requiredModuleName
-	if grandParentModuleName == '' then
-		requiredModuleName = siblingModuleElementName
-	else
-		requiredModuleName = grandParentModuleName .. '.' .. siblingModuleElementName
+
+assert.globalTypeIsFunctionOrCall('getmetatable')
+local function createSibling()
+	local function sibling(siblingModuleElementName)
+		assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
+
+		local grandParentModuleName = parentModuleNameFromModuleName(parentModuleName)
+		local requiredModuleName
+		if grandParentModuleName == '' then
+			requiredModuleName = siblingModuleElementName
+		else
+			requiredModuleName = grandParentModuleName .. '.' .. siblingModuleElementName
+		end
+		return require.functor(requiredModuleName)
 	end
-	return require.functor(requiredModuleName)
+	
+	local siblingTable = createNamedCallableFunction('sibling', sibling)
+	
+	local metatable = getmetatable(siblingTable)
+	metatable.__index = function(self, key)
+		return sibling(key)
+	end
+	
+	return siblingTable
 end
-require.sibling = sibling
+require.sibling = createSibling()
+
 
 assert.globalTypeIsFunctionOrCall('require')
 local function relativeRequire(childModuleName)

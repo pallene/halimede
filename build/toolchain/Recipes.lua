@@ -4,11 +4,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local GnuTuple = require.sibling('GnuTuple')
+local GnuTuple = require.sibling.GnuTuple
 local Path = halimede.io.paths.Path
-local Recipe = require.sibling('Recipe')
-local Platform = require.sibling('Platform')
-local PlatformPaths = require.sibling('PlatformPaths')
+local Recipe = require.sibling.Recipe
+local Platform = require.sibling.Platform
+local PlatformPaths = require.sibling.PlatformPaths
 local tabelize = halimede.table.tabelize
 
 

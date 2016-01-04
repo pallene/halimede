@@ -4,8 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Platform = require.sibling('Platform')
-local PlatformPaths = require.sibling('PlatformPaths')
+local Platform = require.sibling.Platform
+local PlatformPaths = require.sibling.PlatformPaths
 
 
 moduleclass('RecipePaths')

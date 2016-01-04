@@ -9,8 +9,8 @@ local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
 local equality = halimede.table.equality
 local isInstanceOf = halimede.class.Object.isInstanceOf
-local PathStyle = require.sibling('PathStyle')
-local PathRelativity = require.sibling('PathRelativity')
+local PathStyle = require.sibling.PathStyle
+local PathRelativity = require.sibling.PathRelativity
 
 
 local Path = moduleclass('Path')

@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local ShellScript = halimede.io.shellScript.ShellScript
 local ShellPath = halimede.io.shellScript.ShellPath
-local Builder = require.sibling('Builder')
+local Builder = require.sibling.Builder
 
 
 local Actions = moduleclass('Actions')

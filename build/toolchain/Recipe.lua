@@ -11,16 +11,16 @@ local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
-local Recipes = require.sibling('Recipes')
+local Recipes = require.sibling.Recipes
 local Path = halimede.io.paths.Path
-local Platform = require.sibling('Platform')
-local PlatformPaths = require.sibling('PlatformPaths')
-local GnuTuple = require.sibling('GnuTuple')
-local RecipePaths = require.sibling('RecipePaths')
+local Platform = require.sibling.Platform
+local PlatformPaths = require.sibling.PlatformPaths
+local GnuTuple = require.sibling.GnuTuple
+local RecipePaths = require.sibling.RecipePaths
 local ShellScript = halimede.io.shellScript.ShellScript
 local ShellPath = halimede.io.shellScript.ShellPath
 local HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH = ShellPath.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH
-local Builder = require.sibling('Builder')
+local Builder = require.sibling.Builder
 
 
 local fieldExists = {}

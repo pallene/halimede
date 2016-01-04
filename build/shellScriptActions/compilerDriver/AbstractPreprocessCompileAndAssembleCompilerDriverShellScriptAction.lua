@@ -7,7 +7,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
-local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
+local AbstractCompilerDriverShellScriptAction = require.sibling.AbstractCompilerDriverShellScriptAction
 local Path = halimede.io.paths.Path
 
 

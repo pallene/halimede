@@ -6,12 +6,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local tabelize = halimede.table.tabelize
 local exception = halimede.exception
-local CompilerMetadata = require.sibling('CompilerMetadata')
-local CStandard = require.sibling('CStandard')
+local CompilerMetadata = require.sibling.CompilerMetadata
+local CStandard = require.sibling.CStandard
 local Path = halimede.io.paths.Path
 local ShellPath = halimede.io.shellScript.ShellPath
-local Arguments = require.sibling('Arguments')
-local CompilerDriverArguments = require.sibling('CompilerDriverArguments')
+local Arguments = require.sibling.Arguments
+local CompilerDriverArguments = require.sibling.CompilerDriverArguments
 
 
 local CompilerDriver = moduleclass('CompilerDriver')

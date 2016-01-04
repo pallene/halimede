@@ -6,8 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
-local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
-local ShellLanguage = require.sibling('ShellLanguage')
+local AlreadyEscapedShellArgument = require.sibling.AlreadyEscapedShellArgument
+local ShellLanguage = require.sibling.ShellLanguage
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local tabelize = halimede.table.tabelize
 

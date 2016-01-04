@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local exception = halimede.exception
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
-local InstructionSet = require.sibling('InstructionSet')
+local InstructionSet = require.sibling.InstructionSet
 local ARC = InstructionSet.ARC
 local ARM64 = InstructionSet.ARM64
 local ARM = InstructionSet.ARM
@@ -25,7 +25,7 @@ local SH4 = InstructionSet['SH-4']
 local SPARC = InstructionSet.SPARC
 local SPARC64 = InstructionSet.SPARC64
 local x86_64 = InstructionSet.x86_64
-local Endianness = require.sibling('Endianness')
+local Endianness = require.sibling.Endianness
 local LittleEndian = Endianness.LittleEndian
 local BigEndian = Endianness.BigEndian
 local RETSIGTYPE = halimede.build.defines.RETSIGTYPE

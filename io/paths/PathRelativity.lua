@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local PathStyle = require.sibling('PathStyle')
+local PathStyle = require.sibling.PathStyle
 local exception = halimede.exception
 
 

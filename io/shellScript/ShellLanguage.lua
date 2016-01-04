@@ -10,7 +10,7 @@ local exception = halimede.exception
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local Path = halimede.io.paths.Path
 local PathStyle = halimede.io.paths.PathStyle
-local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
+local AlreadyEscapedShellArgument = require.sibling.AlreadyEscapedShellArgument
 local FileHandleStream = halimede.io.FileHandleStream
 
 

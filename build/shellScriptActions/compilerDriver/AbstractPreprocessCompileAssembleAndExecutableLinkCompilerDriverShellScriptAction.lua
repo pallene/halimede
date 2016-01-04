@@ -9,7 +9,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
-local AbstractCompilerDriverShellScriptAction = require.sibling('AbstractCompilerDriverShellScriptAction')
+local AbstractCompilerDriverShellScriptAction = require.sibling.AbstractCompilerDriverShellScriptAction
 
 
 moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)

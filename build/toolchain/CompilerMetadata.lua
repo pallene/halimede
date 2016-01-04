@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local CompilerName = require.sibling('CompilerName')
+local CompilerName = require.sibling.CompilerName
 local gcc = CompilerName.gcc
 local gxx = CompilerName['g++']
 local clang = CompilerName.clang
