@@ -4,14 +4,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local Object = halimede.class.Object
+local isInstanceOf = halimede.class.Object.isInstanceOf
 
 
 local function parameterTypeIsInstanceOf(parameterName, value, Class)
 	assert.parameterTypeIsString('parameterName', parameterName)
 	assert.parameterTypeIsTable('Class', Class)
 	
-	local isInstance = Object.isInstanceOf(value, Class)
+	local isInstance = isInstanceOf(value, Class)
 	local assertionMessage = assert.parameterIsNotMessage(parameterName, Class.name)
 	assert.withLevel(isInstance, assertionMessage, 3)
 end

@@ -27,7 +27,3 @@ end
 function module:_execute(shellScript, builder, ...)
 	exception.throw('Abstract Method')
 end
-
-function module:_quoteShellPath(shellScript, path, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	return path:quoteArgument(shellScript.shellLanguage, specifyCurrentDirectoryExplicitlyIfAppropriate)
-end

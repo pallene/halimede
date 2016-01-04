@@ -15,5 +15,5 @@ end
 
 function module:_execute(shellScript, builder)
 	-- Relies on compatibility functions in StartPosixShellScriptAction
-	shellScript:appendCommandLineToScript('popd', path:toString(true))
+	shellScript:appendCommandLineToScript('popd')
 end

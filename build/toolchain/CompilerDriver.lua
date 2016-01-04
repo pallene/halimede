@@ -9,8 +9,8 @@ local exception = halimede.exception
 local CompilerMetadata = require.sibling('CompilerMetadata')
 local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local Arguments = require.sibling('Arguments')
-local FilePaths = halimede.io.paths.FilePaths
 local CompilerDriverArguments = require.sibling('CompilerDriverArguments')
 
 
@@ -96,12 +96,12 @@ end
 
 function module:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
-	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
+	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, ShellPath)
 	
 	sysrootPath:assertIsFolderPath('sysrootPath')
 	sysrootPath:assertIsEffectivelyAbsolute('sysrootPath')
 	
-	arguments:append(self.sysrootPathOption .. sysrootPath:toString(true))
+	arguments:append(sysrootPath:quoteArgumentX(true):prepend(self.sysrootPathOption))
 end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
@@ -159,19 +159,23 @@ assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 function module:addIncludePaths(arguments, currentDirectoryString, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsString('currentDirectoryString', currentDirectoryString)
-	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
+	assert.parameterTypeIsTable('sourceFilePaths', sourceFilePaths)
 	
 	local includePaths = {}
 	
 	populateIncludePaths(includePaths, currentDirectoryString)
 	
-	for _, sourceFilePath in ipairs(sourceFilePaths:withoutFileNames()) do
-		local stringPath = sourceFilePath:toString(true)
-		populateIncludePaths(includePaths, stringPath)
+	for _, sourceFilePath in ipairs(Path.uniqueStrippedOfFinalPathElementPaths(sourceFilePaths)) do
+		
+		-- This is problematic - toString() isn't valid for ShellPath
+		XXXX
+		
+		local quotedPath = sourceFilePath:quoteArgumentX(true)
+		populateIncludePaths(includePaths, quotedPath)
 	end
 	
 	for includePath, _ in pairs(includePaths) do
-		arguments:append(self.includePathOption .. includePath)
+		arguments:append(quotedPath:prepend(self.includePathOption)
 	end	
 end
 

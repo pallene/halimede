@@ -6,7 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local CompilerDriver = require.sibling('CompilerDriver')
 local Arguments = require.sibling('Arguments')
-local FilePaths = halimede.io.paths.FilePaths
 local CStandard = require.sibling('CStandard')
 local Path = halimede.io.paths.Path
 local ShellScript = halimede.io.shellScript.ShellScript
@@ -37,10 +36,12 @@ function module:append(...)
 end
 
 function module:appendFilePaths(filePaths)
-	assert.parameterTypeIsInstanceOf('filePaths', filePaths, FilePaths)
+	assert.parameterTypeIsTable('filePaths', filePaths)
 	
-	for path in filePaths:iterate() do
-		self.arguments:append(path:toString(true))
+	for _, filePath in ipairs(filePaths) do
+		filePath:assertIsFilePath('filePath')
+		
+		self.arguments:append(filePath:quoteArgumentX(true))
 	end
 end
 
@@ -81,7 +82,7 @@ end
 
 function module:addIncludePaths(currentDirectoryString, sourceFilePaths)
 	assert.parameterTypeIsString('currentDirectoryString', currentDirectoryString)
-	assert.parameterTypeIsInstanceOf('sourceFilePaths', sourceFilePaths, FilePaths)
+	assert.parameterTypeIsTable('sourceFilePaths', sourceFilePaths)
 	
 	self.compilerDriver:addIncludePaths(self.arguments, currentDirectoryString, sourceFilePaths)
 end

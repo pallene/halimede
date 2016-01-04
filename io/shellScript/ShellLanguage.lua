@@ -7,9 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local tabelize = halimede.table.tabelize
 local packageConfiguration = halimede.packageConfiguration
 local exception = halimede.exception
-local Object = halimede.class.Object
+local isInstanceOf = halimede.class.Object.isInstanceOf
 local Path = halimede.io.paths.Path
-local Paths = halimede.io.paths.Paths
 local PathStyle = halimede.io.paths.PathStyle
 local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
 local FileHandleStream = halimede.io.FileHandleStream
@@ -62,12 +61,13 @@ module.static.standardOut = 1
 module.static.standardError = 2
 
 -- The reason we have a lower case and title case variant is that we avoid the need to use string:lower(), which depends on os.setlocale('all', 'C') to be deterministic, which isn't safe to use (we could be Lua code in a thread or embedded in an application that has already set setlocale())
-function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionExcludingLeadingPeriod, silenced, searchesCurrentPath, commandInterpreterName)
+function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, shellScriptFileExtensionExcludingLeadingPeriod, pathSeparator, silenced, searchesCurrentPath, commandInterpreterName)
 	assert.parameterTypeIsString('lowerCasedName', lowerCasedName)
 	assert.parameterTypeIsString('titleCasedName', titleCasedName)
 	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
 	assert.parameterTypeIsString('newline', newline)
 	assert.parameterTypeIsStringOrNil('shellScriptFileExtensionExcludingLeadingPeriod', shellScriptFileExtensionExcludingLeadingPeriod)
+	assert.parameterTypeIsStringOrNil('pathSeparator', pathSeparator)
 	assert.parameterTypeIsString('silenced', silenced)
 	assert.parameterTypeIsBoolean('searchesCurrentPath', searchesCurrentPath)
 	assert.parameterTypeIsString('commandInterpreterName', commandInterpreterName)
@@ -77,11 +77,15 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.pathStyle = pathStyle
 	self.newline = newline
 	self.shellScriptFileExtensionExcludingLeadingPeriod = shellScriptFileExtensionExcludingLeadingPeriod
+	self.pathSeparator = pathSeparator
 	self.silenced = silenced
 	self.searchesCurrentPath = searchesCurrentPath
 	self.commandInterpreterName = commandInterpreterName
+	
+	self.binarySearchPathCached = nil
 
 	self.parentPath = pathStyle.parentPath
+	self.currentPath = pathStyle.currentPath
 end
 
 function module:executeCommandExpectingSuccess(standardIn, standardOut, standardError, ...)
@@ -144,21 +148,40 @@ end
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
-assert.globalTypeIsFunctionOrCall('pcall')
+assert.globalTypeIsFunctionOrCall('pcall', 'ipairs')
 function module:commandIsOnPath(command)
 	assert.parameterTypeIsString('command', command)
 	
-	for path in self:binarySearchPath():iterate() do
-		local pathToBinary = path:appendFile(command)
+	for _, path in ipairs(self:binarySearchPath()) do
 		
-		local ok, fileHandleStreamOrError = pcall(FileHandleStream.openBinaryFileForReading, pathToBinary, command)
+		local function callback(fileExtension)
+			local pathToBinary = path:appendFile(command, fileExtension)
+	
+			local ok, fileHandleStreamOrError = pcall(FileHandleStream.openBinaryFileForReading, pathToBinary, command)
+			if ok then
+				fileHandleStreamOrError:close()
+				return true, pathToBinary
+			end
+			return false, nil
+		end
+	
+		local ok, result = self:iterateOverBinaryFileExtensions(callback)
 		if ok then
-			fileHandleStreamOrError:close()
-			return true, pathToBinary
+			return ok, result
 		end
 	end
 	
 	return false, nil
+end
+
+function module:iterateOverBinaryFileExtensions(callback)
+	assert.parameterTypeIsFunctionOrCall('callback', callback)
+	
+	return self:_iterateOverBinaryFileExtensions(callback)
+end
+
+function module:_iterateOverBinaryFileExtensions(callback)
+	exception.throw('Abstract Method')
 end
 
 function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
@@ -169,6 +192,13 @@ function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 	else
 		return false
 	end
+end
+
+function module:toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsTable('paths', paths)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	
+	return Path.toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropriate, self.pathSeparator)
 end
 
 function module:quoteArgument(argument)
@@ -198,7 +228,7 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
 	if type.isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
-	elseif Object.isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
+	elseif isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
 		redirection = filePathOrFileDescriptor.argument
 	else
 		redirection = self:quoteArgument(filePathOrFileDescriptor)
@@ -217,7 +247,7 @@ local function assertParameterIsAcceptableForRedirection(filePathOrFileDescripto
 		return
 	end
 	
-	if Object.isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
+	if isInstanceOf(filePathOrFileDescriptor, AlreadyEscapedShellArgument) then
 		return
 	end
 	exception.throw("The parameter 'filePathOrFileDescriptor' is not a positive integer, string or already escaped argument")
@@ -347,56 +377,61 @@ function module:appendFileExtension(fileName, fileExtension)
 	return self.pathStyle:appendFileExtension(fileName, fileExtension)
 end
 
-assert.globalTypeIsFunctionOrCall('ipairs')
-function module:paths(stringPathsTable)
-	assert.parameterTypeIsTable('stringPathsTable', stringPathsTable)
+local getEnvironmentVariableFunction
+if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'getenv') then
+	getEnvironmentVariableFunction = os.getenv
+else
+	getEnvironmentVariableFunction = function(environmentVariableName)
+		return nil
+	end
+end
+assert.globalTypeIsFunctionOrCall('ipairs', 'pcall')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split', 'isEmpty')
+function module:uniqueValidPathsFromEnvironmentVariable(environmentVariableName, isFilePath, prependCurrentDirectory)
+	assert.parameterTypeIsString('environmentVariableName', environmentVariableName)
+	assert.parameterTypeIsBoolean('isFilePath', isFilePath)
+	assert.parameterTypeIsBoolean('prependCurrentDirectory', prependCurrentDirectory)
 	
 	local paths = tabelize()
-	
-	for _, stringPath in ipairs(stringPathsTable) do
-		assert.parameterTypeIsString('stringPath', stringPath)
-		
-		local path = self.pathStyle:parse(stringPath, false)
-		paths:insert(path)
+	local stringPaths = getEnvironmentVariableFunction(environmentVariableName)
+	if stringPaths == nil or stringPaths:isEmpty() then
+		return paths
 	end
 	
-	return Paths:new(self.pathStyle, paths)
+	local function parse(potentialPath)
+		return self.pathStyle:parse(potentialPath, isFilePath)
+	end
+	
+	if self.searchesCurrentPath then
+		paths:insert(self.currentPath)
+	end
+	
+	local potentialPaths = stringPaths:split(self.pathSeparator)
+	for _, potentialPath in ipairs(potentialPaths) do
+		if not potentialPath:isEmpty() then
+			local ok, path = pcall(parse, potentialPath)
+			if ok then
+				paths:insert(path)
+			end
+		end
+	end
+	
+	return Path.uniquePaths(paths)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split')
 function module:binarySearchPath()
-	local PATH
-	local searchPaths
-	
-	if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'getenv') then
-		-- Can be nil
-		PATH = os.getenv('PATH')
-	else
-		PATH = nil
+	if self.binarySearchPathCached == nil then
+		self.binarySearchPathCached = self:uniqueValidPathsFromEnvironmentVariable('PATH', false, self.searchesCurrentPath)
 	end
-	
-	local combined
-	-- In Windows, the current working directory is considered a part of the path
-	if self.searchesCurrentPath then
-		if PATH == nil then
-			return self:paths({'.'})
-		else
-			combined = '.' .. self.pathStyle.pathSeparator .. PATH
-		end
-	elseif PATH == nil then
-		return self:paths({})
-	else
-		combined = PATH
-	end
-	
-	return self:paths(combined:split(self.pathStyle.pathSeparator))
+	return self.binarySearchPathCached
 end
 
 
 local PosixShellLanguage = halimede.class('PosixShellLanguage', ShellLanguage)
 
 function PosixShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, '/dev/null', false, 'sh')
+	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, ':', '/dev/null', false, 'sh')
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'gsub')
@@ -414,13 +449,19 @@ end
 function PosixShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
 end
 
+function PosixShellLanguage:_iterateOverBinaryFileExtensions(callback)
+	return callback(nil)
+end
+
 ShellLanguage.static.Posix = PosixShellLanguage:new()
 
 
 local CmdShellLanguage = halimede.class('CmdShellLanguage', ShellLanguage)
 
 function CmdShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', 'NUL', true, 'cmd')
+	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', ';', 'NUL', true, 'cmd')
+	
+	self.binaryFileExtensionsCached = nil
 end
 
 local slash = '\\'
@@ -461,7 +502,7 @@ function CmdShellLanguage:_quoteArgument(argument)
    return '"' .. argument .. '"'
 end
 
-function PosixShellLanguage:_quoteEnvironmentVariable(argument)
+function CmdShellLanguage:_quoteEnvironmentVariable(argument)
 	return '"%' .. argument .. '%"'
 end
 
@@ -472,6 +513,29 @@ end
 
 function CmdShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
 	self:appendLinesToScript(tabelizedScriptBuffer, 'IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
+end
+
+local DefaultPathExt = ".com; .exe; .bat; .cmd"
+CmdShellLanguage.static.DefaultPathExt = DefaultPathExt
+assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gsub', 'split')
+function CmdShellLanguage:_iterateOverBinaryFileExtensions(callback)
+	if self.binaryFileExtensionsCached == nil then
+		local pathExt = getEnvironmentVariableFunction('PATHEXT')
+		if pathExt == nil then
+			pathExt = DefaultPathExt
+		end
+		-- There may be whitespace (eg '; ')
+		self.binaryFileExtensionsCached = pathExt:gsub(';[ ]+', ';'):split(';')
+	end
+	
+	for _, binaryFileExtension in ipairs(self.binaryFileExtensionsCached) do
+		local ok, result = callback(binaryFileExtension)
+		if ok then
+			return true, result
+		end
+	end
+	return false, nil
 end
 
 ShellLanguage.static.Cmd = CmdShellLanguage:new()

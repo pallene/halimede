@@ -20,8 +20,9 @@ function module:initialize()
 end
 
 function module:_execute(shellScript, builder, paths)
-	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
+	assert.parameterTypeIsTable('paths', paths)
 	
+	-- Sadly, on Windows, the current folder is by default part of the path
 	self.unsetEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH')
-	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH', paths:toStrings(true))
+	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH', shellScript.shellLanguage:toPathsString(paths, true))
 end

@@ -15,9 +15,11 @@ function module:initialize()
 end
 
 function module:_execute(shellScript, builder, paths)
-	assert.parameterTypeIsInstanceOf('paths', paths, Paths)
+	assert.parameterTypeIsTable('paths', paths)
 
 	-- http://ss64.com/nt/path.html
 	shellScript:appendCommandLineToScript('PATH', ';')
-	shellScript:appendCommandLineToScript('PATH', paths:toStrings(true))
+	if #paths ~= 0 then
+		shellScript:appendCommandLineToScript('PATH', shellScript.shellLanguage:toPathsString(paths, true))
+	end
 end

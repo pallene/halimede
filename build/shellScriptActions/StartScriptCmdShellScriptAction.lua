@@ -9,6 +9,7 @@ local CommentCmdShellScriptAction = require.sibling('CommentCmdShellScriptAction
 local UnsetEnvironmentVariableCmdShellScriptAction = require.sibling('UnsetEnvironmentVariableCmdShellScriptAction')
 local ExportEnvironmentVariableCmdShellScriptAction = require.sibling('ExportEnvironmentVariableCmdShellScriptAction')
 local Path = halimede.io.paths.Path
+local CmdShellLanguage = halimede.io.shellScript.ShellLanguage.Cmd
 
 
 moduleclass('StartScriptCmdShellScriptAction', AbstractShellScriptAction)
@@ -24,6 +25,9 @@ function module:initialize()
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions',
 		'SETLOCAL',
-		'CD /D "%~dp0"'
+		'SET PATHEXT="' .. CmdShellLanguage.DefaultPathExt .. '"',
+		'SET HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH="%~dp0"',
+		'SET HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY="%CD%"',
+		'CD /D "%HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH%"'
 	)
 end

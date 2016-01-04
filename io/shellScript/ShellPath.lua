@@ -8,21 +8,52 @@ local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local AlreadyEscapedShellArgument = require.sibling('AlreadyEscapedShellArgument')
 local ShellLanguage = require.sibling('ShellLanguage')
+local isInstanceOf = halimede.class.Object.isInstanceOf
+local tabelize = halimede.table.tabelize
 
 
-local ShellPath = delegateclass('ShellPath', 'path')
+local ShellPath = moduleclass('ShellPath')
 
-module.static.HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY = function(path)
-	return ShellPath:new('HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY', path)
+module.setInstanceMissingIndex(function(instance, key)
+
+	local delegatedInstance = instance.path
+	
+	local underlyingMethodOrField = delegatedInstance[key]
+	
+	if type.isFunctionOrCall(underlyingMethodOrField) then
+		return function(self, ...)
+			-- Were we called MyInstance:MissingInstanceMethod() (if) or MyInstance.MissingInstanceMethod() (else)?
+			-- Not perfect; fails if any method takes itself as a second argument (eg a comparison function)
+			local underlyingResult
+			if self == instance then
+				underlyingResult = underlyingMethodOrField(delegatedInstance, ...)
+			else
+				underlyingResult = underlyingMethodOrField(delegatedInstance, self, ...)
+			end
+			
+			if isInstanceOf(underlyingResult, Path) then
+				return ShellPath:new(instance.shellLanguage, instance.environmentVariablePrefixOrNil, underlyingResult)
+			else
+				return underlyingResult
+			end
+		end
+	else
+		return underlyingMethodOrField
+	end
+end)
+
+module.static.HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY = function(shellLanguage, path)
+	return ShellPath:new(shellLanguage, 'HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY', path)
 end
 
-module.static.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH = function(path)
-	return ShellPath:new('HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH', path)
+module.static.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH = function(shellLanguage, path)
+	return ShellPath:new(shellLanguage, 'HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH', path)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'error', 'setmetatable')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match')
-function module:initialize(environmentVariablePrefixOrNil, path)
+function module:initialize(shellLanguage, environmentVariablePrefixOrNil, path)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	assert.parameterTypeIsStringOrNil('environmentVariablePrefixOrNil', environmentVariablePrefixOrNil)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
@@ -34,8 +65,21 @@ function module:initialize(environmentVariablePrefixOrNil, path)
 		end
 	end
 	
+	self.shellLanguage = shellLanguage
 	self.environmentVariablePrefixOrNil = environmentVariablePrefixOrNil
 	self.path = path
+end
+
+assert.globalTypeIsFunctionOrCall('ipairs')
+function module:filePaths(fileExtension, baseFilePaths)
+	-- No type checks
+	
+	local paths = self.path:filePaths(fileExtension, baseFilePaths)
+	local result = tabelize()
+	for _, path in ipairs(paths) do
+		result:insert(ShellPath:new(self.shellLanguage, self.environmentVariablePrefixOrNil, path))
+	end
+	return result
 end
 
 assert.globalTypeIsFunctionOrCall('tostring')
@@ -44,15 +88,23 @@ function module:__tostring()
 	return ('%s(%s, %s)'):format(self.class.name, self.environmentVariablePrefixOrNil, self.path)
 end
 
-function module:quoteArgument(shellLanguage, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
-	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	exception.throw('Do not use this method willy-nilly; there are argument impacts')
+end
+
+function module:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	local prefix
 	if self.environmentVariablePrefixOrNil ~= nil then
-		prefix = shellLanguage:quoteEnvironmentVariable(self.environmentVariablePrefixOrNil) .. self.path.pathStyle.folderSeparator
+		prefix = self.shellLanguage:quoteEnvironmentVariable(self.environmentVariablePrefixOrNil) .. self.path.pathStyle.folderSeparator
 	else
 		prefix = ''
 	end
-	return AlreadyEscapedShellArgument:new(prefix .. shellLanguage:quoteArgument(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)))
+	
+	return prefix .. self.shellLanguage:quoteArgument(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+end
+
+function module:quoteArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	
+	return AlreadyEscapedShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end

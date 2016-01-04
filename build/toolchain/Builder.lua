@@ -97,6 +97,7 @@ function module:initialize(shellScript, dependencies, buildVariant, sourceFolder
 	self.dviCrossDestination = destinationPath(self.dviCross)
 	self.docCrossDestination = destinationPath(self.docCross)
 	self.psCrossDestination = destinationPath(self.psCross)
+	
 end
 
 function module:__call(...)

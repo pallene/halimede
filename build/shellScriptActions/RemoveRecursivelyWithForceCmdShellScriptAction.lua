@@ -18,5 +18,5 @@ function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 
 	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows
-	shellScript:appendCommandLineToScript('RD', '/S', '/Q', self:_quoteShellPath(shellScript, path, true))
+	shellScript:appendCommandLineToScript('RD', '/S', '/Q', path:quoteArgumentX(true))
 end

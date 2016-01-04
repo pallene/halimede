@@ -25,7 +25,7 @@ function module:_execute(shellScript, builder, path)
 		command:insert('/D')
 	end
 	
-	command:insert(self:_quoteShellPath(shellScript, path, true))
+	command:insert(path:quoteArgumentX(true))
 	
 	shellScript:appendCommandLineToScript(unpack(command))
 end

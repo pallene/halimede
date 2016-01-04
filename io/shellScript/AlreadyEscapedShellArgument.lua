@@ -4,10 +4,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-moduleclass('AlreadyEscapedShellArgument')
+local AlreadyEscapedShellArgument = moduleclass('AlreadyEscapedShellArgument')
 
 function module:initialize(argument)
 	assert.parameterTypeIsString('argument', argument)
 	
 	self.argument = argument
+end
+
+function module:prepend(text)
+	assert.parameterTypeIsString('text', text)
+	
+	return AlreadyEscapedShellArgument:new(text .. self.argument)
 end

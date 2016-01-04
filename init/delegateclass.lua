@@ -26,8 +26,6 @@ local function delegate(class, fieldName)
 				else
 					return underlyingMethodOrField(delegatedInstance, self, ...)
 				end
-				
-				return underlyingMethodOrField(delegatedInstance, ...)
 			end
 		else
 			return underlyingMethodOrField

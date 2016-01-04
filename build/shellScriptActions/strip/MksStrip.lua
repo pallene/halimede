@@ -13,8 +13,8 @@ function module:initialize()
 	AbstractStrip.initialize(self, false)
 end
 
-function module:_executable(executableFilePathString)
-	assert.parameterTypeIsString(executableFilePathString)
+function module:_executable(executableFilePathArgument)
+	assert.parameterTypeIsString(executableFilePathArgument)
 	
-	return 'strip', '-m', executableFilePathString
+	return 'strip', '-m', executableFilePathArgument
 end

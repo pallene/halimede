@@ -373,13 +373,15 @@ function module:_populateShellScript(shellScript, dependencies, buildVariant, ve
 	-- This path is currently recipes/
 	-- The script then changes to execute from within the build folder, hence all other paths are relative to the build folder
 	
-	local buildFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(toVersionPath(buildPlatform, buildFolderName, crossPlatform, versionRelativePathElements))
+	local shellLanguage = shellScript.shellLanguage
 	
-	local sourceFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName))
+	local buildFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, toVersionPath(buildPlatform, buildFolderName, crossPlatform, versionRelativePathElements))
 	
-	local patchFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName))
+	local sourceFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName))
 	
-	local destFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(toVersionPath(buildPlatform, destFolderName, crossPlatform, versionRelativePathElements))
+	local patchFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName))
+	
+	local destFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, toVersionPath(buildPlatform, destFolderName, crossPlatform, versionRelativePathElements))
 	
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
 	

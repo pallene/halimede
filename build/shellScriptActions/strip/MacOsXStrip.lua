@@ -13,10 +13,10 @@ function module:initialize()
 	AbstractStrip.initialize(self, true)
 end
 
-function module:_executable(executableFilePathString)
-	return 'strip', '-S', '-r', executableFilePathString
+function module:_executable(executableFilePathArgument)
+	return 'strip', '-S', '-r', executableFilePathArgument
 end
 
-function module:_library(libraryFilePathString)
-	return 'strip', '-S', executableFilePathString
+function module:_library(libraryFilePathArgument)
+	return 'strip', '-S', libraryFilePathArgument
 end

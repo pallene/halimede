@@ -18,5 +18,5 @@ function module:execute(shellScript, builder, path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	assert.parameterTypeIsString('mode', mode)
 	
-	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', self:_quoteShellPath(shellScript, path, true))
+	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', path:quoteArgumentX(true))
 end

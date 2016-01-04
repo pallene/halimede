@@ -17,5 +17,5 @@ end
 function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	
-	shellScript:appendCommandLineToScript('rm', '-rf', self:_quoteShellPath(shellScript, path, true))
+	shellScript:appendCommandLineToScript('rm', '-rf', path:quoteArgumentX(true))
 end

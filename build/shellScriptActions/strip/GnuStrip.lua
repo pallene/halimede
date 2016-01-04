@@ -13,10 +13,10 @@ function module:initialize()
 	AbstractStrip.initialize(self, true)
 end
 
-function module:_executable(executableFilePathString)
-	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', '--strip-unneeded', executableFilePathString
+function module:_executable(executableFilePathArgument)
+	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', '--strip-unneeded', executableFilePathArgument
 end
 
-function module:_library(libraryFilePathString)
-	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', executableFilePathString
+function module:_library(libraryFilePathArgument)
+	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', libraryFilePathArgument
 end

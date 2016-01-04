@@ -8,13 +8,59 @@ local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
 local equality = halimede.table.equality
-local Object = halimede.class.Object
+local isInstanceOf = halimede.class.Object.isInstanceOf
 local PathStyle = require.sibling('PathStyle')
 local PathRelativity = require.sibling('PathRelativity')
-local FilePaths = require.sibling('FilePaths')
 
 
 local Path = moduleclass('Path')
+
+
+error('Fix me for ShellPath which has a different idea of toString() vs quoteArgumentX()')
+assert.globalTypeIsFunctionOrCall('ipairs')
+module.static.uniquePaths = function(paths)
+	assert.parameterTypeIsTable('paths', paths)
+	
+	local index = {}
+	local result = tabelize()
+	
+	for _, path in ipairs(paths) do
+		local pathToString = path:toString(true)
+		if index[pathToString] == nil then
+			result:insert(path)
+			index[pathToString] = true
+		end
+	end
+	
+	return result
+end
+
+module.static.uniqueStrippedOfFinalPathElementPaths = function(paths)
+	assert.parameterTypeIsTable('paths', paths)
+	
+	local result = tabelize()
+	local uniquePaths = Path.static.uniquePaths(paths)
+	for _, path in ipairs(uniquePaths) do
+		result:insert(path:strippedOfFinalPathElement())
+	end
+	
+	return result
+end
+
+assert.globalTypeIsFunctionOrCall('ipairs')
+module.static.toPathsString = function(paths, specifyCurrentDirectoryExplicitlyIfAppropriate, pathSeparator)
+	assert.parameterTypeIsTable('paths', paths)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsString('pathSeparator', pathSeparator)
+	
+	local result = tabelize()
+	local uniquePaths = Path.static.uniquePaths(paths)
+	for _, path in ipairs(uniquePaths) do
+		result:insert(path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	end
+	
+	return result:concat(pathSeparator)
+end
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)
@@ -70,7 +116,7 @@ function module:__eq(right)
 	if right == nil then
 		return false
 	end
-	if not Object.isInstanceOf(value, self.class) then
+	if not isInstanceOf(value, self.class) then
 		return false
 	end
 	if self.pathStyle ~= right.pathStyle then
@@ -272,6 +318,10 @@ function module:_appendPathAsRelativePath(path, parameterName, assertionName)
 	
 	self:assertIsFolderPath('self')
 	
+	if self.pathStyle ~= path.pathStyle then
+		exception.throw("self.pathStyle '%s' differs from path.pathStyle '%s'", self.pathStyle, path.pathStyle)
+	end
+	
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs(path.pathElements) do
 		assert.parameterTypeIsString('childPathElement', childPathElement)
@@ -291,20 +341,28 @@ function module:filePaths(fileExtension, baseFilePaths)
 	local prefixWithPath = self
 	prefixWithPath:assertIsFolderPath('self')
 	
-	local filePaths = {}
-	
+	local filePaths = tabelize()
 	for _, stringOrTable in ipairs(baseFilePaths) do
 		local path
-		local pathWithExtension
 		if type.isTable(stringOrTable) then
-			path = self:relativeFilePath(unpack(stringOrTable))
+			local length = #stringOrTable
+			local folders = {}
+			local index = 1
+			while index < length do
+				local pathElement = stringOrTable[index]
+				assert.parameterTypeIsString('baseFilePaths', pathElement)
+				
+				folders[index] = pathElement
+				index = index + 1
+			end
+			local fileName = stringOrTable[length]
+			path = self:appendFolders(unpack(folders)):appendFile(fileName, fileExtension)
 		elseif type.isString(stringOrTable) then
-			path = self:relativeFilePath(stringOrTable)
+			path = self:appendFile(stringOrTable, fileExtension)
 		else
 			exception.throw('baseFilePaths should only contain strings or tables of string')
 		end
-		pathWithExtension = path:appendFileExtension(path)
-		table.insert(baseFilePaths, prefixWithPath:appendRelativePath(pathWithExtension))
+		filePaths:insert(prefixWithPath:appendRelativePath(path))
 	end
-	return FilePaths:new(baseFilePaths)
+	return filePaths
 end

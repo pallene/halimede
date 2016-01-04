@@ -5,7 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 module.Path = halimede.io.paths.Path
-module.Paths = halimede.io.paths.Paths
 module.PathStyle = halimede.io.paths.PathStyle
 module.PathRelativity = halimede.io.paths.PathRelativity
 module.CStandard = halimede.build.toolchain.CStandard

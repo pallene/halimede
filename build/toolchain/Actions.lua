@@ -59,7 +59,7 @@ function module:initialize(shellScript, builder, dependencies, buildVariant, nam
 end
 
 function module:__call(childNamespaceName)
-	assert.parameterTypeIsString(childNamespaceName)
+	assert.parameterTypeIsString('childNamespaceName', childNamespaceName)
 	
 	return Actions:new(self.shellScript, self.builder, self.dependencies, self.buildVariant, self.namespace .. '.' .. childNamespaceName)
 end

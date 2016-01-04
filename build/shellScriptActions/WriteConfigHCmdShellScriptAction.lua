@@ -17,8 +17,7 @@ end
 -- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:_append(shellScript, stringFilePath, configHDefines)
-	local quotedStringFilePath = shellScript:quoteArgument(stringFilePath)
+function module:_append(shellScript, quotedStringShellPath, configHDefines)
 	local lines = configHDefines:toCPreprocessorTextLines('\r\n\r\n')
 	for index, line in ipairs(lines) do
 	
@@ -29,6 +28,6 @@ function module:_append(shellScript, stringFilePath, configHDefines)
 			redirectionOperator = '>>'
 		end
 	
-		shellScript:appendLinesToScript('ECHO ' .. shellScript:quoteArgument(line) .. ' ' .. redirectionOperator .. quotedStringFilePath)
+		shellScript:appendLinesToScript('ECHO ' .. shellScript:quoteArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
 	end
 end

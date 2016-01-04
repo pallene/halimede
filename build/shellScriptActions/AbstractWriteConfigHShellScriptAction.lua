@@ -35,10 +35,10 @@ function module:_execute(shellScript, builder, configHDefines, filePath)
 	
 	self.commentShellScriptAction:execute(shellScript, builder, 'Creation of config.h')
 	
-	local stringFilePath = actualFilePath:toString(true)
-	self:_append(shellScript, stringFilePath, configHDefines)
+	local quotedStringShellPath = actualFilePath:quoteArgumentX(true)
+	self:_append(shellScript, quotedStringShellPath, configHDefines)
 end
 
-function module:_append(shellScript, stringFilePath, configHDefines)
+function module:_append(shellScript, quotedStringShellPath, configHDefines)
 	exception.throw('Abstract method')
 end

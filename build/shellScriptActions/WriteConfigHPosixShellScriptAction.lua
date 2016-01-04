@@ -14,7 +14,7 @@ function module:initialize()
 	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
 end
 
-function module:_append(shellScript, stringFilePath, configHDefines)
-	local redirected = shellScript:redirectStandardOutput(stringFilePath)
+function module:_append(shellScript, quotedStringShellPath, configHDefines)
+	local redirected = shellScript:redirectStandardOutput(quotedStringShellPath)
 	shellScript:appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText('\n\n'), redirected)
 end

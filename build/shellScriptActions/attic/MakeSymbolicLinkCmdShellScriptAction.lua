@@ -31,8 +31,8 @@ function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
 	end
 	
 	-- Note that order is reverse of that for POSIX ln -s
-	command:insert(self:_quoteShellPath(shellScript, linkFilePath, false))
-	command:insert(self:_quoteShellPath(shellScript, linkContentsPath, false))
+	command:insert(linkFilePath:quoteArgumentX(false))
+	command:insert(linkContentsPath:quoteArgumentX(false))
 	
 	shellScript:appendCommandLineToScript(unpack(command))
 end

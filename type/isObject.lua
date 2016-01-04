@@ -4,10 +4,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local class = halimede.class
-local Object = class.Object
+local Object = halimede.class.Object
+local isInstanceOf = Object.isInstanceOf
 
 
 modulefunction(function(value)
-	return Object.isInstanceOf(value, Object)
+	return isInstanceOf(value, Object)
 end)

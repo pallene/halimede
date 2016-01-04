@@ -6,15 +6,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'tostring', 'unpack')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
-local function warning(template, ...)
+local function format(template, ...)
+	assert.parameterTypeIsString('template', template)
+	
 	local formatArguments = {...}
 	for index, formatArgument in ipairs(formatArguments) do
-		if type.isObject(formatArgument) then
-			formatArguments[index] = tostring(formatArgument)
-		end
+		formatArguments[index] = tostring(formatArgument)
 	end
-	
-	template:format(unpack(formatArguments))
+	return template:format(unpack(formatArguments))
 end
 
-modulefunction(warning)
+modulefunction(format)

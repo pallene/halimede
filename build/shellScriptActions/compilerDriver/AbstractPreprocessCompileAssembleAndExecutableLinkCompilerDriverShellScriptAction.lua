@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
@@ -26,7 +27,7 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	assert.parameterTypeIsTable('sources', sources)
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
-	assert.parameterTypeIsInstanceOf('executableFilePathWithoutExtension', executableFilePathWithoutExtension, Path)
+	assert.parameterTypeIsInstanceOf('executableFilePathWithoutExtension', executableFilePathWithoutExtension, ShellPath)
 	
 	executableFilePathWithoutExtension:assertIsFilePath('executableFilePathWithoutExtension')
 	

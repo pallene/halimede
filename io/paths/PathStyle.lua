@@ -16,9 +16,8 @@ local PathStyle = moduleclass('PathStyle')
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
-function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator, currentDirectory, parentDirectory, fileExtensionSeparator, alternateStreamSeparator, hasDevices, additionalCharactersNotAllowedInPathElements, ...)
+function module:initialize(name, folderSeparator, deviceSeparator, currentDirectory, parentDirectory, fileExtensionSeparator, alternateStreamSeparator, hasDevices, additionalCharactersNotAllowedInPathElements, ...)
 	assert.parameterTypeIsString('name', name)
-	assert.parameterTypeIsStringOrNil('pathSeparator', pathSeparator)
 	assert.parameterTypeIsString('folderSeparator', folderSeparator)
 	assert.parameterTypeIsStringOrNil('deviceSeparator', deviceSeparator)
 	assert.parameterTypeIsStringOrNil('currentDirectory', currentDirectory)
@@ -26,10 +25,9 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	assert.parameterTypeIsString('fileExtensionSeparator', fileExtensionSeparator)
 	assert.parameterTypeIsStringOrNil('alternateStreamSeparator', alternateStreamSeparator)
 	assert.parameterTypeIsBoolean('hasDevices', hasDevices)
-	assert.parameterTypeIsTable('additionalCharactersNotAllowedInPathElements', additionalCharactersNotAllowedInPathElements)
+	assert.parameterTypeIsTableOrNil('additionalCharactersNotAllowedInPathElements', additionalCharactersNotAllowedInPathElements)
 	
 	self.name = name
-	self.pathSeparator = pathSeparator
 	self.folderSeparator = folderSeparator
 	self.deviceSeparator = deviceSeparator
 	self.currentDirectory = currentDirectory
@@ -41,8 +39,10 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 	local charactersNotAllowedInPathElements = {}
 	charactersNotAllowedInPathElements['\0'] = true
 	charactersNotAllowedInPathElements[folderSeparator] = true
-	for _, additionalCharacterNotAllowedInPathElements in ipairs(additionalCharactersNotAllowedInPathElements) do
-		charactersNotAllowedInPathElements[additionalCharacterNotAllowedInPathElements] = true
+	if additionalCharactersNotAllowedInPathElements ~= nil then
+		for _, additionalCharacterNotAllowedInPathElements in ipairs(additionalCharactersNotAllowedInPathElements) do
+			charactersNotAllowedInPathElements[additionalCharacterNotAllowedInPathElements] = true
+		end
 	end
 	self.charactersNotAllowedInPathElements = charactersNotAllowedInPathElements
 	
@@ -63,6 +63,12 @@ function module:initialize(name, pathSeparator, folderSeparator, deviceSeparator
 		self.parentPath = self:relativeFolderPath(parentDirectory)
 	else
 		self.parentPath = nil
+	end
+	
+	if currentDirectory and not currentDirectory:isEmpty() then
+		self.currentPath = self:relativeFolderPath(currentDirectory)
+	else
+		self.currentPath = nil
 	end
 end
 
@@ -108,8 +114,11 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match')
 function module:isReservedPathElement(pathElement)
 	assert.parameterTypeIsString('pathElement', pathElement)
-		
+
 	if self.reservedPathElements[pathElement] then
+	for x, _ in pairs(self.reservedPathElements) do
+		print(self.name, string.byte(x), 'X')
+	end
 		return true
 	end
 	
@@ -222,12 +231,31 @@ function module:prependCurrentDirectory(pathElements)
 	return copy
 end
 
+local SemiColon = ';'
+local Dot = '.'
+local DoubleDot = Dot .. Dot
+local Colon = ':'
+local Slash = '/'
+local BackSlash = '\\'
+local WindowsReservedCharacters = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\1', '\2', '\3', '\4', '\5', '\6', '\7', '\8', '\9', '\10', '\11', '\12', '\13', '\14', '\15', '\16', '\17', '\18', '\19', '\20', '\21', '\22', '\23', '\24', '\25', '\26', '\27', '\28', '\29', '\30', '\31'}
+local WindowsReservedFileNames = 'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
 
-local Posix = PathStyle:new('Posix', ':', '/', nil, '.', '..', '.', nil, false, {})
+local Posix =   PathStyle:new('Posix',   Slash,     nil,       Dot, DoubleDot, Dot,   nil,       false)
+
+local OpenVms = PathStyle:new('OpenVms', Dot,       Colon,     '',  '-',       Dot,   SemiColon, true )
+
+local Symbian = PathStyle:new('Symbian', BackSlash, BackSlash, nil, nil,       Dot,   nil,       false)
+
+local RiscOs =  PathStyle:new('RiscOs',  Dot,       Colon,     '@', '^',       Slash, nil,       true )
+
+local Cmd =     PathStyle:new('Cmd',     BackSlash, BackSlash, Dot, DoubleDot, Dot,   Colon,     true, WindowsReservedCharacters, WindowsReservedFileNames)
+
+-- Note that Windows allows '/' as a directory separator, too, except when using UNC paths; . and .. are valid as file names when using \\?\ paths...
+-- https://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx
+-- Strictly speaking, \1 to \31 are actually valid in the alternate file stream portion of a path.
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len', 'sub', 'split', 'isEmpty')
 Posix._parse = function(self, stringPath, isFile)
-	
 	local pathElements = stringPath:split('/')
 	local pathRelativity
 	if stringPath:sub(1, 1) == '/' then
@@ -242,12 +270,17 @@ Posix._parse = function(self, stringPath, isFile)
 	return Path:new(self, pathRelativity, nil, pathElements, isFile, nil)
 end
 
+OpenVms._toStringRelative = function(self, pathElements, isFile)
+	if isFile then
+		local folderPaths = tabelize(shallowCopy(pathElements))
+		local file = folderPaths:remove()
+		return '[' .. folderPaths:concat(self.folderSeparator) .. ']' .. file
+	else
+		return '[' .. table.concat(pathElements, self.folderSeparator) .. ']'
+	end
+end
 
--- https://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx
--- Strictly speaking, \1 to \31 are valid in the alternate file stream portion of a path.
-local Cmd = PathStyle:new('Cmd', ';', '\\', '\\', '.', '..', '.', ':', true, {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\1', '\2', '\3', '\4', '\5', '\6', '\7', '\8', '\9', '\10', '\11', '\12', '\13', '\14', '\15', '\16', '\17', '\18', '\19', '\20', '\21', '\22', '\23', '\24', '\25', '\26', '\27', '\28', '\29', '\30', '\31'}, 'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9')  -- Note that Windows allows '/' as a directory separator, too, except when using UNC paths; . and .. are valid as file names when using \\?\ paths...
-
-Cmd.toStringRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)  -- Windows, maybe OpenVms, eg C:..\file.txt
+Cmd.toStringRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 	assert.parameterTypeIsTable('pathElements', pathElements)
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
@@ -333,23 +366,3 @@ Cmd._parse = function(self, stringPath, isFile)
 
 	return Path:new(self, pathRelativity, device, pathElements, isFile, alternateStreamName)
 end
-
-
-local OpenVms = PathStyle:new('OpenVms', nil, '.', ':', '', '-', '.', ';', true, {})
-
-OpenVms._toStringRelative = function(self, pathElements, isFile)
-	if isFile then
-		local folderPaths = tabelize(shallowCopy(pathElements))
-		local file = folderPaths:remove()
-		return '[' .. folderPaths:concat(self.folderSeparator) .. ']' .. file
-	else
-		return '[' .. table.concat(pathElements, self.folderSeparator) .. ']'
-	end
-	
-end
-
-
-PathStyle:new('Symbian', ':', '\\', '\\', nil, nil, '.', nil, false, {})
-
-
-PathStyle:new('RiscOs', nil,  '.',  ':',  '.', '@', '^', nil, true,  {})
