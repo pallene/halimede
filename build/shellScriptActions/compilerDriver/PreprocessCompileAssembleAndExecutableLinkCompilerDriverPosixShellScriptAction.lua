@@ -4,6 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local halimede = require('halimede')
 local UnsetEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.UnsetEnvironmentVariablePosixShellScriptAction
 local ExportEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.ExportEnvironmentVariablePosixShellScriptAction
 local AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction = halimede.build.shellScriptActions.compilerDriver.AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction

@@ -4,6 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local halimede = require('halimede')
 local exception = halimede.exception
 local ShellScript = halimede.io.shellScript.ShellScript
 local AlreadyEscapedShellArgument = halimede.io.shellScript.AlreadyEscapedShellArgument

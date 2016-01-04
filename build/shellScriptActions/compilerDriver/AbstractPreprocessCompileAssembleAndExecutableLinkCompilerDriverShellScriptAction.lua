@@ -4,6 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local halimede = require('halimede')
 local Path = halimede.io.paths.Path
 local ShellPath = halimede.io.shellScript.ShellPath
 local CStandard = halimede.build.toolchain.CStandard

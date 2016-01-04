@@ -4,6 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local halimede = require('halimede')
 local GnuTuple = require.sibling.GnuTuple
 local Path = halimede.io.paths.Path
 local Recipe = require.sibling.Recipe

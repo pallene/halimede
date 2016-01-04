@@ -4,6 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
+local halimede = require('halimede')
 --[[
 
 Some non-configure based installations (eg Lua and Shellfire) can only use relative paths for things like libdir. They can probably use '..' but will need patching
