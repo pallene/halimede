@@ -36,7 +36,7 @@ function module:_execute(shellScript, builder, configHDefines, filePath)
 	
 	self.commentShellScriptAction:execute(shellScript, builder, 'Creation of config.h')
 	
-	local quotedStringShellPath = actualFilePath:quoteArgumentX(true)
+	local quotedStringShellPath = actualFilePath:toQuotedShellArgumentX(true)
 	self:_append(shellScript, quotedStringShellPath, configHDefines)
 end
 

@@ -29,6 +29,6 @@ function module:_append(shellScript, quotedStringShellPath, configHDefines)
 			redirectionOperator = '>>'
 		end
 	
-		shellScript:appendLinesToScript('ECHO ' .. shellScript:quoteArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
+		shellScript:appendLinesToScript('ECHO ' .. shellScript:toQuotedShellArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
 	end
 end

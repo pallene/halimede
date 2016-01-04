@@ -9,20 +9,22 @@ local CompilerDriver = require.sibling.CompilerDriver
 local Arguments = require.sibling.Arguments
 local CStandard = require.sibling.CStandard
 local Path = halimede.io.paths.Path
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
 
 
 moduleclass('CompilerDriverArguments')
 
-function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath, isVerbose)
+function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath, isVerbose, shellLanguage)
 	assert.parameterTypeIsInstanceOf('compilerDriver', compilerDriver, CompilerDriver)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
-	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
+	assert.parameterTypeIsTable('sysrootPath', sysrootPath)
 	assert.parameterTypeIsBoolean('isVerbose', isVerbose)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	
 	self.compilerDriver = compilerDriver
 	
-	self.arguments = Arguments:new()
+	self.arguments = Arguments:new(shellLanguage)
 	self.arguments:append(compilerDriver.commandLineName)
 	if isVerbose then
 		self.arguments:append(compilerDriver.verboseFlags)
@@ -41,8 +43,8 @@ function module:appendFilePaths(filePaths)
 	
 	for _, filePath in ipairs(filePaths) do
 		filePath:assertIsFilePath('filePath')
-		
-		self.arguments:append(filePath:quoteArgumentX(true))
+
+		self.arguments:appendQuotedArgumentXWithPrepend('', filePath, true)
 	end
 end
 
@@ -81,11 +83,11 @@ function module:addSystemIncludePaths(dependenciesSystemIncludePaths, buildVaria
 	self.compilerDriver:addSystemIncludePaths(self.arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 end
 
-function module:addIncludePaths(currentDirectoryString, sourceFilePaths)
-	assert.parameterTypeIsString('currentDirectoryString', currentDirectoryString)
+function module:addIncludePaths(currentPath, sourceFilePaths)
+	assert.parameterTypeIsInstanceOf('currentPath', currentPath, Path)
 	assert.parameterTypeIsTable('sourceFilePaths', sourceFilePaths)
 	
-	self.compilerDriver:addIncludePaths(self.arguments, currentDirectoryString, sourceFilePaths)
+	self.compilerDriver:addIncludePaths(self.arguments, currentPath, sourceFilePaths)
 end
 
 function module:addLinkerFlags(dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
@@ -109,7 +111,7 @@ function module:addCombine()
 end
 
 function module:addOutput(outputFilePath)
-	assert.parameterTypeIsInstanceOf('outputFilePath', outputFilePath, Path)
+	assert.parameterTypeIsTable('outputFilePath', outputFilePath)
 	
 	outputFilePath:assertIsFilePath('outputFilePath')
 	

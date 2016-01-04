@@ -6,10 +6,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
+local unique = halimede.table.unique
 local exception = halimede.exception
 local CompilerMetadata = require.sibling.CompilerMetadata
 local CStandard = require.sibling.CStandard
 local Path = halimede.io.paths.Path
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellPath = halimede.io.shellScript.ShellPath
 local Arguments = require.sibling.Arguments
 local CompilerDriverArguments = require.sibling.CompilerDriverArguments
@@ -81,12 +83,13 @@ local function mergeFlags(...)
 	return result	
 end
 
-function module:newArguments(compilerDriverFlags, sysrootPath, isVerbose)
+function module:newArguments(compilerDriverFlags, sysrootPath, isVerbose, shellLanguage)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	assert.parameterTypeIsBoolean('isVerbose', isVerbose)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	
-	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath, isVerbose)
+	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath, isVerbose, shellLanguage)
 end
 
 function module:useFileExtensionsToDetermineLanguage(arguments)
@@ -97,12 +100,12 @@ end
 
 function module:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
-	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, ShellPath)
+	assert.parameterTypeIsTable('sysrootPath', sysrootPath)
 	
 	sysrootPath:assertIsFolderPath('sysrootPath')
 	sysrootPath:assertIsEffectivelyAbsolute('sysrootPath')
 	
-	arguments:append(sysrootPath:quoteArgumentX(true):prepend(self.sysrootPathOption))
+	arguments:appendQuotedArgumentXWithPrepend(self.sysrootPathOption, sysrootPath, true)
 end
 
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
@@ -134,49 +137,32 @@ function module:definePreprocessorMacro(arguments, defineName, defineValue)
 	arguments:append(self.defineOption .. defineName .. '=' .. defineValue)
 end
 
-local function populateIncludePaths(includePaths, includePath)
-	if includePaths[includePath] == nil then
-		includePaths[includePath] = true
-	end
-end
-
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 function module:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesSystemIncludePaths', dependenciesSystemIncludePaths)
 	assert.parameterTypeIsTable('buildVariantSystemIncludePaths', buildVariantSystemIncludePaths)
 	
-	local systemIncludePaths = {}
-	for _, systemIncludePath in ipairs(mergeFlags(self.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
-		populateIncludePaths(systemIncludePaths, systemIncludePath)
-	end
-	
-	for systemIncludePath, _ in pairs(systemIncludePaths) do
-		arguments:append(self.systemIncludePathOption .. systemIncludePath)
+	for _, systemIncludePath in ipairs(unique(self.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
+		arguments:appendQuotedArgumentXWithPrepend(self.systemIncludePathOption, systemIncludePath, true)
 	end	
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
-function module:addIncludePaths(arguments, currentDirectoryString, sourceFilePaths)
+function module:addIncludePaths(arguments, currentPath, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
-	assert.parameterTypeIsString('currentDirectoryString', currentDirectoryString)
+	assert.parameterTypeIsInstanceOf('currentPath', currentPath, Path)
 	assert.parameterTypeIsTable('sourceFilePaths', sourceFilePaths)
 	
-	local includePaths = {}
-	
-	populateIncludePaths(includePaths, currentDirectoryString)
-	
-	for _, sourceFilePath in ipairs(Path.uniqueStrippedOfFinalPathElementPaths(sourceFilePaths)) do
-		
-		-- This is problematic - toString() isn't valid for ShellPath
-		XXXX
-		
-		local quotedPath = sourceFilePath:quoteArgumentX(true)
-		populateIncludePaths(includePaths, quotedPath)
+	local result = tabelize({currentPath})
+	for _, path in ipairs(sourceFilePaths) do
+		result:insert(path:strippedOfFinalPathElement())
 	end
 	
-	for includePath, _ in pairs(includePaths) do
-		arguments:append(quotedPath:prepend(self.includePathOption)
+	local uniqueIncludePaths = unique(result)
+	
+	for _, includePath in ipairs(uniqueIncludePaths) do
+		arguments:appendQuotedArgumentXWithPrepend(self.includePathOption, includePath, true)
 	end	
 end
 
@@ -212,11 +198,11 @@ end
 
 function module:addOutput(arguments, outputFilePath)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
-	assert.parameterTypeIsInstanceOf('outputFilePath', outputFilePath, Path)
+	assert.parameterTypeIsTable('outputFilePath', outputFilePath)
 	
 	outputFilePath:assertIsFilePath('outputFilePath')
-	
-	arguments:append(self.outputOption .. outputFilePath:toString(true))
+
+	arguments:appendQuotedArgumentXWithPrepend(self.outputOption, outputFilePath, true)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')

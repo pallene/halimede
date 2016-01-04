@@ -7,65 +7,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
+local unique = halimede.table.unique
 local shallowCopy = halimede.table.shallowCopy
-local equality = halimede.table.equality
-local isInstanceOf = halimede.class.Object.isInstanceOf
+local areInstancesEqual = halimede.table.equality.areInstancesEqual
 local PathStyle = require.sibling.PathStyle
 local PathRelativity = require.sibling.PathRelativity
 
 
 local Path = moduleclass('Path')
-
-
-error('Fix me for ShellPath which has a different idea of toString() vs quoteArgumentX()')
-	uniquePaths
-	toPathsString
-	CompilerDriver 219
-	
-assert.globalTypeIsFunctionOrCall('ipairs')
-module.static.uniquePaths = function(paths)
-	assert.parameterTypeIsTable('paths', paths)
-	
-	local index = {}
-	local result = tabelize()
-	
-	for _, path in ipairs(paths) do
-		local pathToString = path:toString(true)
-		if index[pathToString] == nil then
-			result:insert(path)
-			index[pathToString] = true
-		end
-	end
-	
-	return result
-end
-
-module.static.uniqueStrippedOfFinalPathElementPaths = function(paths)
-	assert.parameterTypeIsTable('paths', paths)
-	
-	local result = tabelize()
-	local uniquePaths = Path.static.uniquePaths(paths)
-	for _, path in ipairs(uniquePaths) do
-		result:insert(path:strippedOfFinalPathElement())
-	end
-	
-	return result
-end
-
-assert.globalTypeIsFunctionOrCall('ipairs')
-module.static.toPathsString = function(paths, specifyCurrentDirectoryExplicitlyIfAppropriate, pathSeparator)
-	assert.parameterTypeIsTable('paths', paths)
-	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsString('pathSeparator', pathSeparator)
-	
-	local result = tabelize()
-	local uniquePaths = Path.static.uniquePaths(paths)
-	for _, path in ipairs(uniquePaths) do
-		result:insert(path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
-	end
-	
-	return result:concat(pathSeparator)
-end
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)
@@ -112,36 +61,16 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 	self.numberOfPathElements = #self.pathElements
 end
 
+local simpleEqualityFieldNames = {'pathStyle', 'pathRelativity', 'isFile'}
+local shallowArrayFieldNames = {'pathElements'}
+local potentiallyNilFieldNames = {'device', 'alternateStreamName'}
+function module:__eq(right)
+	return areInstancesEqual(self, right, simpleEqualityFieldNames, shallowArrayFieldNames, potentiallyNilFieldNames)
+end
+
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:__tostring()
 	return ('%s(%s)'):format(self.class.name, self:toString(false))
-end
-
-function module:__eq(right)
-	if right == nil then
-		return false
-	end
-	if not isInstanceOf(value, self.class) then
-		return false
-	end
-	if self.pathStyle ~= right.pathStyle then
-		return false
-	end
-	if self.pathRelativity ~= right.pathRelativity then
-		return false
-	end
-	if equality.isUnequalWithNil(self.device, right.device) then
-		return false
-	end
-	if equality.isArrayShallowUnequal(self.pathElements, right.pathElements) then
-		return false
-	end
-	if self.isFile ~= right.isFile then
-		return false
-	end
-	if equality.isUnequalWithNil(self.alternateStreamName, right.alternateStreamName) then
-		return false
-	end
 end
 
 function module:assertIsFolderPath(parameterName)
@@ -188,6 +117,13 @@ function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	end
 	
 	return self.pathRelativity:toString(self.pathStyle, pathElementsCopy, self.isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
+end
+
+function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
+	
+	return shellLanguage:toQuotedShellArgument(self:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end
 
 function module:hasNonEmptyDevice()

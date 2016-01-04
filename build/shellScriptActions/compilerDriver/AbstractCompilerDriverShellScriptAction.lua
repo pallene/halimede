@@ -24,8 +24,8 @@ function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableA
 	self.exportEnvironmentVariableAction = exportEnvironmentVariableActionClass:new()
 end
 
-function module:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
-	return crossRecipePaths.platform.cCompilerDriver:newArguments(compilerDriverFlags, crossRecipePaths.platformPaths:sysroot(), true)
+function module:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags, shellLanguage)
+	return crossRecipePaths.platform.cCompilerDriver:newArguments(compilerDriverFlags, crossRecipePaths.platformPaths:sysroot(), true, shellLanguage)
 end
 
 function module:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)

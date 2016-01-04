@@ -23,6 +23,6 @@ function module:_execute(shellScript, builder, executableFilePath)
 	
 	local strip = builder.strip
 	if strip then
-		strip:executable(shellScript, executableFilePath:quoteArgumentX(true))
+		strip:executable(shellScript, executableFilePath:toQuotedShellArgumentX(true))
 	end
 end

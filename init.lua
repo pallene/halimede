@@ -802,7 +802,11 @@ local searchPathGenerators = {
 		local subFolders = moduleName:split('.')
 		table.insert(subFolders, 1, subFolders[1])
 		return subFolders
-	end	
+	end,
+	function(moduleName)
+		-- eg Set => src/Set/init.lua; required for luarocks' install of pure lua https://github.com/wscherphof/lua-set
+		return {'src', packageConfiguration.substitutionPoint, 'init'}
+	end
 }
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')

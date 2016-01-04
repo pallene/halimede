@@ -49,8 +49,8 @@ end
 
 
 
-function module:quoteArgument(argument)
-	return self.shellLanguage:quoteArgument(argument)
+function module:toQuotedShellArgument(argument)
+	return self.shellLanguage:toQuotedShellArgument(argument)
 end
 
 function module:quoteEnvironmentVariable(argument)

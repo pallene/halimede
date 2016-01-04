@@ -11,6 +11,7 @@ local ShellArgument = require.sibling.ShellArgument
 local ShellLanguage = require.sibling.ShellLanguage
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local tabelize = halimede.table.tabelize
+local areInstancesEqual = halimede.table.equality.areInstancesEqual
 
 
 local ShellPath = moduleclass('ShellPath')
@@ -74,6 +75,13 @@ end
 
 -- Replacements for Path functions
 
+local simpleEqualityFieldNames = {'shellLanguage', 'path'}
+local shallowArrayFieldNames = {}
+local potentiallyNilFieldNames = {'environmentVariablePrefixOrNil'}
+function module:__eq(right)
+	return areInstancesEqual(self, right, simpleEqualityFieldNames, shallowArrayFieldNames, potentiallyNilFieldNames)
+end
+
 function module:remove()
 	return false, 'remove is not available for a ShellPath'
 end
@@ -91,7 +99,15 @@ function module:filePaths(fileExtension, baseFilePaths)
 end
 
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	exception.throw('Do not use this method willy-nilly; there are argument impacts')
+	exception.throw('Do not use this method on a ShellPath')
+end
+
+function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIsInstanceOfOrNil('shellLanguage', shellLanguage, ShellLanguage)
+	
+	local chosenShellLanguage = shellLanguage or self.shellLanguage
+	return ShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate, chosenShellLanguage))
 end
 
 
@@ -103,19 +119,13 @@ function module:__tostring()
 	return ('%s(%s, %s)'):format(self.class.name, self.environmentVariablePrefixOrNil, self.path)
 end
 
-function module:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
 	local prefix
 	if self.environmentVariablePrefixOrNil ~= nil then
-		prefix = self.shellLanguage:quoteEnvironmentVariable(self.environmentVariablePrefixOrNil) .. self.path.pathStyle.folderSeparator
+		prefix = shellLanguage:quoteEnvironmentVariable(self.environmentVariablePrefixOrNil) .. self.path.pathStyle.folderSeparator
 	else
 		prefix = ''
 	end
 	
-	return prefix .. self.shellLanguage:quoteArgument(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
-end
-
-function module:quoteArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
-	return ShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	return prefix .. shellLanguage:toQuotedShellArgument(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end

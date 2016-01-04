@@ -26,7 +26,7 @@ function module:_execute(shellScript, builder, compilerDriverFlags, linkerFlags,
 	
 	local crossRecipePaths = builder.crossRecipePaths
 	
-	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
+	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags, shellScript.shellLanguage)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(objects)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)

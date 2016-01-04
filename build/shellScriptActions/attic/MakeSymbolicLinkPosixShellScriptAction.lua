@@ -21,5 +21,5 @@ function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
 	
-	shellScript:appendCommandLineToScript('ln', '-s', linkFilePath:quoteArgumentX(false), linkFilePath:quoteArgumentX(false))
+	shellScript:appendCommandLineToScript('ln', '-s', linkFilePath:toQuotedShellArgumentX(false), linkFilePath:toQuotedShellArgumentX(false))
 end

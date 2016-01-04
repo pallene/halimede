@@ -6,9 +6,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local isTable = type.isTable
+local isInstanceOf = halimede.class.Object.isInstanceOf
 
 
-function module.isUnequalWithNil(left, right)
+local function isUnequalWithNil(left, right)
 	if (left == nil or right == nil) then
 		if left == nil and right ~= nil then
 			return true
@@ -21,9 +22,10 @@ function module.isUnequalWithNil(left, right)
 	end
 	return false
 end
+module.isUnequalWithNil = isUnequalWithNil
 
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module.isArrayShallowUnequal(left, right)
+local function isArrayShallowUnequal(left, right)
 	if not isTable(left) then
 		return false
 	end
@@ -43,4 +45,41 @@ function module.isArrayShallowUnequal(left, right)
 	end
 	
 	return false
+end
+module.isArrayShallowUnequal = isArrayShallowUnequal
+
+local function isClassUnequal(left, right)
+	if right == nil then
+		return true
+	end
+	return not isInstanceOf(right, left.class)
+end
+module.isClassEqual = isClassEqual
+
+-- Does not support arrays of arrays
+assert.globalTypeIsFunctionOrCall('ipairs')
+function module.areInstancesEqual(left, right, simpleEqualityFieldNames, shallowArrayFieldNames, potentiallyNilFieldNames)
+	if isClassUnequal(left, right) then
+		return false
+	end
+	
+	for _, simpleEqualityFieldName in ipairs(simpleEqualityFieldName) do
+		if left[simpleEqualityFieldName] ~= right[simpleEqualityFieldName] then
+			return false
+		end
+	end
+	
+	for _, potentiallyNilFieldName in ipairs(potentiallyNilFieldNames) do
+		if isUnequalWithNil(left[potentiallyNilFieldName], right[potentiallyNilFieldName]) then
+			return false
+		end
+	end
+	
+	for _, shallowArrayFieldName in ipairs(shallowArrayFieldNames) do
+		if isArrayShallowUnequal(left[shallowArrayFieldName], right[shallowArrayFieldName]) then
+			return false
+		end
+	end
+	
+	return true
 end

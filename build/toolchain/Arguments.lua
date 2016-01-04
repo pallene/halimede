@@ -6,12 +6,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
 
 
 moduleclass('Arguments')
 
-function module:initialize()
+function module:initialize(shellLanguage)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
+	
+	self.shellLanguage = shellLanguage
+	
 	self.arguments = tabelize()
 end
 
@@ -32,6 +37,14 @@ function module:append(...)
 			self:_append(argument)
 		end
 	end
+end
+
+function module:appendQuotedArgumentXWithPrepend(text, pathLike, specifyCurrentDirectoryExplicitlyIfAppropriate)
+	assert.parameterTypeIString('text', text)
+	assert.parameterTypeIsTable('pathLike', pathLike)
+	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
+	
+	self:_append(pathLike:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self.shellLanguage):prepend(text))
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')

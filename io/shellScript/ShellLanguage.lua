@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
+local unique = halimede.table.unique
 local packageConfiguration = halimede.packageConfiguration
 local exception = halimede.exception
 local isInstanceOf = halimede.class.Object.isInstanceOf
@@ -196,15 +197,21 @@ function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 end
 
 function module:toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsTable('paths', paths)
+	assert.parameterTypeIsTable('paths', paths)  -- shell paths
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	
-	return Path.toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropriate, self.pathSeparator)
+	local result = tabelize()
+	local uniquePaths = unique(paths)
+	for _, path in ipairs(uniquePaths) do
+		path:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self):insertValue(result)
+	end
+	
+	return result:concat(self.pathSeparator)
 end
 
-function module:quoteArgument(argument)
+function module:toQuotedShellArgument(argument)
 	if type.isString(argument) then
-		return self:_quoteArgument(argument)
+		return self:_toQuotedShellArgument(argument)
 	end
 	
 	assert.parameterTypeIsInstanceOf('argument', argument, ShellArgument)
@@ -217,7 +224,7 @@ function module:quoteEnvironmentVariable(argument)
 	return self:_quoteEnvironmentVariable(argument)
 end
 
-function module:_quoteArgument(argument)
+function module:_toQuotedShellArgument(argument)
 	exception.throw('Abstract Method')
 end
 
@@ -232,7 +239,7 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		redirection = filePathOrFileDescriptor.argument
 	else
-		redirection = self:quoteArgument(filePathOrFileDescriptor)
+		redirection = self:toQuotedShellArgument(filePathOrFileDescriptor)
 	end
 	
 	return ShellArgument:new(fileDescriptor .. symbol .. redirection)
@@ -295,7 +302,7 @@ function module:toShellCommand(...)
 	for _, argument in ipairs(arguments) do
 		if argument ~= nil then
 			if type.isString(argument) then
-				commandBuffer:insert(self:quoteArgument(argument))
+				commandBuffer:insert(self:toQuotedShellArgument(argument))
 			else
 				commandBuffer:insert(argument.argument)
 			end
@@ -417,7 +424,7 @@ function module:uniqueValidPathsFromEnvironmentVariable(environmentVariableName,
 		end
 	end
 	
-	return Path.uniquePaths(paths)
+	return unique(paths)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split')
@@ -436,7 +443,7 @@ function PosixShellLanguage:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'gsub')
-function PosixShellLanguage:_quoteArgument(argument)
+function PosixShellLanguage:_toQuotedShellArgument(argument)
 	if argument:find('\0') ~= nil then
 		exception.throw("POSIX shell script arguments can not contain ASCII NUL (0x00)")
 	end
@@ -483,7 +490,7 @@ end
 
 -- Quoting is a mess in Cmd; these rules only work for cmd.exe /C (it's a per-program thing)
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'gsub')
-function CmdShellLanguage:_quoteArgument(argument)
+function CmdShellLanguage:_toQuotedShellArgument(argument)
 	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
     if argument:match('^[%.a-zA-Z]?:?[\\/]')  then
        argument = argument:gsub('/', slash)

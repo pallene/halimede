@@ -34,13 +34,13 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	
 	local crossRecipePaths = builder.crossRecipePaths
 	
-	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags)
+	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags, shellScript.shellLanguage)
 	compilerDriverArguments:addCStandard(cStandard)
 	compilerDriverArguments:useFileExtensionsToDetermineLanguage()
 	compilerDriverArguments:append(preprocessorFlags)
 	defines:appendToCompilerDriverArguments(compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
-	compilerDriverArguments:addIncludePaths(shellScript.shellLanguage.pathStyle.currentDirectory, sources)
+	compilerDriverArguments:addIncludePaths(shellScript.shellLanguage.currentPath, sources)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(sources)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
