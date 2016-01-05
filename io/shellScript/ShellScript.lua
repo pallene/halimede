@@ -6,24 +6,20 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
-local deepCopy = halimede.table.deepCopy
-local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
-local useTemporaryTextFileAfterWritingAllContentsAndClosing = halimede.io.temporary.useTemporaryTextFileAfterWritingAllContentsAndClosing
 local Path = halimede.io.paths.Path
 local openBinaryFileForWriting = halimede.io.FileHandleStream.openBinaryFileForWriting
 
 
-moduleclass('ShellScript')
+halimede.moduleclass('ShellScript')
 
 function module:initialize(shellScriptExecutor)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
-	
+
 	self.shellScriptExecutor = shellScriptExecutor
-	
+
 	local shellLanguage = shellScriptExecutor.shellLanguage
 	self.shellLanguage = shellLanguage
-	self.shellScriptFileExtensionExcludingLeadingPeriod = shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod
 	self.tabelizedScriptBuffer = tabelize()
 end
 
@@ -36,12 +32,12 @@ end
 -- take another look at 'brew sh': it's really part of how we execute [indeed, we should probably look at that in more depth, with perhaps a wrapper script]
 function module:writeToFileAndExecute(scriptFilePath, standardOut, standardError)
 	assert.parameterTypeIsInstanceOf('scriptFilePath', scriptFilePath, Path)
-	
+
 	scriptFilePath:assertIsFilePath('scriptFilePath')
-	
+
 	local fileHandleStream = scriptFilePath:openFile(openBinaryFileForWriting, 'build script')
 	fileHandleStream:writeAllContentsAndClose(self:finish())
-	
+
 	self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 end
 

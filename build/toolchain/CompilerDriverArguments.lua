@@ -13,7 +13,7 @@ local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
 
 
-moduleclass('CompilerDriverArguments')
+halimede.moduleclass('CompilerDriverArguments')
 
 function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath, isVerbose, shellLanguage)
 	assert.parameterTypeIsInstanceOf('compilerDriver', compilerDriver, CompilerDriver)
@@ -21,9 +21,9 @@ function module:initialize(compilerDriver, compilerDriverFlags, sysrootPath, isV
 	assert.parameterTypeIsTable('sysrootPath', sysrootPath)
 	assert.parameterTypeIsBoolean('isVerbose', isVerbose)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
-	
+
 	self.compilerDriver = compilerDriver
-	
+
 	self.arguments = Arguments:new(shellLanguage)
 	self.arguments:append(compilerDriver.commandLineName)
 	if isVerbose then
@@ -40,7 +40,7 @@ end
 
 function module:appendFilePaths(filePaths)
 	assert.parameterTypeIsTable('filePaths', filePaths)
-	
+
 	for _, filePath in ipairs(filePaths) do
 		filePath:assertIsFilePath('filePath')
 
@@ -51,7 +51,7 @@ end
 -- Allows to remap standard names for gcc as they change by version, warn about obsolence, etc
 function module:addCStandard(cStandard)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
-	
+
 	self.compilerDriver:addCStandard(self.arguments, cStandard)
 end
 
@@ -65,28 +65,28 @@ end
 
 function module:undefinePreprocessorMacro(defineName)
 	assert.parameterTypeIsString('defineName', defineName)
-	
+
 	self.compilerDriver:undefinePreprocessorMacro(self.arguments, defineName)
 end
 
 function module:definePreprocessorMacro(defineName, defineValue)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsString('defineValue', defineValue)
-	
+
 	self.compilerDriver:definePreprocessorMacro(self.arguments, defineName, defineValue)
 end
 
 function module:addSystemIncludePaths(dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 	assert.parameterTypeIsTable('dependenciesSystemIncludePaths', dependenciesSystemIncludePaths)
 	assert.parameterTypeIsTable('buildVariantSystemIncludePaths', buildVariantSystemIncludePaths)
-	
+
 	self.compilerDriver:addSystemIncludePaths(self.arguments, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)
 end
 
 function module:addIncludePaths(currentPath, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('currentPath', currentPath, Path)
 	assert.parameterTypeIsTable('sourceFilePaths', sourceFilePaths)
-	
+
 	self.compilerDriver:addIncludePaths(self.arguments, currentPath, sourceFilePaths)
 end
 
@@ -94,7 +94,7 @@ function module:addLinkerFlags(dependenciesLinkerFlags, buildVariantLinkerFlags,
 	assert.parameterTypeIsTable('dependenciesLinkerFlags', dependenciesLinkerFlags)
 	assert.parameterTypeIsTable('buildVariantLinkerFlags', buildVariantLinkerFlags)
 	assert.parameterTypeIsTable('otherLinkerFlags', otherLinkerFlags)
-	
+
 	self.compilerDriver:addLinkerFlags(self.arguments, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)
 end
 
@@ -102,7 +102,7 @@ function module:addLinkedLibraries(dependenciesLinkedLibraries, buildVariantLink
 	assert.parameterTypeIsTable('dependenciesLinkedLibraries', dependenciesLinkedLibraries)
 	assert.parameterTypeIsTable('buildVariantLinkedLibraries', buildVariantLinkedLibraries)
 	assert.parameterTypeIsTable('otherLinkedLibraries', otherLinkedLibraries)
-	
+
 	self.compilerDriver:addLinkedLibraries(self.arguments, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)
 end
 
@@ -112,14 +112,14 @@ end
 
 function module:addOutput(outputFilePath)
 	assert.parameterTypeIsTable('outputFilePath', outputFilePath)
-	
+
 	outputFilePath:assertIsFilePath('outputFilePath')
-	
+
 	self.compilerDriver:addOutput(self.arguments, outputFilePath)
 end
 
 function module:appendCommandLineToScript(shellScript)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
-	
+
 	self.arguments:appendCommandLineToScript(shellScript)
 end

@@ -44,11 +44,11 @@ local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local exception = halimede.exception
 
 
-moduleclass('PlatformPaths')
+halimede.moduleclass('PlatformPaths')
 
 module.static.validatePath = function(path, name, mustBe)
 	path:assertIsFolderPath(name)
-	
+
 	if path.pathRelativity[mustBe] == false then
 		exception.throw("%s '%s' must be %s", name, path, mustBe)
 	end
@@ -59,14 +59,14 @@ function module:initialize(perRecipeVersioningStrategy, sysrootPath, readonlyPre
 	assert.parameterTypeIsFunctionOrCall('perRecipeVersioningStrategy', perRecipeVersioningStrategy)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	assert.parameterTypeIsInstanceOf('readonlyPrefixPath', readonlyPrefixPath, Path)
-	
+
 	validatePath(sysrootPath, 'sysrootPath', 'isEffectivelyAbsolute')
 	validatePath(readonlyPrefixPath, 'readonlyPrefixPath', 'isEffectivelyAbsolute')
-	
+
 	self.perRecipeVersioningStrategy = perRecipeVersioningStrategy
 	self.sysrootPath = sysrootPath
 	self.readonlyPrefixPath = readonlyPrefixPath
-	
+
 	if execPrefixPath == nil then
 		self.execPrefixPath = readonlyPrefixPath
 	else
@@ -74,7 +74,7 @@ function module:initialize(perRecipeVersioningStrategy, sysrootPath, readonlyPre
 		validatePath(execPrefixPath, 'execPrefixPath', 'isEffectivelyAbsolute')
 		self.execPrefixPath = execPrefixPath
 	end
-	
+
 	if libPrefixPath == nil then
 		self.libPrefixPath = readonlyPrefixPath
 	else
@@ -87,7 +87,7 @@ end
 function module:_path(prefixPath, perRecipeVersionRelativePathElements, ...)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsTable('perRecipeVersionRelativePathElements', perRecipeVersionRelativePathElements)
-	
+
 	local folderRelativePathElements = {...}
 	return self.perRecipeVersioningStrategy(prefixPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
 end

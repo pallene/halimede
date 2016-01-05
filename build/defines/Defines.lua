@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local Path = halimede.io.paths.Path
 
 
-moduleclass('Defines')
+halimede.moduleclass('Defines')
 
 function module:initialize()
 	self.defines = {}
@@ -17,19 +17,19 @@ end
 
 function module:explicitlyUndefine(defineName)
 	assert.parameterTypeIsString('defineName', defineName)
-	
+
 	self.explicitlyUndefine[defineName] = true
 end
 
 function module:undefine(defineName)
 	assert.parameterTypeIsString('defineName', defineName)
-	
+
 	self.defines[defineName] = nil
 end
 
 function module:boolean(defineName, enable)
 	assert.parameterTypeIsBoolean('enable', enable)
-	
+
 	if enable then
 		self.defines[defineName] = '1'
 	else
@@ -39,7 +39,7 @@ end
 
 function module:oneOrZero(defineName, enable)
 	assert.parameterTypeIsBoolean('enable', enable)
-	
+
 	if enable then
 		self.defines[defineName] = '1'
 	else
@@ -50,7 +50,7 @@ end
 function module:defineIfMissing(defineName, enable, defineValue)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsBoolean('enable', enable)
-	
+
 	if enable then
 		self:undefine(defineName)
 	else
@@ -62,7 +62,7 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 function module:quotedNonEmptyString(defineName, value)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsStringOrNil('value', value)
-	
+
 	if value == nil then
 		self:undefine(defineName)
 	else
@@ -70,28 +70,28 @@ function module:quotedNonEmptyString(defineName, value)
 			exception.throw("The '%s' define can not be empty", defineName)
 		end
 		self.defines[defineName] = '"' .. value .. '"'
-	end	
+	end
 end
 
 function module:quotedPathString(defineName, value)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsInstanceOfOrNil('value', value, Path)
-	
+
 	if value == nil then
 		self:undefine(defineName)
 	else
 		self.defines[defineName] = '"' .. value:toString(true) .. '"'
-	end	
+	end
 end
 
 function module:enumeration(defineName, enumeratedConstant, prefix)
 	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsStringOrNil('prefix', prefix)
-	
+
 	if prefix == nil then
 		prefix = 'halimede.build.defines.'
 	end
-	
+
 	if enumeratedConstant == nil then
 		self:undefine(defineName)
 	else

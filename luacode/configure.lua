@@ -16,7 +16,7 @@ local function wrapWithReadOnlyProxy(object)
 	if not isTable(object) then
 		return object
 	end
-	
+
 	return setmetatable({}, {
 		__index = function(_, key)
 			return wrapWithReadOnlyProxy(object[key])
@@ -32,7 +32,7 @@ local function wrapWithReadOnlyProxyButCanAddFieldsToProxy(object)
 	if not isTable(object) then
 		return object
 	end
-	
+
 	local proxy = {}
 	return setmetatable(proxy, {
 		__index = function(_, key)
@@ -52,13 +52,13 @@ end
 assert.globalTypeIsFunctionOrCall('setmetatable')
 local function wrapWithMultipleInheritanceProxy(initialState, ...)
 	assert.parameterTypeIsString('initialState', initialState)
-	
+
 	local parents = {...}
-	
+
 	local proxy = initialState
 	return setmetatable(proxy, {
 		__index = function(_, key)
-			for index = 1, #parents dp
+			for index = 1, #parents do
 				local value = parents[index][key]
 				if value ~= nil then
 					return value
@@ -124,7 +124,7 @@ module.sandboxEnvironmentToPreserve = {
 		asin = math.asin,
 		atan = math.atan,
 		atan2 = math.atan2,
-		ceil = math.ceil
+		ceil = math.ceil,
 		cos = math.cos,
 		cosh = math.cosh,
 		deg = math.deg,
@@ -160,13 +160,13 @@ module.sandboxEnvironmentToPreserve = {
 -- Can not mutate any globals or their fields, but can 'shadow' (overlay) globals and assign new ones
 function module.load(fileDescription, filePath, sandboxEnvironmentToPreserve, defaultConfigurationToPreserve, mutableInitialEnvironmentState)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
-	assert.parameterTypeIsPath('filePath', filePath)
+	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
 	assert.parameterTypeIsTable('sandboxEnvironmentToPreserve', sandboxEnvironmentToPreserve)
 	assert.parameterTypeIsTable('defaultConfigurationToPreserve', defaultConfigurationToPreserve)
 	assert.parameterTypeIsTable('mutableInitialEnvironmentState', mutableInitialEnvironmentState)
-	
+
 	filePath:assertIsFilePath('filePath')
-	
+
 	local environment = wrapWithMultipleInheritanceProxy(mutableInitialEnvironmentState, wrapWithReadOnlyProxy(defaultConfigurationToPreserve), wrapWithReadOnlyProxy(sandboxEnvironmentToPreserve))
 	return executeFromFile(fileDescription, filePath, environment), environment
 end

@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
+require('halimede')
 local isTable = type.isTable
 
 
@@ -13,15 +13,15 @@ local function shallowCopy(original)
 	if not isTable(original) then
 		return original
 	end
-	
+
 	local copy = {}
 
 	for key, value in next, original do
 		copy[key] = value
 	end
 	setmetatable(copy, getmetatable(original))
-	
+
 	return copy
 end
 
-modulefunction(shallowCopy)
+halimede.modulefunction(shallowCopy)

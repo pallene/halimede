@@ -9,7 +9,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -17,6 +17,6 @@ end
 
 function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
-	
+
 	shellScript:appendCommandLineToScript('rm', '-rf', path:toQuotedShellArgumentX(true))
 end

@@ -5,13 +5,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -22,18 +21,18 @@ assert.globalTypeIsFunctionOrCall('unpack')
 function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, ShellPath)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, ShellPath)
-	
+
 	linkFilePath:assertIsFilePath('linkFilePath')
-	
+
 	local command = tabelize({'MKLINK'})
-	
+
 	if linkContentsPath.isDirectory then
 		command:insert('/D')
 	end
-	
+
 	-- Note that order is reverse of that for POSIX ln -s
 	command:insert(linkFilePath:toQuotedShellArgumentX(false))
 	command:insert(linkContentsPath:toQuotedShellArgumentX(false))
-	
+
 	shellScript:appendCommandLineToScript(unpack(command))
 end

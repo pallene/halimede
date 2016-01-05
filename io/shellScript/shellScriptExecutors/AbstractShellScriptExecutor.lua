@@ -12,18 +12,18 @@ local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local Path = halimede.io.paths.Path
 
 
-moduleclass('AbstractShellScriptExecutor')
+halimede.moduleclass('AbstractShellScriptExecutor')
 
 function module:initialize(shellLanguage, ...)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
-	
+
 	self.shellLanguage = shellLanguage
 	self.shellScriptExecutionCommand = tabelize({...})
 end
 
 function module:newShellScript(shellScriptClass, ...)
 	assert.parameterTypeIsTable('shellScriptClass', shellScriptClass)
-	
+
 	return shellScriptClass:new(self, ...)
 end
 
@@ -32,12 +32,13 @@ function module:executeScriptExpectingSuccess(scriptFilePath, standardOut, stand
 	assert.parameterTypeIsInstanceOf('scriptFilePath', scriptFilePath, Path)
 
 	scriptFilePath:assertIsFilePath('scriptFilePath')
-	
+
 	local arguments = deepCopy(self.shellScriptExecutionCommand)
-	
+
 	self:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 end
 
+--noinspection UnusedDef
 function module:_executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError, arguments)
 	exception.throw('Abstract Method')
 end

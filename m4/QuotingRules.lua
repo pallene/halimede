@@ -8,44 +8,44 @@ local halimede = require('halimede')
 local exception = halimede.exception
 
 
-local QuotingRules = moduleclass('QuotingRules')
+local QuotingRules = halimede.moduleclass('QuotingRules')
 
 function module:initialize(beginQuoteDelimiter, endQuoteDelimiter)
 	assert.parameterTypeIsString('beginQuoteDelimiter', beginQuoteDelimiter)
 	assert.parameterTypeIsString('endQuoteDelimiter', endQuoteDelimiter)
-	
+
 	self.beginQuoteDelimiter = beginQuoteDelimiter
 	self.endQuoteDelimiter = endQuoteDelimiter
-	
+
 	self.beginQuoteDelimiterLength = #beginQuoteDelimiter
 end
 
 function module:quote(argument)
 	assert.parameterTypeIsString('argument', argument)
-	
+
 	return self.beginQuoteDelimiter .. argument .. self.endQuoteDelimiter
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'sub')
 function module:couldBeStartOfQuotedString(prefix)
 	assert.parameterTypeIsString('prefix', prefix)
-	
+
 	local prefixLength = #prefix
 	local beginQuoteDelimiter = self.beginQuoteDelimiter
 	local beginQuoteDelimiterLength = self.beginQuoteDelimiterLength
-	
+
 	if prefixLength == '' then
 		exception.throw("Do not call this function with an empty prefix")
 	end
-	
+
 	if prefixLength > beginQuoteDelimiterLength then
 		return false
 	end
-	
+
 	if prefixLength == beginQuoteDelimiterLength then
-		return prefix = beginQuoteDelimiter
+		return prefix == beginQuoteDelimiter
 	end
-	
+
 	beginQuoteDelimiter:sub(1, prefixLength)
 end
 
@@ -58,12 +58,12 @@ local isVoid = m4Assert.isVoid
 local isMissing = m4Assert.isMissing
 local isMissingOrVoid = m4Assert.isMissingOrVoid
 
--- TODO: It is an error if the end of file occurs within a quoted string. 
+-- TODO: It is an error if the end of file occurs within a quoted string.
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 local function builtin_changequote(start, end_)
 	m4Assert.parameterTypeIsMissingOrIsVoidOrIsString(start)
 	m4Assert.parameterTypeIsMissingOrIsVoidOrIsString(end_)
-	
+
 	local beginQuoteDelimiter = "`"
 	local endQuoteDelimiter = "'"
 	if isMissing(start) then
@@ -84,12 +84,11 @@ local function builtin_changequote(start, end_)
 		if isMissingOrVoid(end_) then
 			endQuoteDelimiter = "'"
 		else
-			if not start:isEmpty() and end:isEmpty() then
+			if not start:isEmpty() and end_:isEmpty() then
 				endQuoteDelimiter = "'"
 			end
 		end
 	end
-	
-	return Void
+
 	return Quoting:new(chosenStart, endQuoteDelimiter)
 end

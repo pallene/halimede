@@ -10,21 +10,16 @@ local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForR
 local tabelize = halimede.table.tabelize
 
 
-moduleclass('M4Parser')
+halimede.moduleclass('M4Parser')
 
 function module:initialize(m4FilePath)
 	assert.parameterTypeIsInstanceOf('m4FilePath', m4FilePath, Path)
-	
+
 	m4FilePath:assertIsFilePath('m4FilePath')
-	
+
 	self.fileHandleStreamToReadFrom = openBinaryFileForReading(m4FilePath, 'M4 file')
 	self.output = tabelize()
-	
-	self.commenting
-	self.wording
-	self.quoting
-	
-	self.
+
 end
 
 function module:_readByte()
@@ -48,10 +43,10 @@ function module:_readLoop(byteUserFunction, bytesFinishedFunction)
 	local state = {}
 	local byte = self:_readByte()
 	while byte ~= false do
-		
+
 		prefix = prefix .. byte
 		prefix, state = byteUserFunction(self, prefix, state)
-				
+
 		byte = self:_readByte()
 	end
 	bytesFinishedFunction(self, prefix, state)
@@ -59,17 +54,17 @@ end
 
 
 local function readTokensByteUser(self, prefix, state)
-	
+
 	-- Comments, Macros, Quoted Strings
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
 	if self.commenting:prefixMatchesBeginComment(prefix) then
 		self:readComment(prefix)
 		return '', {}
@@ -96,6 +91,7 @@ end
 
 
 
+--noinspection UnusedDef
 local function readComment(self, state, byte)
 end
 

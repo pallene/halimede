@@ -5,11 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local Paths = halimede.io.paths.Paths
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('SetPathCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('SetPathCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)

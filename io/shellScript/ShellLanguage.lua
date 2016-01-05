@@ -8,6 +8,7 @@ local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
 local unique = halimede.table.unique
 local packageConfiguration = halimede.packageConfiguration
+local getenv = halimede.getenv
 local exception = halimede.exception
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local Path = halimede.io.paths.Path
@@ -16,7 +17,7 @@ local ShellArgument = require.sibling.ShellArgument
 local FileHandleStream = halimede.io.FileHandleStream
 
 
-local ShellLanguage = moduleclass('ShellLanguage')
+local ShellLanguage = halimede.moduleclass('ShellLanguage')
 
 local executeFunction
 if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
@@ -24,7 +25,7 @@ if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'execute') then
 else
 	executeFunction = function(command)
 		assert.parameterTypeIsStringOrNil('command', command)
-		
+
 		if command == nil then
 			return false
 		end
@@ -45,13 +46,13 @@ else
 	popenFunction = function(command, mode)
 		assert.parameterTypeIsString('command', command)
 		assert.parameterTypeIsStringOrNil('mode', mode)
-		
+
 		if mode ~= nil then
 			if validModes[mode] == nil then
 				return nil, "mode '" .. mode .. "' is not valid"
 			end
 		end
-		
+
 		return nil, 'io.popen is not available'
 	end
 end
@@ -73,7 +74,7 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	assert.parameterTypeIsString('silenced', silenced)
 	assert.parameterTypeIsBoolean('searchesCurrentPath', searchesCurrentPath)
 	assert.parameterTypeIsString('commandInterpreterName', commandInterpreterName)
-	
+
 	self.lowerCasedName = lowerCasedName
 	self.titleCasedName = titleCasedName
 	self.pathStyle = pathStyle
@@ -83,11 +84,17 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.silenced = silenced
 	self.searchesCurrentPath = searchesCurrentPath
 	self.commandInterpreterName = commandInterpreterName
-	
+
 	self.binarySearchPathCached = nil
 
 	self.parentPath = pathStyle.parentPath
 	self.currentPath = pathStyle.currentPath
+end
+
+function module:appendShellScriptExtension(filePathWithoutFileExtension)
+	assert.parameterTypeIsTable('filePathWithoutFileExtension', filePathWithoutFileExtension)
+
+	return filePathWithoutFileExtension:appendFileExtension(self.shellScriptFileExtensionExcludingLeadingPeriod)
 end
 
 function module:executeCommandExpectingSuccess(standardIn, standardOut, standardError, ...)
@@ -132,7 +139,7 @@ function module:_popen(standardIn, standardOut, standardError, mode, ...)
 	assert.parameterTypeIsStringOrNil('mode', mode)
 
 	local command = self:_appendRedirectionsAndCreateCommandString(standardIn, standardOut, standardError, ...)
-	
+
 	local fileHandle, errorMessage = popenFunction(command, mode)
 	if fileHandle == nil then
 		exception.throw("Could not popen shell because of error '%s' for command (%s)", errorMessage, command)
@@ -153,12 +160,12 @@ end
 assert.globalTypeIsFunctionOrCall('pcall', 'ipairs')
 function module:commandIsOnPath(command)
 	assert.parameterTypeIsString('command', command)
-	
+
 	for _, path in ipairs(self:binarySearchPath()) do
-		
+
 		local function callback(fileExtension)
 			local pathToBinary = path:appendFile(command, fileExtension)
-	
+
 			local ok, fileHandleStreamOrError = pcall(FileHandleStream.openBinaryFileForReading, pathToBinary, command)
 			if ok then
 				fileHandleStreamOrError:close()
@@ -166,19 +173,19 @@ function module:commandIsOnPath(command)
 			end
 			return false, nil
 		end
-	
+
 		local ok, result = self:iterateOverBinaryFileExtensions(callback)
 		if ok then
 			return ok, result
 		end
 	end
-	
+
 	return false, nil
 end
 
 function module:iterateOverBinaryFileExtensions(callback)
 	assert.parameterTypeIsFunctionOrCall('callback', callback)
-	
+
 	return self:_iterateOverBinaryFileExtensions(callback)
 end
 
@@ -188,7 +195,7 @@ end
 
 function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 	assert.parameterTypeIsString('command', command)
-	
+
 	if ShellLanguage.shellIsAvailable then
 		return self:commandIsOnPath(command)
 	else
@@ -199,13 +206,13 @@ end
 function module:toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsTable('paths', paths)  -- shell paths
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+
 	local result = tabelize()
 	local uniquePaths = unique(paths)
 	for _, path in ipairs(uniquePaths) do
 		path:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self):insertValue(result)
 	end
-	
+
 	return result:concat(self.pathSeparator)
 end
 
@@ -213,14 +220,14 @@ function module:toQuotedShellArgument(argument)
 	if type.isString(argument) then
 		return self:_toQuotedShellArgument(argument)
 	end
-	
+
 	assert.parameterTypeIsInstanceOf('argument', argument, ShellArgument)
 	return argument
 end
 
 function module:quoteEnvironmentVariable(argument)
 	assert.parameterTypeIsString('argument', argument)
-	
+
 	return self:_quoteEnvironmentVariable(argument)
 end
 
@@ -241,7 +248,7 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	else
 		redirection = self:toQuotedShellArgument(filePathOrFileDescriptor)
 	end
-	
+
 	return ShellArgument:new(fileDescriptor .. symbol .. redirection)
 end
 
@@ -250,11 +257,11 @@ local function assertParameterIsAcceptableForRedirection(filePathOrFileDescripto
 		assert.parameterTypeIsPositiveInteger('filePathOrFileDescriptor', filePathOrFileDescriptor)
 		return
 	end
-	
+
 	if type.isString(filePathOrFileDescriptor) then
 		return
 	end
-	
+
 	if isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		return
 	end
@@ -264,41 +271,41 @@ end
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
 	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	
+
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
 function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
 	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	
+
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
 function module:redirectStandardInput(filePathOrFileDescriptor)
 	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	
+
 	return self:redirectInput(ShellLanguage.standardIn, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardOutput(filePathOrFileDescriptor)
 	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	
+
 	return self:redirectOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardError(filePathOrFileDescriptor)
 	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	
+
 	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:toShellCommand(...)
 	local arguments = {...}
-	
+
 	local commandBuffer = tabelize()
-	
+
 	for _, argument in ipairs(arguments) do
 		if argument ~= nil then
 			if type.isString(argument) then
@@ -319,18 +326,18 @@ end
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendLinesToScript(tabelizedScriptBuffer, ...)
 	assert.parameterTypeIsTable('tabelizedScriptBuffer', tabelizedScriptBuffer)
-	
+
 	local lines = {...}
 	for _, line in ipairs(lines) do
 		assert.parameterTypeIsString('line', line)
-		
+
 		tabelizedScriptBuffer:insert(line .. self.newline)
 	end
 end
 
 function module:appendCommandLineToScript(tabelizedScriptBuffer, ...)
 	assert.parameterTypeIsTable('tabelizedScriptBuffer', tabelizedScriptBuffer)
-	
+
 	tabelizedScriptBuffer:insert(self:toShellCommandLine(...))
 	self:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
 end
@@ -341,32 +348,32 @@ end
 
 function module:parentPaths(count)
 	assert.parameterTypeIsNumberOrNil('count', count)
-	
+
 	if count == nil then
 		return self.parentPath
 	end
-	
+
 	assert.parameterTypeIsPositiveInteger('count', count)
 	if count == 0 then
 		exception.throw("Parameter 'count' can not be zero")
 	end
-	
+
 	local parentPath = self.parentPath
 	local remaining = count
 	while remaining > 1
 	do
 		parentPath = parentPath:appendRelativePath(self.parentPath)
-		
+
 		remaining = remaining - 1
 	end
-	
+
 	return parentPath
 end
 
 function module:parsePath(pathString, isFile)
 	assert.parameterTypeIsString('pathString', pathString)
 	assert.parameterTypeIsBoolean('isFile', isFile)
-	
+
 	return self.pathStyle:parse(pathString, isFile)
 end
 
@@ -381,39 +388,31 @@ end
 function module:appendFileExtension(fileName, fileExtension)
 	assert.parameterTypeIsString('fileName', fileName)
 	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
-	
+
 	return self.pathStyle:appendFileExtension(fileName, fileExtension)
 end
 
-local getEnvironmentVariableFunction
-if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'getenv') then
-	getEnvironmentVariableFunction = os.getenv
-else
-	getEnvironmentVariableFunction = function(environmentVariableName)
-		return nil
-	end
-end
 assert.globalTypeIsFunctionOrCall('ipairs', 'pcall')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split', 'isEmpty')
 function module:uniqueValidPathsFromEnvironmentVariable(environmentVariableName, isFilePath, prependCurrentDirectory)
 	assert.parameterTypeIsString('environmentVariableName', environmentVariableName)
 	assert.parameterTypeIsBoolean('isFilePath', isFilePath)
 	assert.parameterTypeIsBoolean('prependCurrentDirectory', prependCurrentDirectory)
-	
+
 	local paths = tabelize()
-	local stringPaths = getEnvironmentVariableFunction(environmentVariableName)
+	local stringPaths = getenv(environmentVariableName)
 	if stringPaths == nil or stringPaths:isEmpty() then
 		return paths
 	end
-	
+
 	local function parse(potentialPath)
 		return self.pathStyle:parse(potentialPath, isFilePath)
 	end
-	
+
 	if self.searchesCurrentPath then
 		paths:insert(self.currentPath)
 	end
-	
+
 	local potentialPaths = stringPaths:split(self.pathSeparator)
 	for _, potentialPath in ipairs(potentialPaths) do
 		if not potentialPath:isEmpty() then
@@ -423,7 +422,7 @@ function module:uniqueValidPathsFromEnvironmentVariable(environmentVariableName,
 			end
 		end
 	end
-	
+
 	return unique(paths)
 end
 
@@ -468,7 +467,7 @@ local CmdShellLanguage = halimede.class('CmdShellLanguage', ShellLanguage)
 
 function CmdShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', ';', 'NUL', true, 'cmd')
-	
+
 	self.binaryFileExtensionsCached = nil
 end
 
@@ -495,18 +494,18 @@ function CmdShellLanguage:_toQuotedShellArgument(argument)
     if argument:match('^[%.a-zA-Z]?:?[\\/]')  then
        argument = argument:gsub('/', slash)
     end
-	
+
 	-- Special handling for CHDIR with \
 	if argument == slash then
 		return argument
 	end
-	
+
 	-- Quoting for URLs
    argument = argument:gsub('(\\+)(")', cmdEscaperA)
    argument = argument:gsub('(\\+)$', cmdEscaperA)
    argument = argument:gsub('[%%"]', cmdCharactersToEscape)
    argument = argument:gsub('(\\*)%%', cmdEscaperB)
-   
+
    return '"' .. argument .. '"'
 end
 
@@ -529,14 +528,14 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gsub', 'split')
 function CmdShellLanguage:_iterateOverBinaryFileExtensions(callback)
 	if self.binaryFileExtensionsCached == nil then
-		local pathExt = getEnvironmentVariableFunction('PATHEXT')
+		local pathExt = getenv('PATHEXT')
 		if pathExt == nil then
 			pathExt = DefaultPathExt
 		end
 		-- There may be whitespace (eg '; ')
 		self.binaryFileExtensionsCached = pathExt:gsub(';[ ]+', ';'):split(';')
 	end
-	
+
 	for _, binaryFileExtension in ipairs(self.binaryFileExtensionsCached) do
 		local ok, result = callback(binaryFileExtension)
 		if ok then
@@ -563,17 +562,17 @@ ShellLanguage.static.default = function()
 	if cachedDefault ~= false then
 		return cachedDefault
 	end
-	
+
 	local function determineDefault()
 		if type.hasPackageChildFieldOfTypeString('jit', 'os') then
-		
+
 			local name = jit.os
 			local shellLanguage = operatingSystemNamesToShellLanguages[name]
 			if shellLanguage ~= nil then
 				return shellLanguage
 			end
 		end
-	
+
 		-- Not the best test; doesn't work for Symbian, can't distinguish OpenVms from RISC OS
 		-- Running uname on the PATH works on POSIX systems, but that rules out Windows... and the shell isn't available on Unikernels like RumpKernel
 		local folderSeparator = packageConfiguration.folderSeparator
@@ -593,7 +592,7 @@ ShellLanguage.static.default = function()
 			exception.throw("Could not determine ShellLanguage using packageConfiguration folderSeparator '%s'", folderSeparator)
 		end
 	end
-	
+
 	cachedDefault = determineDefault()
 	return cachedDefault
 end

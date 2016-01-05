@@ -9,7 +9,7 @@ local PathStyle = require.sibling.PathStyle
 local exception = halimede.exception
 
 
-local PathRelativity = moduleclass('PathRelativity')
+local PathRelativity = halimede.moduleclass('PathRelativity')
 
 -- isAbsoluteIncludingDeviceName: C:\path\to\file.txt (no POSIX equivalent unless using an empty device)
 -- isRelativeToCurrentDeviceAndAbsoluteOnPosix: \path\to\file.txt or /path/to/file.txt
@@ -21,23 +21,23 @@ function module:initialize(name, isAbsoluteIncludingDeviceName, isRelativeToCurr
 	assert.parameterTypeIsBoolean('isRelativeToCurrentDeviceAndAbsoluteOnPosix', isRelativeToCurrentDeviceAndAbsoluteOnPosix)
 	assert.parameterTypeIsBoolean('isRelativeToDeviceCurrentDirectoryOnCmd', isRelativeToDeviceCurrentDirectoryOnCmd)
 	assert.parameterTypeIsBoolean('isRelative', isRelative)
-	
+
 	self.name = name
 	self.isAbsoluteIncludingDeviceName = isAbsoluteIncludingDeviceName
 	self.isRelativeToCurrentDeviceAndAbsoluteOnPosix = isRelativeToCurrentDeviceAndAbsoluteOnPosix
 	self.isRelativeToDeviceCurrentDirectoryOnCmd = isRelativeToDeviceCurrentDirectoryOnCmd
 	self.isRelative = isRelative
-	
+
 	self.pathStyleFunctionName = 'toString' .. name
 	self.isEffectivelyAbsolute = isAbsoluteIncludingDeviceName or isRelativeToCurrentDeviceAndAbsoluteOnPosix
 	self.doesNotHaveARoot = isRelative or isRelativeToDeviceCurrentDirectoryOnCmd
-	
+
 	PathRelativity.static[name] = self
 end
 
 function module:guardDeviceIsPermitted(pathStyle, device)
 	assert.parameterTypeIsInstanceOf('pathStyle', pathStyle, PathStyle)
-	
+
 	if device == nil then
 		if self.isAbsoluteIncludingDeviceName or self.isRelativeToDeviceCurrentDirectoryOnCmd then
 			exception.throw("device is required because the path relativity is '%s'", self.name)
@@ -58,7 +58,7 @@ function module:toString(pathStyle, pathElements, isFile, specifyCurrentDirector
 	assert.parameterTypeIsTable('pathElements', pathElements)
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+
 	self:guardDeviceIsPermitted(pathStyle, device)
 	return pathStyle[self.pathStyleFunctionName](pathStyle, pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, device)
 end

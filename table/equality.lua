@@ -29,21 +29,21 @@ local function isArrayShallowUnequal(left, right)
 	if not isTable(left) then
 		return false
 	end
-	
+
 	if not isTable(right) then
 		return false
 	end
-	
+
 	if #left ~= #right then
 		return true
 	end
-	
+
 	for index, leftItem in ipairs(left) do
-		if right[index] ~= left then
+		if right[index] ~= leftItem then
 			return true
 		end
 	end
-	
+
 	return false
 end
 module.isArrayShallowUnequal = isArrayShallowUnequal
@@ -54,7 +54,7 @@ local function isClassUnequal(left, right)
 	end
 	return not isInstanceOf(right, left.class)
 end
-module.isClassEqual = isClassEqual
+module.isClassUnequal = isClassUnequal
 
 -- Does not support arrays of arrays
 assert.globalTypeIsFunctionOrCall('ipairs')
@@ -62,24 +62,24 @@ function module.areInstancesEqual(left, right, simpleEqualityFieldNames, shallow
 	if isClassUnequal(left, right) then
 		return false
 	end
-	
-	for _, simpleEqualityFieldName in ipairs(simpleEqualityFieldName) do
+
+	for _, simpleEqualityFieldName in ipairs(simpleEqualityFieldNames) do
 		if left[simpleEqualityFieldName] ~= right[simpleEqualityFieldName] then
 			return false
 		end
 	end
-	
+
 	for _, potentiallyNilFieldName in ipairs(potentiallyNilFieldNames) do
 		if isUnequalWithNil(left[potentiallyNilFieldName], right[potentiallyNilFieldName]) then
 			return false
 		end
 	end
-	
+
 	for _, shallowArrayFieldName in ipairs(shallowArrayFieldNames) do
 		if isArrayShallowUnequal(left[shallowArrayFieldName], right[shallowArrayFieldName]) then
 			return false
 		end
 	end
-	
+
 	return true
 end

@@ -12,19 +12,19 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 local formatString = '([^%s]+)'
 local function multisplitter(separators)
 	assert.parameterTypeIsString('separators', separators)
-	
+
 	local pattern = formatString:format(separators)
 	return function(value)
 		assert.parameterTypeIsString('value', value)
-	
+
 		local fields = tabelize()
-	
+
 		value:gsub(pattern, function(field)
 			fields:insert(field)
 		end)
-	
+
 		return fields
 	end
 end
 
-modulefunction(multisplitter)
+halimede.modulefunction(multisplitter)

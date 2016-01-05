@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('ExportEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('ExportEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -17,6 +17,6 @@ end
 function module:_execute(shellScript, builder, variableName, variableValue)
 	assert.parameterTypeIsString('variableName', variableName)
 	assert.parameterTypeIsString('variableValue', variableValue)
-	
+
 	shellScript:appendCommandLineToScript('SET', variableName .. '=' .. variableValue)
 end

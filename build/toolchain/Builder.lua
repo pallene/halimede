@@ -5,24 +5,39 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local ShellScript = halimede.io.shellScript.ShellScript
 local ShellPath = halimede.io.shellScript.ShellPath
 local Actions = halimede.build.toolchain.Actions
+local Platform = haimede.build.toolchain.Platform
+local RecipePaths = haimede.build.toolchain.RecipePaths
+local AbstractStrip = haimede.build.shellScriptActions.strip.AbstractStrip
+local ConfigHDefines = haimede.build.defines.ConfigHDefines
 
 
-delegateclass('Builder', 'actions')
+halimede.delegateclass('Builder', 'actions')
 
 local defaultShellScriptActionsNamespace = 'halimede.build.shellScriptActions'
 function module:initialize(shellScript, dependencies, buildVariant, sourceFolderShellPath, patchFolderShellPath, buildFolderShellPath, destFolderShellPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, configHDefines)
-	
-	--self.shellScript = shellScript
-	--self.dependencies = dependencies
-	--self.buildVariant = buildVariant
-	
+	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
+	assert.parameterTypeIsTable('dependencies', dependencies)
+	assert.parameterTypeIsTable('buildVariant', buildVariant)
+	assert.parameterTypeIsInstanceOf('sourceFolderShellPath', sourceFolderShellPath, ShellPath)
+	assert.parameterTypeIsInstanceOf('patchFolderShellPath', patchFolderShellPath, ShellPath)
+	assert.parameterTypeIsInstanceOf('buildFolderShellPath', buildFolderShellPath, ShellPath)
+	assert.parameterTypeIsInstanceOf('destFolderShellPath', destFolderShellPath, ShellPath)
+	assert.parameterTypeIsInstanceOf('buildPlatform', buildPlatform, Platform)
+	assert.parameterTypeIsInstanceOf('buildRecipePaths', buildRecipePaths, RecipePaths)
+	assert.parameterTypeIsInstanceOf('crossPlatform', crossPlatform, Platform)
+	assert.parameterTypeIsInstanceOf('crossRecipePaths', crossRecipePaths, RecipePaths)
+	assert.parameterTypeIsTable('arguments', arguments)
+	assert.parameterTypeIsInstanceOf('strip', strip, AbstractStrip)
+	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
+
 	self.sourceFolderShellPath = sourceFolderShellPath
 	self.patchFolderShellPath = patchFolderShellPath
 	self.buildFolderShellPath = buildFolderShellPath
 	self.destFolderShellPath = destFolderShellPath
-	
+
 	self.buildPlatform = buildPlatform
 	self.buildRecipePaths = buildRecipePaths
 	self.crossPlatform = crossPlatform
@@ -30,7 +45,7 @@ function module:initialize(shellScript, dependencies, buildVariant, sourceFolder
 	self.arguments = arguments
 	self.strip = strip
 	self.configHDefines = configHDefines
-	
+
 	local actions = Actions:new(shellScript, self, dependencies, buildVariant, defaultShellScriptActionsNamespace)
 	Actions.appendCompositeActionRecreateFolderPath(actions)
 	self.actions = actions
@@ -54,7 +69,7 @@ function module:initialize(shellScript, dependencies, buildVariant, sourceFolder
 	self.dviBuild = crossRecipePaths:path('dvi')
 	self.docBuild = crossRecipePaths:path('doc')
 	self.psBuild = crossRecipePaths:path('ps')
-	
+
 	self.binCross = buildRecipePaths:path('bin')
 	self.sbinCross = buildRecipePaths:path('sbin')
 	self.libexecCross = buildRecipePaths:path('libexec')
@@ -74,11 +89,11 @@ function module:initialize(shellScript, dependencies, buildVariant, sourceFolder
 	self.dviCross = buildRecipePaths:path('dvi')
 	self.docCross = buildRecipePaths:path('doc')
 	self.psCross = buildRecipePaths:path('ps')
-	
+
 	local function destinationPath(path)
 		return self.destFolderShellPath:appendAbsolutePathAsRelativePath(path)
 	end
-	
+
 	self.binCrossDestination = destinationPath(self.binCross)
 	self.sbinCrossDestination = destinationPath(self.sbinCross)
 	self.libexecCrossDestination = destinationPath(self.libexecCross)
@@ -98,7 +113,7 @@ function module:initialize(shellScript, dependencies, buildVariant, sourceFolder
 	self.dviCrossDestination = destinationPath(self.dviCross)
 	self.docCrossDestination = destinationPath(self.docCross)
 	self.psCrossDestination = destinationPath(self.psCross)
-	
+
 end
 
 function module:__call(...)

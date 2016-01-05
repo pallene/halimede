@@ -4,23 +4,22 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
+require('halimede')
 local isTable = type.isTable
 
 
 local function deepMerge(source, destination)
 	assert.parameterTypeIsTable('source', source)
 	assert.parameterTypeIsTable('destination', destination)
-	
+
 	for key, value in pairs(source) do
 		if not isTable(value) then
 			destination[key] = value
 			return
 		end
-		
+
 		local originalDestinationValue = destination[key]
 		local mergedDestinationValue
-		
 		if originalDestinationValue == nil then
 			mergedDestinationValue = {}
 		elseif isTable(originalDestinationValue) then
@@ -33,4 +32,4 @@ local function deepMerge(source, destination)
 	end
 end
 
-modulefunction(deepMerge)
+halimede.modulefunction(deepMerge)

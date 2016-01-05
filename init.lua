@@ -4,7 +4,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
 local ourModuleName = 'halimede'
 local ourModule = {}
 
@@ -44,10 +43,12 @@ local function essentialGlobalMissingErrorMessage(globalName)
 end
 
 if coroutine == nil then
+	--noinspection GlobalCreationOutsideO
 	coroutine = {}
 end
 
 if package == nil then
+	--noinspection GlobalCreationOutsideO
 	package = {}
 end
 
@@ -56,24 +57,29 @@ if string == nil then
 end
 
 if math == nil then
+	--noinspection GlobalCreationOutsideO
 	math = {}
 end
 
 if table == nil then
+	--noinspection GlobalCreationOutsideO
 	table = {}
 end
 
 -- bit32 as of Lua 5.2; not checked for as added by LuaJIT or as Mike Pall's library as required
 
 if io == nil then
+	--noinspection GlobalCreationOutsideO
 	io = {}
 end
 
 if os == nil then
+	--noinspection GlobalCreationOutsideO
 	os = {}
 end
 
 if debug == nil then
+	--noinspection GlobalCreationOutsideO
 	debug = {}
 end
 
@@ -87,6 +93,7 @@ end
 
 if setmetatable == nil then
 	if debug and debug.setmetabletable then
+		--noinspection GlobalCreationOutsideO
 		setmetatable = debug.setmetatable
 	else
 		essentialGlobalMissingError('setmetatable')
@@ -95,6 +102,7 @@ end
 
 if getmetatable == nil then
 	if debug and debug.getmetatable then
+		--noinspection GlobalCreationOutsideO
 		setmetatable = debug.getmetatable
 	else
 		essentialGlobalMissingError('getmetatable')
@@ -103,6 +111,7 @@ end
 
 if _G == nil then
 	if _ENV then
+		--noinspection GlobalCreationOutsideO
 		_G = setmetatable({}, {
 			_index = _ENV,
 			__newindex = ENV
@@ -115,17 +124,13 @@ end
 -- tostring, tonumber can probably be implemented in Pure Lua
 
 if _VERSION == nil then
+	--noinspection GlobalCreationOutsideO
 	_VERSION = 'Lua 5.1'
-end
-
-if string.len == nil then
-	function string.len(value)
-		return #value
-	end
 end
 
 -- Guard for presence of global assert
 if assert == nil then
+	--noinspection GlobalCreationOutsideO
 	assert = function(value, message)
 		if value == false or value == nil then
 			local assertionMessage
@@ -138,6 +143,12 @@ if assert == nil then
 		else
 			return value, optionalMessage
 		end
+	end
+end
+
+if string.len == nil then
+	function string.len(value)
+		return #value
 	end
 end
 
@@ -182,11 +193,11 @@ end
 -- See also http://lua-users.org/wiki/DetectingUndefinedVariables
 local function throwErrorsIfGlobalFieldNotDefined()
 	local metatable = getmetatable(_G) or {}
-	
+
 	metatable.__index = function(self, key)
 		error("Global '" .. key .. "' is not defined", 2)
 	end
-	
+
 	setmetatable(_G, metatable)
 end
 throwErrorsIfGlobalFieldNotDefined()
@@ -199,19 +210,19 @@ local function createNamedCallableFunction(functionName, actualFunction, module,
 	if prefix == nil then
 		prefix = 'function'
 	end
-	
+
 	if module == nil then
 		module = {}
 	end
-	
+
 	if rawget(module, 'name') == nil then
 		rawset(module, 'name', functionName)
 	end
-	
+
 	if rawget(module, 'functor') == nil then
 		rawset(module, 'functor', actualFunction)
 	end
-	
+
 	return setmetatable(module, {
 		__tostring = function()
 			return prefix .. ' ' .. functionName
@@ -348,7 +359,7 @@ local function hasPackageChildFieldOfType(isOfType, name, ...)
 	if not ok then
 		return false
 	end
-	
+
 	if not type.isTableOrUserdata(package) then
 		return false
 	end
@@ -359,12 +370,12 @@ local function hasPackageChildFieldOfType(isOfType, name, ...)
 	local length = #childFieldNames
 	while index <= length do
 		local childFieldName = childFieldNames[index]
-		
+
 		local value = package[childFieldName]
 		if not isOfType(value) then
 			return false
 		end
-		
+
 		index = index + 1
 	end
 	return true
@@ -386,14 +397,14 @@ function assert.withLevel(booleanResult, message, level)
 	if booleanResult then
 		return
 	end
-	
+
 	local errorMessage
 	if type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'traceback') then
 		errorMessage = debug.traceback(message, level)
 	else
 		errorMessage = message
 	end
-	
+
 	error(errorMessage, level)
 end
 local withLevel = assert.withLevel
@@ -407,7 +418,7 @@ local function parameterTypeIs(parameterName, value, isOfType)
 	if not type.isString(parameterName) then
 		error('Please supply a string parameter name')
 	end
-	
+
 	withLevel(isOfType(value), assert.parameterIsNotMessage(parameterName, isOfType.name), 3)
 end
 
@@ -500,13 +511,13 @@ local function globalTypeIs(isOfType, ...)
 	while index <= length do
 		local name = names[index]
 		assert.parameterTypeIsString('name', name)
-		
+
 		local ok, global = hasGlobalOfType(isOfType, name)
 		if not ok then
 			withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
 		end
 		withLevel(isOfType(global), "The global '" .. name .. "'" .. " is not a " .. isOfType.name, 4)
-		
+
 		index = index + 1
 	end
 end
@@ -525,7 +536,7 @@ end
 
 local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 	assert.globalTypeIsTable(name)
-	
+
 	local ok, package = hasGlobalOfType(isOfType, name)
 	if not ok then
 		withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
@@ -533,11 +544,11 @@ local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 	if not type.isTableOrUserdata(package) then
 		withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
 	end
-	
+
 	local childFieldNames = {...}
 	for _, childFieldName in ipairs(childFieldNames) do
 		assert.parameterTypeIsString('childFieldName', childFieldName)
-		
+
 		local childField = package[childFieldName]
 		local qualifiedChildFieldName = "The global '" .. name .. '.' .. childFieldName .. "'"
 		withLevel(childField ~= nil, essentialGlobalMissingErrorMessage(name .. '.' .. childFieldName), 4)
@@ -562,10 +573,10 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'sub')
 function string.split(value, separator)
 	assert.parameterTypeIsString('value', value)
 	assert.parameterTypeIsString('separator', separator)
-	
+
 	local result = {}
 	local length = #value
-	
+
 	local start
 	local finish
 	local previousFinish = 1
@@ -584,7 +595,7 @@ end
 
 function string.isEmpty(value)
 	assert.parameterTypeIsString('value', value)
-	
+
 	return #value == 0
 end
 
@@ -618,7 +629,7 @@ assert.globalTypeIsFunctionOrCall('pairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gmatch')
 local function initialisePackageConfiguration()
 	local configuration = {}
-	
+
 	local packageConfigurationString
 	if type.hasPackageChildFieldOfTypeString('package', 'config') then
 		-- Lua 5.2 / 5.3 have an extra line!
@@ -636,7 +647,7 @@ local function initialisePackageConfiguration()
 			configuration[name] = value
 		end
 	end
-	
+
 	local luaSharedLibraryExtension
 	local newline
 	if type.hasPackageChildFieldOfTypeString('jit', 'os') then
@@ -662,14 +673,14 @@ local function initialisePackageConfiguration()
 	end
 	configuration.luaSharedLibraryExtension = luaSharedLibraryExtension
 	configuration.newline = newline
-	
+
 	-- True for all bar RISC OS
 	configuration.fileExtensionSeparator = '.'
-	
+
 	-- Not true for more obscure File Systems
 	configuration.parentFolder = '..'
 	configuration.currentFolder = '.'
-	
+
 	return configuration
 end
 local packageConfiguration = initialisePackageConfiguration()
@@ -680,11 +691,11 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 local folderSeparator = packageConfiguration.folderSeparator
 local function appendFoldersToPath(...)
 	local folders = {...}
-	
+
 	local path
 	for index, folder in ipairs(folders) do
 		assert.parameterTypeIsString('folder', folder)
-		
+
 		if folder:isEmpty() then
 			error(("Folder name at index '%s' is an empty string"):format(index))
 		elseif folder:find('\0', 1, true) ~= nil then
@@ -697,7 +708,7 @@ local function appendFoldersToPath(...)
 			end
 		end
 	end
-	
+
 	return path
 end
 
@@ -709,19 +720,25 @@ local function findModulesRootPath()
 	if _G.modulesRootPathString ~= nil then
 		return _G.modulesRootPathString
 	end
-	
+
 	-- The following logic does not resolve symlinks, unlike the realpath binary
 	-- It may rely on the location of halimede/init.lua and the presence of debug.getinfo
 	-- It may rely on arg0 being an actual path (this is usually the case, but not necessarily)
-	
+	-- It won't work unless we're running on Windows or Posix
 	local function dirname(path)
+		local currentFolderPath = currentFolder .. folderSeparator
+
+		if path == nil then
+			return currentFolderPath
+		end
+
 		local regexSeparator
 		if folderSeparator == '\\' then
 			regexSeparator = '\\\\'
 		else
 			regexSeparator = folderSeparator
 		end
-	
+
 		if path:match('.-' .. regexSeparator .. '.-') then
 			local withTrailingSlash = path:gsub('(.*' .. regexSeparator .. ')(.*)', '%1')
 			local result = withTrailingSlash:sub(1, #withTrailingSlash - 1)
@@ -729,24 +746,26 @@ local function findModulesRootPath()
 				return folderSeparator
 			end
 		else
-			return currentFolder .. folderSeparator
+			return currentFolderPath
 		end
 	end
 
 	local function findArg0()
-		if type.isTable(arg) and type.isString(arg[0]) then
-			return arg[0]
-		else
-			if type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'getinfo') then
-				-- May not be a path, could be compiled C code, etc
-				local withLeadingAt = debug.getinfo(initialisePackageConfiguration, 'S').source
-				return withLeadingAt:sub(2)
-			else
-				return ''
+		if type.hasGlobalOfTypeTableOrUserdata('arg') then
+			--noinspection ArrayElementZero
+			local arg0Value = _G.arg[0]
+			if type.isString(arg0Value) then
+				return arg0Value
 			end
 		end
+		if type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'getinfo') then
+			-- May not be a path, could be compiled C code, etc
+			local withLeadingAt = debug.getinfo(initialisePackageConfiguration, 'S').source
+			return withLeadingAt:sub(2)
+		end
+		return nil
 	end
-	
+
 	local ourFolderPath = dirname(findArg0())
 	return appendFoldersToPath(ourFolderPath, parentFolder)
 end
@@ -769,7 +788,7 @@ local function parentModuleNameFromModuleName(moduleName)
 		parentModuleName = parentModuleName .. moduleElementNames[index]
 		index = index + 1
 	end
-	
+
 	return parentModuleName
 end
 
@@ -834,39 +853,39 @@ assert.globalTypeIsFunctionOrCall('getmetatable', 'setmetatable', 'rawget', 'raw
 local function setUpModule(moduleName, module)
 	assert.parameterTypeIsString('moduleName', moduleName)
 	assert.parameterTypeIsTableOrNil('module', module)
-	
+
 	if module == nil then
 		module = {}
 	end
-	
+
 	local metatable = getmetatable(module)
 	if metatable == nil then
 		metatable = {}
 		setmetatable(module, metatable)
 	end
-	
+
 	if metatable.__index == nil then
 		metatable.__index = function(self, childModuleName)
 			assert.parameterTypeIsTable('self', self)
 			assert.parameterTypeIsString('moduleName', moduleName)
-		
+
 			local fullModuleName = moduleName .. '.' .. childModuleName
 			local moduleLoaded = requireFunction(fullModuleName)
 			module[childModuleName] = moduleLoaded
 			return moduleLoaded
 		end
 	end
-	
+
 	if metatable.__tostring == nil then
 		metatable.__tostring = function()
 			return 'module ' .. moduleName
 		end
 	end
-	
+
 	if rawget(module, 'name') == nil then
 		rawset(module, 'name', moduleName)
 	end
-	
+
 	return module
 end
 
@@ -880,7 +899,7 @@ local function setAliasedFields(module, aliases)
 		metatable = {}
 		setmetatable(module, metatable)
 	end
-	
+
 	local existingIndex = metatable.__index
 	if existingIndex == nil then
 		existingIndex = function(self, key)
@@ -891,16 +910,16 @@ local function setAliasedFields(module, aliases)
 			return existingIndex[key]
 		end
 	end
-	
+
 	metatable.__index = function(self, key)
 		local aliasedToKey = aliases[key]
 		if aliasedToKey == nil then
 			return existingIndex(self, key)
 		end
-		
+
 		return self[aliasedToKey]
 	end
-	
+
 	local existingNewIndex = metatable.__newindex
 	if existingNewIndex == nil then
 		existingNewIndex = function(self, key, value)
@@ -911,13 +930,13 @@ local function setAliasedFields(module, aliases)
 			existingNewIndex[key] = value
 		end
 	end
-	
+
 	metatable.__newindex = function(self, key, value)
 		local aliasedToKey = aliases[key]
 		if aliasedToKey == nil then
 			return existingNewIndex(self, key, value)
 		end
-		
+
 		-- Allows other __newindex behaviours
 		self[aliasedToKey] = value
 	end
@@ -941,7 +960,7 @@ elseif searchers == nil then
 	searchers = loaders
 elseif loaders == nil then
 	package.loaders = nil
-	loaders = searchers	
+	loaders = searchers
 end
 package.searchers = searchers
 setAliasedFields(package, {loaders = 'searchers'})
@@ -952,43 +971,43 @@ loaded[ourModuleName] = halimede
 local aliasedModules = {}
 requireFunction = function(modname)
 	assert.parameterTypeIsString('modname', modname)
-	
+
 	if modname:isEmpty() then
 		error("Please supply a modname to require() that isn't empty")
 	end
-	
+
 	local moduleNameLocal = modname
-	
+
 	local alreadyLoadedOrLoadingResult = loaded[moduleNameLocal]
 	if alreadyLoadedOrLoadingResult ~= nil then
 		return alreadyLoadedOrLoadingResult
 	end
-	
+
 	local aliasedModule = aliasedModules[moduleNameLocal]
 	if aliasedModule ~= nil then
 		loaded[moduleNameLocal] = aliasedModule
 		return aliasedModule
 	end
-	
+
 	local moduleOriginal = module
 	local moduleNameOriginal = moduleName
 	local parentModuleNameOriginal = parentModuleName
-	
+
 	-- Prevent a parent that loads a child then having the parent loaded again in an infinite loop
 	local moduleLocal = setUpModule(moduleNameLocal)
 	loaded[moduleNameLocal] = moduleLocal
 	local parentModuleNameLocal = parentModuleNameFromModuleName(moduleNameLocal)
-	
+
 	local function resetModuleGlobals()
 		module = moduleOriginal
 		moduleName = moduleNameOriginal
 		parentModuleName = parentModuleNameOriginal
 	end
-	
+
 	module = moduleLocal
 	moduleName = moduleNameLocal
 	parentModuleName = moduleNameLocal
-	
+
 	initialiseSearchPaths(moduleNameLocal)
 	local failures = {}
 	for index, searcher in ipairs(searchers) do
@@ -996,7 +1015,7 @@ requireFunction = function(modname)
 		local moduleLoaderOrFailedToFindExplanationString, filePath = searcher(moduleNameLocal)
 		if type.isFunction(moduleLoaderOrFailedToFindExplanationString) then
 			local result = moduleLoaderOrFailedToFindExplanationString()
-			
+
 			local ourResult
 			if result == nil then
 				ourResult = module
@@ -1023,7 +1042,7 @@ requireFunction = function(modname)
 			error("Unexpected result type '" .. type(moduleLoaderOrFailedToFindExplanationString) .. "' of searcher at index " .. index .. " for module '" .. moduleNameLocal .. "'")
 		end
 	end
-	
+
 	loaded[moduleNameLocal] = nil
 	resetModuleGlobals()
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
@@ -1045,14 +1064,14 @@ local function createSibling()
 		end
 		return require.functor(requiredModuleName)
 	end
-	
+
 	local siblingTable = createNamedCallableFunction('sibling', sibling)
-	
+
 	local metatable = getmetatable(siblingTable)
 	metatable.__index = function(self, key)
 		return sibling(key)
 	end
-	
+
 	return siblingTable
 end
 require.sibling = createSibling()
@@ -1065,7 +1084,7 @@ local function relativeRequire(childModuleName)
 end
 
 local function augment(moduleLeafName)
-	return relativeRequire('init.' .. moduleLeafName)	
+	return relativeRequire('init.' .. moduleLeafName)
 end
 
 
@@ -1081,14 +1100,14 @@ assert.globalTypeIsFunctionOrCall('rawset')
 local function allowExplicityNilFields(note, metatable, missingIndexFunction)
 	assert.parameterTypeIsTable('metatable', metatable)
 	assert.parameterTypeIsFunction('missingIndexFunction', missingIndexFunction)
-	
+
 	metatable.___missingIndexFunction = missingIndexFunction
 	metatable.___explicitlyNilFields = {}
-	
+
 	local originalIndex = metatable.__index
 	local underlyingIndexFunction
 	if type.isNil(originalIndex) then
-		underlyingNewIndexFunction = function(self, key)
+		underlyingIndexFunction = function(self, key)
 			return nil
 		end
 	elseif type.isTable(originalIndex) then
@@ -1100,19 +1119,19 @@ local function allowExplicityNilFields(note, metatable, missingIndexFunction)
 	else
 		error("__index in metatable must be of type nil, table or function")
 	end
-	
+
 	metatable.__index = function(self, key)
 		if metatable.___explicitlyNilFields[key] then
 			return nil
 		end
-		
+
 		local value = underlyingIndexFunction(self, key)
 		if value ~= nil then
 			return value
 		end
 		return metatable.___missingIndexFunction(self, key)
 	end
-	
+
 	local originalNewIndex = metatable.__newindex
 	local underlyingNewIndexFunction
 	if type.isNil(originalNewIndex) then
@@ -1128,7 +1147,7 @@ local function allowExplicityNilFields(note, metatable, missingIndexFunction)
 	else
 		error("__newindex in metatable must be of type nil, table or function")
 	end
-	
+
 	metatable.__newindex = function(self, key, value)
 		if value == nil then
 			metatable.___explicitlyNilFields[key] = true
@@ -1156,31 +1175,31 @@ end
 assert.globalTypeIsFunctionOrCall('getmetatable')
 local function mutateMiddleclassSoThatMissingFieldsCauseErrors()
 	local originalFunction = middleclass.class
-	
+
 	middleclass.class = function(name, super, ...)
 		local newClass = originalFunction(name, super, ...)
-	
+
 		local classFieldsMetatable = getmetatable(newClass)
 		allowExplicityNilFields('class ' .. name, classFieldsMetatable, errorClassMissingIndex(name))
-		
+
 		newClass.setClassMissingIndex = function(classMissingIndexFunction)
 			assert.parameterTypeIsFunctionOrCall('classMissingIndexFunction', classMissingIndexFunction)
-			
+
 			classFieldsMetatable.___missingIndexFunction = classMissingIndexFunction
 		end
-		
+
 		local instanceFieldsMetatable = newClass.__instanceDict
 		allowExplicityNilFields('instance ' .. name, instanceFieldsMetatable, errorInstanceMissingIndex(name))
-		
+
 		newClass.setInstanceMissingIndex = function(instanceMissingIndexFunction)
 			assert.parameterTypeIsFunctionOrCall('instanceMissingIndexFunction', instanceMissingIndexFunction)
-			
+
 			instanceFieldsMetatable.___missingIndexFunction = instanceMissingIndexFunction
 		end
-		
+
 		return newClass
 	end
-	
+
 	return middleclass
 end
 local class = mutateMiddleclassSoThatMissingFieldsCauseErrors()
@@ -1207,6 +1226,8 @@ halimede.modulesRootPathString = modulesRootPathString
 halimede.allowExplicityNilFields = allowExplicityNilFields
 
 halimede.init = {}
+
+augment('getenv')
 
 augment('trace')
 

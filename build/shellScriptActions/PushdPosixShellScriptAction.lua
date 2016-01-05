@@ -9,7 +9,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('PushdPosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('PushdPosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -17,7 +17,7 @@ end
 
 function module:execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
-	
+
 	-- Relies on compatibility functions in StartPosixShellScriptAction
 	shellScript:appendCommandLineToScript('pushd', path:toQuotedShellArgumentX(true))
 end

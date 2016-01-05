@@ -10,53 +10,49 @@ local newline = halimede.packageConfiguration.newline
 
 local function traceIfRequired()
 	local environmentVariable = 'HALIMEDE_TRACE'
-	
+
 	-- Check for functions in the global namespace that we rely on that might have been removed in a sandbox; don't enable tracing if they're not present.
-	if not type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'getenv') then
-		return
-	end
-	
 	if not type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'sethook', 'getinfo') then
 		return
 	end
-	
+
 	if not type.hasPackageChildFieldOfTypeFunctionOrCall('string', 'format') then
 		return
 	end
-	
+
 	if not type.hasPackageChildFieldOfTypeTableOrUserdata('io', 'stderr') then
 		return
 	end
-	
-	local enableTracing = os.getenv(environmentVariable)
-	
+
+	local enableTracing = halimede.getenv(environmentVariable)
+
 	if enableTracing == nil then
 		return
 	end
-	
+
 	if enableTracing ~= 'true' then
 		return
 	end
-	
+
 	local stderr = io.stderr
 	local getinfo = debug.getinfo
 	local format = string.format
-	
+
 	debug.sethook(function(event)
 		assert.parameterTypeIsString('event', event)
-		
+
 		local nameInfo = getinfo(2, 'n')
-	
+
 		local nameWhat = nameInfo.namewhat
 		if nameWhat == '' then
 			nameWhat = 'unknown'
 		end
-	
+
 		local functionName = nameInfo.name
 		if functionName == nil then
 			functionName = '?'
 		end
-	
+
 		local sourceInfo = getinfo(2, 'S')
 		local language = sourceInfo.what
 		local functionKeyword
@@ -84,7 +80,7 @@ local function traceIfRequired()
 			end
 			sourceText = format(' in %s%s', source, currentLine)
 		end
-		
+
 		local messageTemplate = "%s %s %s%s '%s'%s" .. newline
 		stderr:write(messageTemplate:format(event, language, nameWhat, functionKeyword, functionName, sourceText))
 	end, 'cr')

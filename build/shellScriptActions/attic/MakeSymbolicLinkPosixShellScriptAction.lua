@@ -9,7 +9,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeSymbolicLinkPosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('MakeSymbolicLinkPosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -20,6 +20,6 @@ function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
 	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, ShellPath)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
-	
+
 	shellScript:appendCommandLineToScript('ln', '-s', linkFilePath:toQuotedShellArgumentX(false), linkFilePath:toQuotedShellArgumentX(false))
 end

@@ -5,24 +5,23 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local Paths = halimede.io.paths.Paths
 local UnsetEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.UnsetEnvironmentVariablePosixShellScriptAction
-local ExportEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.ExportEnvironmentVariablePosixShellScriptActio)
+local ExportEnvironmentVariablePosixShellScriptAction = halimede.build.shellScriptActions.ExportEnvironmentVariablePosixShellScriptAction
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('SetPathPosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('SetPathPosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
-	
+
 	self.unsetEnvironmentVariablePosixShellScriptAction = UnsetEnvironmentVariablePosixShellScriptAction:new(shellScript)
 	self.exportEnvironmentVariablePosixShellScriptAction = ExportEnvironmentVariablePosixShellScriptAction:new(shellScript)
 end
 
 function module:_execute(shellScript, builder, paths)
 	assert.parameterTypeIsTable('paths', paths)
-	
+
 	-- Sadly, on Windows, the current folder is by default part of the path
 	self.unsetEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH')
 	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH', shellScript.shellLanguage:toPathsString(paths, true))

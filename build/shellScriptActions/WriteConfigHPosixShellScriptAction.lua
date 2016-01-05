@@ -9,7 +9,7 @@ local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.
 local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentPosixShellScriptAction
 
 
-moduleclass('WriteConfigHPosixShellScriptAction', AbstractWriteConfigHShellScriptAction)
+halimede.moduleclass('WriteConfigHPosixShellScriptAction', AbstractWriteConfigHShellScriptAction)
 
 function module:initialize()
 	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)

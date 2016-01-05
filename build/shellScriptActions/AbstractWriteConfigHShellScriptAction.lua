@@ -11,31 +11,31 @@ local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local exception = halimede.exception
 
 
-moduleclass('AbstractWriteConfigHShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('AbstractWriteConfigHShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize(commentShellScriptActionClass)
 	assert.parameterTypeIsTable('commentShellScriptActionClass', commentShellScriptActionClass)
-	
+
 	AbstractShellScriptAction.initialize(self)
-	
+
 	self.commentShellScriptAction = commentShellScriptActionClass:new()
 end
 
 function module:_execute(shellScript, builder, configHDefines, filePath)
 	assert.parameterTypeIsInstanceOf('configHDefines', configHDefines, ConfigHDefines)
 	assert.parameterTypeIsInstanceOfOrNil('filePath', filePath, ShellPath)
-	
+
 	local actualFilePath
 	if filePath == nil then
 		actualFilePath = builder.buildFolderShellPath:appendFile('config', 'h')
 	else
 		filePath:assertIsFilePath('filePath')
-		
+
 		actualFilePath = filePath
 	end
-	
+
 	self.commentShellScriptAction:execute(shellScript, builder, 'Creation of config.h')
-	
+
 	local quotedStringShellPath = actualFilePath:toQuotedShellArgumentX(true)
 	self:_append(shellScript, quotedStringShellPath, configHDefines)
 end

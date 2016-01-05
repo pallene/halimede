@@ -9,7 +9,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)

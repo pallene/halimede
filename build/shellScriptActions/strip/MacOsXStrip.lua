@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractStrip = require.sibling.AbstractStrip
 
 
-moduleclass('MacOsXStrip', AbstractStrip)
+halimede.moduleclass('MacOsXStrip', AbstractStrip)
 
 function module:initialize()
 	AbstractStrip.initialize(self, true)

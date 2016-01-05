@@ -12,12 +12,12 @@ local isMissing = m4Assert.isMissing
 local isMissingOrVoid = m4Assert.isMissingOrVoid
 
 
-local Commenting = moduleclass('Commenting')
+local Commenting = halimede.moduleclass('Commenting')
 
 function module:initialize(beginCommentDelimiter, endCommentDelimiter)
 	assert.parameterTypeIsString(beginCommentDelimiter)
 	assert.parameterTypeIsString(endCommentDelimiter)
-	
+
 	self.beginCommentDelimiter = beginCommentDelimiter
 	self.endCommentDelimiter = endCommentDelimiter
 end
@@ -26,22 +26,22 @@ end
 -- Should be called before sequenceMatchesBeginMacro
 function module:prefixMatchesBeginComment(prefix)
 	assert.parameterTypeIsString(prefix)
-	
+
 	return prefix == self.beginCommentDelimiter
 end
 
 function module:prefixMatchesEndComment(prefix)
 	assert.parameterTypeIsString(prefix)
-	
+
 	return prefix == self.endCommentDelimiter
 end
 
--- TODO: It is an error if the end of file occurs within a comment. 
+-- TODO: It is an error if the end of file occurs within a comment.
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 local function builtin_changecom(start, end_)
 	m4Assert.parameterTypeIsMissingOrIsVoidOrIsString(start)
 	m4Assert.parameterTypeIsMissingOrIsVoidOrIsString(end_)
-	
+
 	local beginCommentDelimiter = "#"
 	local endCommentDelimiter = "\n"
 	if isMissing(start) then
@@ -63,13 +63,13 @@ local function builtin_changecom(start, end_)
 		if isMissingOrVoid(end_) then
 			endCommentDelimiter = "\n"
 		else
-			if not start:isEmpty() and end:isEmpty() then
-				endQuoteDelimiter = "\n"
+			if not start:isEmpty() and end_:isEmpty() then
+				endCommentDelimiter = "\n"
 			end
 			endCommentDelimiter = end_
 		end
 	end
-	
+
 	return Void
-	return Commenting:new(chosenStart, endCommentDelimiter)
+	--return Commenting:new(chosenStart, endCommentDelimiter)
 end

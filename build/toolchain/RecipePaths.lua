@@ -9,13 +9,13 @@ local Platform = require.sibling.Platform
 local PlatformPaths = require.sibling.PlatformPaths
 
 
-moduleclass('RecipePaths')
+halimede.moduleclass('RecipePaths')
 
 function module:initialize(platform, platformPaths, versionRelativePathElements)
 	assert.parameterTypeIsInstanceOf('platform', platform, Platform)
 	assert.parameterTypeIsInstanceOf('platformPaths', platformPaths, PlatformPaths)
 	assert.parameterTypeIsTable('versionRelativePathElements', versionRelativePathElements)
-	
+
 	self.platform = platform
 	self.platformPaths = platformPaths
 	self.versionRelativePathElements = versionRelativePathElements
@@ -23,6 +23,6 @@ end
 
 function module:path(pathName)
 	assert.parameterTypeIsString('pathName', pathName)
-	
+
 	return self.platformPaths[pathName](self.platformPaths, self.versionRelativePathElements)
 end

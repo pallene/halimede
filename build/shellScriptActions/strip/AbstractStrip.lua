@@ -10,25 +10,25 @@ local ShellScript = halimede.io.shellScript.ShellScript
 local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
-moduleclass('AbstractStrip')
+halimede.moduleclass('AbstractStrip')
 
 function module:initialize(supportsLibraryStripping)
 	assert.parameterTypeIsBoolean('supportsLibraryStripping', supportsLibraryStripping)
-	
+
 	self.supportsLibraryStripping = supportsLibraryStripping
 end
 
 function module:executable(shellScript, executableFilePathArgument)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
 	assert.parameterTypeIsInstanceOf('executableFilePathArgument', executableFilePathArgument, ShellArgument)
-	
+
 	shellScript:appendCommandLineToScript(self:_executable(executableFilePathArgument))
 end
 
 function module:library(shellScript, libraryFilePathArgument)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
 	assert.parameterTypeIsInstanceOf('libraryFilePathArgument', libraryFilePathArgument, ShellArgument)
-	
+
 	if self.supportsLibraryStripping then
 		shellScript:appendCommandLineToScript(self:_library(libraryFilePathArgument))
 	end

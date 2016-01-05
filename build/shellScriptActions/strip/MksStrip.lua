@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractStrip = require.sibling.AbstractStrip
 
 
-moduleclass('MksStrip', AbstractStrip)
+halimede.moduleclass('MksStrip', AbstractStrip)
 
 function module:initialize()
 	AbstractStrip.initialize(self, false)
@@ -16,6 +16,6 @@ end
 
 function module:_executable(executableFilePathArgument)
 	assert.parameterTypeIsString(executableFilePathArgument)
-	
+
 	return 'strip', '-m', executableFilePathArgument
 end

@@ -12,7 +12,7 @@ local AbstractCompilerDriverShellScriptAction = require.sibling.AbstractCompiler
 local Path = halimede.io.paths.Path
 
 
-moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
+halimede.moduleclass('AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
@@ -26,9 +26,9 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	assert.parameterTypeIsInstanceOf('defines', defines, CommandLineDefines)
 	assert.parameterTypeIsTable('sources', sources)
 	assert.parameterTypeIsInstanceOfOrNil('combinedOutputFilePath', combinedOutputFilePath, Path)
-	
+
 	local crossRecipePaths = builder.crossRecipePaths
-	
+
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags, shellScript.shellLanguage)
 	compilerDriverArguments:append(compilerDriverArguments.compilerDriver.onlyRunPreprocessorCompilationAndAssembleStepsFlags)
 	compilerDriverArguments:addCStandard(cStandard)
@@ -43,9 +43,9 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 		compilerDriverArguments:addOutput(combinedOutputFilePath)
 	end
 	compilerDriverArguments:appendFilePaths(sources)
-	
+
 	self:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
 	self:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
-	
+
 	compilerDriverArguments:appendCommandLineToScript(shellScript)
 end

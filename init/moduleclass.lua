@@ -8,13 +8,13 @@ local halimede = require('halimede')
 assert.globalTypeIsFunctionOrCall('pairs', 'setmetatable', 'getmetatable')
 function moduleclass(...)
 	local newClass = halimede.class(...)
-	
+
 	local moduleClass = module
 	for key, value in pairs(newClass) do
-		moduleClass[key] = newClass[key]
+		moduleClass[key] = value
 	end
-	
+
 	setmetatable(moduleClass, getmetatable(newClass))
-	
+
 	return moduleClass
 end

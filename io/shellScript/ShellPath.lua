@@ -14,14 +14,14 @@ local tabelize = halimede.table.tabelize
 local areInstancesEqual = halimede.table.equality.areInstancesEqual
 
 
-local ShellPath = moduleclass('ShellPath')
+local ShellPath = halimede.moduleclass('ShellPath')
 
 module.setInstanceMissingIndex(function(instance, key)
 
 	local delegatedInstance = instance.path
-	
+
 	local underlyingMethodOrField = delegatedInstance[key]
-	
+
 	if type.isFunctionOrCall(underlyingMethodOrField) then
 		return function(self, ...)
 			-- Were we called MyInstance:MissingInstanceMethod() (if) or MyInstance.MissingInstanceMethod() (else)?
@@ -32,7 +32,7 @@ module.setInstanceMissingIndex(function(instance, key)
 			else
 				underlyingResult = underlyingMethodOrField(delegatedInstance, self, ...)
 			end
-			
+
 			if isInstanceOf(underlyingResult, Path) then
 				return ShellPath:new(instance.shellLanguage, instance.environmentVariablePrefixOrNil, underlyingResult)
 			else
@@ -58,15 +58,15 @@ function module:initialize(shellLanguage, environmentVariablePrefixOrNil, path)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	assert.parameterTypeIsStringOrNil('environmentVariablePrefixOrNil', environmentVariablePrefixOrNil)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
-	
+
 	if environmentVariablePrefixOrNil ~= nil then
 		path:assertIsRelative('path')
-		
+
 		if environmentVariablePrefixOrNil:match('[_A-Z][_A-Z0-9]*') ~= environmentVariablePrefixOrNil then
 			exception.throw("environmentVariablePrefixOrNil '%s' is restricted (for Windows compatibility) to A-Z, 0-9 and underscore, but 0-9 is not allowed for the first character", environmentVariablePrefixOrNil)
 		end
 	end
-	
+
 	self.shellLanguage = shellLanguage
 	self.environmentVariablePrefixOrNil = environmentVariablePrefixOrNil
 	self.path = path
@@ -89,7 +89,7 @@ end
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:filePaths(fileExtension, baseFilePaths)
 	-- No type checks
-	
+
 	local paths = self.path:filePaths(fileExtension, baseFilePaths)
 	local result = tabelize()
 	for _, path in ipairs(paths) do
@@ -98,6 +98,7 @@ function module:filePaths(fileExtension, baseFilePaths)
 	return result
 end
 
+--noinspection UnusedDef
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	exception.throw('Do not use this method on a ShellPath')
 end
@@ -105,7 +106,7 @@ end
 function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsInstanceOfOrNil('shellLanguage', shellLanguage, ShellLanguage)
-	
+
 	local chosenShellLanguage = shellLanguage or self.shellLanguage
 	return ShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate, chosenShellLanguage))
 end
@@ -126,6 +127,6 @@ function module:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate, shellL
 	else
 		prefix = ''
 	end
-	
+
 	return prefix .. shellLanguage:toQuotedShellArgument(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end

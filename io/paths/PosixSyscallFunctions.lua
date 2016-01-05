@@ -10,7 +10,7 @@ local syscall = require.syscall
 local Path = require.sibling.Path
 
 
-local function fail = function(syscallName, path, becauseOfReason)
+local function fail(syscallName, path, becauseOfReason)
 	exception.throwWithLevelIncrement(2, "Could not %s path '%s' because %s", syscallName, path, becauseOfReason)
 end
 
@@ -18,16 +18,16 @@ end
 assert.globalTypeIsFunctionOrCall('tostring')
 function module.stat(path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
-	
+
 	local ok, errorCode = syscall.stat(path:toString(false))
 	if ok then
 		return
 	end
-	
+
 	local function failure(becauseOfReason)
 		fail('stat', path, becauseOfReason)
 	end
-	
+
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/stat.html
 	if errorCode.ACCES then
 		failure('search permission is denied on a component of the path prefix')
@@ -47,21 +47,20 @@ function module.stat(path)
 		failure(tostring(errorCode))
 	end
 end
-local stat = module.stat
 
 assert.globalTypeIsFunctionOrCall('tostring')
 function module.lstat(path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
-	
+
 	local ok, errorCode = syscall.lstat(path:toString(false))
 	if ok then
 		return
 	end
-	
+
 	local function failure(becauseOfReason)
 		fail('lstat', path, becauseOfReason)
 	end
-	
+
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/lstat.html
 	if errorCode.ACCES then
 		failure('search permission is denied on a component of the path prefix')
@@ -81,7 +80,6 @@ function module.lstat(path)
 		failure(tostring(errorCode))
 	end
 end
-local lstat = module.lstat
 
 assert.globalTypeIsFunctionOrCall('tostring')
 function module.makeCharacterDevice(path, mode, major, minor)
@@ -89,19 +87,19 @@ function module.makeCharacterDevice(path, mode, major, minor)
 	assert.parameterTypeIsString('mode', mode)
 	assert.parameterTypeIsPositiveInteger('major', major)
 	assert.parameterTypeIsPositiveInteger('minor', minor)
-	
+
 	-- Seems there's a device() method, too
 	local device = {major, minor}
-	
+
 	local ok, errorCode = syscall.mknod(path:toString(false), 'fchr,' .. mode, device)
 	if ok then
 		return
 	end
-	
+
 	local function failure(becauseOfReason)
 		fail('mknod', path, becauseOfReason)
 	end
-	
+
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mknod.html
 	if errorCode.PERM then
 		failure('the invoking process does not have appropriate privileges and the file type is not FIFO-special')
@@ -129,22 +127,21 @@ function module.makeCharacterDevice(path, mode, major, minor)
 		failure(tostring(errorCode))
 	end
 end
-local makeCharacterDevice = module.makeCharacterDevice
 
 assert.globalTypeIsFunctionOrCall('tostring')
 function module.mkfifo(path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
-	
+
 	local ok, errorCode = syscall.mkfifo(path:toString(false), mode)
 	if ok then
 		return
 	end
-	
+
 	local function failure(becauseOfReason)
 		fail('mkfifo', path, becauseOfReason)
 	end
-	
+
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkfifo.html
 	if errorCode.ACCES then
 		failure('a component of the path prefix denies search permission, or write permission is denied on the parent directory of the FIFO to be created')
@@ -165,28 +162,27 @@ function module.mkfifo(path, mode)
 		failure(tostring(errorCode))
 	end
 end
-local mkfifo = module.mkfifo
 
 assert.globalTypeIsFunctionOrCall('tostring')
 function module.chmod(path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
-		
+
 	local function failure(becauseOfReason)
 		fail('chmod', path, becauseOfReason)
 	end
-	
+
 	local pathString = path:toString(false)
-	local ok = false
+	local ok
 	local errorCode
 	-- Can be interrupted
 	repeat
-		
+
 		ok, errorCode = syscall.chmod(pathString, mode)
 		if ok then
 			return
 		end
-		
+
 		-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/chmod.html
 		if errorCode.ACCES then
 			failure('search permission is denied on a component of the path prefix')
@@ -209,7 +205,7 @@ function module.chmod(path, mode)
 		else
 			failure(tostring(errorCode))
 		end
-		
+
 	until ok
 end
 local chmod = module.chmod
@@ -220,20 +216,20 @@ function module.mkdir(path, mode, isLeaf)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
 	assert.parameterTypeIsBooleanOrNil('isLeaf', isLeaf)
-	
+
 	path:assertIsFolderPath(path)
-	
+
 	if path.isDeviceOrRoot then
 		return
 	end
-	
+
 	local isLeafActual
 	if isLeaf == nil then
 		isLeafActual = true
 	else
 		isLeafActual = isLeaf
 	end
-	
+
 	local function failure(becauseOfReason)
 		fail('mkdir', path, becauseOfReason)
 	end
@@ -247,7 +243,7 @@ function module.mkdir(path, mode, isLeaf)
 		end
 		return true
 	end
-	
+
 	-- Messages from http://pubs.opengroup.org/onlinepubs/7908799/xsh/mkdir.html
 	if errorCode.ACCES then
 		if isLeaf then
@@ -279,7 +275,7 @@ function module.mkdir(path, mode, isLeaf)
 	else
 		failure(tostring(errorCode))
 	end
-	
+
 end
 local mkdir = module.mkdir
 
@@ -287,16 +283,16 @@ function module.mkdirs(path, mode, isLeaf)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	assert.parameterTypeIsString('mode', mode)
 	assert.parameterTypeIsBooleanOrNil('isLeaf', isLeaf)
-	
+
 	path:assertIsFolderPath(path)
-	
+
 	local isLeafActual
 	if isLeaf == nil then
 		isLeafActual = true
 	else
 		isLeafActual = isLeaf
 	end
-	
+
 	local parentSuccess = mkdirs(path:strippedOfFinalPathElement(), '0700', false)
 	if not parentSuccess then
 		return false

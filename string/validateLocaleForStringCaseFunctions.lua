@@ -12,13 +12,14 @@ if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'setlocale') then
 	local function currentLocaleShouldBe(category, shouldBe)
 		assert.parameterTypeIsString('category', category)
 		assert.parameterTypeIsString('shouldBe', shouldBe)
-		
+
 		local is = os.setlocale('nil', category)
 		if is ~= nil and is ~= shouldBe then
 			exception.throw("The OS locale category '%s' must be set to '%s' so that string.tolower and string.toupper can be used reliably", category, shouldBe)
 		end
 	end
 else
+	--noinspection UnusedDef
 	local function currentLocaleShouldBe(category, shouldBe)
 	end
 end

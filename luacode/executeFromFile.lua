@@ -5,7 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
 local execute = halimede.luacode.execute
@@ -20,13 +19,13 @@ local function executeFromFile(fileDescription, luaCodeFilePath, environment)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
 	assert.parameterTypeIsInstanceOf('luaCodeFilePath', luaCodeFilePath, Path)
 	assert.parameterTypeIsTable('environment', environment)
-	
+
 	luaCodeFilePath:assertIsFilePath('luaCodeFilePath')
-	
+
 	local luaCodeStringWithAnyLeadingShaBang = openBinaryFileForReading(luaCodeFilePath, fileDescription):readAllRemainingContentsAndClose()
 	local luaCodeString = removeInitialShaBang(luaCodeStringWithAnyLeadingShaBang)
-	
+
 	return execute(luaCodeString, fileDescription, luaCodeFilePath:toString(true), environment)
 end
 
-modulefunction(executeFromFile)
+halimede.modulefunction(executeFromFile)

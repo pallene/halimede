@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BashSupportProjectSettings">
+    <option name="globalVariables">
+      <set>
+        <option value="LUA_CPATH" />
+        <option value="LUA_INIT" />
+        <option value="LUA_INIT_5_2" />
+        <option value="LUA_INIT_5_3" />
+        <option value="LUA_PATH" />
+      </set>
+    </option>
+  </component>
+</project>

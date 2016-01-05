@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractStrip = require.sibling.AbstractStrip
 
 
-moduleclass('GnuStrip', AbstractStrip)
+halimede.moduleclass('GnuStrip', AbstractStrip)
 
 function module:initialize()
 	AbstractStrip.initialize(self, true)

@@ -10,13 +10,13 @@ local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
 
 
-moduleclass('Arguments')
+halimede.moduleclass('Arguments')
 
 function module:initialize(shellLanguage)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
-	
+
 	self.shellLanguage = shellLanguage
-	
+
 	self.arguments = tabelize()
 end
 
@@ -43,13 +43,13 @@ function module:appendQuotedArgumentXWithPrepend(text, pathLike, specifyCurrentD
 	assert.parameterTypeIString('text', text)
 	assert.parameterTypeIsTable('pathLike', pathLike)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+
 	self:_append(pathLike:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self.shellLanguage):prepend(text))
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')
 function module:appendCommandLineToScript(shellScript)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
-	
+
 	shellScript:appendCommandLineToScript(unpack(self.arguments))
 end

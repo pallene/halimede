@@ -9,7 +9,7 @@ local ShellScript = halimede.io.shellScript.ShellScript
 local exception = halimede.exception
 
 
-moduleclass('AbstractShellScriptAction')
+halimede.moduleclass('AbstractShellScriptAction')
 
 function module:initialize()
 end
@@ -21,7 +21,7 @@ end
 function module:execute(shellScript, builder, ...)
 	assert.parameterTypeIsInstanceOf('shellScript', shellScript, ShellScript)
 	assert.parameterTypeIsTable('builder', builder)
-	
+
 	return self:_execute(shellScript, builder, ...)
 end
 

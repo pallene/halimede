@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('ExportEnvironmentVariablePosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('ExportEnvironmentVariablePosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)

@@ -7,14 +7,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
-local unique = halimede.table.unique
 local shallowCopy = halimede.table.shallowCopy
 local areInstancesEqual = halimede.table.equality.areInstancesEqual
 local PathStyle = require.sibling.PathStyle
 local PathRelativity = require.sibling.PathRelativity
 
 
-local Path = moduleclass('Path')
+local Path = halimede.moduleclass('Path')
 
 -- In Windows, alternateStreamName can be empty, and it can also be things like ':$DATA' (so with the separator, it is ::$DATA)
 function module:initialize(pathStyle, pathRelativity, device, pathElements, isFile, alternateStreamName)
@@ -24,15 +23,15 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 	assert.parameterTypeIsTable('pathElements', pathElements)
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
-	
+
 	local length = #pathElements
-	
+
 	if isFile then
 		if length == 0 then
 			exception.throw("There must be at least one path element for a file")
 		end
 	end
-	
+
 	if pathRelativity.doesNotHaveARoot then
 		if length == 0 then
 			exception.throw("There must be at least one path element for a relative path")
@@ -44,20 +43,20 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 			exception.throw("Alternate stream names such as '%s' are not permitted for the PathStyle '%s'", alternateStreamName, pathStyle.name)
 		end
 	end
-	
+
 	pathRelativity:guardDeviceIsPermitted(pathStyle, device)
 	pathStyle:guardPathElements(pathElements)
-	
+
 	self.pathStyle = pathStyle
 	self.pathRelativity = pathRelativity
 	self.device = device
 	self.pathElements = pathElements
 	self.isFile = isFile
 	self.alternateStreamName = alternateStreamName
-	
+
 	self.isDirectory = not isFile
 	self.isDeviceOrRoot = length < 2
-	
+
 	self.numberOfPathElements = #self.pathElements
 end
 
@@ -100,13 +99,13 @@ end
 function module:openFile(fileHandleStreamOpenerFunction, fileDescription)
 	assert.parameterTypeIsFunctionOrCall('fileHandleStreamOpenerFunction', fileHandleStreamOpenerFunction)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
-	
+
 	return fileHandleStreamOpenerFunction(self, fileDescription)
 end
 
 function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+
 	local pathElementsCopy
 	if self.alternateStreamName ~= nil then
 		pathElementsCopy = shallowCopy(self.pathElements)
@@ -115,14 +114,14 @@ function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	else
 		pathElementsCopy = self.pathElements
 	end
-	
+
 	return self.pathRelativity:toString(self.pathStyle, pathElementsCopy, self.isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
 end
 
 function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
-	
+
 	return shellLanguage:toQuotedShellArgument(self:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end
 
@@ -170,27 +169,27 @@ end
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:appendFolders(...)
 	self:assertIsFolderPath('self')
-	
+
 	local asTable = {...}
 	if #asTable == 0 then
 		return self
 	end
-	
+
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs(asTable) do
 		assert.parameterTypeIsString('childPathElement', childPathElement)
-		
+
 		pathElementsCopy:insert(childPathElement)
 	end
-	
+
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, false, self.alternateStreamName)
 end
 
 function module:strippedOfFinalPathElement(alternateStreamName)
 	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
-	
+
 	local length = #self.pathElements
-	
+
 	if self.pathRelativity.doesNotHaveARoot then
 		if length == 1 then
 			return Path:new(self.pathStyle, self.pathRelativity, self.device, {self.pathStyle.currentDirectory}, false, alternateStreamName)
@@ -200,10 +199,10 @@ function module:strippedOfFinalPathElement(alternateStreamName)
 			exception.throw("Is already at the root")
 		end
 	end
-	
+
 	local pathElementsCopy = shallowCopy(self.pathElements)
 	table.remove(pathElementsCopy)
-	
+
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, false, alternateStreamName)
 end
 
@@ -213,14 +212,14 @@ function module:appendFile(fileName, fileExtension, alternateStreamName)
 	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 
 	self:assertIsFolderPath('self')
-	
+
 	local qualifiedFileName
 	if fileExtension ~= nil then
 		qualifiedFileName = self.pathStyle:appendFileExtension(fileName, fileExtension)
 	else
 		qualifiedFileName = fileName
 	end
-	
+
 	local pathElementsCopy = shallowCopy(self.pathElements)
 	table.insert(pathElementsCopy, qualifiedFileName)
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, true, alternateStreamName)
@@ -231,11 +230,11 @@ function module:appendFileExtension(fileExtension, alternateStreamName)
 	assert.parameterTypeIsStringOrNil('alternateStreamName', alternateStreamName)
 
 	self:assertIsFilePath('self')
-	
+
 	if fileExtension == nil then
 		return self
 	end
-	
+
 	local pathElementsCopy = shallowCopy(self.pathElements)
 	local length = #pathElementsCopy
 	pathElementsCopy[length] = self.pathStyle:appendFileExtension(pathElementsCopy[length], fileExtension)
@@ -254,22 +253,22 @@ end
 
 function module:_appendPathAsRelativePath(path, parameterName, assertionName)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
-	
+
 	path[assertionName](path, parameterName)
-	
+
 	self:assertIsFolderPath('self')
-	
+
 	if self.pathStyle ~= path.pathStyle then
 		exception.throw("self.pathStyle '%s' differs from path.pathStyle '%s'", self.pathStyle, path.pathStyle)
 	end
-	
+
 	local pathElementsCopy = tabelize(shallowCopy(self.pathElements))
 	for _, childPathElement in ipairs(path.pathElements) do
 		assert.parameterTypeIsString('childPathElement', childPathElement)
-		
+
 		pathElementsCopy:insert(childPathElement)
 	end
-	
+
 	return Path:new(self.pathStyle, self.pathRelativity, self.device, pathElementsCopy, path.isFile, path.alternateStreamName)
 end
 
@@ -278,10 +277,10 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:filePaths(fileExtension, baseFilePaths)
 	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	assert.parameterTypeIsTable('baseFilePaths', baseFilePaths)
-	
+
 	local prefixWithPath = self
 	prefixWithPath:assertIsFolderPath('self')
-	
+
 	local filePaths = tabelize()
 	for _, stringOrTable in ipairs(baseFilePaths) do
 		local path
@@ -292,7 +291,7 @@ function module:filePaths(fileExtension, baseFilePaths)
 			while index < length do
 				local pathElement = stringOrTable[index]
 				assert.parameterTypeIsString('baseFilePaths', pathElement)
-				
+
 				folders[index] = pathElement
 				index = index + 1
 			end

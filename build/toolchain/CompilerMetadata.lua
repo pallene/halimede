@@ -11,19 +11,19 @@ local gxx = CompilerName['g++']
 local clang = CompilerName.clang
 local clangxx = CompilerName['clang++']
 
-local CompilerMetadata = moduleclass('CompilerMetadata')
+local CompilerMetadata = halimede.moduleclass('CompilerMetadata')
 
 function CompilerMetadata:initialize(compilerName, version, supportsC, supportsCPlusPlus)
 	assert.parameterTypeIsInstanceOf('compilerName', compilerName, CompilerName)
 	assert.parameterTypeIsString('version', version)
 	assert.parameterTypeIsBoolean('supportsC', supportsC)
 	assert.parameterTypeIsBoolean('supportsCPlusPlus', supportsCPlusPlus)
-	
+
 	self.compilerName = compilerName
 	self.version = version
 	self.supportsC = supportsC
 	self.supportsCPlusPlus = supportsCPlusPlus
-	
+
 	local name = compilerName.value
 	self.name = name
 	CompilerMetadata.static[name .. ' ' .. version] = self

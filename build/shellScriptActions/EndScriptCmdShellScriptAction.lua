@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('EndScriptCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('EndScriptCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)

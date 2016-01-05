@@ -9,11 +9,10 @@ local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShel
 local CommentCmdShellScriptAction = require.sibling.CommentCmdShellScriptAction
 local UnsetEnvironmentVariableCmdShellScriptAction = require.sibling.UnsetEnvironmentVariableCmdShellScriptAction
 local ExportEnvironmentVariableCmdShellScriptAction = require.sibling.ExportEnvironmentVariableCmdShellScriptAction
-local Path = halimede.io.paths.Path
 local CmdShellLanguage = halimede.io.shellScript.ShellLanguage.Cmd
 
 
-moduleclass('StartScriptCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('StartScriptCmdShellScriptAction', AbstractShellScriptAction)
 
 local environmentVariablesToUnset = {
 }
@@ -22,7 +21,7 @@ local environmentVariablesToExport = {
 }
 
 function module:initialize()
-	AbstractStartShellScriptAction.initialize(self, CommentCmdShellScriptAction, UnsetEnvironmentVariableCmdShellScriptAction, ExportEnvironmentVariableCmdShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, 
+	AbstractStartShellScriptAction.initialize(self, CommentCmdShellScriptAction, UnsetEnvironmentVariableCmdShellScriptAction, ExportEnvironmentVariableCmdShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport,
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions',
 		'SETLOCAL',

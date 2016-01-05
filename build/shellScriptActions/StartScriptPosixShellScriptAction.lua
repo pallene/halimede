@@ -9,10 +9,9 @@ local AbstractStartShellScriptAction = halimede.build.shellScriptActions.Abstrac
 local CommentPosixShellScriptAction = require.sibling.CommentPosixShellScriptAction
 local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling.UnsetEnvironmentVariablePosixShellScriptAction
 local ExportEnvironmentVariablePosixShellScriptAction = require.sibling.ExportEnvironmentVariablePosixShellScriptAction
-local Path = halimede.io.paths.Path
 
 
-moduleclass('StartScriptPosixShellScriptAction', AbstractStartShellScriptAction)
+halimede.moduleclass('StartScriptPosixShellScriptAction', AbstractStartShellScriptAction)
 
 local environmentVariablesToUnset = {
 	'BASH_ENV',
@@ -91,11 +90,11 @@ core_compatibility_installPushdAndPopd()
 {
 	# bash, zsh are known to support this
 	if _core_compatibility_builtInDoesNotExist pushd; then
-		
+
 		if ! _core_compatibility_builtInDoesNotExist popd; then
 			core_exitError $core_commandLine_exitCode_SOFTWARE "Weird shell does not have pushd but does have popd (?feature detection bug?)!"
 		fi
-		
+
 		_core_init_compatibility_pushdCount=0
 
 		pushd()
@@ -113,19 +112,19 @@ core_compatibility_installPushdAndPopd()
 			eval "unset core_init_pushdStack${_core_init_compatibility_pushdCount}"
 			cd "$path" 1>/dev/null
 		}
-	
+
 	else
-		
+
 		pushd()
 		{
 			builtin pushd "$@" 1>/dev/null
 		}
-	
+
 		popd()
 		{
 			builtin popd "$@" 1>/dev/null
 		}
-		
+
 	fi
 }
 core_compatibility_installPushdAndPopd
@@ -163,7 +162,7 @@ if [ -z "${TMPDIR+set}" ]; then
 	do
 		if _program_pathIsUsableForTemp "$_program_potentialTmpPath" ]; then
 			export TMPDIR="$_program_potentialTmpPath"
-			_program_unset _program_potentialTmpPath 
+			_program_unset _program_potentialTmpPath
 			break
 		fi
 	done
@@ -189,11 +188,11 @@ _program_path_find()
 		else
 			printf '\n'
 		fi
-		
+
 	else
-	
+
 		# We've been invoked with a relative or absolute path (also when invoked via PATH in a shell)
-		
+
 		_program_path_find_parentPath()
 		{
 			parentPath="${scriptPath%/*}"
@@ -202,18 +201,18 @@ _program_path_find()
 			fi
 			cd "$parentPath" 1>/dev/null
 		}
-		
+
 		if command -v realpath 1>/dev/null 2>/dev/null; then
 			(
 				scriptPath="$(realpath "$0")"
-				
+
 				_program_path_find_parentPath
 				pwd -P
 			)
 		elif command -v readlink 1>/dev/null 2>/dev/null; then
 			(
 				scriptPath="$0"
-				
+
 				while [ -L "$scriptPath" ]
 				do
 					_program_path_find_parentPath
@@ -227,12 +226,12 @@ _program_path_find()
 			# This approach will fail in corner cases where the script itself is a symlink in a path not parallel with the concrete script
 			(
 				scriptPath="$0"
-				
+
 				_program_path_find_parentPath
 				pwd -P
 			)
 		fi
-		
+
 	fi
 }
 

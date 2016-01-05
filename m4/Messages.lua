@@ -10,7 +10,7 @@ local format = halimede.string.format
 local exception = halimede.exception
 
 
-moduleclass('Messages')
+halimede.moduleclass('Messages')
 
 --  --quiet, --silent or -Q
 -- warnings usually go to stderr
@@ -28,12 +28,12 @@ function module:initialize(lineDelimiter, isQuiet, warningFileHandleStream, debu
 	self.warningFileHandleStream = warningFileHandleStream
 	self.debugFileHandleStream = debugFileHandleStream
 	self.standardErrorFileHandleStream = standardErrorFileHandleStream
-	
-	
+
+
 	self.currentFileName = 'stdin'
 	self.currentLineNumber = 1
-	
-	
+
+
 	self.isTracing = false
 	self.traceMacroNames = {}
 end
@@ -98,15 +98,15 @@ function module:trace(macroName, expansionDepth, input, expansion)
 	assert.parameterTypeIsPositiveInteger('expansionDepth', expansionDepth)
 	assert.parameterTypeIsString('input', input)
 	assert.parameterTypeIsStringOrNil('expansion', expansion)
-	
+
 	if not self.isTracing then
 		return
 	end
-	
+
 	if self.traceMacroNames[macroName] == nil then
 		return
 	end
-	
+
 	-- nil is Void
 	local formattedExpansion
 	if expansion ~= nil then
@@ -114,7 +114,7 @@ function module:trace(macroName, expansionDepth, input, expansion)
 	else
 		formattedExpansion = ''
 	end
-		
+
 	local line = format("m4trace: -%s- %s%s", expansionDepth, input, formattedExpansion)
 	self.debugFileHandleStream:writeIfOpen(line)
 end

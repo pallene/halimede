@@ -7,24 +7,24 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 
 
-local ShellArgument = moduleclass('ShellArgument')
+local ShellArgument = halimede.moduleclass('ShellArgument')
 
 function module:initialize(argument)
 	assert.parameterTypeIsString('argument', argument)
-	
+
 	self.argument = argument
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:insertValue(someTable)
 	assert.parameterTypeIsTable('someTable', someTable)
-	
+
 	table.insert(someTable, self.argument)
 	return someTable
 end
 
 function module:prepend(text)
 	assert.parameterTypeIsString('text', text)
-	
+
 	return ShellArgument:new(text .. self.argument)
 end

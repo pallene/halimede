@@ -10,7 +10,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('ChangeDirectoryCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -19,14 +19,14 @@ end
 assert.globalTypeIsFunctionOrCall('unpack')
 function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
-	
+
 	local command = tabelize({'CD'})
-	
+
 	if path:hasNonEmptyDevice() then
 		command:insert('/D')
 	end
-	
+
 	command:insert(path:toQuotedShellArgumentX(true))
-	
+
 	shellScript:appendCommandLineToScript(unpack(command))
 end

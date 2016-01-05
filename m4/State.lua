@@ -11,20 +11,20 @@ local QuotingRules = require.sibling.Messages
 local DiversionBuffers = require.sibling.DiversionBuffers
 
 
-moduleclass('State')
+halimede.moduleclass('State')
 
 function module:initialize(lineDelimiter, isQuiet, warningFileHandleStream, debugFileHandleStream)
-	
+
 	self.currentLineNumber = 0  -- gotchas for m4wrap
 	self.currentFilePath = 'stdin'
 	self.currentProgram = '/path/to/m4' -- Actually, should be fully qualified path to current executable
-	
+
 	self.messages = Messages:new(lineDelimiter, isQuiet, warningFileHandleStream, debugFileHandleStream)
 	self.quotingRules = QuotingRules:new("`", "'")
 	self.diversionBuffers = DiversionBuffers:new()
 	self.lastShellCommandExitStatus = 0
-	
+
 	-- Possibly immutable
 	self.warnMacroSequence = false
-	
+
 end

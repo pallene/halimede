@@ -4,22 +4,22 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
+require('halimede')
 
 
 assert.globalTypeIsFunctionOrCall('ipairs')
 local function unique(...)
-	
+
 	-- This is an exceedingly naive implementation (and thus very inefficient) which behaves as a linked set
 	-- It is probably preferable to use the Sano library's LinkedSet
-	
+
 	local linkedSet = {}
 	for _, array in {...} do
 		assert.parameterTypeIsTable('array', array)
-		
+
 		for _, instance in ipairs(array) do
 			local add = true
-			for index, alreadyExtantInstance in ipairs(linkedSet) do
+			for _, alreadyExtantInstance in ipairs(linkedSet) do
 				if alreadyExtantInstance == instance then
 					add = false
 					break
@@ -30,8 +30,8 @@ local function unique(...)
 			end
 		end
 	end
-	
+
 	return linkedSet
 end
 
-modulefunction(unique)
+halimede.modulefunction(unique)

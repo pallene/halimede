@@ -17,7 +17,7 @@ local Arguments = require.sibling.Arguments
 local CompilerDriverArguments = require.sibling.CompilerDriverArguments
 
 
-local CompilerDriver = moduleclass('CompilerDriver')
+local CompilerDriver = halimede.moduleclass('CompilerDriver')
 
 function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlags, onlyRunPreprocessorStepFlags, onlyRunPreprocessorAndCompilationStepsFlags, onlyRunPreprocessorCompilationAndAssembleStepsFlags, useFileExtensionsToDetermineLanguageFlags, environmentVariablesToUnset, environmentVariablesToExport)
 	assert.parameterTypeIsString('name', name)
@@ -30,7 +30,7 @@ function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlag
 	assert.parameterTypeIsTable('useFileExtensionsToDetermineLanguageFlags', useFileExtensionsToDetermineLanguageFlags)
 	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
 	assert.parameterTypeIsTable('environmentVariablesToExport', environmentVariablesToExport)
-	
+
 	self.compilerMetadata = compilerMetadata
 	self.verboseFlags = verboseFlags
 	self.commandLineFlags = commandLineFlags
@@ -40,14 +40,14 @@ function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlag
 	self.useFileExtensionsToDetermineLanguageFlags = useFileExtensionsToDetermineLanguageFlags
 	self.environmentVariablesToUnset = environmentVariablesToUnset
 	self.environmentVariablesToExport = environmentVariablesToExport
-	
+
 	-- Override for, say, 'cc' or 'gcc-4.8' or 'x86-pc-linux-musl-gcc-4.8'
 	self.commandLineName = self.compilerMetadata.name
-	
+
 	self.systemIncludePaths = {}
 	self.linkerFlags = {}
 	self.linkedLibraries = {}
-	
+
 	self.sysrootPathOption = '--sysroot='
 	self.standardOption = '-std='
 	self.undefOption = '-undef'
@@ -58,7 +58,7 @@ function module:initialize(name, compilerMetadata, verboseFlags, commandLineFlag
 	self.linkedLibraryOption = '-l'
 	self.combineOption = '-combine'
 	self.outputOption = '-o'
-	
+
 	CompilerDriver.static[name] = self
 end
 
@@ -79,8 +79,8 @@ local function mergeFlags(...)
 			exception.throw('Argument to mergeFlags can either be string or table of strings (array)')
 		end
 	end
-	
-	return result	
+
+	return result
 end
 
 function module:newArguments(compilerDriverFlags, sysrootPath, isVerbose, shellLanguage)
@@ -88,7 +88,7 @@ function module:newArguments(compilerDriverFlags, sysrootPath, isVerbose, shellL
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	assert.parameterTypeIsBoolean('isVerbose', isVerbose)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
-	
+
 	return CompilerDriverArguments:new(self, compilerDriverFlags, sysrootPath, isVerbose, shellLanguage)
 end
 
@@ -101,10 +101,10 @@ end
 function module:appendSystemRoot(arguments, sysrootPath)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('sysrootPath', sysrootPath)
-	
+
 	sysrootPath:assertIsFolderPath('sysrootPath')
 	sysrootPath:assertIsEffectivelyAbsolute('sysrootPath')
-	
+
 	arguments:appendQuotedArgumentXWithPrepend(self.sysrootPathOption, sysrootPath, true)
 end
 
@@ -112,7 +112,7 @@ end
 function module:addCStandard(arguments, cStandard)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
-	
+
 	arguments:append(self.standardOption .. cStandard.value)
 end
 
@@ -142,10 +142,10 @@ function module:addSystemIncludePaths(arguments, dependenciesSystemIncludePaths,
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('dependenciesSystemIncludePaths', dependenciesSystemIncludePaths)
 	assert.parameterTypeIsTable('buildVariantSystemIncludePaths', buildVariantSystemIncludePaths)
-	
+
 	for _, systemIncludePath in ipairs(unique(self.systemIncludePaths, dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)) do
 		arguments:appendQuotedArgumentXWithPrepend(self.systemIncludePathOption, systemIncludePath, true)
-	end	
+	end
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
@@ -153,17 +153,17 @@ function module:addIncludePaths(arguments, currentPath, sourceFilePaths)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsInstanceOf('currentPath', currentPath, Path)
 	assert.parameterTypeIsTable('sourceFilePaths', sourceFilePaths)
-	
+
 	local result = tabelize({currentPath})
 	for _, path in ipairs(sourceFilePaths) do
 		result:insert(path:strippedOfFinalPathElement())
 	end
-	
+
 	local uniqueIncludePaths = unique(result)
-	
+
 	for _, includePath in ipairs(uniqueIncludePaths) do
 		arguments:appendQuotedArgumentXWithPrepend(self.includePathOption, includePath, true)
-	end	
+	end
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
@@ -172,7 +172,7 @@ function module:addLinkerFlags(arguments, dependenciesLinkerFlags, buildVariantL
 	assert.parameterTypeIsTable('dependenciesLinkerFlags', dependenciesLinkerFlags)
 	assert.parameterTypeIsTable('buildVariantLinkerFlags', buildVariantLinkerFlags)
 	assert.parameterTypeIsTable('otherLinkerFlags', otherLinkerFlags)
-	
+
 	for _, linkerFlag in ipairs(mergeFlags(self.linkerFlags, dependenciesLinkerFlags, buildVariantLinkerFlags, otherLinkerFlags)) do
 		arguments:append(linkerFlag)
 	end
@@ -184,7 +184,7 @@ function module:addLinkedLibraries(arguments, dependenciesLinkedLibraries, build
 	assert.parameterTypeIsTable('dependenciesLinkedLibraries', dependenciesLinkedLibraries)
 	assert.parameterTypeIsTable('buildVariantLinkedLibraries', buildVariantLinkedLibraries)
 	assert.parameterTypeIsTable('otherLinkedLibraries', otherLinkedLibraries)
-	
+
 	for _, linkedLibrary in ipairs(mergeFlags(self.linkedLibraries, dependenciesLinkedLibraries, buildVariantLinkedLibraries, otherLinkedLibraries)) do
 		arguments:append(self.linkedLibraryOption .. linkedLibrary)
 	end
@@ -192,14 +192,14 @@ end
 
 function module:addCombine(arguments)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
-	
+
 	arguments:append(self.combineOption)
 end
 
 function module:addOutput(arguments, outputFilePath)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsTable('outputFilePath', outputFilePath)
-	
+
 	outputFilePath:assertIsFilePath('outputFilePath')
 
 	arguments:appendQuotedArgumentXWithPrepend(self.outputOption, outputFilePath, true)
@@ -208,7 +208,7 @@ end
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:unsetEnvironmentVariables(unsetEnvironmentVariableFunction)
 	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableFunction', unsetEnvironmentVariableFunction)
-	
+
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
 		unsetEnvironmentVariableFunction(environmentVariableName)
 	end
@@ -218,7 +218,7 @@ assert.globalTypeIsFunctionOrCall('pairs')
 function module:exportEnvironmentVariables(exportEnvironmentVariableFunction, environmentVariableOverrides)
 	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableFunction', exportEnvironmentVariableFunction)
 	assert.parameterTypeIsTable('environmentVariableOverrides', environmentVariableOverrides)
-	
+
 	for environmentVariableName, environmentVariableValue in pairs(self.environmentVariablesToExport) do
 		local actualValue
 		actualValue = environmentVariableOverrides[environmentVariableName]

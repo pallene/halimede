@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local exception = halimede.exception
 
 
-local StringStream = moduleclass('StringStream')
+halimede.moduleclass('StringStream')
 
 function module:initialize(initialValue, append)
 	assert.parameterTypeIsString('initialValue', initialValue)
@@ -20,6 +20,7 @@ function module:initialize(initialValue, append)
 		self.readPosition = #initialValue
 	else
 		self.readPosition = 0
+	end
 end
 
 function module:__tostring()
@@ -31,10 +32,10 @@ function module:readByte()
 	if not self.isOpen then
 		exception.throw('Is closed')
 	end
-	
+
 	local newReadPosition = self.readPosition + 1
 	local byte = self.value:sub(newReadPosition, newReadPosition)
-	
+
 	if byte:isEmpty() then
 		self:close()
 		return false
@@ -47,10 +48,10 @@ function module:readAllRemainingContentsAndClose()
 	if not self.isOpen then
 		exception.throw('Is closed')
 	end
-	
+
 	local newReadPosition = self.readPosition + 1
 	local contents = self.value:sub(newReadPosition, #self.value)
-	
+
 	if contents:isEmpty() then
 		self:close()
 		return false
@@ -61,12 +62,11 @@ end
 
 function module:write(contents)
 	assert.parameterTypeIsString('contents', contents)
-	
+
 	if not self.isOpen then
 		exception.throw('Is closed')
 	end
-	
-	local length = #contents
+
 	self.value = self.value .. contents
 end
 
@@ -85,6 +85,6 @@ function module:close()
 	if not self.isOpen then
 		exception.throw('Already closed')
 	end
-	
+
 	self.isOpen = false
 end

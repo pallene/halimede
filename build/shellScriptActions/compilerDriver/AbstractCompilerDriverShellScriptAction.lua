@@ -8,16 +8,16 @@ local halimede = require('halimede')
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('AbstractCompilerDriverShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 	assert.parameterTypeIsTable('dependencies', dependencies)
 	assert.parameterTypeIsTable('buildVariant', buildVariant)
 	assert.parameterTypeIsFunctionOrCall('unsetEnvironmentVariableActionClass', unsetEnvironmentVariableActionClass)
 	assert.parameterTypeIsFunctionOrCall('exportEnvironmentVariableActionClass', exportEnvironmentVariableActionClass)
-	
+
 	AbstractShellScriptAction.initialize(self)
-	
+
 	self.dependencies = dependencies
 	self.buildVariant = buildVariant
 	self.unsetEnvironmentVariableAction = unsetEnvironmentVariableActionClass:new()
@@ -30,7 +30,7 @@ end
 
 function module:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
 	local compilerDriver = compilerDriverArguments.compilerDriver
-	
+
 	compilerDriver:unsetEnvironmentVariables(function(environmentVariableName)
 		self.unsetEnvironmentVariableAction:execute(shellScript, builder, environmentVariableName)
 	end)
@@ -38,7 +38,7 @@ end
 
 function module:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, extras)
 	local compilerDriver = compilerDriverArguments.compilerDriver
-	
+
 	compilerDriver:exportEnvironmentVariables(function(environmentVariableName, environmentVariableValue)
 		self.exportEnvironmentVariableAction:execute(shellScript, builder, environmentVariableName, environmentVariableValue)
 	end, extras)

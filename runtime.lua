@@ -19,14 +19,10 @@ local knownLanguageLevelMappings = setmetatable({
 	end})
 
 local defaultLanguageLevel = 'Lua 5.1'
-local defaultVirtualMachine = defaultLanguageLevel
 
 assert.globalTypeIsFunctionOrCall('tonumber')
 local function detectRuntime()
 	local virtualMachine
-	local languageName
-	local languageLevel
-	
 	if type.hasPackageChildFieldOfTypeString('jit', 'version') then
 		-- eg 'LuaJIT 2.0.4'
 		virtualMachine = jit.version
@@ -35,18 +31,17 @@ local function detectRuntime()
 	else
 		virtualMachine = defaultLanguageLevel
 	end
-	
+
+	local languageLevel
 	if type.hasGlobalOfTypeString('_VERSION') then
 		languageLevel = _VERSION
 	else
 		languageLevel = defaultLanguageLevel
 	end
-	
+
 	-- Not necessarily true
 	local isLuaJit = type.hasGlobalOfTypeTableOrUserdata('jit')
-	
-	local guardLanguageLevelDetected = knownLanguageLevelMappings[languageLevel]
-	
+
 	return {
 		Lua51 = 'Lua 5.1',
 		virtualMachine = virtualMachine,

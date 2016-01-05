@@ -10,25 +10,25 @@ local AbstractMacroDefinition = halimede.m4.macroDefinitions.AbstractMacroDefini
 local tabelize = halimede.table.tabelize
 
 
-moduleclass('MacroDefinitions')
+halimede.moduleclass('MacroDefinitions')
 
 local DefaultMacroNamePattern = '[_a-zA-Z][_a-zA-Z0-9]*'
 
 function module:initialize(macroNamePattern)
 	assert.parameterTypeIsStringOrNil('macroNamePattern', macroNamePattern)
-	
+
 	if macroNamePattern == nil then
 		self.macroNamePattern = DefaultMacroNamePattern
 	else
 		self.macroNamePattern = macroNamePattern
 	end
-	
+
 	self.definitionsRoot = Trie:new()
 end
 
 function module:define(macro)
 	assert.parameterTypeIsInstanceOf('macro', macro, AbstractMacroDefinition)
-	
+
 	local macroName = macro.name
 	local existingStackOfMacroDefinitions = self.definitionsRoot:get(macroName)
 	if existingStackOfMacroDefinitions == nil then
@@ -37,14 +37,14 @@ function module:define(macro)
 		self.definitionsRoot:addOrReplace(macroName, macro)
 		return
 	end
-	
+
 	existingStackOfMacroDefinitions:remove(macro)
 	existingStackOfMacroDefinitions:insert(macro)
 end
 
 function module:push(macro)
 	assert.parameterTypeIsInstanceOf('macro', macro, AbstractMacroDefinition)
-	
+
 	local macroName = macro.name
 	local existingStackOfMacroDefinitions = self.definitionsRoot:get(macroName)
 	if existingStackOfMacroDefinitions == nil then
@@ -53,7 +53,7 @@ function module:push(macro)
 		self.definitionsRoot:addOrReplace(macroName, macro)
 		return
 	end
-	
+
 	existingStackOfMacroDefinitions:insert(macro)
 end
 
@@ -70,7 +70,7 @@ function module:pop(macroName)
 		self.definitionsRoot:delete(macroName)
 		return
 	end
-	
+
 	existingStackOfMacroDefinitions:remove()
 end
 

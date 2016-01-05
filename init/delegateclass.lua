@@ -10,11 +10,11 @@ assert.globalTypeIsFunctionOrCall('getmetatable', 'unpack')
 local function delegate(class, fieldName)
 	assert.parameterTypeIsTable('class', class)
 	assert.parameterTypeIsNotNil('fieldName', fieldName)
-	
+
 	class.setInstanceMissingIndex(function(instance, key)
 
 		local delegatedInstance = instance[fieldName]
-		
+
 		local underlyingMethodOrField = delegatedInstance[key]
 		if type.isFunctionOrCall(underlyingMethodOrField) then
 			return function(self, ...)
@@ -30,11 +30,11 @@ local function delegate(class, fieldName)
 			return underlyingMethodOrField
 		end
 	end)
-	
+
 	return class
 end
 
 function delegateclass(className, fieldName, ...)
-	local class = moduleclass(className, ...)
+	local class = halimede.moduleclass(className, ...)
 	return delegate(class, fieldName)
 end

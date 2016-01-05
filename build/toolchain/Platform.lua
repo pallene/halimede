@@ -5,7 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local tabelize = halimede.table.tabelize
 local exception = halimede.exception
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
 local GnuTuple = require.sibling.GnuTuple
@@ -14,7 +13,7 @@ local AbstractStrip = halimede.build.shellScriptActions.strip.AbstractStrip
 local MacOsXStrip = halimede.build.shellScriptActions.strip.MacOsXStrip
 
 
-local Platform = moduleclass('Platform')
+local Platform = halimede.moduleclass('Platform')
 
 function Platform:initialize(name, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver, strip)
 	assert.parameterTypeIsString('name', name)
@@ -29,11 +28,11 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	assert.parameterTypeIsInstanceOf('cCompilerDriver', cCompilerDriver, CompilerDriver)
 	assert.parameterTypeIsInstanceOf('cPlusPlusCompilerDriver', cPlusPlusCompilerDriver, CompilerDriver)
 	assert.parameterTypeIsInstanceOfOrNil('strip', strip, AbstractStrip)
-	
+
 	if shellScriptExecutor.shellLanguage.pathStyle:isReservedPathElement(name) then
 		exception.throw("The name 'name' contains a character that isn't permitted in a file name on this platform; the platform's name may be used in folder paths")
 	end
-	
+
 	self.name = name
 	self.shellScriptExecutor = shellScriptExecutor
 	self.objectExtension = objectExtension
@@ -46,9 +45,9 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	self.cCompilerDriver = cCompilerDriver
 	self.cPlusPlusCompilerDriver = cPlusPlusCompilerDriver
 	self.strip = strip
-	
+
 	self.shellLanguage = shellScriptExecutor.shellLanguage
-	
+
 	Platform.static[name] = self
 end
 
@@ -66,7 +65,7 @@ end
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:createConfigHDefines(platformConfigHDefinesFunctions)
 	assert.parameterTypeIsTable('platformConfigHDefinesFunctions', platformConfigHDefinesFunctions)
-	
+
 	local configHDefines = self:_newConfigHDefines()
 	for _, platformConfigHDefinesFunction in ipairs(platformConfigHDefinesFunctions) do
 		platformConfigHDefinesFunction(configHDefines, self)
@@ -76,17 +75,17 @@ end
 
 function module:toExecutableRelativeFilePath(filePath)
 	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
-	
+
 	filePath:assertIsFilePath('filePath')
-	
+
 	return filePath:appendFileExtension(self.executableExtension)
 end
 
 function module:objectRelativeFilePath(...)
 	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
-	
+
 	filePath:assertIsFilePath('filePath')
-	
+
 	return filePath:appendFileExtension(self.objectExtension)
 end
 

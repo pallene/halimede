@@ -5,7 +5,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local Path = halimede.io.paths.Path
 local ShellPath = halimede.io.shellScript.ShellPath
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
@@ -13,7 +12,7 @@ local CommandLineDefines = halimede.build.defines.CommandLineDefines
 local AbstractCompilerDriverShellScriptAction = require.sibling.AbstractCompilerDriverShellScriptAction
 
 
-moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
+halimede.moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
 
 function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
@@ -29,11 +28,11 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
 	assert.parameterTypeIsInstanceOf('executableFilePathWithoutExtension', executableFilePathWithoutExtension, ShellPath)
-	
+
 	executableFilePathWithoutExtension:assertIsFilePath('executableFilePathWithoutExtension')
-	
+
 	local crossRecipePaths = builder.crossRecipePaths
-	
+
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags, shellScript.shellLanguage)
 	compilerDriverArguments:addCStandard(cStandard)
 	compilerDriverArguments:useFileExtensionsToDetermineLanguage()
@@ -45,9 +44,9 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	compilerDriverArguments:appendFilePaths(sources)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
 	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(executableFilePathWithoutExtension))
-	
+
 	self:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
 	self:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
-	
+
 	compilerDriverArguments:appendCommandLineToScript(shellScript)
 end

@@ -54,7 +54,7 @@ TODO: Find a place to put the build script. Name it after the Platform name.
 
 TODO: Determine which platform to use... and require() logic...
 
-TODO: .gitignore file for dest
+TODO: .gitignore file for destination
 
 TODO: Install
 	* Use cp -R initially
@@ -73,10 +73,10 @@ TODO: Install
 For hashing, for initial bootstrapping*, we can either:-
 	- rely on git hashes (ie shell out to git; makes git a hard requirement)
 	- shell out to sha256sum [not present on many platforms]
-	- attempt to write our own hash algo [this is tough]
+	- attempt to write our own hash algorithm [this is tough]
 		eg using http://pastebin.com/gsFrNjbt
 
-ie, as soon as we have the bitop library, we fallover to using a built-in hashing solution
+ie, as soon as we have the bitop library, we failover to using a built-in hashing solution
 
 
 Short Term Goals
@@ -110,7 +110,7 @@ Bootstrapping to a build system
 		* How do switch toolchains?
 			* `xcrun`, `xcode-select`, `SDKROOT`, `DEVELOPER_DIR` and `xcodebuild -showsdks` and <https://github.com/phracker/MacOSX-SDKs>
 		* The default toolchain root is `/Applications/Xcode.app/Contents/Developer/` but the SDK may be for a more recent Mac OS X
-			* As of El Capitan, `gcc`, `g++`, `make` (and `gnumake`, currently the same as `make`), `ld`, `nasm`, `svn`, `git` and, interestingly, `pngcrush`
+			* As of El Capitan, `gcc`, `g++`, `make` (and `gnumake`, currently the same as `make`), `ld`, `nasm`, `svn`, `git` and, interestingly, `pngcrush`
 * build binutils
 	* needs a lot of things in place already
 	* not needed for Mac OS X
@@ -133,4 +133,3 @@ Bootstrapping to a build system
   * `awk`
   * `chmod`
   * And probably many more
-  

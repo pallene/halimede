@@ -7,18 +7,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 
 
-moduleclass('DiversionBuffer')
+halimede.moduleclass('DiversionBuffer')
 
 function module:initialize(number)
 	assert:parameterTypeIsPositiveInteger(number)
-	
+
 	self.number = number
 	self.value = ''
 end
 
 function module:append(contents)
 	assert.parameterTypeIsString(contents)
-	
+
 	self.value = self.value .. contents
 end
 

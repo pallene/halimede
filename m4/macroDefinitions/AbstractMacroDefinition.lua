@@ -5,17 +5,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local exception = halimede.exception
 
 
-moduleclass('AbstractMacroDefinition')
+halimede.moduleclass('AbstractMacroDefinition')
 
 function module:initialize(name, isBuiltIn, ifIsBuiltInIsRecognisedOnlyWithParameters, numberOfArguments)
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsBoolean('isBuiltIn', isBuiltIn)
 	assert.parameterTypeIsBoolean('ifIsBuiltInIsRecognisedOnlyWithParameters', ifIsBuiltInIsRecognisedOnlyWithParameters)
 	assert.parameterTypeIsPositiveInteger('numberOfArguments', numberOfArguments)
-	
+
 	self.name = name
 	self.isBuiltIn = isBuiltIn
 	self.ifIsBuiltInIsRecognisedOnlyWithParameters = ifIsBuiltInIsRecognisedOnlyWithParameters
@@ -35,14 +34,14 @@ end
 -- whitespace is SP, TAB, LF CR VT FF
 -- leading whitespace is stripped BEFORE macro expansion of arguments. Trailing whitespace is preserved
 
--- It is possible for a macro’s definition to change during argument collection, in which case the expansion uses the definition that was in effect at the time the opening ‘(’ was seen. 
+-- It is possible for a macro’s definition to change during argument collection, in which case the expansion uses the definition that was in effect at the time the opening ‘(’ was seen.
 assert.globalTypeIsFunctionOrCall('unpack')
 function module:execute(diversionBuffers, messages, warnMacroSequence, quotingRules, ...)
 	assert.parameterTypeIsInstanceOf('diversionBuffers', diversionBuffers, DiversionBuffers)
 	assert.parameterTypeIsInstanceOf('messages', messages, Messages)
 	assert.parameterTypeIsBoolean('warnMacroSequence', warnMacroSequence)
 	assert.parameterTypeIsInstanceOf('quotingRules', quotingRules, QuotingRules)
-	
+
 	local arguments = {...}
 	local numberOfArguments = #arguments
 	if self.isBuiltIn and numberOfArguments ~= self.numberOfArguments then
@@ -52,20 +51,20 @@ function module:execute(diversionBuffers, messages, warnMacroSequence, quotingRu
 			messages.warning("execess arguments to builtin `%s' ignored", self.name)
 		end
 	end
-	
+
 	local numberOfArgumentsToFillWithEmptyString = self.numberOfArguments - numberOfArguments
 	while numberOfArgumentsToFillWithEmptyString > 0 do
 		arguments[numberOfArguments + numberOfArgumentsToFillWithEmptyString] = ''
-		
+
 		numberOfArgumentsToFillWithEmptyString = numberOfArgumentsToFillWithEmptyString - 1
 	end
-	
+
 	local truncatedCopyOfArguments = {}
 	local argumentIndexToCopy = 1
 	while argumentIndexToCopy <= self.numberOfArguments do
 		truncatedCopyOfArguments[argumentIndexToCopy] = arguments[argumentIndexToCopy]
 		argumentIndexToCopy = argumentIndexToCopy + 1
 	end
-	
+
 	return rescan(self:_execute(diversionBuffers, messages, warnMacroSequence, quotingRules, self.name, unpack(truncatedCopyOfArguments)))
 end

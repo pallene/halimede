@@ -5,14 +5,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local AbstractQuotedDefinition = require.sibling.AbstractMacroDefinition
+local AbstractMacroDefinition = require.sibling.AbstractMacroDefinition
 
 
-moduleclass('BuiltInMacroDefinition', AbstractMacroDefinition)
+halimede.moduleclass('BuiltInMacroDefinition', AbstractMacroDefinition)
 
 function module:initialize(name, isBuiltIn, ifIsBuiltInIsRecognisedOnlyWithParameters, numberOfArguments, callback)
 	assert.parameterTypeIsFunction('callback', callback)
-	
+
 	AbstractMacroDefinition.initialize(self, name, isBuiltIn, ifIsBuiltInIsRecognisedOnlyWithParameters, numberOfArguments)
 end
 

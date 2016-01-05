@@ -5,11 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local exception = halimede.exception
-local Trie = require.sibling.TrieElement
+local TrieElement = require.sibling.TrieElement
 
 
-moduleclass('Trie')
+halimede.moduleclass('Trie')
 
 function module:initialize()
 	self.root = TrieElement:new('')
@@ -18,7 +17,7 @@ end
 
 function module:find(name)
 	assert.parameterTypeIsString('name', name)
-	
+
 	return self.index[name]
 end
 
@@ -29,43 +28,43 @@ end
 -- returns boolean true if has it and was deleted
 function module:delete(name)
 	assert.parameterTypeIsString('name', name)
-	
+
 	local nameLength = #name
 	local prefix = ''
 	local prefixLength = 0
-	
+
 	if self.root:_isEmpty() then
 		return false
 	end
-	
+
 	self.index[name] = nil
-	return self.root:_deleteUnguarded(name, nameLength, prefix, prefixNameLength)
+	return self.root:_deleteUnguarded(name, nameLength, prefix, prefixLength)
 end
 
 -- returns boolean true if has a match
 function module:matches(partialName)
 	assert.parameterTypeIsString('partialName', partialName)
-	
+
 	local partialNameLength = #partialName
 	local prefix = ''
 	local prefixLength = 0
-	
+
 	if self:get(name) ~= nil then
 		return true
 	end
-	
-	return self.root:_matchesUnguarded(partialName, partialNameLength, prefix, prefixNameLength)
+
+	return self.root:_matchesUnguarded(partialName, partialNameLength, prefix, prefixLength)
 end
 
 -- returns previous element, boolean true if added
 function module:addOrReplace(name, element)
 	assert.parameterTypeIsString('name', name)
 	assert.parameterTypeIsNotNil('element', element)
-	
+
 	local nameLength = #name
 	local prefix = ''
 	local prefixLength = 0
-	
+
 	self.index[name] = element
 	return self.root:_addOrReplaceUnguarded(name, element, nameLength, prefix, prefixLength)
 end

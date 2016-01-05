@@ -9,7 +9,7 @@ local tabelize = halimede.table.tabelize
 local Defines = require.sibling.Defines
 
 
-moduleclass('ConfigHDefines', Defines)
+halimede.moduleclass('ConfigHDefines', Defines)
 
 function module:initialize()
 	Defines.initialize(self)
@@ -17,7 +17,7 @@ function module:initialize()
 end
 
 assert.globalTypeIsFunctionOrCall('pairs')
-function module:toCPreprocessorTextLines()	
+function module:toCPreprocessorTextLines()
 	local buffer = tabelize()
 	for defineName, _ in pairs(self.explicitlyUndefine) do
 		buffer:insert('#undef ' .. defineName)
@@ -537,7 +537,7 @@ function module:PATH_SEPARATOR_CHAR(character)
 	if #character ~= 1 then
 		exception.throw("The path separator character must be exactly one character, it can not be '%s'", character)
 	end
-	
+
 	self.defines.PATH_SEPARATOR_CHAR = "'" .. character .. "'"
 end
 
@@ -597,8 +597,8 @@ end
 
 -- AC_SYS_LARGEFILE
 -- Number of bits in a file offset, on hosts where this is settable.
-function module:_FILE_OFFSET_BITS(enable)
-	self:boolean('_FILE_OFFSET_BITS', enable)
+function module:_FILE_OFFSET_BITS(constant)
+	self:enumeration('_FILE_OFFSET_BITS', constant)
 end
 
 -- AC_SYS_LARGEFILE
@@ -638,7 +638,7 @@ function module:_ALL_SOURCE(enable)
 	self:_ensureDefinition('_ALL_SOURCE', enable, '1')
 end
 
--- Enable GNU extensions on systems that have them. 
+-- Enable GNU extensions on systems that have them.
 function module:_GNU_SOURCE(enable)
 	self:_ensureDefinition('_GNU_SOURCE', enable, '1')
 end

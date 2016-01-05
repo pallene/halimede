@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('UnsetEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('UnsetEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -17,6 +17,6 @@ end
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:_execute(shellScript, builder, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
-	
+
 	shellScript:appendCommandLineToScript('UNSET', '/Q', variableName)
 end

@@ -5,18 +5,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local Path = halimede.io.paths.Path
-local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
 
 
 -- builtin macros
-moduleclass('Builtin')
+halimede.moduleclass('Builtin')
 
-function module:initialize(GNUext, macros, blind, function)
+--noinspection UnusedDef
+function module:initialize(GNUext, macros, blind, func)
 end
 
 -- If --prefix-builtins or -P is used, then the names are renamed with a prefix of 'm4_'
 -- GNUext refers to the fact that a builtin macro may be blind, ie  special handing of () (See manual 4.2)
+--noinspection UnusedDef
 local builtins = {
 	__file__ = Builtin:new(true, false, false, m4___file__),
 	__line__ = Builtin:new(true, false, false, m4___line__),

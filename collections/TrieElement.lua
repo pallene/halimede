@@ -5,10 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local exception = halimede.exception
 
 
-local TrieElement = moduleclass('TrieElement')
+local TrieElement = halimede.moduleclass('TrieElement')
 
 module.static.newTrieRoot = function()
 	return Trie:new('')
@@ -16,7 +15,7 @@ end
 
 function module:initialize(prefix)
 	assert.parameterTypeIsString('prefix', prefix)
-	
+
 	self.prefix = prefix
 	self.element = nil
 
@@ -38,7 +37,7 @@ function module:_deleteUnguarded(name, nameLength, prefix, prefixNameLength)
 	if trieChild == nil then
 		return false
 	end
-	
+
 	local deleted = trieChild:_deleteUnguarded(name, nameLength, trieChild.prefix, prefixNameLength + 1)
 	if deleted and trieChild:_isEmpty() then
 		self.trieChildren[trieCharacter] = nil
@@ -51,11 +50,11 @@ function module:_matchesUnguarded(partialName, partialNameLength, prefix, prefix
 		return true
 	end
 
-	local trieChild, trieCharacter = self:_potentiallyNilTrieChild(partialName, prefixLength)
+	local trieChild, _ = self:_potentiallyNilTrieChild(partialName, prefixLength)
 	if trieChild == nil then
 		return false
 	end
-	
+
 	return trieChild:_matchesUnguarded(partialName, partialNameLength, trieChild.prefix, prefixNameLength + 1)
 end
 
@@ -63,9 +62,9 @@ function module:_addOrReplaceUnguarded(name, element, nameLength, prefix, prefix
 	if nameLength == prefixLength then
 		local originalElement = self.element
 		self.element = element
-		return originalElement, originalElement == nil	
+		return originalElement, originalElement == nil
 	end
-	
+
 	return self:_trieChildAddOrReplaceUnguarded(name, element, nameLength, prefix, prefixLength)
 end
 
@@ -76,7 +75,7 @@ end
 
 function module:_trieChild(name, prefix, prefixLength)
 	local trieChild, trieCharacter = self:_potentiallyNilTrieChild(name, prefixLength)
-	
+
 	if trieChild == nil then
 		trieChild = TrieElement:new(prefix .. trieCharacter)
 		self.trieChildren[trieCharacter] = trieChild

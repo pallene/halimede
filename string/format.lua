@@ -9,7 +9,7 @@ assert.globalTypeIsFunctionOrCall('ipairs', 'tostring', 'unpack')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 local function format(template, ...)
 	assert.parameterTypeIsString('template', template)
-	
+
 	local formatArguments = {...}
 	for index, formatArgument in ipairs(formatArguments) do
 		formatArguments[index] = tostring(formatArgument)
@@ -17,4 +17,4 @@ local function format(template, ...)
 	return template:format(unpack(formatArguments))
 end
 
-modulefunction(format)
+halimede.modulefunction(format)

@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
+require('halimede')
 local isTable = type.isTable
 
 
@@ -13,7 +13,7 @@ local function deepCopyWithState(original, encountered)
 	if not isTable(original) then
 		return original
 	end
-	
+
 	local alreadyCopied = encountered[original]
 	if alreadyCopied then
 		return alreadyCopied
@@ -24,7 +24,7 @@ local function deepCopyWithState(original, encountered)
 		copy[deepCopyWithState(key, encountered)] = deepCopyWithState(value, encountered)
 	end
 	setmetatable(copy, deepCopyWithState(getmetatable(original), encountered))
-	
+
 	encountered[original] = copy
 	return copy
 end
@@ -33,4 +33,4 @@ local function deepCopy(original)
 	return deepCopyWithState(original, {})
 end
 
-modulefunction(deepCopy)
+halimede.modulefunction(deepCopy)

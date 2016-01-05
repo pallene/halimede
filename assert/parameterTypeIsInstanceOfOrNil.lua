@@ -9,11 +9,11 @@ local parameterTypeIsInstanceOf = assert.parameterTypeIsInstanceOf
 local function parameterTypeIsInstanceOfOrNil(parameterName, value, Class)
 	assert.parameterTypeIsString('parameterName', parameterName)
 	assert.parameterTypeIsTable('Class', Class)
-	
+
 	if value == nil then
 		return
 	end
 	parameterTypeIsInstanceOf(parameterName, value, Class)
 end
 
-modulefunction(parameterTypeIsInstanceOfOrNil)
+halimede.modulefunction(parameterTypeIsInstanceOfOrNil)

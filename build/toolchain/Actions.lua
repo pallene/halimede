@@ -10,12 +10,12 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local Builder = require.sibling.Builder
 
 
-local Actions = moduleclass('Actions')
+local Actions = halimede.moduleclass('Actions')
 
 local function execute(self, actionName, ...)
 	assert.parameterTypeIsInstanceOf('self', self, Actions)
 	assert.parameterTypeIsString('actionName', actionName)
-	
+
 	local actionClassOrCreatorFunction = require(self.namespace .. '.' .. actionName .. ('%sShellScriptAction'):format(self.shellScript.shellLanguage.titleCasedName))
 	return actionClassOrCreatorFunction(self.dependencies, self.buildVariant):execute(self.shellScript, self.builder, ...)
 end
@@ -36,7 +36,7 @@ local function appendCompositeActionRecreateFolderPath(actions)
 		assert.parameterTypeIsInstanceOf('self', self, Actions)
 		assert.parameterTypeIsInstanceOf('shellPath', shellPath, ShellPath)
 		shellPath:assertIsFolderPath('shellPath')
-	
+
 		local folderName = shellPath:finalPathElementNameAsString()
 		actions.Comment("Recreate empty '" .. folderName .. "' folder")
 		actions.RemoveRecursivelyWithForce(shellPath)
@@ -51,7 +51,7 @@ function module:initialize(shellScript, builder, dependencies, buildVariant, nam
 	assert.parameterTypeIsTable('dependencies', dependencies)
 	assert.parameterTypeIsTable('buildVariant', buildVariant)
 	assert.parameterTypeIsString('namespace', namespace)
-	
+
 	self.shellScript = shellScript
 	self.builder = builder
 	self.dependencies = dependencies
@@ -61,6 +61,6 @@ end
 
 function module:__call(childNamespaceName)
 	assert.parameterTypeIsString('childNamespaceName', childNamespaceName)
-	
+
 	return Actions:new(self.shellScript, self.builder, self.dependencies, self.buildVariant, self.namespace .. '.' .. childNamespaceName)
 end

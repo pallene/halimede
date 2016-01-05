@@ -9,7 +9,7 @@ local exception = halimede.exception
 local Path = halimede.io.paths.Path
 
 
-local FileHandleStream = moduleclass('FileHandleStream')
+local FileHandleStream = halimede.moduleclass('FileHandleStream')
 
 -- other things returning (read) file handles are io.open(file) and io.tmpfile()
 local validModes = {
@@ -33,13 +33,13 @@ else
 	openFunction = function(filename, mode)
 		assert.parameterTypeIsString('filename', filename)
 		assert.parameterTypeIsStringOrNil('mode', mode)
-		
+
 		if mode ~= nil then
 			if validModes[mode] == nil then
 				return nil, "mode '" .. mode .. "' is not valid"
 			end
 		end
-		
+
 		return nil, 'io.open is not available'
 	end
 end
@@ -47,11 +47,11 @@ end
 local function openFile(filePath, fileDescription, mode, modeDescription)
 	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
 	assert.parameterTypeIsString('fileDescription', fileDescription)
-	
+
 	filePath:assertIsFilePath('filePath')
-	
+
 	local filePathString = filePath:toString(false)
-	
+
 	local fileHandle, errorMessage = openFunction(filePathString, mode)
 	if fileHandle == nil then
 		exception.throw("Could not open %s '%s' in mode %s for %s because of error '%s'", fileDescription, filePath, mode, modeDescription, errorMessage)
@@ -101,6 +101,7 @@ local ioTypeFunction
 if type.hasPackageChildFieldOfTypeFunctionOrCall('io', 'type') then
 	ioTypeFunction = io.type
 else
+	--noinspection UnusedDef
 	ioTypeFunction = function(obj)
 		return 'file'
 	end
@@ -109,7 +110,7 @@ function module:initialize(fileHandle, description)
 	assert.parameterTypeIsString('description', description)
 
 	self.description = description
-	
+
 	if fileHandle == nil then
 		self.fileHandle = nil
 	else
@@ -172,7 +173,7 @@ end
 
 function module:write(contents)
 	assert.parameterTypeIsString('contents', contents)
-	
+
 	self.fileHandle:write(contents)
 end
 
@@ -192,7 +193,7 @@ function module:close()
 	if not self.isOpen then
 		exception.throw('Already closed')
 	end
-	
+
 	self.fileHandle:close()
 	self.fileHandle = nil
 	self.isOpen = false

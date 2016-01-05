@@ -4,7 +4,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-local halimede = require('halimede')
+require('halimede')
 
 
 -- Adds the table.concat, table.insert, etc methods to optionalValueToTabelize, or returns an empty table with them added
@@ -13,15 +13,15 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'concat', 'insert'
 assert.globalTypeIsFunctionOrCall('setmetatable')
 local function tabelize(optionalValueToTabelize)
 	assert.parameterTypeIsTableOrNil('optionalValueToTabelize', optionalValueToTabelize)
-	
+
 	local valueToTabelize
 	if optionalValueToTabelize == nil then
 		valueToTabelize = {}
 	else
 		valueToTabelize = optionalValueToTabelize
 	end
-	
+
 	return setmetatable(valueToTabelize, {__index = table})
 end
 
-modulefunction(tabelize)
+halimede.modulefunction(tabelize)

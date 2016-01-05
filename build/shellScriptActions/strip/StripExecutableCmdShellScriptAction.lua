@@ -9,7 +9,7 @@ local Path = halimede.io.paths.Path
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('StripExecutablePosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('StripExecutablePosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -18,9 +18,9 @@ end
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:_execute(shellScript, builder, executableFilePath)
 	assert.parameterTypeIsInstanceOf('executableFilePath', executableFilePath, Path)
-	
+
 	executableFilePath:assertIsFilePath('executableFilePath')
-	
+
 	local strip = builder.strip
 	if strip then
 		return

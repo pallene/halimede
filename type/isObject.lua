@@ -9,6 +9,6 @@ local Object = halimede.class.Object
 local isInstanceOf = Object.isInstanceOf
 
 
-modulefunction(function(value)
+halimede.modulefunction(function(value)
 	return isInstanceOf(value, Object)
 end)

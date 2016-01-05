@@ -9,7 +9,7 @@ local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.
 local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmdShellScriptAction
 
 
-moduleclass('WriteConfigHCmdShellScriptAction', AbstractWriteConfigHShellScriptAction)
+halimede.moduleclass('WriteConfigHCmdShellScriptAction', AbstractWriteConfigHShellScriptAction)
 
 function module:initialize()
 	AbstractWriteConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction)
@@ -21,14 +21,14 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_append(shellScript, quotedStringShellPath, configHDefines)
 	local lines = configHDefines:toCPreprocessorTextLines('\r\n\r\n')
 	for index, line in ipairs(lines) do
-	
+
 		local redirectionOperator
 		if index == 1 then
 			redirectionOperator = '>'
 		else
 			redirectionOperator = '>>'
 		end
-	
+
 		shellScript:appendLinesToScript('ECHO ' .. shellScript:toQuotedShellArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
 	end
 end

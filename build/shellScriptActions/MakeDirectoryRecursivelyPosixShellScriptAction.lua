@@ -9,7 +9,7 @@ local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
-moduleclass('MakeDirectoryRecursivelyPosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('MakeDirectoryRecursivelyPosixShellScriptAction', AbstractShellScriptAction)
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -18,6 +18,6 @@ end
 function module:execute(shellScript, builder, path, mode)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 	assert.parameterTypeIsString('mode', mode)
-	
+
 	shellScript:appendCommandLineToScript('mkdir', '-m', mode, '-p', path:toQuotedShellArgumentX(true))
 end

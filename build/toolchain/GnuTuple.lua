@@ -10,21 +10,21 @@ local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local InstructionSet = require.sibling.InstructionSet
 local ARC = InstructionSet.ARC
 local ARM64 = InstructionSet.ARM64
-local ARM = InstructionSet.ARM
+--local ARM = InstructionSet.ARM
 local Alpha = InstructionSet.Alpha
 local CRIS = InstructionSet.CRIS
-local PARISC = InstructionSet['PA-RISC']
+--local PARISC = InstructionSet['PA-RISC']
 local IA32 = InstructionSet['IA-32']
-local IA64 = InstructionSet['IA-64']
-local MC68000 = InstructionSet.MC68000
-local MIPS = InstructionSet.MIPS
-local MIPS64 = InstructionSet.MIPS64
-local PowerPC = InstructionSet.PowerPC
-local System390 = InstructionSet['System/390']
-local zArchitecture = InstructionSet['z/Architecture']
-local SH4 = InstructionSet['SH-4']
-local SPARC = InstructionSet.SPARC
-local SPARC64 = InstructionSet.SPARC64
+--local IA64 = InstructionSet['IA-64']
+--local MC68000 = InstructionSet.MC68000
+--local MIPS = InstructionSet.MIPS
+--local MIPS64 = InstructionSet.MIPS64
+--local PowerPC = InstructionSet.PowerPC
+--local System390 = InstructionSet['System/390']
+--local zArchitecture = InstructionSet['z/Architecture']
+--local SH4 = InstructionSet['SH-4']
+--local SPARC = InstructionSet.SPARC
+--local SPARC64 = InstructionSet.SPARC64
 local x86_64 = InstructionSet.x86_64
 local Endianness = require.sibling.Endianness
 local LittleEndian = Endianness.LittleEndian
@@ -40,7 +40,7 @@ local ST_MTIM_NSEC = halimede.build.defines.ST_MTIM_NSEC
 -- Also useful: https://bazaar.launchpad.net/~vorlon/+junk/multiarch-tools/view/head:/config.multiarch
 -- Also https://gcc.gnu.org/install/specific.html
 -- Also config.guess and config.sub (but these are horrid; they latter should just have used a simple 1:1 string key, string value table to normalize so it was easy to spot obsolete entries and reasoning)
-local GnuTuple = moduleclass('GnuTuple')
+local GnuTuple = halimede.moduleclass('GnuTuple')
 
 local function unknownConfigHDefines()
 	error('Unknown ConfigH')
@@ -49,7 +49,7 @@ end
 
 local function macOsXMavericksConfigHDefines()
 	local configHDefines = ConfigHDefines:new()
-	
+
 	configHDefines:HAVE_ALLOCA(true)
 	configHDefines:HAVE_ALLOCA_H(true)
 	configHDefines:HAVE_ATEXIT(true)
@@ -114,7 +114,7 @@ local function macOsXMavericksConfigHDefines()
 	configHDefines:STDC_HEADERS(true)
 	configHDefines:TIME_WITH_SYS_TIME(true)
 	configHDefines:_DARWIN_USE_64_BIT_INODE(true)
-	
+
 	return configHDefines
 end
 
@@ -132,11 +132,11 @@ function GnuTuple:initialize(triplet, vendor, syscallAbi, linuxLibC, instruction
 	assert.parameterTypeIsPositiveInteger('wordSize', wordSize)
 	assert.parameterTypeIsString('description', description)
 	assert.parameterTypeIsFunctionOrCall('newConfigHDefines', newConfigHDefines)
-	
-	if wordSize ~= 32 and wordSize ~= 64 then 
+
+	if wordSize ~= 32 and wordSize ~= 64 then
 		exception.throw("wordSize can only be 32 or 64 currently, not '%s'", wordSize)
 	end
-	
+
 	self.triplet = triplet
 	self.vendor = vendor
 	self.syscallAbi = syscallAbi
@@ -146,12 +146,12 @@ function GnuTuple:initialize(triplet, vendor, syscallAbi, linuxLibC, instruction
 	self.wordSize = wordSize
 	self.description = description
 	self._newConfigHDefines = newConfigHDefines
-	
+
 	self.isPosix = false
 	self.isLinux = false
 	self.isBsd = false
 	self.isMacOsX = false
-	
+
 	if syscallAbi == 'linux' then
 		self.isPosix = true
 		self.isLinux = true
@@ -160,7 +160,7 @@ function GnuTuple:initialize(triplet, vendor, syscallAbi, linuxLibC, instruction
 		self.isBsd = true
 		self.isMacOsX = true
 	end
-	
+
 	GnuTuple.static[triplet] = self
 end
 

@@ -29,7 +29,7 @@ local fieldExists = {}
 function fieldExists.asTableOrDefaultTo(parent, fieldName)
 	local childTable = parent[fieldName]
 	if childTable == nil then
-		newChildTable = {}
+		local newChildTable = {}
 		parent[fieldName] = newChildTable
 		return newChildTable
 	else
@@ -65,7 +65,7 @@ function fieldExists.asBooleanFieldExistsOrDefaultTo(parent, fieldName, default)
 end
 
 
-moduleclass('Recipe')
+halimede.moduleclass('Recipe')
 
 local definitionsFolderName = 'definitions'
 local sourceFolderName = 'source'
@@ -87,7 +87,7 @@ function module:initialize(executor, recipesPath, crossPlatformGnuTuple, recipeE
 	self.chosenBuildVariantNames = validatedAndSortedChosenBuildVariantNames
 	self.recipeFolderPath = self.recipesPath:appendFolders(definitionsFolderName, recipeName)
 	self.recipeFilePath = self.recipeFolderPath:appendFile('recipe', 'lua')
-	
+
 	local result = self:_load(recipeEnvironment)
 	local aliases, versions = self:_processRecipe(result, crossPlatformGnuTuple)
 	self.aliases = aliases
@@ -101,34 +101,34 @@ end
 assert.globalTypeIsFunctionOrCall('pairs')
 function module:_processRecipe(result, crossPlatformGnuTuple)
 	assert.parameterTypeIsTable('result', result)
-	
+
 	local aliases = fieldExists.asTableOrDefaultTo(result, 'aliases')
 	local versions = fieldExists.asTableOrDefaultTo(result, 'versions')
 	local ourVersions = {}
-	
+
 	local count = 0
 	for packageVersionName, packageVersionSettings in pairs(versions) do
 		assert.parameterTypeIsString('versionName', packageVersionName)
 		assert.parameterTypeIsTable('packageVersionSettings', packageVersionSettings)
-		
+
 		local ourVersion = {}
-		
+
 		local dependencies, packageVersion, buildVariant, platformConfigHDefinesFunctions, execute = self:_validate(packageVersionName, packageVersionSettings, crossPlatformGnuTuple)
 		ourVersion.dependencies = dependencies
 		ourVersion.buildVariant = buildVariant
 		ourVersion.platformConfigHDefinesFunctions = platformConfigHDefinesFunctions
 		ourVersion.execute = execute
 		ourVersion.packageVersion = packageVersionName
-		
+
 		if aliases[packageVersionName] then
 			exception.throw("There is an alias for an extant version called '%s' in recipe '%s'", packageVersionName, self.recipeName)
 		end
-		
+
 		ourVersions[packageVersionName] = ourVersion
-		
+
 		count = count + 1
 	end
-	
+
 	if count == 0 then
 		exception.throw("There must be at least one version defined in recipe '%s'", self.recipeName)
 	end
@@ -136,18 +136,18 @@ function module:_processRecipe(result, crossPlatformGnuTuple)
 	if aliases['latest'] == nil and versions['latest'] == nil then
 		exception.throw("There must be an alias (or less ideally, version) called 'latest' in the recipe '%s'", self.recipeName)
 	end
-	
+
 	return aliases, ourVersions
 end
 
 assert.globalTypeIsFunctionOrCall('pairs')
 function module:_resolveAlias(aliasFrom, alreadyEncounteredAliasFrom)
 	alreadyEncounteredAliasFrom = alreadyEncounteredAliasFrom or {}
-	
+
 	if self.versions[aliasFrom] then
 		return self.versions[aliasFrom]
 	end
-	
+
 	local recursiveAliasFrom = self.aliases[aliasFrom]
 	if type.isString(recursiveAliasFrom) then
 		if alreadyEncounteredAliasFrom[alreadyEncounteredAliasFrom] == true then
@@ -167,9 +167,9 @@ function module:buildVariantsString()
 end
 
 local function configHDefinesPrepare(configHDefines, platform, packageOrganisation, packageName, packageVersion, buildVariantsString)
-	
+
 	local version = packageVersion .. '-' .. buildVariantsString
-	
+
 	configHDefines:PACKAGE(packageName)
 	--configHDefines:PACKAGE_BUGREPORT('bug-' .. packageName .. '@gnu.org')
 	configHDefines:PACKAGE_NAME(packageOrganisation .. ' ' .. packageName)
@@ -188,53 +188,53 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuildVariantNames, buildVariants)
-			
+
 	for buildVariantName, buildVariantSettings in pairs(buildVariants) do
 		assert.parameterTypeIsString('buildVariantName', buildVariantName)
-		
+
 		local requires = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'requires')
 		for _, requiredBuildVariantName in ipairs(requires) do
 			assert.parameterTypeIsString('requiredBuildVariantName', requiredBuildVariantName)
-			
+
 			if buildVariants[requiredBuildVariantName] == nil then
 				exception.throw("Build variant '%s' requires undefined build variant '%s'", buildVariantName, requiredBuildVariantName)
 			end
 		end
-		
+
 		local conflicts = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'conflicts')
 		for _, conflictsBuildVariantName in ipairs(conflicts) do
 			assert.parameterTypeIsString('conflictsBuildVariantName', conflictsBuildVariantName)
-			
+
 			if buildVariants[conflictsBuildVariantName] == nil then
 				exception.throw("Build variant '%s' conflicts undefined build variant '%s'", buildVariantName, conflictsBuildVariantName)
 			end
 		end
-		
+
 		local arguments = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'arguments')
-		
+
 		local compilerDriverFlags = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'compilerDriverFlags')
 		for _, compilerDriverFlag in ipairs(compilerDriverFlags) do
 			assert.parameterTypeIsString('compilerDriverFlag', compilerDriverFlag)
 		end
-		
+
 		local defines = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'defines')
 		-- TODO: Validate
-		
+
 		local configHDefines = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'configHDefines')
 		-- TODO: Validate
-		
+
 		local libs = fieldExists.asTableOrDefaultTo(buildVariantSettings, 'libs')
 		for _, lib in ipairs(libs) do
 			assert.parameterTypeIsString('lib', lib)
 		end
-		
+
 		local strip = fieldExists.asBooleanFieldExistsOrDefaultTo(buildVariantSettings, 'strip', true)
 	end
-	
+
 	if buildVariants['default'] == nil then
 		exception.throw("No build variant 'default' defined in recipe")
 	end
-	
+
 	local consolidatedBuildVariants = {
 		arguments = {},
 		compilerDriverFlags = {},
@@ -242,29 +242,29 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 		configHDefines = {},
 		libs = {},
 		strip = true,
-		
+
 		linkerFlags = {},
 		systemIncludePaths = {}
 	}
-	
+
 	for _, chosenBuildVariantName in ipairs(chosenBuildVariantNames) do
 		local buildVariantSettings = buildVariants[chosenBuildVariantName]
 		if buildVariantSettings == nil then
 			exception.throw("Unknown chosen build variant '%s'", chosenBuildVariantName)
 		end
-		
+
 		for _, requiredBuildVariantName in ipairs(buildVariantSettings.requires) do
 			if chosenBuildVariantNames[requiredBuildVariantName] ~= nil then
 				exception.throw("Chosen build variant '%s' requires chosen build variant '%s'", chosenBuildVariantName, requiredBuildVariantName)
 			end
 		end
-		
+
 		for _, conflictsBuildVariantName in ipairs(buildVariantSettings.conflicts) do
 			if chosenBuildVariantNames[conflictsBuildVariantName] ~= nil then
 				exception.throw("Chosen build variant '%s' conflicts with chosen build variant '%s'", chosenBuildVariantName, conflictsBuildVariantName)
 			end
 		end
-		
+
 		deepMerge(buildVariantSettings.arguments, consolidatedBuildVariants.arguments)
 		deepMerge(buildVariantSettings.compilerDriverFlags, consolidatedBuildVariants.compilerDriverFlags)
 		deepMerge(buildVariantSettings.defines, consolidatedBuildVariants.defines)
@@ -274,7 +274,7 @@ local function validateBuildVariantsAndCreateConsolidatedBuildVariant(chosenBuil
 			consolidatedBuildVariants.strip = false
 		end
 	end
-	
+
 	return consolidatedBuildVariants
 end
 
@@ -288,24 +288,24 @@ function module:_validate(packageVersion, version, crossPlatformGnuTuple)
 		local packageName = fieldExists.asString(package, 'name')
 	local buildVariants = fieldExists.asTableOrDefaultTo(version, 'buildVariants')
 		local buildVariant = validateBuildVariantsAndCreateConsolidatedBuildVariant(self.chosenBuildVariantNames, buildVariants)
-	local platformConfigHDefinesFunctions = tabelize()	
+	local platformConfigHDefinesFunctions = tabelize()
 	local configH = fieldExists.asTableOrDefaultTo(version, 'configH')
-	
+
 		local configHDefinesPrepare = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'prepare', configHDefinesPrepare)
-	
+
 		platformConfigHDefinesFunctions:insert(function(configHDefines, platform)
 			return configHDefinesPrepare(configHDefines, platform, packageOrganisation, packageName, packageVersion, self:buildVariantsString())
 		end)
-	
+
 		local configHDefinesDefault = fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(configH, 'default', configHDefinesDefault)
-	
+
 		platformConfigHDefinesFunctions:insert(configHDefinesDefault)
-	
+
 		local platforms = fieldExists.asTableOrDefaultTo(configH, 'platforms')
 		for platformMatch, platformFunction in pairs(platforms) do
 			assert.parameterTypeIsString('platformMatch', platformMatch)
 			assert.parameterTypeIsFunctionOrCall('platformFunction', platformFunction)
-		
+
 			if crossPlatformGnuTuple[platformMatch] == true then
 				platformConfigHDefinesFunctions:insert(platformFunction)
 			end
@@ -328,34 +328,34 @@ function module:_cook(aliasPackageVersion, buildPlatform, buildPlatformPaths, cr
 	assert.parameterTypeIsInstanceOf('buildPlatformPaths', buildPlatformPaths, PlatformPaths)
 	assert.parameterTypeIsInstanceOf('crossPlatform', crossPlatform, Platform)
 	assert.parameterTypeIsInstanceOf('crossPlatformPaths', crossPlatformPaths, PlatformPaths)
-	
+
 	local version = self:_resolveAlias(aliasPackageVersion)
 	if version == nil then
 		exception.throw("No known version details for aliasPackageVersion '%s' in recipe '%s'", aliasPackageVersion, self.recipeName)
 	end
-	
+
 	-- Instead of dependencieshash we could sort and concatenate all the versions of the dependencies, but that rapidly gets longer than the maximum path length
 	-- We could use short git hashes, eg ABCD-DE99-4567 => our git hash, dep1's git hash, dep2's git hash
 	local versionRelativePathElements = tabelize({self.recipeName, version.packageVersion, self:buildVariantsString(), 'dependencieshash'})
-	
-		
+
+
 	local buildRecipePaths = RecipePaths:new(buildPlatform, buildPlatformPaths, versionRelativePathElements)
 	local crossRecipePaths = RecipePaths:new(crossPlatform, crossPlatformPaths, versionRelativePathElements)
-	
+
 	local buildVariant = version.buildVariant
 	local shellScript = buildPlatform.shellScriptExecutor:newShellScript(ShellScript)
-	
+
 	local strip
 	if buildVariant.strip then
 		strip = crossPlatform.strip
 	else
 		strip = nil
 	end
-	
+
 	self:_populateShellScript(shellScript, version.dependencies, buildVariant, versionRelativePathElements, version.packageVersion, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, buildVariant.arguments, strip, version.platformConfigHDefinesFunctions, version.execute)
-	
-	local scriptFileName = 'build-' .. crossPlatform.name .. '-' .. versionRelativePathElements:concat('-'), buildPlatform.shellScriptExecutor.shellLanguage.shellScriptFileExtensionExcludingLeadingPeriod
-	local scriptFilePath = self.recipesPath:appendFile(scriptFileName)
+
+	local scriptFileName = 'build-' .. crossPlatform.name .. '-' .. versionRelativePathElements:concat('-')
+	local scriptFilePath = buildPlatform.shellScriptExecutor.shellLanguage:appendShellScriptExtension(self.recipesPath:appendFile(scriptFileName))
 	shellScript:writeToFileAndExecute(scriptFilePath, noRedirection, noRedirection)
 end
 
@@ -369,37 +369,37 @@ end
 
 assert.globalTypeIsFunctionOrCall('setmetatable')
 function module:_populateShellScript(shellScript, dependencies, buildVariant, versionRelativePathElements, versionFolderName, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, crossPlatformConfigHDefinesFunctions, userFunction)
-	
+
 	-- The shell script will change CWD to the absolute, fully-resolved path containing itself
 	-- This path is currently recipes/
 	-- The script then changes to execute from within the build folder, hence all other paths are relative to the build folder
-	
+
 	local shellLanguage = shellScript.shellLanguage
-	
+
 	local buildFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, toVersionPath(buildPlatform, buildFolderName, crossPlatform, versionRelativePathElements))
-	
+
 	local sourceFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, sourceFolderName))
-	
+
 	local patchFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, buildPlatform:relativeFolderPath(definitionsFolderName, self.recipeName, versionFolderName, patchFolderName))
-	
+
 	local destFolderShellPath = HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH(shellLanguage, toVersionPath(buildPlatform, destFolderName, crossPlatform, versionRelativePathElements))
-	
+
 	local configHDefines = crossPlatform:createConfigHDefines(crossPlatformConfigHDefinesFunctions)
-	
+
 	local builder = Builder:new(shellScript, dependencies, buildVariant, sourceFolderShellPath, patchFolderShellPath, buildFolderShellPath, destFolderShellPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, configHDefines)
-	
+
 	builder.StartScript()
-	
+
 	builder.RecreateFolderPath(buildFolderShellPath)
-	
+
 	builder.RecreateFolderPath(destFolderShellPath)
-	
+
 	builder.Comment('Perform all script actions from the safety of the build folder')
 	builder.Pushd(buildFolderShellPath)
-	
+
 	builder.Comment('Recipe-specific functionality starts here')
 	userFunction(builder)
 	builder.Comment('Recipe-specific functionality ends here')
-	
+
 	builder.EndScript()
 end

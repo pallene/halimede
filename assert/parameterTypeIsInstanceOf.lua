@@ -11,10 +11,10 @@ local isInstanceOf = halimede.class.Object.isInstanceOf
 local function parameterTypeIsInstanceOf(parameterName, value, Class)
 	assert.parameterTypeIsString('parameterName', parameterName)
 	assert.parameterTypeIsTable('Class', Class)
-	
+
 	local isInstance = isInstanceOf(value, Class)
 	local assertionMessage = assert.parameterIsNotMessage(parameterName, Class.name)
 	assert.withLevel(isInstance, assertionMessage, 3)
 end
 
-modulefunction(parameterTypeIsInstanceOf)
+halimede.modulefunction(parameterTypeIsInstanceOf)

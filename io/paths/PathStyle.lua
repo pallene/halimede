@@ -13,7 +13,7 @@ local PathRelativity = require.sibling.PathRelativity
 
 
 -- https://en.wikipedia.org/wiki/Path_%28computing%29
-local PathStyle = moduleclass('PathStyle')
+local PathStyle = halimede.moduleclass('PathStyle')
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
@@ -27,7 +27,7 @@ function module:initialize(name, folderSeparator, deviceSeparator, currentDirect
 	assert.parameterTypeIsStringOrNil('alternateStreamSeparator', alternateStreamSeparator)
 	assert.parameterTypeIsBoolean('hasDevices', hasDevices)
 	assert.parameterTypeIsTableOrNil('additionalCharactersNotAllowedInPathElements', additionalCharactersNotAllowedInPathElements)
-	
+
 	self.name = name
 	self.folderSeparator = folderSeparator
 	self.deviceSeparator = deviceSeparator
@@ -36,7 +36,7 @@ function module:initialize(name, folderSeparator, deviceSeparator, currentDirect
 	self.fileExtensionSeparator = fileExtensionSeparator
 	self.alternateStreamSeparator = alternateStreamSeparator
 	self.hasDevices = hasDevices
-	
+
 	local charactersNotAllowedInPathElements = {}
 	charactersNotAllowedInPathElements['\0'] = true
 	charactersNotAllowedInPathElements[folderSeparator] = true
@@ -46,7 +46,7 @@ function module:initialize(name, folderSeparator, deviceSeparator, currentDirect
 		end
 	end
 	self.charactersNotAllowedInPathElements = charactersNotAllowedInPathElements
-	
+
 	local reservedPathElements = {}
 	reservedPathElements[''] = true
 	for reservedFolderAndFileName, _ in pairs(charactersNotAllowedInPathElements) do
@@ -56,20 +56,19 @@ function module:initialize(name, folderSeparator, deviceSeparator, currentDirect
 		reservedPathElements[reservedFolderAndFileName] = true
 	end
 	self.reservedPathElements = reservedPathElements
-	
+
 	self.doesNotSupportAlternateStreams = alternateStreamSeparator == nil
 	PathStyle.static[name] = self
 
-	if parentDirectory and not parentDirectory:isEmpty() then
-		self.parentPath = self:relativeFolderPath(parentDirectory)
+	self:_initializeSpecialDirectory('parentPath', parentDirectory)
+	self:_initializeSpecialDirectory('currentPath', currentDirectory)
+end
+
+function module:_initializeSpecialDirectory(name, value)
+	if value and not value:isEmpty() then
+		self[name] = self:relativeFolderPath(value)
 	else
-		self.parentPath = nil
-	end
-	
-	if currentDirectory and not currentDirectory:isEmpty() then
-		self.currentPath = self:relativeFolderPath(currentDirectory)
-	else
-		self.currentPath = nil
+		self[name] = nil
 	end
 end
 
@@ -77,14 +76,15 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 function module:parse(stringPath, isFile)
 	assert.parameterTypeIsString('stringPath', stringPath)
 	assert.parameterTypeIsBoolean('isFile', isFile)
-	
+
 	if stringPath:isEmpty() then
 		exception.throw("The stringPath is empty")
 	end
-	
+
 	return self:_parse(stringPath, isFile)
 end
 
+--noinspection UnusedDef
 function module:_parse(stringPath, isFile)
 	exception.throw('Abstract Method')
 end
@@ -101,10 +101,10 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'len')
 function module:guardPathElements(pathElements)
 	assert.parameterTypeIsTable('pathElements', pathElements)
-	
+
 	for index, pathElement in ipairs(pathElements) do
 		assert.parameterTypeIsString('pathElement', pathElement)
-		
+
 		if self:isReservedPathElement(pathElement) then
 			exception.throw("PathElement at index '%s' is a reserved folder or file name '%s'", index, pathElement)
 		end
@@ -122,34 +122,34 @@ function module:isReservedPathElement(pathElement)
 	end
 		return true
 	end
-	
+
 	for _, characterNotAllowedInPathElements in ipairs(self.charactersNotAllowedInPathElements) do
 		if pathElement:find(characterNotAllowedInPathElements, 1, true) ~= nil then
 			return true
 		end
 	end
-	
+
 	return false
 end
 
 function module:isReservedFileName(pathElement)
 	assert.parameterTypeIsString('pathElement', pathElement)
-	
+
 	if self:isReservedPathElement(pathElement) then
 		return true
 	end
-	
+
 	if pathElement == self.currentDirectory or pathElement == self.parentDirectory then
 		return true
 	end
-	
+
 	return false
 end
 
 function module:appendFileExtension(fileName, fileExtension)
 	assert.parameterTypeIsString('fileName', fileName)
 	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
-	
+
 	if fileExtension == nil then
 		return fileName
 	end
@@ -161,11 +161,11 @@ end
 function module:appendAlternateStreamName(fileNameIncludingAnyExtension, alternateStreamName)
 	assert.parameterTypeIsString('fileNameIncludingAnyExtension', fileNameIncludingAnyExtension)
 	assert.parameterTypeIsString('alternateStreamName', alternateStreamName)
-	
+
 	if self.alternateStreamSeparator == nil then
 		exception.throw('Alternate stream names are not supported')
 	end
-	
+
 	return fileNameIncludingAnyExtension .. self.alternateStreamSeparator .. alternateStreamName
 end
 
@@ -175,7 +175,7 @@ function module:toStringAbsoluteIncludingDeviceName(pathElements, isFile, specif
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString('device', device)
-	
+
 	return device .. self.deviceSeparator .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end
 
@@ -184,7 +184,7 @@ function module:toStringRelativeToCurrentDeviceAndAbsoluteOnPosix(pathElements, 
 	assert.parameterTypeIsTable('pathElements', pathElements)
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+
 	return self.folderSeparator .. table.concat(pathElements, self.folderSeparator)
 end
 
@@ -194,7 +194,7 @@ function module:toStringRelativeToDeviceCurrentDirectoryOnCmd(pathElements, isFi
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString('device', device)
-	
+
 	exception.throw("This PathStyle '%s' does not support device relative paths on a device such as '%s'", self.name, device)
 end
 
@@ -205,7 +205,7 @@ function module:toStringRelative(pathElements, isFile, specifyCurrentDirectoryEx
 	assert.parameterTypeIsTable('pathElements', pathElements)
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	
+
 	local pathElementsToUse
 	if specifyCurrentDirectoryExplicitlyIfAppropriate then
 		if pathElements[1] == self.currentDirectory or pathElements[1] == self.parentDirectory then
@@ -216,17 +216,18 @@ function module:toStringRelative(pathElements, isFile, specifyCurrentDirectoryEx
 	else
 		pathElementsToUse = pathElements
 	end
-	
+
 	return self:_toStringRelative(pathElementsToUse, isFile)
 end
 
+--noinspection UnusedDef
 function module:_toStringRelative(pathElements, isFile)
 	return table.concat(pathElements, self.folderSeparator)
 end
 
 function module:prependCurrentDirectory(pathElements)
 	assert.parameterTypeIsTable('pathElements', pathElements)
-	
+
 	local copy = shallowCopy(pathElements)
 	table.insert(copy, 1, self.currentDirectory)
 	return copy
@@ -239,14 +240,16 @@ local Colon = ':'
 local Slash = '/'
 local BackSlash = '\\'
 local WindowsReservedCharacters = {'<', '>', ':', '"', '/', '\\', '|', '?', '*', '\1', '\2', '\3', '\4', '\5', '\6', '\7', '\8', '\9', '\10', '\11', '\12', '\13', '\14', '\15', '\16', '\17', '\18', '\19', '\20', '\21', '\22', '\23', '\24', '\25', '\26', '\27', '\28', '\29', '\30', '\31'}
-local WindowsReservedFileNames = 'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'
+local WindowsReservedFileNames = {'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2', 'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'}
 
 local Posix =   PathStyle:new('Posix',   Slash,     nil,       Dot, DoubleDot, Dot,   nil,       false)
 
 local OpenVms = PathStyle:new('OpenVms', Dot,       Colon,     '',  '-',       Dot,   SemiColon, true )
 
+--noinspection UnusedDef
 local Symbian = PathStyle:new('Symbian', BackSlash, BackSlash, nil, nil,       Dot,   nil,       false)
 
+--noinspection UnusedDef
 local RiscOs =  PathStyle:new('RiscOs',  Dot,       Colon,     '@', '^',       Slash, nil,       true )
 
 local Cmd =     PathStyle:new('Cmd',     BackSlash, BackSlash, Dot, DoubleDot, Dot,   Colon,     true, WindowsReservedCharacters, WindowsReservedFileNames)
@@ -286,7 +289,7 @@ Cmd.toStringRelativeToDeviceCurrentDirectoryOnCmd = function(self, pathElements,
 	assert.parameterTypeIsBoolean('isFile', isFile)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsString('device', device)
-	
+
 	return device .. self:toStringRelative(pathElements, isFile, specifyCurrentDirectoryExplicitlyIfAppropriate)
 end
 
@@ -296,35 +299,35 @@ Cmd._parse = function(self, stringPath, isFile)
 	local pathElements
 	local pathRelativity
 	local device
-	
+
 	-- UNC-style
 	if stringPath:sub(1, 2) == '\\\\' then
 
 		local uncNamespace = stringPath:sub(1, 4)
-		
+
 		if uncNamespace == '\\\\.\\' then
 			-- Win32 Device Namespaces (Device selector)
 			pathElements = windowsPathMultisplitter(stringPath:sub(5))
 			device = '\\\\.\\' .. pathElements:remove(1)
 			pathRelativity = PathRelativity.AbsoluteIncludingDeviceName
-			
+
 			-- things like \\.\NUL and \\.\COM5 won't work because we check for them in the path element
 			exception.throw('Device namespaces are not supported at this time')
-			
+
 		elseif uncNamespace == '\\\\?\\' then
 			-- Win32 File Namespaces (Win32API selector)
 			-- . and .. no longer refer to current directory or parent directory
 			-- Effectively absolute paths, so we can treat them as '\\?\<device>\'
 			-- '/' is NOT VALID as a folder separator for \\?\ UNC namespaces, hence the split() not windowsPathMultisplitter()
 			pathElements = stringPath:sub(5):split('\\')
-			
+
 			device = '\\\\?\\' .. pathElements:remove(1)
-			
+
 			-- Long UNC form
 			if pathElements[1] == 'UNC' then
 				device = device .. '\\' .. pathElements:remove(1)
 			end
-			
+
 			-- Not sure if \\?\C:file.txt is valid; we're assuming it isn't for now
 			pathRelativity = PathRelativity.AbsoluteIncludingDeviceName
 		else
@@ -353,8 +356,8 @@ Cmd._parse = function(self, stringPath, isFile)
 			pathRelativity = PathRelativity.Relative
 		end
 	end
-	
-	local alternateStreamName = nil
+
+	local alternateStreamName
 	local lastIndex = #pathElements
 	if lastIndex > 0 then
 		local lastPathElement = pathElements[lastIndex]
