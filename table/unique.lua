@@ -4,7 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-require('halimede')
+local halimede = require('halimede')
+local assert = halimede.assert
 
 
 assert.globalTypeIsFunctionOrCall('ipairs')

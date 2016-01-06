@@ -5,11 +5,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local type = halimede.type
-local isNil = type.isNil.functor
-local isBoolean = type.isBoolean.functor
-local isString = type.isString.functor
-local isNumber = type.isNumber.functor
+local isNil = type.isNil
+local isBoolean = type.isBoolean
+local isString = type.isString
+local isNumber = type.isNumber
 local hasPackageChildFieldOfTypeString = type.hasPackageChildFieldOfTypeString
 local tabelize = halimede.table.tabelize
 local unique = halimede.table.unique

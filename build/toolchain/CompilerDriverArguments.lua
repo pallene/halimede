@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local CompilerDriver = require.sibling.CompilerDriver
 local Arguments = require.sibling.Arguments
 local CStandard = require.sibling.CStandard

@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local Trie = halimede.collections.Trie
 local AbstractMacroDefinition = halimede.m4.macroDefinitions.AbstractMacroDefinition
 local tabelize = halimede.table.tabelize

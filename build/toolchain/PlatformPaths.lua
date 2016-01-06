@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 --[[
 
 Some non-configure based installations (eg Lua and Shellfire) can only use relative paths for things like libdir. They can probably use '..' but will need patching
@@ -40,7 +41,6 @@ Note that it is still possible to run scripts from a filesystem mounted noexec
 ]]--
 
 local Path = halimede.io.paths.Path
-local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local exception = halimede.exception
 
 

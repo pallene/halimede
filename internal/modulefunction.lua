@@ -5,16 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-assert.globalTypeIsFunctionOrCall('pairs', 'setmetatable', 'getmetatable')
-function moduleclass(...)
-	local newClass = halimede.class(...)
+local assert = halimede.assert
 
-	local moduleClass = module
-	for key, value in pairs(newClass) do
-		moduleClass[key] = value
-	end
 
-	setmetatable(moduleClass, getmetatable(newClass))
-
-	return moduleClass
+local function modulefunction(actualFunction)
+	return halimede.createNamedCallableFunction(moduleName, actualFunction, module, 'modulefunction')
 end
+halimede.modulefunction = modulefunction

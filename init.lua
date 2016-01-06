@@ -265,22 +265,19 @@ local function isNot(value, typeName)
 end
 
 local function isType(typeName)
-	local functionName = typeName
-	return createNamedCallableFunction(functionName, function(value)
+	return function(value)
 		return is(value, typeName)
-	end)
+	end
 end
 
 local function isNotType(typeName)
-	local functionName = 'not ' .. typeName
-	return createNamedCallableFunction(functionName, function(value)
+	return function(value)
 		return isNot(value, typeName)
-	end)
+	end
 end
 
 local function isFunctionTypeOrCallType()
-	local functionName = 'function or __call'
-	return createNamedCallableFunction(functionName, function(value)
+	return function(value)
 		if is(value, 'function') then
 			return true
 		end
@@ -289,20 +286,19 @@ local function isFunctionTypeOrCallType()
 			return false
 		end
 		return is(metatable.__call, 'function')
-	end)
+	end
 end
 
 local function isTypeOrType(typeName1, typeName2)
-	local functionName = typeName1 .. ' or ' .. typeName2
-	return createNamedCallableFunction(functionName, function(value)
+	return function(value)
 		return is(value, typeName1) or is(value, typeName2)
-	end)
+	end
 end
 
 local function isTypeOrNil(typeName)
-	return createNamedCallableFunction(typeName .. ' or nil', function(value)
+	return function(value)
 		return is(value, typeName) or value == nil
-	end)
+	end
 end
 
 -- From http://lua-users.org/lists/lua-l/2008-11/msg00106.html
@@ -316,134 +312,100 @@ local function isPositiveInteger(value)
 end
 
 local function isIntegerType()
-	return createNamedCallableFunction('positive integer', function(value)
+	return function(value)
 		return is(value, 'number') and isInteger(value)
-	end)
+	end
 end
 
 local function isPositiveIntegerType()
-	return createNamedCallableFunction('positive integer', function(value)
+	return function(value)
 		return is(value, 'number') and isPositiveInteger(value)
-	end)
+	end
 end
 
 local isNil = isType('nil')
-local isNilFunction = isNil.functor
 type.isNil = isNil
+
 local isNumber = isType('number')
-local isNumberFunction = isNumber.functor
 type.isNumber = isNumber
+
 local isString = isType('string')
-local isStringFunction = isString.functor
 type.isString = isString
+
 local isBoolean = isType('boolean')
-local isBooleanFunction = isBoolean.functor
 type.isBoolean = isBoolean
+
 local isTable = isType('table')
-local isTableFunction = isTable.functor
 type.isTable = isTable
+
 local isFunction = isType('function')
-local isFunctionFunction = isFunction.functor
 type.isFunction = isFunction
+
 local isThread = isType('thread')
-local isThreadFunction = isThread.functor
 type.isThread = isThread
+
 local isUserdata = isType('userdata')
-local isUserdataFunction = isUserdata.functor
 type.isUserdata = isUserdata
 
 local isNotNil = isNotType('nil')
-local isNotNilFunction = isNotNil.functor
 type.isNotNil = isNotNil
+
 local isNotNumber = isNotType('number')
-local isNotNumberFunction = isNotNumber.functor
 type.isNotNumber = isNotNumber
+
 local isNotString = isNotType('string')
-local isNotStringFunction = isNotString.functor
 type.isNotString = isNotString
+
 local isNotBoolean = isNotType('boolean')
-local isNotBooleanFunction = isNotBoolean.functor
 type.isNotBoolean = isNotBoolean
+
 local isNotTable = isNotType('table')
-local isNotTableFunction = isNotTable.functor
 type.isNotTable = isNotTable
-local isNotFunction = isNotType('function')
-local isNotFunctionFunction = isNotFunction.functor
-type.isNotFunction = isNotFunction
+
+local isNot = isNotType('function')
+type.isNot = isNot
+
 local isNotThread = isNotType('thread')
-local isNotThreadFunction = isNotThread.functor
 type.isNotThread = isNotThread
+
 local isNotUserdata = isNotType('userdata')
-local isNotUserdataFunction = isNotUserdata.functor
 type.isNotUserdata = isNotUserdata
 
 local isFunctionOrCall = isFunctionTypeOrCallType()
-local isFunctionOrCallFunction = isFunctionOrCall.functor
 type.isFunctionOrCall = isFunctionOrCall
+
 local isTableOrUserdata = isTypeOrType('table', 'userdata')
-local isTableOrUserdataFunction = isTableOrUserdata.functor
 type.isTableOrUserdata = isTableOrUserdata
+
 local isNumberOrString = isTypeOrType('number', 'string')
-local isNumberOrStringFunction = isNumberOrString.functor
 type.isNumberOrString = isNumberOrString
+
 local isNumberOrNil = isTypeOrNil('number')
-local isNumberOrNilFunction = isNumberOrNil.functor
 type.isNumberOrNil = isNumberOrNil
+
 local isStringOrNil = isTypeOrNil('string')
-local isStringOrNilFunction = isStringOrNil.functor
 type.isStringOrNil = isStringOrNil
+
 local isBooleanOrNil = isTypeOrNil('boolean')
-local isBooleanOrNilFunction = isBooleanOrNil.functor
 type.isBooleanOrNil = isBooleanOrNil
+
 local isTableOrNil = isTypeOrNil('table')
-local isTableOrNilFunction = isTableOrNil.functor
 type.isTableOrNil = isTableOrNil
+
 local isFunctionOrNil = isTypeOrNil('function')
-local isFunctionOrNilFunction = isFunctionOrNil.functor
 type.isFunctionOrNil = isFunctionOrNil
+
 local isThreadOrNil = isTypeOrNil('thread')
-local isThreadOrNilFunction = isThreadOrNil.functor
 type.isThreadOrNil = isThreadOrNil
+
 local isUserdataOrNil = isTypeOrNil('userdata')
-local isUserdataOrNilFunction = isUserdataOrNil.functor
 type.isUserdataOrNil = isUserdataOrNil
 
 local isInteger = isIntegerType()
-local isIntegerFunction = isInteger.functor
 type.isInteger = isInteger
+
 local isPositiveInteger = isPositiveIntegerType()
-local isPositiveIntegerFunction = isPositiveInteger.functor
 type.isPositiveInteger = isPositiveInteger
-
-local function getUnderlyingFunctionFromCallable(functionOrCall)
-	if isFunctionFunction(functionOrCall) then
-		return functionOrCall
-	end
-
-	if isNotTableFunction(functionOrCall) then
-		error('functionOrCall must be a function or table')
-	end
-
-	-- for halimede named functions
-	local functor = rawget(functionOrCall, 'functor')
-	if isFunctionFunction(functor) then
-		return functor
-	end
-
-	local metatable = getmetatable(functionOrCall)
-	if metatable == nil then
-		error('functionOrCall must be a function or table with a metatable')
-	end
-
-	local wrapper = metatable.__call
-	if wrapper == nil then
-		error('functionOrCall must be a function or table with a metatable and __call')
-	end
-
-	return function(...)
-		return wrapper(functionOrCall, ...)
-	end
-end
 
 local function hasGlobalOfType(isOfTypeFunction, name)
 	local global = rawget(_G, name)
@@ -451,17 +413,17 @@ local function hasGlobalOfType(isOfTypeFunction, name)
 end
 
 local function hasGlobalOfTypeString(name)
-	return hasGlobalOfType(isStringFunction, name)
+	return hasGlobalOfType(isString, name)
 end
 type.hasGlobalOfTypeString = hasGlobalOfTypeString
 
 local function hasGlobalOfTypeFunctionOrCall(name)
-	return hasGlobalOfType(isFunctionOrCallFunction, name)
+	return hasGlobalOfType(isFunctionOrCall, name)
 end
 type.hasGlobalOfTypeFunctionOrCall = hasGlobalOfTypeFunctionOrCall
 
 local function hasGlobalOfTypeTableOrUserdata(name)
-	return hasGlobalOfType(isTableOrUserdataFunction, name)
+	return hasGlobalOfType(isTableOrUserdata, name)
 end
 type.hasGlobalOfTypeTableOrUserdata = hasGlobalOfTypeTableOrUserdata
 
@@ -471,7 +433,7 @@ local function hasPackageChildFieldOfType(isOfTypeFunction, name, ...)
 		return false
 	end
 
-	if not isTableOrUserdataFunction(package) then
+	if not isTableOrUserdata(package) then
 		return false
 	end
 
@@ -493,25 +455,21 @@ local function hasPackageChildFieldOfType(isOfTypeFunction, name, ...)
 end
 
 local function hasPackageChildFieldOfTypeString(name, ...)
-	return hasPackageChildFieldOfType(isStringFunction, name, ...)
+	return hasPackageChildFieldOfType(isString, name, ...)
 end
 type.hasPackageChildFieldOfTypeString = hasPackageChildFieldOfTypeString
 
 local function hasPackageChildFieldOfTypeFunctionOrCall(name, ...)
-	return hasPackageChildFieldOfType(isFunctionOrCallFunction, name, ...)
+	return hasPackageChildFieldOfType(isFunctionOrCall, name, ...)
 end
 type.hasPackageChildFieldOfTypeFunctionOrCall = hasPackageChildFieldOfTypeFunctionOrCall
 
 local function hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
-	return hasPackageChildFieldOfType(isTableOrUserdataFunction, name, ...)
+	return hasPackageChildFieldOfType(isTableOrUserdata, name, ...)
 end
 type.hasPackageChildFieldOfTypeTableOrUserdata = hasPackageChildFieldOfTypeTableOrUserdata
 
-function assert.withLevel(booleanResult, message, level)
-	if booleanResult then
-		return
-	end
-
+local function withLevel(message, level)
 	local errorMessage
 	if hasPackageChildFieldOfTypeFunctionOrCall('debug', 'traceback') then
 		errorMessage = debug.traceback(message, level)
@@ -521,103 +479,106 @@ function assert.withLevel(booleanResult, message, level)
 
 	error(errorMessage, level)
 end
-local withLevel = assert.withLevel
+assert.withLevel = withLevel
 
-assert.parameterIsNotATemplate = "Parameter is not a "
-function assert.parameterIsNotMessage(parameterName, name)
+local function parameterIsNotMessage(parameterName, name)
 	return "Parameter '" .. parameterName .. "' is not of type '" .. name .. "'"
 end
+assert.parameterIsNotMessage = parameterIsNotMessage
 
-local function parameterTypeIs(parameterName, value, isOfType)
-	if isNotStringFunction(parameterName) then
+local function parameterTypeIs(parameterName, value, isOfTypeFunction, isOfTypeName)
+	if isNotString(parameterName) then
 		error('Please supply a string parameter name')
 	end
 
-	withLevel(isOfType.functor(value), assert.parameterIsNotMessage(parameterName, isOfType.name), 3)
+	if isOfTypeFunction(value) then
+		return
+	end
+	withLevel(parameterIsNotMessage(parameterName, isOfTypeName), 3)
 end
 
 -- Would be a bit odd to use this
 function assert.parameterTypeIsNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isNil)
+	return parameterTypeIs(parameterName, value, isNil, 'isNil')
 end
 
 function assert.parameterTypeIsNumber(parameterName, value)
-	return parameterTypeIs(parameterName, value, isNumber)
+	return parameterTypeIs(parameterName, value, isNumber, 'isNumber')
 end
 
 function assert.parameterTypeIsString(parameterName, value)
-	return parameterTypeIs(parameterName, value, isString)
+	return parameterTypeIs(parameterName, value, isString, 'isString')
 end
 
 function assert.parameterTypeIsBoolean(parameterName, value)
-	return parameterTypeIs(parameterName, value, isBoolean)
+	return parameterTypeIs(parameterName, value, isBoolean, 'isBoolean')
 end
 
 function assert.parameterTypeIsTable(parameterName, value)
-	return parameterTypeIs(parameterName, value, isTable)
+	return parameterTypeIs(parameterName, value, isTable, 'isTable')
 end
 
 function assert.parameterTypeIsFunction(parameterName, value)
-	return parameterTypeIs(parameterName, value, isFunction)
+	return parameterTypeIs(parameterName, value, isFunction, 'isFunction')
 end
 
 function assert.parameterTypeIsThread(parameterName, value)
-	return parameterTypeIs(parameterName, value, isThread)
+	return parameterTypeIs(parameterName, value, isThread, 'isThread')
 end
 
 function assert.parameterTypeIsUserdata(parameterName, value)
-	return parameterTypeIs(parameterName, value, isUserdata)
+	return parameterTypeIs(parameterName, value, isUserdata, 'isUserdata')
 end
 
 function assert.parameterTypeIsFunctionOrCall(parameterName, value)
-	return parameterTypeIs(parameterName, value, isFunctionOrCall)
+	return parameterTypeIs(parameterName, value, isFunctionOrCall, 'isFunctionOrCall')
 end
 
 function assert.parameterTypeIsTableOrUserdata(parameterName, value)
-	return parameterTypeIs(parameterName, value, isTableOrUserdata)
+	return parameterTypeIs(parameterName, value, isTableOrUserdata, 'isTableOrUserdata')
 end
 
 function assert.parameterTypeIsNumberOrString(parameterName, value)
-	return parameterTypeIs(parameterName, value, isNumberOrString)
+	return parameterTypeIs(parameterName, value, isNumberOrString, 'isNumberOrString')
 end
 
 function assert.parameterTypeIsNumberOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isNumberOrNil)
+	return parameterTypeIs(parameterName, value, isNumberOrNil, 'isNumberOrNil')
 end
 
 function assert.parameterTypeIsStringOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isStringOrNil)
+	return parameterTypeIs(parameterName, value, isStringOrNil, 'isStringOrNil')
 end
 
 function assert.parameterTypeIsBooleanOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isBooleanOrNil)
+	return parameterTypeIs(parameterName, value, isBooleanOrNil, 'isBooleanOrNil')
 end
 
 function assert.parameterTypeIsTableOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isTableOrNil)
+	return parameterTypeIs(parameterName, value, isTableOrNil, 'isTableOrNil')
 end
 
 function assert.parameterTypeIsFunctionOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isFunctionOrNil)
+	return parameterTypeIs(parameterName, value, isFunctionOrNil, 'isFunctionOrNil')
 end
 
 function assert.parameterTypeIsThreadOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isThreadOrNil)
+	return parameterTypeIs(parameterName, value, isThreadOrNil, 'isThreadOrNil')
 end
 
 function assert.parameterTypeIsUserdataOrNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isUserdataOrNil)
+	return parameterTypeIs(parameterName, value, isUserdataOrNil, 'isUserdataOrNil')
 end
 
 function assert.parameterTypeIsNotNil(parameterName, value)
-	return parameterTypeIs(parameterName, value, isNotNil)
+	return parameterTypeIs(parameterName, value, isNotNil, 'isNotNil')
 end
 
 function assert.parameterTypeIsPositiveInteger(parameterName, value)
-	return parameterTypeIs(parameterName, value, isPositiveInteger)
+	return parameterTypeIs(parameterName, value, isPositiveInteger, 'isPositiveInteger')
 end
 
-local function globalTypeIs(isOfType, ...)
+local function globalTypeIs(isOfTypeFunction, isOfTypeName, ...)
 	-- We do not use ipairs() as we may be checking for its existence!
 	local names = {...}
 	local index = 1
@@ -626,37 +587,35 @@ local function globalTypeIs(isOfType, ...)
 		local name = names[index]
 		assert.parameterTypeIsString('name', name)
 
-		local ok, global = hasGlobalOfType(isOfType, name)
+		local ok, global = hasGlobalOfType(isOfTypeFunction, name)
 		if not ok then
-			withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
+			withLevel(essentialGlobalMissingErrorMessage(name), 4)
 		end
-		withLevel(isOfType.functor(global), "The global '" .. name .. "'" .. " is not a " .. isOfType.name, 4)
 
 		index = index + 1
 	end
 end
 
 function assert.globalTypeIsTable(...)
-	return globalTypeIs(isTable, ...)
+	return globalTypeIs(isTable, 'isTable', ...)
 end
 
 function assert.globalTypeIsFunctionOrCall(...)
-	return globalTypeIs(isFunctionOrCall, ...)
+	return globalTypeIs(isFunctionOrCall, 'isFunctionOrCall', ...)
 end
 
 function assert.globalTypeIsString(...)
-	return globalTypeIs(isString, ...)
+	return globalTypeIs(isString, 'isString', ...)
 end
 
-local function globalTableHasChieldFieldOfType(isOfType, name, ...)
-	assert.globalTypeIsTable(name)
+local function globalTableHasChieldFieldOfType(isOfTypeFunction, isOfTypeName, name, ...)
+	assert.parameterTypeIsFunctionOrCallable('isOfTypeFunction', isOfTypeFunction)
+	assert.parameterTypeIsString('isOfTypeName', isOfTypeName)
+	assert.parameterTypeIsString('name', name)
 
-	local ok, package = hasGlobalOfType(isOfType, name)
+	local ok, package = hasGlobalOfType(isTableOrUserdata, name)
 	if not ok then
-		withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
-	end
-	if not isTableOrUserdataFunction(package) then
-		withLevel(true, essentialGlobalMissingErrorMessage(name), 4)
+		withLevel(essentialGlobalMissingErrorMessage(name), 4)
 	end
 
 	local childFieldNames = {...}
@@ -664,22 +623,26 @@ local function globalTableHasChieldFieldOfType(isOfType, name, ...)
 		assert.parameterTypeIsString('childFieldName', childFieldName)
 
 		local childField = package[childFieldName]
-		local qualifiedChildFieldName = "The global '" .. name .. '.' .. childFieldName .. "'"
-		withLevel(childField ~= nil, essentialGlobalMissingErrorMessage(name .. '.' .. childFieldName), 4)
-		withLevel(isOfType.functor(childField), qualifiedChildFieldName .. " is not a " .. isOfType.name, 4)
+		if childField == nil then
+			withLevel(essentialGlobalMissingErrorMessage(name .. '.' .. childFieldName), 4)
+		end
+		if not isOfTypeFunction(childField) then
+			local qualifiedChildFieldName = "The global '" .. name .. '.' .. childFieldName .. "'"
+			withLevel(qualifiedChildFieldName .. " is not a " .. isOfTypeName, 4)
+		end
 	end
 end
 
 function assert.globalTableHasChieldFieldOfTypeTable(name, ...)
-	return globalTableHasChieldFieldOfType(isTable, name, ...)
+	return globalTableHasChieldFieldOfType(isTable, 'isTable', name, ...)
 end
 
 function assert.globalTableHasChieldFieldOfTypeFunctionOrCall(name, ...)
-	return globalTableHasChieldFieldOfType(isFunctionOrCall, name, ...)
+	return globalTableHasChieldFieldOfType(isFunctionOrCall, 'isFunctionOrCall', name, ...)
 end
 
 function assert.globalTableHasChieldFieldOfTypeString(name, ...)
-	return globalTableHasChieldFieldOfType(isString, name, ...)
+	return globalTableHasChieldFieldOfType(isString, 'isString', name, ...)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
@@ -868,7 +831,7 @@ local function findModulesRootPath()
 		if hasGlobalOfTypeTableOrUserdata('arg') then
 			--noinspection ArrayElementZero
 			local arg0Value = _G.arg[0]
-			if isStringFunction(arg0Value) then
+			if isString(arg0Value) then
 				return arg0Value
 			end
 		end
@@ -1019,7 +982,7 @@ local function setAliasedFields(module, aliases)
 		existingIndex = function(self, key)
 			return nil
 		end
-	elseif isTableFunction(existingIndex) then
+	elseif isTable(existingIndex) then
 		existingIndex = function(self, key)
 			return existingIndex[key]
 		end
@@ -1039,7 +1002,7 @@ local function setAliasedFields(module, aliases)
 		existingNewIndex = function(self, key, value)
 			rawset(self, key, value)
 		end
-	elseif isTableFunction(existingNewIndex) then
+	elseif isTable(existingNewIndex) then
 		existingNewIndex = function(self, key, value)
 			existingNewIndex[key] = value
 		end
@@ -1127,16 +1090,16 @@ requireFunction = function(modname)
 	for index, searcher in ipairs(searchers) do
 		-- filePath only in Lua 5.2+, and not set by the preload searcher
 		local moduleLoaderOrFailedToFindExplanationString, filePath = searcher(moduleNameLocal)
-		if isFunctionFunction(moduleLoaderOrFailedToFindExplanationString) then
+		if isFunction(moduleLoaderOrFailedToFindExplanationString) then
 			local result = moduleLoaderOrFailedToFindExplanationString()
 
 			local ourResult
 			if result == nil then
 				ourResult = module
 			else
-				if isTableFunction(result) then
+				if isTable(result) then
 					ourResult = result
-				elseif isFunctionFunction(result) then
+				elseif isFunction(result) then
 					ourResult = createNamedCallableFunction(moduleNameLocal, function(self, ...)
 						return result(...)
 					end, moduleNameLocal, 'modulefunction')
@@ -1147,9 +1110,9 @@ requireFunction = function(modname)
 			loaded[moduleNameLocal] = ourResult
 			resetModuleGlobals()
 			return ourResult
-		elseif isStringFunction(moduleLoaderOrFailedToFindExplanationString) then
+		elseif isString(moduleLoaderOrFailedToFindExplanationString) then
 			table.insert(failures, moduleLoaderOrFailedToFindExplanationString)
-		elseif isNilFunction(moduleLoaderOrFailedToFindExplanationString) then
+		elseif isNil(moduleLoaderOrFailedToFindExplanationString) then
 			-- Possible for searcher at index 4 (the loadall searcher)
 			table.insert(failures, newline .. '\t(unknown error)')
 		else
@@ -1198,7 +1161,7 @@ local function relativeRequire(childModuleName)
 end
 
 local function augment(moduleLeafName)
-	return relativeRequire('init.' .. moduleLeafName)
+	return relativeRequire('internal.' .. moduleLeafName)
 end
 
 
@@ -1220,15 +1183,15 @@ local function allowExplicityNilFields(note, metatable, missingIndexFunction)
 
 	local originalIndex = metatable.__index
 	local underlyingIndexFunction
-	if isNilFunction(originalIndex) then
+	if isNil(originalIndex) then
 		underlyingIndexFunction = function(self, key)
 			return nil
 		end
-	elseif isTableFunction(originalIndex) then
+	elseif isTable(originalIndex) then
 		underlyingIndexFunction = function(self, key)
 			return originalIndex[key]
 		end
-	elseif isFunctionFunction(originalIndex) then
+	elseif isFunction(originalIndex) then
 		underlyingIndexFunction = originalIndex
 	else
 		error("__index in metatable must be of type nil, table or function")
@@ -1248,15 +1211,15 @@ local function allowExplicityNilFields(note, metatable, missingIndexFunction)
 
 	local originalNewIndex = metatable.__newindex
 	local underlyingNewIndexFunction
-	if isNilFunction(originalNewIndex) then
+	if isNil(originalNewIndex) then
 		underlyingNewIndexFunction = function(self, key, value)
 			rawset(self, key, value)
 		end
-	elseif isTableFunction(originalNewIndex) then
+	elseif isTable(originalNewIndex) then
 		underlyingNewIndexFunction = function(self, key, value)
 			originalNewIndex[key] = value
 		end
-	elseif isFunctionFunction(originalNewIndex) then
+	elseif isFunction(originalNewIndex) then
 		underlyingNewIndexFunction = originalNewIndex
 	else
 		error("__newindex in metatable must be of type nil, table or function")
@@ -1339,11 +1302,13 @@ halimede.createNamedCallableFunction = createNamedCallableFunction
 halimede.modulesRootPathString = modulesRootPathString
 halimede.allowExplicityNilFields = allowExplicityNilFields
 
-halimede.init = {}
+halimede.internal = {}
 
 augment('getenv')
 
 augment('trace')
+
+augment('getUnderlyingFunctionFromCallable')
 
 augment('moduleclass')
 halimede.moduleclass = moduleclass

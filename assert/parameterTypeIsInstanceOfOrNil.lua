@@ -5,7 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local parameterTypeIsInstanceOf = assert.parameterTypeIsInstanceOf
+
+
 local function parameterTypeIsInstanceOfOrNil(parameterName, value, Class)
 	assert.parameterTypeIsString('parameterName', parameterName)
 	assert.parameterTypeIsTable('Class', Class)

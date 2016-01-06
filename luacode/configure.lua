@@ -5,8 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local type = halimede.type
-local isNotTable = type.isNotTable.functor
+local isNotTable = type.isNotTable
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local executeFromFile = halimede.luacode.executeFromFile

@@ -5,10 +5,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local tabelize = halimede.table.tabelize
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
-local isTable = halimede.type.isTable.functor
+local isTable = halimede.type.isTable
 
 
 halimede.moduleclass('Arguments')

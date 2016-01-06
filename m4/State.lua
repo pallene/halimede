@@ -5,7 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local exception = halimede.exception
+local assert = halimede.assert
 local Messages = require.sibling.Messages
 local QuotingRules = require.sibling.Messages
 local DiversionBuffers = require.sibling.DiversionBuffers

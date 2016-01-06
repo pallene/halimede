@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local Path = halimede.io.paths.Path
 
 
@@ -14,17 +15,17 @@ function module.constant(prefixPath, folderRelativePathElements, perRecipeVersio
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsTable('folderRelativePathElements', folderRelativePathElements)
 	assert.parameterTypeIsTable('perRecipeVersionRelativePathElements', perRecipeVersionRelativePathElements)
-	
+
 	return prefixPath:appendFolders(unpack(folderRelativePathElements))
 end
-	
+
 -- eg returns '/opt/bin/package/version/dependencies' if prefixPath == '/opt', perRecipeVersionRelativePathElements == {'package', 'version', 'dependencies'} and folderRelativePathElements == '{bin}'
 assert.globalTypeIsFunctionOrCall('unpack')
 function module.versionAfter(prefixPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsTable('folderRelativePathElements', folderRelativePathElements)
 	assert.parameterTypeIsTable('perRecipeVersionRelativePathElements', perRecipeVersionRelativePathElements)
-	
+
 	return prefixPath:appendFolders(unpack(folderRelativePathElements)):appendFolders(unpack(perRecipeVersionRelativePathElements))
 end
 
@@ -33,6 +34,6 @@ function module.versionBefore(prefixPath, folderRelativePathElements, perRecipeV
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
 	assert.parameterTypeIsTable('folderRelativePathElements', folderRelativePathElements)
 	assert.parameterTypeIsTable('perRecipeVersionRelativePathElements', perRecipeVersionRelativePathElements)
-	
+
 	return prefixPath:appendFolders(unpack(perRecipeVersionRelativePathElements)):appendFolders(unpack(folderRelativePathElements))
 end

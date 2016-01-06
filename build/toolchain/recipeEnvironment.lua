@@ -5,6 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
+
+
 module.Path = halimede.io.paths.Path
 module.PathStyle = halimede.io.paths.PathStyle
 module.PathRelativity = halimede.io.paths.PathRelativity

@@ -5,6 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
+local parameterIsNotMessage = assert.parameterIsNotMessage
+local withLevel = assert.withLevel
 local isInstanceOf = halimede.class.Object.isInstanceOf
 
 
@@ -13,8 +16,10 @@ local function parameterTypeIsInstanceOf(parameterName, value, Class)
 	assert.parameterTypeIsTable('Class', Class)
 
 	local isInstance = isInstanceOf(value, Class)
-	local assertionMessage = assert.parameterIsNotMessage(parameterName, Class.name)
-	assert.withLevel(isInstance, assertionMessage, 3)
+	if not isInstance then
+		local assertionMessage = parameterIsNotMessage(parameterName, Class.name)
+		withLevel(assertionMessage, 3)
+	end
 end
 
 halimede.modulefunction(parameterTypeIsInstanceOf)

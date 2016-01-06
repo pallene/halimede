@@ -5,7 +5,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local isPositiveInteger = halimede.type.isPositiveInteger.functor
+local assert = halimede.assert
+local isPositiveInteger = halimede.type.isPositiveInteger
 local tabelize = halimede.table.tabelize
 local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
 local m4Assert = require.sibling.m4Assert

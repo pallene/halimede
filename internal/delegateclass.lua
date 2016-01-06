@@ -5,7 +5,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local isFunctionOrCall = halimede.type.isFunctionOrCall.functor
+local assert = halimede.assert
+local isFunctionOrCall = halimede.type.isFunctionOrCall
 
 
 assert.globalTypeIsFunctionOrCall('getmetatable', 'unpack')
@@ -36,7 +37,8 @@ local function delegate(class, fieldName)
 	return class
 end
 
-function delegateclass(className, fieldName, ...)
+local function delegateclass(className, fieldName, ...)
 	local class = halimede.moduleclass(className, ...)
 	return delegate(class, fieldName)
 end
+halimede.delegateclass = delegateclass

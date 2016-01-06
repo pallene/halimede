@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local tabelize = halimede.table.tabelize
 local unique = halimede.table.unique
 local exception = halimede.exception
@@ -14,9 +15,9 @@ local Path = halimede.io.paths.Path
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local Arguments = require.sibling.Arguments
 local CompilerDriverArguments = require.sibling.CompilerDriverArguments
-local isTable = halimede.type.isTable.functor
-local isString = halimede.type.isString.functor
-local isNotString = halimede.type.isNotString.functor
+local isTable = halimede.type.isTable
+local isString = halimede.type.isString
+local isNotString = halimede.type.isNotString
 
 
 local CompilerDriver = halimede.moduleclass('CompilerDriver')
