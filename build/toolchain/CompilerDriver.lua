@@ -6,15 +6,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.toolchain
 local tabelize = halimede.table.tabelize
 local unique = halimede.table.unique
 local exception = halimede.exception
-local CompilerMetadata = require.sibling.CompilerMetadata
-local CStandard = require.sibling.CStandard
+local CompilerMetadata = sibling.CompilerMetadata
+local CStandard = sibling.CStandard
 local Path = halimede.io.paths.Path
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
-local Arguments = require.sibling.Arguments
-local CompilerDriverArguments = require.sibling.CompilerDriverArguments
+local Arguments = sibling.Arguments
+local CompilerDriverArguments = sibling.CompilerDriverArguments
 local isTable = halimede.type.isTable
 local isString = halimede.type.isString
 local isNotString = halimede.type.isNotString

@@ -23,7 +23,6 @@ function module:initialize(shellLanguage)
 end
 
 function module:_append(argument)
-	assert.parameterTypeIsString('argument', argument)
 	self.arguments:insert(argument)
 end
 
@@ -42,11 +41,12 @@ function module:append(...)
 end
 
 function module:appendQuotedArgumentXWithPrepend(text, pathLike, specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIString('text', text)
+	assert.parameterTypeIsString('text', text)
 	assert.parameterTypeIsTable('pathLike', pathLike)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 
-	self:_append(pathLike:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self.shellLanguage):prepend(text))
+	local x = pathLike:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self.shellLanguage)
+	self:_append(x:prepend(text))
 end
 
 assert.globalTypeIsFunctionOrCall('unpack')

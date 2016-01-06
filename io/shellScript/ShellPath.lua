@@ -6,12 +6,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.io.shellScript
 local type = halimede.type
 local isFunctionOrCall = type.isFunctionOrCall
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
-local ShellArgument = require.sibling.ShellArgument
-local ShellLanguage = require.sibling.ShellLanguage
+local ShellArgument = sibling.ShellArgument
+local ShellLanguage = sibling.ShellLanguage
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local tabelize = halimede.table.tabelize
 local areInstancesEqual = halimede.table.equality.areInstancesEqual

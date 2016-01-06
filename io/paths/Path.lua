@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.io.paths
 local type = halimede.type
 local isTable = type.isTable
 local isString = type.isString
@@ -13,8 +14,9 @@ local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
 local areInstancesEqual = halimede.table.equality.areInstancesEqual
-local PathStyle = require.sibling.PathStyle
-local PathRelativity = require.sibling.PathRelativity
+local PathStyle = sibling.PathStyle
+local PathRelativity = sibling.PathRelativity
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 local Path = halimede.moduleclass('Path')
@@ -124,9 +126,10 @@ end
 
 function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
-	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
+	-- including ShellLanguage here causes a circular dependency
+	--assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 
-	return shellLanguage:toQuotedShellArgument(self:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	return ShellArgument:new(shellLanguage:toQuotedShellArgument(self:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)))
 end
 
 function module:hasNonEmptyDevice()

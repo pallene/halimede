@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local tabelize = halimede.table.tabelize
 
 
 assert.globalTypeIsFunctionOrCall('ipairs')
@@ -14,8 +15,8 @@ local function unique(...)
 	-- This is an exceedingly naive implementation (and thus very inefficient) which behaves as a linked set
 	-- It is probably preferable to use the Sano library's LinkedSet
 
-	local linkedSet = {}
-	for _, array in {...} do
+	local linkedSet = tabelize()
+	for _, array in ipairs({...}) do
 		assert.parameterTypeIsTable('array', array)
 
 		for _, instance in ipairs(array) do

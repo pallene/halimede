@@ -6,10 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.m4
 local isPositiveInteger = halimede.type.isPositiveInteger
 local tabelize = halimede.table.tabelize
 local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
-local m4Assert = require.sibling.m4Assert
+local m4Assert = sibling.m4Assert
 local isVoid = m4Assert.isVoid
 local isMissingOrVoid = m4Assert.isMissingOrVoid
 

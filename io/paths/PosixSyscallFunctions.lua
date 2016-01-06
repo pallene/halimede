@@ -6,9 +6,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.io.paths
 local exception = halimede.exception
 local syscall = require.syscall
-local Path = require.sibling.Path
+local Path = sibling.Path
 
 
 local function fail(syscallName, path, becauseOfReason)

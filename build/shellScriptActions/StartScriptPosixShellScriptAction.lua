@@ -5,10 +5,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local sibling = halimede.build.shellScriptActions
 local AbstractStartShellScriptAction = halimede.build.shellScriptActions.AbstractStartShellScriptAction
-local CommentPosixShellScriptAction = require.sibling.CommentPosixShellScriptAction
-local UnsetEnvironmentVariablePosixShellScriptAction = require.sibling.UnsetEnvironmentVariablePosixShellScriptAction
-local ExportEnvironmentVariablePosixShellScriptAction = require.sibling.ExportEnvironmentVariablePosixShellScriptAction
+local CommentPosixShellScriptAction = sibling.CommentPosixShellScriptAction
+local UnsetEnvironmentVariablePosixShellScriptAction = sibling.UnsetEnvironmentVariablePosixShellScriptAction
+local ExportEnvironmentVariablePosixShellScriptAction = sibling.ExportEnvironmentVariablePosixShellScriptAction
 
 
 halimede.moduleclass('StartScriptPosixShellScriptAction', AbstractStartShellScriptAction)

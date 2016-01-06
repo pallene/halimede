@@ -6,10 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.toolchain
 local Path = halimede.io.paths.Path
-local Recipe = require.sibling.Recipe
-local Platform = require.sibling.Platform
-local PlatformPaths = require.sibling.PlatformPaths
+local Recipe = sibling.Recipe
+local Platform = sibling.Platform
+local PlatformPaths = sibling.PlatformPaths
 local tabelize = halimede.table.tabelize
 
 

@@ -6,9 +6,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.io.shellScript.shellScriptExecutors
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
-local AbstractShellScriptExecutor = require.sibling.AbstractShellScriptExecutor
+local AbstractShellScriptExecutor = sibling.AbstractShellScriptExecutor
 
 
 local OrdinaryShellScriptExecutor = halimede.moduleclass('OrdinaryShellScriptExecutor', AbstractShellScriptExecutor)

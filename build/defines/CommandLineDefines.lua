@@ -7,7 +7,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments
-local Defines = require.sibling.Defines
+local sibling = halimede.build.defines
+local Defines = sibling.Defines
 
 
 halimede.moduleclass('CommandLineDefines', Defines)

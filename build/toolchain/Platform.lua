@@ -6,10 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.toolchain
 local exception = halimede.exception
 local AbstractShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.AbstractShellScriptExecutor
-local GnuTuple = require.sibling.GnuTuple
-local CompilerDriver = require.sibling.CompilerDriver
+local GnuTuple = sibling.GnuTuple
+local CompilerDriver = sibling.CompilerDriver
 local AbstractStrip = halimede.build.shellScriptActions.strip.AbstractStrip
 local MacOsXStrip = halimede.build.shellScriptActions.strip.MacOsXStrip
 
@@ -75,16 +76,12 @@ function module:createConfigHDefines(platformConfigHDefinesFunctions)
 end
 
 function module:toExecutableRelativeFilePath(filePath)
-	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
-
 	filePath:assertIsFilePath('filePath')
 
 	return filePath:appendFileExtension(self.executableExtension)
 end
 
 function module:objectRelativeFilePath(...)
-	assert.parameterTypeIsInstanceOf('filePath', filePath, Path)
-
 	filePath:assertIsFilePath('filePath')
 
 	return filePath:appendFileExtension(self.objectExtension)

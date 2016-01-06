@@ -6,7 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local PathStyle = require.sibling.PathStyle
+local sibling = halimede.io.paths
+local PathStyle = sibling.PathStyle
 local exception = halimede.exception
 
 

@@ -6,10 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.shellScriptActions.compilerDriver
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
-local AbstractCompilerDriverShellScriptAction = require.sibling.AbstractCompilerDriverShellScriptAction
+local AbstractCompilerDriverShellScriptAction = sibling.AbstractCompilerDriverShellScriptAction
 local Path = halimede.io.paths.Path
 
 

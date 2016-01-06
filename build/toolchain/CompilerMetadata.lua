@@ -6,7 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local CompilerName = require.sibling.CompilerName
+local sibling = halimede.build.toolchain
+local CompilerName = sibling.CompilerName
 local gcc = CompilerName.gcc
 local gxx = CompilerName['g++']
 local clang = CompilerName.clang

@@ -5,10 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local assert = halimede.assert
-local Messages = require.sibling.Messages
-local QuotingRules = require.sibling.Messages
-local DiversionBuffers = require.sibling.DiversionBuffers
+local sibling = halimede.m4
+local Messages = sibling.Messages
+local QuotingRules = sibling.Messages
+local DiversionBuffers = sibling.DiversionBuffers
 
 
 halimede.moduleclass('State')

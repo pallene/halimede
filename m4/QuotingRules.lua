@@ -53,8 +53,8 @@ end
 
 
 
-local m4Assert = require.sibling.m4Assert
-local Void = m4Assert.Void
+local sibling = halimede.m4
+local m4Assert = sibling.m4Assert
 local isVoid = m4Assert.isVoid
 local isMissing = m4Assert.isMissing
 local isMissingOrVoid = m4Assert.isMissingOrVoid

@@ -241,20 +241,14 @@ local function createNamedCallableFunction(functionName, actualFunction, module,
 	})
 end
 
-local function createNamedReplacementCallableFunction(functionName)
-	return createNamedCallableFunction(relativeRequireName(functionName), _G[functionName], {}, 'modulefunction')
-end
+
 
 halimede = ourModule
 
-local requireOriginalGlobalFunction = require
-require = createNamedReplacementCallableFunction('require')
+
 
 local typeOriginalGlobalFunction = type
-type = createNamedReplacementCallableFunction('type')
-
-local assertOriginalGlobalFunction = assert
-assert = createNamedReplacementCallableFunction('assert')
+local type = {}
 
 local function is(value, typeName)
 	return typeOriginalGlobalFunction(value) == typeName
@@ -469,6 +463,22 @@ local function hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
 end
 type.hasPackageChildFieldOfTypeTableOrUserdata = hasPackageChildFieldOfTypeTableOrUserdata
 
+
+
+-- WARN: Lua's random number generator is not cryptographically secure
+-- For that, we need to wrap CryptGenRandom on Windows and use /dev/urandom on Linux
+local function initialiseTheRandomNumberGenerator()
+	if hasPackageChildFieldOfTypeFunctionOrCall('math', 'randomseed') and hasPackageChildFieldOfTypeFunctionOrCall('os', 'time') then
+		math.randomseed(os.time())
+	end
+end
+initialiseTheRandomNumberGenerator()
+
+
+
+local assertOriginalGlobalFunction = assert
+local assert = {}
+
 local function withLevel(message, level)
 	local errorMessage
 	if hasPackageChildFieldOfTypeFunctionOrCall('debug', 'traceback') then
@@ -609,7 +619,7 @@ function assert.globalTypeIsString(...)
 end
 
 local function globalTableHasChieldFieldOfType(isOfTypeFunction, isOfTypeName, name, ...)
-	assert.parameterTypeIsFunctionOrCallable('isOfTypeFunction', isOfTypeFunction)
+	assert.parameterTypeIsFunctionOrCall('isOfTypeFunction', isOfTypeFunction)
 	assert.parameterTypeIsString('isOfTypeName', isOfTypeName)
 	assert.parameterTypeIsString('name', name)
 
@@ -645,6 +655,8 @@ function assert.globalTableHasChieldFieldOfTypeString(name, ...)
 	return globalTableHasChieldFieldOfType(isString, 'isString', name, ...)
 end
 
+
+
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'sub')
 function string.split(value, separator)
@@ -676,14 +688,7 @@ function string.isEmpty(value)
 	return #value == 0
 end
 
--- WARN: Lua's random number generator is not cryptographically secure
--- For that, we need to wrap CryptGenRandom on Windows and use /dev/urandom on Linux
-local function initialiseTheRandomNumberGenerator()
-	if hasPackageChildFieldOfTypeFunctionOrCall('math', 'randomseed') and hasPackageChildFieldOfTypeFunctionOrCall('os', 'time') then
-		math.randomseed(os.time())
-	end
-end
-initialiseTheRandomNumberGenerator()
+
 
 local packageConfigurationMapping = {
 	'folderSeparator', -- eg '/' on POSIX
@@ -761,6 +766,11 @@ local function initialisePackageConfiguration()
 	return configuration
 end
 local packageConfiguration = initialisePackageConfiguration()
+
+
+
+local requireOriginalGlobalFunction = require
+local requireFunction
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'concat')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format', 'isEmpty', 'find')
@@ -923,8 +933,6 @@ local function initialiseSearchPaths(moduleNameLocal)
 		package[key] = table.concat(paths, luaPathSeparator)
 	end
 end
-
-local requireFunction
 
 assert.globalTypeIsFunctionOrCall('getmetatable', 'setmetatable', 'rawget', 'rawset')
 local function setUpModule(moduleName, module)
@@ -1124,34 +1132,8 @@ requireFunction = function(modname)
 	resetModuleGlobals()
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
 end
-require = createNamedCallableFunction('require', requireFunction, {}, 'modulefunction')
 
-
-assert.globalTypeIsFunctionOrCall('getmetatable')
-local function createSibling()
-	local function sibling(siblingModuleElementName)
-		assert.parameterTypeIsString('siblingModuleElementName', siblingModuleElementName)
-
-		local grandParentModuleName = parentModuleNameFromModuleName(parentModuleName)
-		local requiredModuleName
-		if grandParentModuleName == '' then
-			requiredModuleName = siblingModuleElementName
-		else
-			requiredModuleName = grandParentModuleName .. '.' .. siblingModuleElementName
-		end
-		return require.functor(requiredModuleName)
-	end
-
-	local siblingTable = createNamedCallableFunction('sibling', sibling)
-
-	local metatable = getmetatable(siblingTable)
-	metatable.__index = function(self, key)
-		return sibling(key)
-	end
-
-	return siblingTable
-end
-require.sibling = createSibling()
+local require = createNamedCallableFunction('require', requireFunction, {}, 'modulefunction')
 
 
 assert.globalTypeIsFunctionOrCall('require')
@@ -1311,12 +1293,9 @@ augment('trace')
 augment('getUnderlyingFunctionFromCallable')
 
 augment('moduleclass')
-halimede.moduleclass = moduleclass
 
 augment('modulefunction')
-halimede.modulefunction = modulefunction
 
 augment('delegateclass')
-halimede.delegateclass = delegateclass
 
 return halimede

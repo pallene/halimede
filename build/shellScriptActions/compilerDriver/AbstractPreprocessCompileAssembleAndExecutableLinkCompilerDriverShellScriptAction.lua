@@ -6,11 +6,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.shellScriptActions.compilerDriver
 local ShellPath = halimede.io.shellScript.ShellPath
 local CStandard = halimede.build.toolchain.CStandard
 local LegacyCandCPlusPlusStringLiteralEncoding = halimede.build.toolchain.LegacyCandCPlusPlusStringLiteralEncoding
 local CommandLineDefines = halimede.build.defines.CommandLineDefines
-local AbstractCompilerDriverShellScriptAction = require.sibling.AbstractCompilerDriverShellScriptAction
+local AbstractCompilerDriverShellScriptAction = sibling.AbstractCompilerDriverShellScriptAction
 
 
 halimede.moduleclass('AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction', AbstractCompilerDriverShellScriptAction)
@@ -33,6 +34,7 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	executableFilePathWithoutExtension:assertIsFilePath('executableFilePathWithoutExtension')
 
 	local crossRecipePaths = builder.crossRecipePaths
+	local executableFilePath = crossRecipePaths:toExecutableRelativeFilePath(executableFilePathWithoutExtension)
 
 	local compilerDriverArguments = self:_newCCompilerDriverArguments(crossRecipePaths, compilerDriverFlags, shellScript.shellLanguage)
 	compilerDriverArguments:addCStandard(cStandard)
@@ -44,10 +46,12 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)
 	compilerDriverArguments:appendFilePaths(sources)
 	compilerDriverArguments:addLinkedLibraries(self.dependencies.libs, self.buildVariant.libs, linkedLibraries)
-	compilerDriverArguments:addOutput(crossRecipePaths:toExecutableRelativeFilePath(executableFilePathWithoutExtension))
+	compilerDriverArguments:addOutput(executableFilePath)
 
 	self:_unsetEnvironmentVariables(shellScript, builder, compilerDriverArguments)
 	self:_exportEnvironmentVariables(shellScript, builder, compilerDriverArguments, {'LANG', legacyCandCPlusPlusStringLiteralEncoding.value})
 
 	compilerDriverArguments:appendCommandLineToScript(shellScript)
+	
+	return executableFilePath
 end

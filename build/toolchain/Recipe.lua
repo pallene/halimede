@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.toolchain
 local executeFromFile = halimede.luacode.executeFromFile
 local exception = halimede.exception
 local deepMerge = halimede.table.deepMerge
@@ -17,16 +18,16 @@ local isFunctionOrCall = halimede.type.isFunctionOrCall
 local isBoolean = halimede.type.isBoolean
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
-local Recipes = require.sibling.Recipes
+local Recipes = sibling.Recipes
 local Path = halimede.io.paths.Path
-local Platform = require.sibling.Platform
-local PlatformPaths = require.sibling.PlatformPaths
-local GnuTuple = require.sibling.GnuTuple
-local RecipePaths = require.sibling.RecipePaths
+local Platform = sibling.Platform
+local PlatformPaths = sibling.PlatformPaths
+local GnuTuple = sibling.GnuTuple
+local RecipePaths = sibling.RecipePaths
 local ShellScript = halimede.io.shellScript.ShellScript
 local ShellPath = halimede.io.shellScript.ShellPath
 local HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH = ShellPath.HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH
-local Builder = require.sibling.Builder
+local Builder = sibling.Builder
 
 
 local fieldExists = {}
@@ -62,7 +63,7 @@ function fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, d
 		parent[fieldName] = default
 		return default
 	end
-	guardValue(type.isFunctionOrCall, 'function or callable', fieldName, fieldValue)
+	guardValue(isFunctionOrCall, 'function or callable', fieldName, fieldValue)
 	return fieldValue
 end
 

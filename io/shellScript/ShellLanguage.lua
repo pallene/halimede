@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.io.shellScript
 local type = halimede.type
 local isNil = type.isNil
 local isBoolean = type.isBoolean
@@ -20,7 +21,7 @@ local exception = halimede.exception
 local isInstanceOf = halimede.class.Object.isInstanceOf
 local Path = halimede.io.paths.Path
 local PathStyle = halimede.io.paths.PathStyle
-local ShellArgument = require.sibling.ShellArgument
+local ShellArgument = sibling.ShellArgument
 local FileHandleStream = halimede.io.FileHandleStream
 
 

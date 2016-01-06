@@ -5,16 +5,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local PathStyle = halimede.moduleclass('PathStyle')
 local assert = halimede.assert
+local sibling = halimede.io.paths
 local shallowCopy = halimede.table.shallowCopy
 local exception = halimede.exception
 local windowsPathMultisplitter = halimede.string.multisplitter('\\/')
-local Path = require.sibling.Path
-local PathRelativity = require.sibling.PathRelativity
+local Path = sibling.Path
+local PathRelativity = sibling.PathRelativity
 
-
--- https://en.wikipedia.org/wiki/Path_%28computing%29
-local PathStyle = halimede.moduleclass('PathStyle')
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
@@ -118,9 +117,6 @@ function module:isReservedPathElement(pathElement)
 	assert.parameterTypeIsString('pathElement', pathElement)
 
 	if self.reservedPathElements[pathElement] then
-	for x, _ in pairs(self.reservedPathElements) do
-		print(self.name, string.byte(x), 'X')
-	end
 		return true
 	end
 

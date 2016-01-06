@@ -6,7 +6,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractStrip = require.sibling.AbstractStrip
+local sibling = halimede.build.shellScriptActions.strip
+local AbstractStrip = sibling.AbstractStrip
 
 
 halimede.moduleclass('MksStrip', AbstractStrip)
@@ -16,7 +17,7 @@ function module:initialize()
 end
 
 function module:_executable(executableFilePathArgument)
-	assert.parameterTypeIsString(executableFilePathArgument)
+	assert.parameterTypeIsString('executableFilePathArgument', executableFilePathArgument)
 
 	return 'strip', '-m', executableFilePathArgument
 end

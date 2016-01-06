@@ -9,10 +9,10 @@ local assert = halimede.assert
 local ShellScript = halimede.io.shellScript.ShellScript
 local ShellPath = halimede.io.shellScript.ShellPath
 local Actions = halimede.build.toolchain.Actions
-local Platform = haimede.build.toolchain.Platform
-local RecipePaths = haimede.build.toolchain.RecipePaths
-local AbstractStrip = haimede.build.shellScriptActions.strip.AbstractStrip
-local ConfigHDefines = haimede.build.defines.ConfigHDefines
+local Platform = halimede.build.toolchain.Platform
+local RecipePaths = halimede.build.toolchain.RecipePaths
+local AbstractStrip = halimede.build.shellScriptActions.strip.AbstractStrip
+local ConfigHDefines = halimede.build.defines.ConfigHDefines
 
 
 halimede.delegateclass('Builder', 'actions')

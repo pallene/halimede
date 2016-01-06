@@ -6,13 +6,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local sibling = halimede.build.toolchain
+local require = halimede.require
 local ShellScript = halimede.io.shellScript.ShellScript
 local ShellPath = halimede.io.shellScript.ShellPath
-local Builder = require.sibling.Builder
+local Builder = sibling.Builder
 
 
 local Actions = halimede.moduleclass('Actions')
 
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 local function execute(self, actionName, ...)
 	assert.parameterTypeIsInstanceOf('self', self, Actions)
 	assert.parameterTypeIsString('actionName', actionName)

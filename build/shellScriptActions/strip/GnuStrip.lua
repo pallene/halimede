@@ -5,8 +5,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local assert = halimede.assert
-local AbstractStrip = require.sibling.AbstractStrip
+local sibling = halimede.build.shellScriptActions.strip
+local AbstractStrip = sibling.AbstractStrip
 
 
 halimede.moduleclass('GnuStrip', AbstractStrip)
