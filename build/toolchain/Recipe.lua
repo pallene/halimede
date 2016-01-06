@@ -11,7 +11,10 @@ local exception = halimede.exception
 local deepMerge = halimede.table.deepMerge
 local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
+local isTable = halimede.type.isTable
 local isString = halimede.type.isString
+local isFunctionOrCall = halimede.type.isFunctionOrCall
+local isBoolean = halimede.type.isBoolean
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
 local Recipes = require.sibling.Recipes
@@ -28,6 +31,13 @@ local Builder = require.sibling.Builder
 
 local fieldExists = {}
 
+local function guardValue(isOfTypeFunction, isOfTypeName, name, value)
+	if isOfTypeFunction(value) then
+		return
+	end
+	exception.throw("'%s' is not of type '%s' but is of type '%s'", name, isOfTypeName, type(value))
+end
+
 function fieldExists.asTableOrDefaultTo(parent, fieldName)
 	local childTable = parent[fieldName]
 	if childTable == nil then
@@ -35,14 +45,14 @@ function fieldExists.asTableOrDefaultTo(parent, fieldName)
 		parent[fieldName] = newChildTable
 		return newChildTable
 	else
-		assert.parameterTypeIsTable('childTable', childTable)
+		guardValue(isTable, 'table', 'childTable', childTable)
 		return childTable
 	end
 end
 
 function fieldExists.asString(parent, fieldName)
 	local fieldValue = parent[fieldName]
-	assert.parameterTypeIsString('fieldValue', fieldValue)
+	guardValue(isString, 'string', 'fieldValue', fieldValue)
 	return fieldValue
 end
 
@@ -52,7 +62,7 @@ function fieldExists.asFunctionOrCallFieldExistsOrDefaultTo(parent, fieldName, d
 		parent[fieldName] = default
 		return default
 	end
-	assert.parameterTypeIsFunctionOrCall('fieldValue', fieldValue)
+	guardValue(type.isFunctionOrCall, 'function or callable', fieldName, fieldValue)
 	return fieldValue
 end
 
@@ -62,7 +72,7 @@ function fieldExists.asBooleanFieldExistsOrDefaultTo(parent, fieldName, default)
 		parent[fieldName] = default
 		return default
 	end
-	assert.parameterTypeIsBoolean('fieldValue', fieldValue)
+	guardValue(isBoolean, 'boolean', fieldName, fieldValue)
 	return fieldValue
 end
 
