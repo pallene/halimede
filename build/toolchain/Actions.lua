@@ -36,13 +36,13 @@ Actions.setInstanceMissingIndex(function(instance, key)
 end)
 
 local function appendCompositeActionRecreateFolderPath(actions)
-	actions.RecreateFolderPath = function(self, shellPath)
+	actions.RecreateFolderPath = function(self, folderName, shellPath)
 		assert.parameterTypeIsInstanceOf('self', self, Actions)
+		assert.parameterTypeIsString('folderName', folderName)
 		assert.parameterTypeIsInstanceOf('shellPath', shellPath, ShellPath)
 		shellPath:assertIsFolderPath('shellPath')
 
-		local folderName = shellPath:finalPathElementNameAsString()
-		actions.Comment("Recreate empty '" .. folderName .. "' folder")
+		actions.Comment("Recreate an empty '" .. folderName .. "' folder")
 		actions.RemoveRecursivelyWithForce(shellPath)
 		actions.MakeDirectoryRecursively(shellPath, '0755')
 	end

@@ -284,9 +284,8 @@ assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 function module:filePaths(fileExtension, baseFilePaths)
 	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)
 	assert.parameterTypeIsTable('baseFilePaths', baseFilePaths)
-
-	local prefixWithPath = self
-	prefixWithPath:assertIsFolderPath('self')
+	
+	self:assertIsFolderPath('self')
 
 	local filePaths = tabelize()
 	for _, stringOrTable in ipairs(baseFilePaths) do
@@ -309,7 +308,7 @@ function module:filePaths(fileExtension, baseFilePaths)
 		else
 			exception.throw('baseFilePaths should only contain strings or tables of string')
 		end
-		filePaths:insert(prefixWithPath:appendRelativePath(path))
+		filePaths:insert(path)
 	end
 	return filePaths
 end

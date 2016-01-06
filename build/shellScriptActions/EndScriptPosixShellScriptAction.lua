@@ -15,5 +15,9 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, builder)
+--noinspection UnusedDef
+function module:_execute(shellScript, builder, useHomebrew)
+	if useHomebrew then
+		shellScript:appendLinesToScript('EOF')
+	end
 end

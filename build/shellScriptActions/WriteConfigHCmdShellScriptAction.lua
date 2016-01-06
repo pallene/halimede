@@ -20,16 +20,20 @@ end
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_append(shellScript, quotedStringShellPath, configHDefines)
-	local lines = configHDefines:toCPreprocessorTextLines('\r\n\r\n')
-	for index, line in ipairs(lines) do
+	local lineSets = configHDefines:toCPreprocessorTextLines('\r\n')
+	
+	local isFirstLine = true
+	for _, lineSet in ipairs(lineSets) do
+		for _, line in ipairs(lineSet) do
+			local redirectionOperator
+			if isFirstLine then
+				redirectionOperator = '>'
+				isFirstLine = false
+			else
+				redirectionOperator = '>>'
+			end
 
-		local redirectionOperator
-		if index == 1 then
-			redirectionOperator = '>'
-		else
-			redirectionOperator = '>>'
-		end
-
-		shellScript:appendLinesToScript('ECHO ' .. shellScript:toQuotedShellArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
+			shellScript:appendLinesToScript('ECHO ' .. shellScript:toQuotedShellArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
+		end	
 	end
 end

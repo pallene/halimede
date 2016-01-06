@@ -26,6 +26,7 @@ function module:execute(shellScript, builder, ...)
 	return self:_execute(shellScript, builder, ...)
 end
 
+--noinspection UnusedDef
 function module:_execute(shellScript, builder, ...)
 	exception.throw('Abstract Method')
 end

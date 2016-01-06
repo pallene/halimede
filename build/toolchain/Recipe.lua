@@ -401,11 +401,13 @@ function module:_populateShellScript(shellScript, dependencies, buildVariant, ve
 
 	local builder = Builder:new(shellScript, dependencies, buildVariant, sourceFolderShellPath, patchFolderShellPath, buildFolderShellPath, destFolderShellPath, buildPlatform, buildRecipePaths, crossPlatform, crossRecipePaths, arguments, strip, configHDefines)
 
-	builder.StartScript()
+	local useHomebrew = buildPlatform.useHomebrew
 
-	builder.RecreateFolderPath(buildFolderShellPath)
+	builder.StartScript(useHomebrew)
 
-	builder.RecreateFolderPath(destFolderShellPath)
+	builder.RecreateFolderPath('build', buildFolderShellPath)
+
+	builder.RecreateFolderPath('dest', destFolderShellPath)
 
 	builder.Comment('Perform all script actions from the safety of the build folder')
 	builder.Pushd(buildFolderShellPath)
@@ -414,5 +416,5 @@ function module:_populateShellScript(shellScript, dependencies, buildVariant, ve
 	userFunction(builder)
 	builder.Comment('Recipe-specific functionality ends here')
 
-	builder.EndScript()
+	builder.EndScript(useHomebrew)
 end

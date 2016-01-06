@@ -6,12 +6,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local exception = halimede.exception
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
 halimede.moduleclass('AbstractStartShellScriptAction', AbstractShellScriptAction)
 
-function module:initialize(commentShellScriptActionClass, unsetEnvironmentVariableShellScriptActionClass, exportEnvironmentVariableShellScriptActionClass, environmentVariablesToUnset, environmentVariablesToExport, ...)
+function module:initialize(commentShellScriptActionClass, unsetEnvironmentVariableShellScriptActionClass, exportEnvironmentVariableShellScriptActionClass, environmentVariablesToUnset, environmentVariablesToExport)
 	assert.parameterTypeIsTable('commentShellScriptActionClass', commentShellScriptActionClass)
 	assert.parameterTypeIsTable('environmentVariablesToUnset', environmentVariablesToUnset)
 	assert.parameterTypeIsTable('environmentVariablesToExport', environmentVariablesToExport)
@@ -23,12 +24,11 @@ function module:initialize(commentShellScriptActionClass, unsetEnvironmentVariab
 	self.exportEnvironmentVariableShellScriptAction = exportEnvironmentVariableShellScriptActionClass:new()
 	self.environmentVariablesToUnset = environmentVariablesToUnset
 	self.environmentVariablesToExport = environmentVariablesToExport
-	self.initialScriptLines = {...}
 end
 
-assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'pairs')
-function module:_execute(shellScript, builder)
-	shellScript:appendLinesToScript(unpack(self.initialScriptLines))
+assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
+function module:_execute(shellScript, builder, useHomebrew)
+	shellScript:appendLinesToScript(self:_initialLinesForScript(useHomebrew))
 
 	self.commentShellScriptAction:execute(shellScript, builder, 'Unsetting unreliable and polluting environment variables')
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do
@@ -39,4 +39,9 @@ function module:_execute(shellScript, builder)
 	for environmentVariableName, environmentVariableValue in pairs(self.environmentVariablesToExport) do
 		self.exportEnvironmentVariableShellScriptAction:execute(shellScript, builder, environmentVariableName, environmentVariableValue)
 	end
+end
+
+--noinspection UnusedDef
+function module:_initialLinesForScript(useHomebrew)
+	exception.throw('Abstract Method')
 end

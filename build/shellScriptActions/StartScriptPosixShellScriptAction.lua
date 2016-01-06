@@ -29,6 +29,7 @@ local environmentVariablesToExport = {
 	LANG = 'C'
 }
 
+
 local initialScriptLines = [=[#!/usr/bin/env sh
 set -e
 set -u
@@ -177,6 +178,9 @@ unset _program_pathIsUsableForTemp
 _program_unset _program_potentialTmpPath
 
 
+# Record our original working directory
+HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY="$(pwd)"
+
 # Find the absolute path containing this script
 _program_path_find()
 {
@@ -236,17 +240,29 @@ _program_path_find()
 	fi
 }
 
-HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH="$(_program_path_find)"
+# Workaround to support using similar code when running under brew sh
+if [ -z ${HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH+set} ]; then
+	HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH="$(_program_path_find)"
+fi
 unset _program_path_find 1>/dev/null 2>/dev/null
 
 
-# Record our original working directory
-HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY="$(pwd)"
-
-
 # Change to absolute folder path, so everything has a good known location
-cd "$HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH" 1>/dev/null]=]
+cd "$HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH" 1>/dev/null
+]=]
 
 function module:initialize()
-	AbstractStartShellScriptAction.initialize(self, CommentPosixShellScriptAction, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport, initialScriptLines)
+	AbstractStartShellScriptAction.initialize(self, CommentPosixShellScriptAction, UnsetEnvironmentVariablePosixShellScriptAction, ExportEnvironmentVariablePosixShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport)
+end
+
+--noinspection UnusedDef
+function module:_initialLinesForScript(useHomebrew)
+	if useHomebrew then
+		return initialScriptLines,
+			'export HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH="$HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH"',
+			"brew sh <<'EOF'",
+			initialScriptLines
+	end
+
+	return initialScriptLines
 end

@@ -2,45 +2,20 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1838d535-e0eb-4671-a713-8ac4e55d595a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractExecutableLinkCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractExecutableLinkCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractWriteConfigHShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractWriteConfigHShellScriptAction.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Actions.lua" afterPath="$PROJECT_DIR$/build/toolchain/Actions.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Arguments.lua" afterPath="$PROJECT_DIR$/build/toolchain/Arguments.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Builder.lua" afterPath="$PROJECT_DIR$/build/toolchain/Builder.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/macroDefinitions/BuiltInMacroDefinition.lua" afterPath="$PROJECT_DIR$/m4/macroDefinitions/BuiltInMacroDefinition.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/defines/CommandLineDefines.lua" afterPath="$PROJECT_DIR$/build/defines/CommandLineDefines.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/Commenting.lua" afterPath="$PROJECT_DIR$/m4/Commenting.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/CompilerDriver.lua" afterPath="$PROJECT_DIR$/build/toolchain/CompilerDriver.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/CompilerDriverArguments.lua" afterPath="$PROJECT_DIR$/build/toolchain/CompilerDriverArguments.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/CompilerMetadata.lua" afterPath="$PROJECT_DIR$/build/toolchain/CompilerMetadata.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" afterPath="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/DiversionBuffers.lua" afterPath="$PROJECT_DIR$/m4/DiversionBuffers.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/GnuStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/GnuStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/GnuTuple.lua" afterPath="$PROJECT_DIR$/build/toolchain/GnuTuple.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/MacOsXHomebrewShellScriptExecutor.lua" afterPath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/MacOsXHomebrewShellScriptExecutor.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/MacOsXStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/MacOsXStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/MksStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/MksStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/OrdinaryShellScriptExecutor.lua" afterPath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/OrdinaryShellScriptExecutor.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/Path.lua" afterPath="$PROJECT_DIR$/io/paths/Path.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/PathRelativity.lua" afterPath="$PROJECT_DIR$/io/paths/PathRelativity.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/PathStyle.lua" afterPath="$PROJECT_DIR$/io/paths/PathStyle.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Platform.lua" afterPath="$PROJECT_DIR$/build/toolchain/Platform.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/PosixSyscallFunctions.lua" afterPath="$PROJECT_DIR$/io/paths/PosixSyscallFunctions.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/QuotingRules.lua" afterPath="$PROJECT_DIR$/m4/QuotingRules.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Recipe.lua" afterPath="$PROJECT_DIR$/build/toolchain/Recipe.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" afterPath="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Recipes.lua" afterPath="$PROJECT_DIR$/build/toolchain/Recipes.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/ShellLanguage.lua" afterPath="$PROJECT_DIR$/io/shellScript/ShellLanguage.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/ShellPath.lua" afterPath="$PROJECT_DIR$/io/shellScript/ShellPath.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/State.lua" afterPath="$PROJECT_DIR$/m4/State.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/collections/Trie.lua" afterPath="$PROJECT_DIR$/collections/Trie.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/macroDefinitions/UserMacroDefinition.lua" afterPath="$PROJECT_DIR$/m4/macroDefinitions/UserMacroDefinition.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/init.lua" afterPath="$PROJECT_DIR$/init.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/unique.lua" afterPath="$PROJECT_DIR$/table/unique.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHCmdShellScriptAction.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHPosixShellScriptAction.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="halimede.iws" />
@@ -65,41 +40,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="init.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/init.lua">
+      <file leaf-file-name="Recipe.lua" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/build/toolchain/Recipe.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="16612" max-vertical-offset="19620">
-              <caret line="1132" column="25" selection-start-line="1132" selection-start-column="25" selection-end-line="1132" selection-end-column="25" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Actions.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build/toolchain/Actions.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1155">
-              <caret line="17" column="70" selection-start-line="17" selection-start-column="70" selection-end-line="17" selection-end-column="70" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Arguments.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build/toolchain/Arguments.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="960">
-              <caret line="28" column="35" selection-start-line="28" selection-start-column="35" selection-end-line="28" selection-end-column="35" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RecipePaths.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build/toolchain/RecipePaths.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="615">
-              <caret line="23" column="3" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
+            <state vertical-scroll-proportion="0.85040796" vertical-offset="5362" max-vertical-offset="6465">
+              <caret line="415" column="17" selection-start-line="415" selection-start-column="17" selection-end-line="415" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -108,28 +53,28 @@
       <file leaf-file-name="Platform.lua" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build/toolchain/Platform.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="705" max-vertical-offset="2520">
-              <caret line="56" column="23" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1447" max-vertical-offset="2595">
+              <caret line="128" column="15" selection-start-line="128" selection-start-column="15" selection-end-line="128" selection-end-column="15" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PathStyle.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/io/paths/PathStyle.lua">
+      <file leaf-file-name="AbstractStartShellScriptAction.lua" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1390" max-vertical-offset="5685">
-              <caret line="118" column="50" selection-start-line="118" selection-start-column="50" selection-end-line="118" selection-end-column="50" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="825">
+              <caret line="44" column="29" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="38" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ShellLanguage.lua" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/io/shellScript/ShellLanguage.lua">
+      <file leaf-file-name="StartScriptCmdShellScriptAction.lua" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.31207597" vertical-offset="6505" max-vertical-offset="9210">
-              <caret line="447" column="40" selection-start-line="447" selection-start-column="40" selection-end-line="447" selection-end-column="40" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
+              <caret line="28" column="38" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -144,10 +89,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/m4/Messages.lua" />
-        <option value="$PROJECT_DIR$/string/format.lua" />
-        <option value="$PROJECT_DIR$/string/multisplitter.lua" />
-        <option value="$PROJECT_DIR$/string/validateLocaleForStringCaseFunctions.lua" />
         <option value="$PROJECT_DIR$/table/deepCopy.lua" />
         <option value="$PROJECT_DIR$/table/deepMerge.lua" />
         <option value="$PROJECT_DIR$/table/equality.lua" />
@@ -161,8 +102,6 @@
         <option value="$PROJECT_DIR$/build/defines/CommandLineDefines.lua" />
         <option value="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" />
         <option value="$PROJECT_DIR$/build/shellScriptActions/AbstractWriteConfigHShellScriptAction.lua" />
-        <option value="$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua" />
-        <option value="$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua" />
         <option value="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractExecutableLinkCompilerDriverShellScriptAction.lua" />
         <option value="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.lua" />
         <option value="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction.lua" />
@@ -187,14 +126,20 @@
         <option value="$PROJECT_DIR$/m4/macroDefinitions/BuiltInMacroDefinition.lua" />
         <option value="$PROJECT_DIR$/m4/macroDefinitions/UserMacroDefinition.lua" />
         <option value="$PROJECT_DIR$/init.lua" />
-        <option value="$PROJECT_DIR$/build/toolchain/Recipe.lua" />
-        <option value="$PROJECT_DIR$/build/toolchain/Actions.lua" />
         <option value="$PROJECT_DIR$/io/paths/Path.lua" />
         <option value="$PROJECT_DIR$/build/toolchain/Arguments.lua" />
         <option value="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" />
-        <option value="$PROJECT_DIR$/build/toolchain/Platform.lua" />
         <option value="$PROJECT_DIR$/io/paths/PathStyle.lua" />
         <option value="$PROJECT_DIR$/io/shellScript/ShellLanguage.lua" />
+        <option value="$PROJECT_DIR$/build/toolchain/Actions.lua" />
+        <option value="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" />
+        <option value="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" />
+        <option value="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" />
+        <option value="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" />
+        <option value="$PROJECT_DIR$/build/toolchain/Platform.lua" />
+        <option value="$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua" />
+        <option value="$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua" />
+        <option value="$PROJECT_DIR$/build/toolchain/Recipe.lua" />
       </list>
     </option>
   </component>
@@ -361,6 +306,24 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="build" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="shellScriptActions" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="halimede" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="halimede" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="assert" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -512,13 +475,13 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1920" height="1174" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942238" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942238" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32360741" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32360741" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32979664" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2342918" sideWeight="0.50067294" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32942238" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -554,46 +517,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/string/multisplitter.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="570">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/string/validateLocaleForStringCaseFunctions.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="615">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/table/deepCopy.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="660">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/table/deepMerge.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="645">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/table/equality.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1395">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/table/tabelize.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="450">
@@ -642,14 +565,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Builder.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.20398912" vertical-offset="0" max-vertical-offset="1950">
-          <caret line="14" column="26" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/table/unique.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.122393474" vertical-offset="0" max-vertical-offset="1103">
@@ -686,22 +601,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="810">
           <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="8" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="630">
-          <caret line="7" column="49" selection-start-line="7" selection-start-column="49" selection-end-line="7" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3900">
-          <caret line="7" column="49" selection-start-line="7" selection-start-column="49" selection-end-line="7" selection-end-column="49" />
           <folding />
         </state>
       </provider>
@@ -765,14 +664,6 @@
     <entry file="file://$PROJECT_DIR$/build/toolchain/GnuTuple.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3300">
-          <caret line="8" column="40" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Recipes.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1230">
           <caret line="8" column="40" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
           <folding />
         </state>
@@ -890,22 +781,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Recipe.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-3.9365368" vertical-offset="5332" max-vertical-offset="6435">
-          <caret line="65" column="15" selection-start-line="65" selection-start-column="15" selection-end-line="65" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Actions.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1155">
-          <caret line="17" column="70" selection-start-line="17" selection-start-column="70" selection-end-line="17" selection-end-column="70" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/io/shellScript/ShellPath.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2160">
@@ -922,26 +797,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Arguments.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="960">
-          <caret line="28" column="35" selection-start-line="28" selection-start-column="35" selection-end-line="28" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build/toolchain/RecipePaths.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="615">
           <caret line="23" column="3" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Platform.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="705" max-vertical-offset="2520">
-          <caret line="56" column="23" selection-start-line="56" selection-start-column="23" selection-end-line="56" selection-end-column="23" />
           <folding />
         </state>
       </provider>
@@ -956,8 +815,112 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/io/shellScript/ShellLanguage.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.31207597" vertical-offset="6505" max-vertical-offset="9210">
-          <caret line="447" column="40" selection-start-line="447" selection-start-column="40" selection-end-line="447" selection-end-column="40" />
+        <state vertical-scroll-proportion="0.072529465" vertical-offset="6505" max-vertical-offset="9210">
+          <caret line="437" column="34" selection-start-line="437" selection-start-column="34" selection-end-line="437" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Recipes.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1230">
+          <caret line="8" column="40" selection-start-line="8" selection-start-column="40" selection-end-line="8" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/MakeDirectoryRecursivelyCmdShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1103">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Builder.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.12964642" vertical-offset="82" max-vertical-offset="1950">
+          <caret line="14" column="26" selection-start-line="14" selection-start-column="26" selection-end-line="14" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Arguments.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="960">
+          <caret line="28" column="35" selection-start-line="28" selection-start-column="35" selection-end-line="28" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Actions.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="37" max-vertical-offset="1155">
+          <caret line="38" column="60" selection-start-line="38" selection-start-column="60" selection-end-line="38" selection-end-column="60" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="585">
+          <caret line="29" column="41" selection-start-line="29" selection-start-column="41" selection-end-line="29" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Platform.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1447" max-vertical-offset="2595">
+          <caret line="128" column="15" selection-start-line="128" selection-start-column="15" selection-end-line="128" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="420">
+          <caret line="19" column="47" selection-start-line="19" selection-start-column="47" selection-end-line="19" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="450">
+          <caret line="21" column="7" selection-start-line="21" selection-start-column="7" selection-end-line="21" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="825">
+          <caret line="44" column="29" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7824116" vertical-offset="3037" max-vertical-offset="4140">
+          <caret line="258" column="38" selection-start-line="258" selection-start-column="38" selection-end-line="258" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
+          <caret line="28" column="38" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Recipe.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.85040796" vertical-offset="5362" max-vertical-offset="6465">
+          <caret line="415" column="17" selection-start-line="415" selection-start-column="17" selection-end-line="415" selection-end-column="17" />
           <folding />
         </state>
       </provider>

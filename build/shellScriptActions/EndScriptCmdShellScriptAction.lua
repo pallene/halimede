@@ -15,6 +15,7 @@ function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
-function module:_execute(shellScript, builder)
+--noinspection UnusedDef
+function module:_execute(shellScript, builder, useHomebrew)
 	shellScript:appendLinesToScript('ENDLOCAL')
 end

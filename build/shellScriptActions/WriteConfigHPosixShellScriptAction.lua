@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local tabelize = halimede.table.tabelize
 local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentPosixShellScriptAction
 
@@ -16,7 +17,20 @@ function module:initialize()
 	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
 end
 
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_append(shellScript, quotedStringShellPath, configHDefines)
 	local redirected = shellScript:redirectStandardOutput(quotedStringShellPath)
-	shellScript:appendCommandLineToScript('printf', '%s', configHDefines:toCPreprocessorText('\n\n'), redirected)
+	
+	local lineSets = configHDefines:toCPreprocessorTextLines('\n\n')
+	
+	local buffer = tabelize()
+	for _, lineSet in ipairs(lineSets) do
+		for _, line in ipairs(lineSet) do
+			buffer:insert(line)
+			buffer:insert('\n')
+		end
+		buffer:insert('\n')
+	end
+	
+	shellScript:appendCommandLineToScript('printf', '%s', buffer:concat(), redirected)
 end

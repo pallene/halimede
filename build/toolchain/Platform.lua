@@ -17,8 +17,9 @@ local MacOsXStrip = halimede.build.shellScriptActions.strip.MacOsXStrip
 
 local Platform = halimede.moduleclass('Platform')
 
-function Platform:initialize(name, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver, strip)
+function Platform:initialize(name, useHomebrew, shellScriptExecutor, objectExtension, executableExtension, staticLibraryPrefix, staticLibraryExtension, dynamicLibraryPrefix, dynamicLibraryExtension, gnuTuple, cCompilerDriver, cPlusPlusCompilerDriver, strip)
 	assert.parameterTypeIsString('name', name)
+	assert.parameterTypeIsBoolean('useHomebrew', useHomebrew)
 	assert.parameterTypeIsInstanceOf('shellScriptExecutor', shellScriptExecutor, AbstractShellScriptExecutor)
 	assert.parameterTypeIsString('objectExtension', objectExtension)
 	assert.parameterTypeIsStringOrNil('executableExtension', executableExtension)
@@ -36,6 +37,7 @@ function Platform:initialize(name, shellScriptExecutor, objectExtension, executa
 	end
 
 	self.name = name
+	self.useHomebrew = useHomebrew
 	self.shellScriptExecutor = shellScriptExecutor
 	self.objectExtension = objectExtension
 	self.executableExtension = executableExtension
@@ -119,19 +121,21 @@ Unix POSIX platforms:-
 ]]--
 
 -- We really ned a MacOSX / Linux check, too
-local shellLanguage = halimede.io.shellScript.ShellLanguage.default()
-local macOsXShellScriptExecutor
-if shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
-	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor.MacOsXHomebrewShellScriptExecutor
-else
-	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor.Posix
-end
+--local shellLanguage = halimede.io.shellScript.ShellLanguage.default()
+--local macOsXShellScriptExecutor
+--if shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
+--	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor.MacOsXHomebrewShellScriptExecutor
+--else
+--	macOsXShellScriptExecutor =
+--end
 
+local shellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.OrdinaryShellScriptExecutor.Posix
 local macOsXStrip = MacOsXStrip:new()
 
 Platform:new(
 	'Mac OS X Mavericks GCC 4.9 Homebrew',
-	macOsXShellScriptExecutor,
+	true,
+	shellScriptExecutor,
 	'o',
 	nil, -- eg exe on Windows
 	'lib',
@@ -146,7 +150,8 @@ Platform:new(
 
 Platform:new(
 	'Mac OS X Yosemite GCC 4.9 Homebrew',
-	macOsXShellScriptExecutor,
+	true,
+	shellScriptExecutor,
 	'o',
 	nil,
 	'lib',

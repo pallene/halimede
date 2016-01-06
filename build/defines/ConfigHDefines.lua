@@ -18,25 +18,40 @@ function module:initialize()
 	self.ensureDefinitions = {}
 end
 
-assert.globalTypeIsFunctionOrCall('pairs')
+assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
 function module:toCPreprocessorTextLines()
+	local defineNames = tabelize()
+	local index = {}
 	local buffer = tabelize()
 	for defineName, _ in pairs(self.explicitlyUndefine) do
-		buffer:insert('#undef ' .. defineName)
+		defineNames:insert(defineName)
+		index[defineName] = {'#undef ' .. defineName}
 	end
 	for defineName, defineValue in pairs(self.defines) do
-		buffer:insert('#define ' .. defineName .. ' ' .. defineValue)
+		defineNames:insert(defineName)
+		index[defineName] = {'#define ' .. defineName .. ' ' .. defineValue}
 	end
 	for defineName, defineValue in pairs(self.ensureDefinitions) do
-		buffer:insert('#ifndef ' .. defineName)
-		buffer:insert('# define ' .. defineName .. ' ' .. defineValue)
-		buffer:insert('#endif')
+		defineNames:insert(defineName)
+		
+		index[defineName] = {
+			'#ifndef ' .. defineName,
+			'\t#define ' .. defineName .. ' ' .. defineValue,
+			'#endif'
+		}
+	end
+	
+	defineNames:sort()
+	for _, defineName in ipairs(defineNames) do
+		buffer:insert(index[defineName])
 	end
 	return buffer
 end
 
 function module:toCPreprocessorText(newline)
-	return self:toCPreprocessorTextLines():concat(newline)
+	assert.parameterTypeIsString('newline', newline)
+	
+	return self:toCPreprocessorTextLines(newline):concat(newline)
 end
 
 function module:_ensureDefinition(defineName, enable, defineValue)

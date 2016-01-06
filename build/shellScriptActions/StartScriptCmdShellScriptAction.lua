@@ -22,7 +22,12 @@ local environmentVariablesToExport = {
 }
 
 function module:initialize()
-	AbstractStartShellScriptAction.initialize(self, CommentCmdShellScriptAction, UnsetEnvironmentVariableCmdShellScriptAction, ExportEnvironmentVariableCmdShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport,
+	AbstractStartShellScriptAction.initialize(self, CommentCmdShellScriptAction, UnsetEnvironmentVariableCmdShellScriptAction, ExportEnvironmentVariableCmdShellScriptAction, environmentVariablesToUnset, environmentVariablesToExport)
+end
+
+--noinspection UnusedDef
+function module:_initialLinesForScript(useHomebrew)
+	return
 		'@ECHO OFF',
 		'SETLOCAL EnableExtensions',
 		'SETLOCAL',
@@ -30,5 +35,4 @@ function module:initialize()
 		'SET HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH="%~dp0"',
 		'SET HALIMEDE_SHELLSCRIPT_ORIGINAL_WORKING_DIRECTORY="%CD%"',
 		'CD /D "%HALIMEDE_SHELLSCRIPT_ABSOLUTE_FOLDER_PATH%"'
-	)
 end
