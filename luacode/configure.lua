@@ -5,15 +5,16 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
+local isNotTable = type.isNotTable.functor
 local exception = halimede.exception
-local isTable = type.isTable
 local Path = halimede.io.paths.Path
 local executeFromFile = halimede.luacode.executeFromFile
 
 
 assert.globalTypeIsFunctionOrCall('setmetatable')
 local function wrapWithReadOnlyProxy(object)
-	if not isTable(object) then
+	if isNotTable(object) then
 		return object
 	end
 
@@ -29,7 +30,7 @@ end
 
 assert.globalTypeIsFunctionOrCall('setmetatable')
 local function wrapWithReadOnlyProxyButCanAddFieldsToProxy(object)
-	if not isTable(object) then
+	if isNotTable(object) then
 		return object
 	end
 

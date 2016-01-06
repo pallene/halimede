@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local isString = halimede.type.isString.functor
 
 
 local isMissing = halimede.createNamedCallableFunction('isMissing', function(value)
@@ -27,14 +28,14 @@ module.isMissingOrVoid = isMissingOrVoid
 
 function module.parameterTypeIsMissingOrIsVoidOrIsString(parameterName, value)
 	assert.parameterTypeIsString(parameterName)
-	
+
 	if isMissingOrVoid(value) then
 		return
 	end
-	
-	if type.isString(value) then
+
+	if isString(value) then
 		return
 	end
-	
+
 	assert.withLevel(true, assert.parameterIsNotMessage(parameterName, 'missing (nil), void or string'), 2)
 end

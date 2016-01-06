@@ -4,8 +4,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-require('halimede')
-local isTable = type.isTable
+local halimede = require('halimede')
+local isNotTable = halimede.type.isNotTable
 
 
 local function deepMerge(source, destination)
@@ -13,7 +13,7 @@ local function deepMerge(source, destination)
 	assert.parameterTypeIsTable('destination', destination)
 
 	for key, value in pairs(source) do
-		if not isTable(value) then
+		if isNotTable(value) then
 			destination[key] = value
 			return
 		end

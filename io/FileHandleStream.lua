@@ -5,8 +5,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
+local newline = halimede.packageConfiguration.newline
 
 
 local FileHandleStream = halimede.moduleclass('FileHandleStream')
@@ -169,6 +171,18 @@ function module:readAllRemainingContentsAndClose()
 		exception.throw('Can not read from fileHandle')
 	end
 	return contents
+end
+
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
+function module:writeFormattedNativeLine(template, ...)
+	self:write(template:format(...) .. newline)
+end
+
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
+function module:writeFormattedNativeLineIfOpen(template, ...)
+	if self.isOpen then
+		self:writeFormattedNativeLine(template, ...)
+	end
 end
 
 function module:write(contents)

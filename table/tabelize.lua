@@ -14,12 +14,7 @@ assert.globalTypeIsFunctionOrCall('setmetatable')
 local function tabelize(optionalValueToTabelize)
 	assert.parameterTypeIsTableOrNil('optionalValueToTabelize', optionalValueToTabelize)
 
-	local valueToTabelize
-	if optionalValueToTabelize == nil then
-		valueToTabelize = {}
-	else
-		valueToTabelize = optionalValueToTabelize
-	end
+	local valueToTabelize = optionalValueToTabelize or {}
 
 	return setmetatable(valueToTabelize, {__index = table})
 end

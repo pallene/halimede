@@ -5,6 +5,12 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
+local isNil = type.isNil.functor
+local isBoolean = type.isBoolean.functor
+local isString = type.isString.functor
+local isNumber = type.isNumber.functor
+local hasPackageChildFieldOfTypeString = type.hasPackageChildFieldOfTypeString
 local tabelize = halimede.table.tabelize
 local unique = halimede.table.unique
 local packageConfiguration = halimede.packageConfiguration
@@ -126,9 +132,9 @@ function module:executeCommand(standardIn, standardOut, standardError, ...)
 	-- Lua 5.1: returns an exit code
 	-- Lua 5.2 / 5.3: returns true or nil, string ('exit' or 'signal'), exit/signal code
 	local exitCodeOrBoolean, terminationKind, exitCode = executeFunction(command)
-	if type.isNil(exitCodeOrBoolean) then
+	if isNil(exitCodeOrBoolean) then
 		return false, terminationKind, exitCode, command
-	elseif type.isBoolean(exitCodeOrBoolean) then
+	elseif isBoolean(exitCodeOrBoolean) then
 		return exitCodeOrBoolean, terminationKind, exitCode, command
 	else
 		return exitCodeOrBoolean == 0, 'exit', exitCodeOrBoolean, command
@@ -217,7 +223,7 @@ function module:toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropri
 end
 
 function module:toQuotedShellArgument(argument)
-	if type.isString(argument) then
+	if isString(argument) then
 		return self:_toQuotedShellArgument(argument)
 	end
 
@@ -241,7 +247,7 @@ end
 
 function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
-	if type.isNumber(filePathOrFileDescriptor) then
+	if isNumber(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
 	elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		redirection = filePathOrFileDescriptor.argument
@@ -253,12 +259,12 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 end
 
 local function assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	if type.isNumber(filePathOrFileDescriptor) then
+	if isNumber(filePathOrFileDescriptor) then
 		assert.parameterTypeIsPositiveInteger('filePathOrFileDescriptor', filePathOrFileDescriptor)
 		return
 	end
 
-	if type.isString(filePathOrFileDescriptor) then
+	if isString(filePathOrFileDescriptor) then
 		return
 	end
 
@@ -308,7 +314,7 @@ function module:toShellCommand(...)
 
 	for _, argument in ipairs(arguments) do
 		if argument ~= nil then
-			if type.isString(argument) then
+			if isString(argument) then
 				commandBuffer:insert(self:toQuotedShellArgument(argument))
 			else
 				commandBuffer:insert(argument.argument)
@@ -564,7 +570,7 @@ ShellLanguage.static.default = function()
 	end
 
 	local function determineDefault()
-		if type.hasPackageChildFieldOfTypeString('jit', 'os') then
+		if hasPackageChildFieldOfTypeString('jit', 'os') then
 
 			local name = jit.os
 			local shellLanguage = operatingSystemNamesToShellLanguages[name]

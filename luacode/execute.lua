@@ -5,35 +5,39 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
 local exception = halimede.exception
 local runtime = halimede.runtime
 
 
-local function determineSetfenvFunction()
-	local setfenvFunction
-	if type.hasGlobalOfTypeTableOrUserdata('setfenv') then
-		return setfenv
-	elseif type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'setfenv') then
-		return debug.setfenv
-	else
-		return nil
-	end
-end
-
-local function determineLoadFunction(runtime, setfenvFunction)
+local function determineLoadFunction(runtime)
 	-- loadstring is not in Lua 5.2/5.3
 	-- loadstring is an alias to load in LuaJIT, but seems not to have reference equality, sadly, hence this detection
-	if type.hasGlobalOfTypeFunctionOrCall('load') and runtime.isLuaJit then
+
+	local hasGlobalOfTypeFunctionOrCall = type.hasGlobalOfTypeFunctionOrCall
+	local isLuaJit = runtime.isLuaJit
+
+	if hasGlobalOfTypeFunctionOrCall('load') and isLuaJit then
 		return load
-	elseif type.hasGlobalOfTypeFunctionOrCall('loadstring') and runtime.isLuaJit then
+	elseif hasGlobalOfTypeFunctionOrCall('loadstring') and isLuaJit then
 		return loadstring
-	elseif type.hasGlobalOfTypeFunctionOrCall('load') and runtime.isLanguageLevelMoreModernThan(runtime.Lua51) then
+	elseif hasGlobalOfTypeFunctionOrCall('load') and runtime.isLanguageLevelMoreModernThan(runtime.Lua51) then
 		return load
 	end
 
+	local function determineSetfenvFunction()
+		local setfenvFunction
+		if type.hasGlobalOfTypeTableOrUserdata('setfenv') then
+			return setfenv
+		elseif type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'setfenv') then
+			return debug.setfenv
+		else
+			return nil
+		end
+	end
 	local setfenvFunction = determineSetfenvFunction()
 
-	if type.hasGlobalOfTypeFunctionOrCall('loadstring') and setfenvFunction ~= nil then
+	if hasGlobalOfTypeFunctionOrCall('loadstring') and setfenvFunction ~= nil then
 		return function(chunkString, chunkName, mode, environment)
 			if mode ~= 't' then
 				exception.throw("Unsupported mode '%s'", mode)
@@ -48,6 +52,7 @@ local function determineLoadFunction(runtime, setfenvFunction)
 
 	exception.throw("Can not load %s '%s' because a modern load() or older loadstring()/setfenv()/debug.setfenv() aren't available", description, origin)
 end
+local loadFunction = determineLoadFunction(runtime)
 
 assert.globalTypeIsFunctionOrCall('pcall')
 local function execute(luaCodeString, description, origin, environment)
@@ -56,7 +61,6 @@ local function execute(luaCodeString, description, origin, environment)
 	assert.parameterTypeIsString('origin', origin)
 	assert.parameterTypeIsTable('environment', environment)
 
-	local loadFunction = determineLoadFunction(runtime, setfenvFunction)
 	local chunk, errorMessage = loadFunction(luaCodeString, origin, 't', environment)
 
 	if errorMessage ~= nil then

@@ -5,6 +5,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
+local isFunctionOrCall = type.isFunctionOrCall.functor
 local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local ShellArgument = require.sibling.ShellArgument
@@ -22,7 +24,7 @@ module.setInstanceMissingIndex(function(instance, key)
 
 	local underlyingMethodOrField = delegatedInstance[key]
 
-	if type.isFunctionOrCall(underlyingMethodOrField) then
+	if isFunctionOrCall(underlyingMethodOrField) then
 		return function(self, ...)
 			-- Were we called MyInstance:MissingInstanceMethod() (if) or MyInstance.MissingInstanceMethod() (else)?
 			-- Not perfect; fails if any method takes itself as a second argument (eg a comparison function)

@@ -8,6 +8,7 @@ local halimede = require('halimede')
 local tabelize = halimede.table.tabelize
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
+local isTable = halimede.type.isTable.functor
 
 
 halimede.moduleclass('Arguments')
@@ -29,7 +30,7 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 function module:append(...)
 	local arguments = {...}
 	for _, argument in ipairs(arguments) do
-		if type.isTable(argument) then
+		if isTable(argument) then
 			for _, actualArgument in ipairs(argument) do
 				self:_append(actualArgument)
 			end

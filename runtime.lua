@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
 local exception = halimede.exception
 
 

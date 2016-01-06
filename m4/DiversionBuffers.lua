@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local isPositiveInteger = halimede.type.isPositiveInteger.functor
 local tabelize = halimede.table.tabelize
 local openBinaryFileForReading = halimede.io.FileHandleStream.openBinaryFileForReading
 local m4Assert = require.sibling.m4Assert
@@ -83,7 +84,7 @@ function module:undivert(...)
 			else
 				actualNumber = tonumber(number)
 			end
-			if type.isPositiveInteger(actualNumber) then
+			if isPositiveInteger(actualNumber) then
 				if actualNumber ~= 0 and actualNumber ~= self.activeBuffer.number then
 					self.activeBuffer:append(self:retrieveBuffer(actualNumber):flush())
 				end

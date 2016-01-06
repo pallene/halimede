@@ -5,6 +5,8 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local isFunctionOrCall = halimede.type.isFunctionOrCall.functor
+
 
 assert.globalTypeIsFunctionOrCall('getmetatable', 'unpack')
 local function delegate(class, fieldName)
@@ -16,7 +18,7 @@ local function delegate(class, fieldName)
 		local delegatedInstance = instance[fieldName]
 
 		local underlyingMethodOrField = delegatedInstance[key]
-		if type.isFunctionOrCall(underlyingMethodOrField) then
+		if isFunctionOrCall(underlyingMethodOrField) then
 			return function(self, ...)
 				-- Were we called MyInstance:MissingInstanceMethod() (if) or MyInstance.MissingInstanceMethod() (else)?
 				-- Not perfect; fails if any method takes itself as a second argument (eg a comparison function)

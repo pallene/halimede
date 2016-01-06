@@ -5,85 +5,59 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
 local newline = halimede.packageConfiguration.newline
 
 
-local function traceIfRequired()
-	local environmentVariable = 'HALIMEDE_TRACE'
-
-	-- Check for functions in the global namespace that we rely on that might have been removed in a sandbox; don't enable tracing if they're not present.
-	if not type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'sethook', 'getinfo') then
-		return
-	end
-
-	if not type.hasPackageChildFieldOfTypeFunctionOrCall('string', 'format') then
-		return
-	end
-
-	if not type.hasPackageChildFieldOfTypeTableOrUserdata('io', 'stderr') then
-		return
-	end
-
+local environmentVariable = 'HALIMEDE_TRACE'
+if type.hasPackageChildFieldOfTypeFunctionOrCall('debug', 'sethook', 'getinfo') and type.hasPackageChildFieldOfTypeFunctionOrCall('string', 'format') and type.hasPackageChildFieldOfTypeTableOrUserdata('io', 'stderr') and type.hasGlobalOfTypeFunctionOrCall('pcall') then
 	local enableTracing = halimede.getenv(environmentVariable)
+	if enableTracing ~= nil and enableTracing == 'true' then
 
-	if enableTracing == nil then
-		return
-	end
-
-	if enableTracing ~= 'true' then
-		return
-	end
-
-	local stderr = io.stderr
-	local getinfo = debug.getinfo
-	local format = string.format
-
-	debug.sethook(function(event)
-		assert.parameterTypeIsString('event', event)
-
-		local nameInfo = getinfo(2, 'n')
-
-		local nameWhat = nameInfo.namewhat
-		if nameWhat == '' then
-			nameWhat = 'unknown'
-		end
-
-		local functionName = nameInfo.name
-		if functionName == nil then
-			functionName = '?'
-		end
-
-		local sourceInfo = getinfo(2, 'S')
-		local language = sourceInfo.what
-		local functionKeyword
-		if language == 'Lua' then
-			if nameWhat ==  'upvalue' then
-				functionKeyword = ''
+		local function functionKeyword(language, nameWhat)
+			local functionKeyword
+			if language == 'Lua' then
+				if nameWhat == 'upvalue' then
+					return ''
+				else
+					return ' function'
+				end
 			else
-				functionKeyword = ' function'
+				return ''
 			end
-		else
-			functionKeyword = ''
 		end
 
-		local sourceText
-		if language == 'C' then
-			sourceText = ''
-		else
-			local source = sourceInfo.source
-			local currentLineNumber = getinfo(2, 'l').currentline
-			local currentLine
-			if currentLineNumber == -1 then
-				currentLine = ''
+		local function sourceText(language, info)
+			if language == 'C' then
+				return ''
 			else
-				currentLine = format(' at line %d', currentLineNumber)
+				local source = info.source
+				local currentLineNumber = info.currentline
+				local currentLine = (currentLineNumber == -1) and '' or (' in %s%s'):format(source, currentLine)
+				return (' in %s%s'):format(source, currentLine)
 			end
-			sourceText = format(' in %s%s', source, currentLine)
 		end
 
-		local messageTemplate = "%s %s %s%s '%s'%s" .. newline
-		stderr:write(messageTemplate:format(event, language, nameWhat, functionKeyword, functionName, sourceText))
-	end, 'cr')
+		local getinfo = debug.getinfo
+		local stderr = io.stderr
+		debug.sethook(function(event)
+			local info = getinfo(2, 'nSl')
+
+			local nameWhat = info.namewhat
+			if nameWhat == '' then
+				nameWhat = 'unknown'
+			end
+
+			local language = info.what
+			local functionKeyword = functionKeyword(language, nameWhat)
+			local sourceText = sourceText(language, info)
+
+			local functionName = info.name or '?'
+
+			local function write()
+				stderr:write(("%s %s %s%s '%s'%s" .. newline):format(event, language, nameWhat, functionKeyword, functionName, sourceText))
+			end
+			local _, _ = pcall(write)
+		end, 'cr')
+	end
 end
-
-traceIfRequired()

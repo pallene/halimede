@@ -12,9 +12,11 @@ local CompilerMetadata = require.sibling.CompilerMetadata
 local CStandard = require.sibling.CStandard
 local Path = halimede.io.paths.Path
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
-local ShellPath = halimede.io.shellScript.ShellPath
 local Arguments = require.sibling.Arguments
 local CompilerDriverArguments = require.sibling.CompilerDriverArguments
+local isTable = halimede.type.isTable.functor
+local isString = halimede.type.isString.functor
+local isNotString = halimede.type.isNotString.functor
 
 
 local CompilerDriver = halimede.moduleclass('CompilerDriver')
@@ -66,11 +68,11 @@ assert.globalTypeIsFunctionOrCall('ipairs')
 local function mergeFlags(...)
 	local result = tabelize()
 	for _, flagSet in ipairs({...}) do
-		if type.isString(flagSet) then
+		if isString(flagSet) then
 			result:insert(flagSet)
-		elseif type.isTable(flagSet) then
+		elseif isTable(flagSet) then
 			for _, flag in ipairs(flagSet) do
-				if not type.isString(flag) then
+				if isNotString(flag) then
 					exception.throw('Argument to mergeFlags can either be string or table of strings (array)')
 				end
 				result:insert(flag)

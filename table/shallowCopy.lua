@@ -4,13 +4,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 ]]--
 
 
-require('halimede')
-local isTable = type.isTable
+local halimede = require('halimede')
+local isNotTable = halimede.type.isNotTable
 
 
 assert.globalTypeIsFunctionOrCall('setmetatable', 'getmetatable', 'next')
 local function shallowCopy(original)
-	if not isTable(original) then
+	if isNotTable(original) then
 		return original
 	end
 

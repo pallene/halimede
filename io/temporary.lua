@@ -5,6 +5,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
 local exception = halimede.exception
 local shellLanguage = halimede.io.shellScript.ShellLanguage.default()
 local FileHandleStream = halimede.io.FileHandleStream
@@ -63,7 +64,6 @@ else
 	end
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('os', 'tmpname')
 assert.globalTypeIsFunctionOrCall('pcall')
 local function useTemporaryFile(fileExtension, fileHandleStreamUser, opener, description)
 	assert.parameterTypeIsStringOrNil('fileExtension', fileExtension)

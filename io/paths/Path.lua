@@ -5,6 +5,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local type = halimede.type
+local isTable = type.isTable.functor
+local isString = type.isString.functor
 local exception = halimede.exception
 local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
@@ -284,7 +287,7 @@ function module:filePaths(fileExtension, baseFilePaths)
 	local filePaths = tabelize()
 	for _, stringOrTable in ipairs(baseFilePaths) do
 		local path
-		if type.isTable(stringOrTable) then
+		if isTable(stringOrTable) then
 			local length = #stringOrTable
 			local folders = {}
 			local index = 1
@@ -297,7 +300,7 @@ function module:filePaths(fileExtension, baseFilePaths)
 			end
 			local fileName = stringOrTable[length]
 			path = self:appendFolders(unpack(folders)):appendFile(fileName, fileExtension)
-		elseif type.isString(stringOrTable) then
+		elseif isString(stringOrTable) then
 			path = self:appendFile(stringOrTable, fileExtension)
 		else
 			exception.throw('baseFilePaths should only contain strings or tables of string')

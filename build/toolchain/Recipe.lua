@@ -10,6 +10,7 @@ local exception = halimede.exception
 local deepMerge = halimede.table.deepMerge
 local tabelize = halimede.table.tabelize
 local shallowCopy = halimede.table.shallowCopy
+local isString = halimede.type.isString.functor
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local noRedirection = ShellLanguage.noRedirection
 local Recipes = require.sibling.Recipes
@@ -149,7 +150,7 @@ function module:_resolveAlias(aliasFrom, alreadyEncounteredAliasFrom)
 	end
 
 	local recursiveAliasFrom = self.aliases[aliasFrom]
-	if type.isString(recursiveAliasFrom) then
+	if isString(recursiveAliasFrom) then
 		if alreadyEncounteredAliasFrom[alreadyEncounteredAliasFrom] == true then
 			exception.throw("Circular aliases in recipe '%s'", self.recipeName)
 		end
