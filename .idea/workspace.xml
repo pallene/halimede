@@ -2,117 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1838d535-e0eb-4671-a713-8ac4e55d595a" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/internal/getUnderlyingFunctionFromCallable.lua" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/init/getFunction.lua" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/init/delegateclass.lua" afterPath="$PROJECT_DIR$/internal/delegateclass.lua" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/init/getenv.lua" afterPath="$PROJECT_DIR$/internal/getenv.lua" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/init/moduleclass.lua" afterPath="$PROJECT_DIR$/internal/moduleclass.lua" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/init/modulefunction.lua" afterPath="$PROJECT_DIR$/internal/modulefunction.lua" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/init/trace.lua" afterPath="$PROJECT_DIR$/internal/trace.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractExecutableLinkCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractExecutableLinkCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/macroDefinitions/AbstractMacroDefinition.lua" afterPath="$PROJECT_DIR$/m4/macroDefinitions/AbstractMacroDefinition.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAndAssembleCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/AbstractPreprocessCompileAssembleAndExecutableLinkCompilerDriverShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/AbstractShellScriptExecutor.lua" afterPath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/AbstractShellScriptExecutor.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/AbstractStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/AbstractStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractWriteConfigHShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractWriteConfigHShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Actions.lua" afterPath="$PROJECT_DIR$/build/toolchain/Actions.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Arguments.lua" afterPath="$PROJECT_DIR$/build/toolchain/Arguments.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Builder.lua" afterPath="$PROJECT_DIR$/build/toolchain/Builder.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/macroDefinitions/BuiltInMacroDefinition.lua" afterPath="$PROJECT_DIR$/m4/macroDefinitions/BuiltInMacroDefinition.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/Builtin.lua" afterPath="$PROJECT_DIR$/m4/Builtin.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/ChangeDirectoryCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/ChangeDirectoryCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/ChangeDirectoryPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/ChangeDirectoryPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/defines/CommandLineDefines.lua" afterPath="$PROJECT_DIR$/build/defines/CommandLineDefines.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/CommentCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/CommentCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/CommentPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/CommentPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/Commenting.lua" afterPath="$PROJECT_DIR$/m4/Commenting.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/CompilerDriver.lua" afterPath="$PROJECT_DIR$/build/toolchain/CompilerDriver.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/CompilerDriverArguments.lua" afterPath="$PROJECT_DIR$/build/toolchain/CompilerDriverArguments.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/CompilerMetadata.lua" afterPath="$PROJECT_DIR$/build/toolchain/CompilerMetadata.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" afterPath="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/defines/Defines.lua" afterPath="$PROJECT_DIR$/build/defines/Defines.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/DiversionBuffer.lua" afterPath="$PROJECT_DIR$/m4/DiversionBuffer.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/DiversionBuffers.lua" afterPath="$PROJECT_DIR$/m4/DiversionBuffers.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/ExecutableLinkCompilerDriverCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/ExecutableLinkCompilerDriverCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/ExecutableLinkCompilerDriverPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/ExecutableLinkCompilerDriverPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/ExportEnvironmentVariableCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/ExportEnvironmentVariableCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/ExportEnvironmentVariablePosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/ExportEnvironmentVariablePosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/FileHandleStream.lua" afterPath="$PROJECT_DIR$/io/FileHandleStream.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/GnuStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/GnuStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/GnuTuple.lua" afterPath="$PROJECT_DIR$/build/toolchain/GnuTuple.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/M4Parser.lua" afterPath="$PROJECT_DIR$/m4/M4Parser.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/MacOsXHomebrewShellScriptExecutor.lua" afterPath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/MacOsXHomebrewShellScriptExecutor.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/MacOsXStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/MacOsXStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/MacroDefinitions.lua" afterPath="$PROJECT_DIR$/m4/MacroDefinitions.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/MakeDirectoryRecursivelyCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/MakeDirectoryRecursivelyCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/MakeDirectoryRecursivelyPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/MakeDirectoryRecursivelyPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/attic/MakeSymbolicLinkCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/attic/MakeSymbolicLinkCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/attic/MakeSymbolicLinkPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/attic/MakeSymbolicLinkPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/Messages.lua" afterPath="$PROJECT_DIR$/m4/Messages.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/MksStrip.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/MksStrip.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/OrdinaryShellScriptExecutor.lua" afterPath="$PROJECT_DIR$/io/shellScript/shellScriptExecutors/OrdinaryShellScriptExecutor.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/Path.lua" afterPath="$PROJECT_DIR$/io/paths/Path.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/PathRelativity.lua" afterPath="$PROJECT_DIR$/io/paths/PathRelativity.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/PathStyle.lua" afterPath="$PROJECT_DIR$/io/paths/PathStyle.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Platform.lua" afterPath="$PROJECT_DIR$/build/toolchain/Platform.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/PlatformPaths.lua" afterPath="$PROJECT_DIR$/build/toolchain/PlatformPaths.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/PopdCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/PopdCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/PopdPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/PopdPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/PosixSyscallFunctions.lua" afterPath="$PROJECT_DIR$/io/paths/PosixSyscallFunctions.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAndAssembleCompilerDriverCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAndAssembleCompilerDriverCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAndAssembleCompilerDriverPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAndAssembleCompilerDriverPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAssembleAndExecutableLinkCompilerDriverCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAssembleAndExecutableLinkCompilerDriverCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAssembleAndExecutableLinkCompilerDriverPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/compilerDriver/PreprocessCompileAssembleAndExecutableLinkCompilerDriverPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/PushdCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/PushdCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/PushdPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/PushdPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/QuotingRules.lua" afterPath="$PROJECT_DIR$/m4/QuotingRules.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Recipe.lua" afterPath="$PROJECT_DIR$/build/toolchain/Recipe.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" afterPath="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Recipes.lua" afterPath="$PROJECT_DIR$/build/toolchain/Recipes.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/RemoveRecursivelyWithForceCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/RemoveRecursivelyWithForceCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/RemoveRecursivelyWithForcePosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/RemoveRecursivelyWithForcePosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/attic/SetPathCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/attic/SetPathCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/attic/SetPathPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/attic/SetPathPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/ShellArgument.lua" afterPath="$PROJECT_DIR$/io/shellScript/ShellArgument.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/ShellLanguage.lua" afterPath="$PROJECT_DIR$/io/shellScript/ShellLanguage.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/ShellPath.lua" afterPath="$PROJECT_DIR$/io/shellScript/ShellPath.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/shellScript/ShellScript.lua" afterPath="$PROJECT_DIR$/io/shellScript/ShellScript.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/State.lua" afterPath="$PROJECT_DIR$/m4/State.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/StringStream.lua" afterPath="$PROJECT_DIR$/io/StringStream.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/StripExecutableCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/StripExecutableCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/strip/StripExecutablePosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/strip/StripExecutablePosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/collections/Trie.lua" afterPath="$PROJECT_DIR$/collections/Trie.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/collections/TrieElement.lua" afterPath="$PROJECT_DIR$/collections/TrieElement.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/UnsetEnvironmentVariableCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/UnsetEnvironmentVariableCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/UnsetEnvironmentVariablePosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/UnsetEnvironmentVariablePosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/macroDefinitions/UserMacroDefinition.lua" afterPath="$PROJECT_DIR$/m4/macroDefinitions/UserMacroDefinition.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/luacode/configure.lua" afterPath="$PROJECT_DIR$/luacode/configure.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/deepCopy.lua" afterPath="$PROJECT_DIR$/table/deepCopy.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/deepMerge.lua" afterPath="$PROJECT_DIR$/table/deepMerge.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/equality.lua" afterPath="$PROJECT_DIR$/table/equality.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/luacode/execute.lua" afterPath="$PROJECT_DIR$/luacode/execute.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/luacode/executeFromFile.lua" afterPath="$PROJECT_DIR$/luacode/executeFromFile.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/string/format.lua" afterPath="$PROJECT_DIR$/string/format.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/init.lua" afterPath="$PROJECT_DIR$/init.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/m4/m4Assert.lua" afterPath="$PROJECT_DIR$/m4/m4Assert.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/string/multisplitter.lua" afterPath="$PROJECT_DIR$/string/multisplitter.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/assert/parameterTypeIsInstanceOf.lua" afterPath="$PROJECT_DIR$/assert/parameterTypeIsInstanceOf.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/assert/parameterTypeIsInstanceOfOrNil.lua" afterPath="$PROJECT_DIR$/assert/parameterTypeIsInstanceOfOrNil.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/perRecipeVersioningStrategies.lua" afterPath="$PROJECT_DIR$/build/toolchain/perRecipeVersioningStrategies.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/recipeEnvironment.lua" afterPath="$PROJECT_DIR$/build/toolchain/recipeEnvironment.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/shallowCopy.lua" afterPath="$PROJECT_DIR$/table/shallowCopy.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/tabelize.lua" afterPath="$PROJECT_DIR$/table/tabelize.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/temporary.lua" afterPath="$PROJECT_DIR$/io/temporary.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/table/unique.lua" afterPath="$PROJECT_DIR$/table/unique.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/string/validateLocaleForStringCaseFunctions.lua" afterPath="$PROJECT_DIR$/string/validateLocaleForStringCaseFunctions.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/enumeration.lua" afterPath="$PROJECT_DIR$/enumeration.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/exception.lua" afterPath="$PROJECT_DIR$/exception.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/runtime.lua" afterPath="$PROJECT_DIR$/runtime.lua" />
     </list>
     <ignored path="halimede.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -136,11 +28,51 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="isObject.lua" pinned="false" current-in-tab="true">
+      <file leaf-file-name="isObject.lua" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/type/isObject.lua">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.09519492" vertical-offset="0" max-vertical-offset="1103">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="315">
               <caret line="6" column="36" selection-start-line="6" selection-start-column="36" selection-end-line="6" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="enumeration.lua" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/enumeration.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1005">
+              <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="init.lua" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/init.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="19935">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="runtime.lua" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/runtime.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.1087942" vertical-offset="0" max-vertical-offset="1103">
+              <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="exception.lua" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/exception.lua">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="510">
+              <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -155,9 +87,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/build/toolchain/Platform.lua" />
-        <option value="$PROJECT_DIR$/build/toolchain/PlatformPaths.lua" />
-        <option value="$PROJECT_DIR$/build/toolchain/Recipe.lua" />
         <option value="$PROJECT_DIR$/build/toolchain/recipeEnvironment.lua" />
         <option value="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" />
         <option value="$PROJECT_DIR$/build/toolchain/Recipes.lua" />
@@ -206,6 +135,9 @@
         <option value="$PROJECT_DIR$/table/shallowCopy.lua" />
         <option value="$PROJECT_DIR$/table/tabelize.lua" />
         <option value="$PROJECT_DIR$/table/unique.lua" />
+        <option value="$PROJECT_DIR$/enumeration.lua" />
+        <option value="$PROJECT_DIR$/exception.lua" />
+        <option value="$PROJECT_DIR$/runtime.lua" />
       </list>
     </option>
   </component>
@@ -277,244 +209,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="type" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="table" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="string" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="m4" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="m4" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="macroDefinitions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="luacode" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="shellScript" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="shellScript" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="shellScriptExecutors" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="paths" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="internal" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="collections" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="build" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="build" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="toolchain" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="build" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="defines" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -721,38 +415,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/build/toolchain/recipeEnvironment.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="480">
-          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/RecipePaths.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="540">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Recipes.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.1087942" vertical-offset="0" max-vertical-offset="1215">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/collections/Trie.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1170">
-          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/collections/TrieElement.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1485">
@@ -1123,8 +785,40 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/type/isObject.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.09519492" vertical-offset="0" max-vertical-offset="1103">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="315">
           <caret line="6" column="36" selection-start-line="6" selection-start-column="36" selection-end-line="6" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/enumeration.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1005">
+          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/exception.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="525">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/init.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="19935">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/runtime.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1087942" vertical-offset="0" max-vertical-offset="1103">
+          <caret line="7" column="30" selection-start-line="7" selection-start-column="30" selection-end-line="7" selection-end-column="30" />
           <folding />
         </state>
       </provider>

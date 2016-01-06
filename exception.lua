@@ -5,22 +5,24 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
+local assert = halimede.assert
 local format = halimede.string.format
+
 
 assert.globalTypeIsFunctionOrCall('unpack', 'ipairs', 'tostring')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module.throwWithLevelIncrement(levelIncrement, template, ...)
 	assert.parameterTypeIsPositiveInteger('levelIncrement', levelIncrement)
 	assert.parameterTypeIsString('template', template)
-	
+
 	local message = format(template, ...)
-	
+
 	error(message, 2 + levelIncrement)
 end
 local throwWithLevelIncrement = module.throwWithLevelIncrement
 
 function module.throw(template, ...)
 	assert.parameterTypeIsString('template', template)
-	
+
 	return throwWithLevelIncrement(1, template, ...)
 end
