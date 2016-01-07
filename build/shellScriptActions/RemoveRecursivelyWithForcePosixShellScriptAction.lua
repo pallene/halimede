@@ -8,9 +8,14 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('RemoveRecursivelyWithForcePosixShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_rm = ShellArgument:new('rm')
+local escapedArgument_rf = ShellArgument:new('-rf')
+
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -19,5 +24,5 @@ end
 function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 
-	shellScript:appendCommandLineToScript('rm', '-rf', path:toQuotedShellArgumentX(true))
+	shellScript:appendCommandLineToScript(escapedArgument_rm, escapedArgument_rf, path:escapeToShellArgument(true, shellScript.shellLanguage))
 end

@@ -25,5 +25,5 @@ function module:_execute(shellScript, builder, paths)
 
 	-- Sadly, on Windows, the current folder is by default part of the path
 	self.unsetEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH')
-	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH', shellScript.shellLanguage:toPathsString(paths, true))
+	self.exportEnvironmentVariablePosixShellScriptAction:execute(shellScript, builder, 'PATH', shellScript.shellLanguage:escapeToPathsStringShellArgument(paths, true))
 end

@@ -9,28 +9,18 @@ local assert = halimede.assert
 local tabelize = halimede.table.tabelize
 local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentPosixShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('WriteConfigHPosixShellScriptAction', AbstractWriteConfigHShellScriptAction)
+
+local escapedArgument_printf = ShellArgument:new('printf')
+local escapedArgument_printfTemplate = ShellArgument:new("'%s\\n'")
 
 function module:initialize()
 	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
 end
 
-assert.globalTypeIsFunctionOrCall('ipairs')
-function module:_append(shellScript, quotedStringShellPath, configHDefines)
-	local redirected = shellScript:redirectStandardOutput(quotedStringShellPath)
-	
-	local lineSets = configHDefines:toCPreprocessorTextLines('\n\n')
-	
-	local buffer = tabelize()
-	for _, lineSet in ipairs(lineSets) do
-		for _, line in ipairs(lineSet) do
-			buffer:insert(line)
-			buffer:insert('\n')
-		end
-		buffer:insert('\n')
-	end
-	
-	shellScript:appendCommandLineToScript('printf', '%s', buffer:concat(), redirected)
+function module:_line(shellScript, line)
+	return tabelize({escapedArgument_printf, escapedArgument_printfTemplate, ShellArgument:new(shellScript:escapeToShellSafeString(line))})
 end

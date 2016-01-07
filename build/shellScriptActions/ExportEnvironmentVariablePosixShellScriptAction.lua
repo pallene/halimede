@@ -6,18 +6,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local AbstractExportEnvironmentVariableShellScriptAction = halimede.build.shellScriptActions.AbstractExportEnvironmentVariableShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
-halimede.moduleclass('ExportEnvironmentVariablePosixShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('ExportEnvironmentVariablePosixShellScriptAction', AbstractExportEnvironmentVariableShellScriptAction)
+
+local escapedArgument_export = ShellArgument:new('export')
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self)
-end
-
-function module:_execute(shellScript, builder, variableName, variableValue)
-	assert.parameterTypeIsString('variableName', variableName)
-	assert.parameterTypeIsString('variableValue', variableValue)
-
-	shellScript:appendCommandLineToScript('export', variableName .. '=' .. variableValue)
+	AbstractShellScriptAction.initialize(self, 'export')
 end

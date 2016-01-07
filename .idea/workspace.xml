@@ -2,20 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1838d535-e0eb-4671-a713-8ac4e55d595a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Actions.lua" afterPath="$PROJECT_DIR$/build/toolchain/Actions.lua" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/build/toolchain/perRecipeVersioningStrategies.lua" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Builder.lua" afterPath="$PROJECT_DIR$/build/toolchain/Builder.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" afterPath="$PROJECT_DIR$/build/defines/ConfigHDefines.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/EndScriptPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/io/paths/Path.lua" afterPath="$PROJECT_DIR$/io/paths/Path.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Platform.lua" afterPath="$PROJECT_DIR$/build/toolchain/Platform.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/Recipe.lua" afterPath="$PROJECT_DIR$/build/toolchain/Recipe.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHCmdShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHCmdShellScriptAction.lua" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHPosixShellScriptAction.lua" afterPath="$PROJECT_DIR$/build/shellScriptActions/WriteConfigHPosixShellScriptAction.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/PlatformPaths.lua" afterPath="$PROJECT_DIR$/build/toolchain/PlatformPaths.lua" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" afterPath="$PROJECT_DIR$/build/toolchain/RecipePaths.lua" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="halimede.iws" />
@@ -39,48 +29,7 @@
     <favorites_list name="halimede" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file leaf-file-name="Recipe.lua" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/build/toolchain/Recipe.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.85040796" vertical-offset="5362" max-vertical-offset="6465">
-              <caret line="415" column="17" selection-start-line="415" selection-start-column="17" selection-end-line="415" selection-end-column="17" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Platform.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build/toolchain/Platform.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1447" max-vertical-offset="2595">
-              <caret line="128" column="15" selection-start-line="128" selection-start-column="15" selection-end-line="128" selection-end-column="15" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AbstractStartShellScriptAction.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="825">
-              <caret line="44" column="29" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="StartScriptCmdShellScriptAction.lua" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
-              <caret line="28" column="38" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="Git.Settings">
     <option name="ROOT_SYNC" value="SYNC" />
@@ -211,120 +160,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="shellScript" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="io" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="paths" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="build" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="build" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="toolchain" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="build" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="shellScriptActions" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="halimede" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="assert" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -475,7 +310,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1920" height="1174" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -489,7 +324,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2342918" sideWeight="0.50067294" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22916667" sideWeight="0.49932706" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.22916667" sideWeight="0.49932706" order="0" side_tool="false" content_ui="combo" />
       <window_info id="LuaJ" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24049513" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -869,14 +704,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build/toolchain/Platform.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1447" max-vertical-offset="2595">
-          <caret line="128" column="15" selection-start-line="128" selection-start-column="15" selection-end-line="128" selection-end-column="15" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build/shellScriptActions/EndScriptCmdShellScriptAction.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="420">
@@ -893,14 +720,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="825">
-          <caret line="44" column="29" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptPosixShellScriptAction.lua">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.7824116" vertical-offset="3037" max-vertical-offset="4140">
@@ -911,16 +730,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build/shellScriptActions/StartScriptCmdShellScriptAction.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="690">
-          <caret line="28" column="38" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
+        <state vertical-scroll-proportion="0.17679057" vertical-offset="0" max-vertical-offset="1103">
+          <caret line="12" column="45" selection-start-line="12" selection-start-column="45" selection-end-line="12" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/shellScriptActions/AbstractStartShellScriptAction.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.62556666" vertical-offset="0" max-vertical-offset="1103">
+          <caret line="44" column="29" selection-start-line="44" selection-start-column="16" selection-end-line="44" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/toolchain/Platform.lua">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.456029" vertical-offset="1447" max-vertical-offset="2595">
+          <caret line="128" column="15" selection-start-line="128" selection-start-column="15" selection-end-line="128" selection-end-column="15" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/build/toolchain/Recipe.lua">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.85040796" vertical-offset="5362" max-vertical-offset="6465">
-          <caret line="415" column="17" selection-start-line="415" selection-start-column="17" selection-end-line="415" selection-end-column="17" />
+        <state vertical-scroll-proportion="2.835902" vertical-offset="2977" max-vertical-offset="6465">
+          <caret line="402" column="0" selection-start-line="402" selection-start-column="0" selection-end-line="402" selection-end-column="0" />
           <folding />
         </state>
       </provider>

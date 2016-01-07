@@ -28,7 +28,7 @@ end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')
 function module:_execute(shellScript, builder, useHomebrew)
-	shellScript:appendLinesToScript(self:_initialLinesForScript(useHomebrew))
+	shellScript:appendLines(self:_initialLinesForScript(useHomebrew))
 
 	self.commentShellScriptAction:execute(shellScript, builder, 'Unsetting unreliable and polluting environment variables')
 	for _, environmentVariableName in ipairs(self.environmentVariablesToUnset) do

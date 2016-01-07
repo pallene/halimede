@@ -7,14 +7,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('PopdCmdShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_POPD = ShellArgument:new('POPD')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
 function module:_execute(shellScript, builder)
-	shellScript:appendCommandLineToScript('POPD')
+	shellScript:appendCommandLineToScript(escapedArgument_POPD)
 end

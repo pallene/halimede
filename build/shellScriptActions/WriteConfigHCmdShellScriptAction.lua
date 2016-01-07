@@ -6,34 +6,21 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local tabelize = halimede.table.tabelize
 local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmdShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('WriteConfigHCmdShellScriptAction', AbstractWriteConfigHShellScriptAction)
+
+local escapedArgument_ECHO = ShellArgument:new('ECHO')
 
 function module:initialize()
 	AbstractWriteConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction)
 end
 
--- https://stackoverflow.com/questions/1015163/heredoc-for-windows-batch
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
-assert.globalTypeIsFunctionOrCall('ipairs')
-function module:_append(shellScript, quotedStringShellPath, configHDefines)
-	local lineSets = configHDefines:toCPreprocessorTextLines('\r\n')
-	
-	local isFirstLine = true
-	for _, lineSet in ipairs(lineSets) do
-		for _, line in ipairs(lineSet) do
-			local redirectionOperator
-			if isFirstLine then
-				redirectionOperator = '>'
-				isFirstLine = false
-			else
-				redirectionOperator = '>>'
-			end
-
-			shellScript:appendLinesToScript('ECHO ' .. shellScript:toQuotedShellArgument(line) .. ' ' .. redirectionOperator .. quotedStringShellPath)
-		end	
-	end
+function module:_line(shellScript, line)
+	return tabelize({escapedArgument_ECHO, ShellArgument:new(shellScript:escapeToShellSafeString(line))})
 end

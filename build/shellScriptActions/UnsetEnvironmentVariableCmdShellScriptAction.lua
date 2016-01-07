@@ -7,9 +7,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local AbstractExportEnvironmentVariableShellScriptAction = halimede.build.shellScriptActions.AbstractExportEnvironmentVariableShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('UnsetEnvironmentVariableCmdShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_UNSET = ShellArgument:new('UNSET')
+local escapedArgument_SlashQ = ShellArgument:new('/Q')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -18,6 +23,8 @@ end
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:_execute(shellScript, builder, variableName)
 	assert.parameterTypeIsString('variableName', variableName)
-
-	shellScript:appendCommandLineToScript('UNSET', '/Q', variableName)
+	
+	AbstractExportEnvironmentVariableShellScriptAction.validateEnvironmentVariableName(variableName)
+	
+	shellScript:appendCommandLineToScript(escapedArgument_UNSET, escapedArgument_SlashQ, ShellArgument:new(variableName))
 end

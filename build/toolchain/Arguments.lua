@@ -45,7 +45,7 @@ function module:appendQuotedArgumentXWithPrepend(text, pathLike, specifyCurrentD
 	assert.parameterTypeIsTable('pathLike', pathLike)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 
-	local x = pathLike:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self.shellLanguage)
+	local x = pathLike:escapeToShellArgument(specifyCurrentDirectoryExplicitlyIfAppropriate, self.shellLanguage)
 	self:_append(x:prepend(text))
 end
 

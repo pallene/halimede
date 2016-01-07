@@ -8,9 +8,14 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('RemoveRecursivelyWithForceCmdShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_RD = ShellArgument:new('RD')
+local escapedArgument_SlashS = ShellArgument:new('/S')
+local escapedArgument_SlashQ = ShellArgument:new('/Q')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -20,5 +25,5 @@ function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 
 	-- Not really equivalent to rm -rf; doesn't delete files. See https://stackoverflow.com/questions/97875/rm-rf-equivalent-for-windows
-	shellScript:appendCommandLineToScript('RD', '/S', '/Q', path:toQuotedShellArgumentX(true))
+	shellScript:appendCommandLineToScript(escapedArgument_RD, escapedArgument_SlashS, escapedArgument_SlashQ, path:escapeToShellArgument(true, shellScript.shellLanguage))
 end

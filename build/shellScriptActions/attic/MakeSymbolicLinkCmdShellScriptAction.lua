@@ -7,11 +7,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local tabelize = halimede.table.tabelize
-local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('MakeSymbolicLinkWindowsShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_MKLINK = ShellArgument:new('MKLINK')
+local escapedArgument_SlashD = ShellArgument:new('/D')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -20,20 +23,20 @@ end
 -- http://ss64.com/nt/mklink.html (works on Windows Vista and later)
 assert.globalTypeIsFunctionOrCall('unpack')
 function module:_execute(shellScript, builder, linkContentsPath, linkFilePath)
-	assert.parameterTypeIsInstanceOf('linkContentsPath', linkContentsPath, ShellPath)
-	assert.parameterTypeIsInstanceOf('linkFilePath', linkFilePath, ShellPath)
+	assert.parameterTypeIsTable('linkContentsPath', linkContentsPath)
+	assert.parameterTypeIsTable('linkFilePath', linkFilePath)
 
 	linkFilePath:assertIsFilePath('linkFilePath')
 
-	local command = tabelize({'MKLINK'})
+	local command = tabelize({escapedArgument_MKLINK})
 
 	if linkContentsPath.isDirectory then
-		command:insert('/D')
+		command:insert(escapedArgument_SlashD)
 	end
 
 	-- Note that order is reverse of that for POSIX ln -s
-	command:insert(linkFilePath:toQuotedShellArgumentX(false))
-	command:insert(linkContentsPath:toQuotedShellArgumentX(false))
+	command:insert(linkFilePath:escapeToShellArgument(false, shellScript.shellLanguage))
+	command:insert(linkContentsPath:escapeToShellArgument(false, shellScript.shellLanguage))
 
 	shellScript:appendCommandLineToScript(unpack(command))
 end

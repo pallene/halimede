@@ -1274,6 +1274,11 @@ aliasedModules['require'] = require
 setUpModule(relativeRequireName('type'), type)
 halimede.type = type
 aliasedModules['type'] = type
+local isInstanceOf = halimede.class.Object.isInstanceOf
+halimede.type.isInstanceOf = isInstanceOf
+halimede.type.isObject = function(value)
+	isInstanceOf(value, Object)
+end
 
 setUpModule(relativeRequireName('assert'), assert)
 halimede.assert = assert

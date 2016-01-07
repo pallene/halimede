@@ -7,18 +7,23 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local sibling = halimede.build.shellScriptActions.strip
 local AbstractStrip = sibling.AbstractStrip
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('MacOsXStrip', AbstractStrip)
+
+local escapedArgument_strip = ShellArgument:new('strip')
+local escapedArgument_S = ShellArgument:new('-S')
+local escapedArgument_r = ShellArgument:new('-r')
 
 function module:initialize()
 	AbstractStrip.initialize(self, true)
 end
 
 function module:_executable(executableFilePathArgument)
-	return 'strip', '-S', '-r', executableFilePathArgument
+	return escapedArgument_strip, escapedArgument_S, escapedArgument_r, executableFilePathArgument
 end
 
 function module:_library(libraryFilePathArgument)
-	return 'strip', '-S', libraryFilePathArgument
+	return escapedArgument_strip, escapedArgument_S, libraryFilePathArgument
 end

@@ -18,6 +18,6 @@ end
 --noinspection UnusedDef
 function module:_execute(shellScript, builder, useHomebrew)
 	if useHomebrew then
-		shellScript:appendLinesToScript('EOF')
+		shellScript:appendLines('EOF')
 	end
 end

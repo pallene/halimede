@@ -7,9 +7,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('SetPathCmdShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_PATH = ShellArgument:new('PATH')
+local escapedArgument_Semicolon = ShellArgument:new(';')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -19,8 +23,8 @@ function module:_execute(shellScript, builder, paths)
 	assert.parameterTypeIsTable('paths', paths)
 
 	-- http://ss64.com/nt/path.html
-	shellScript:appendCommandLineToScript('PATH', ';')
+	shellScript:appendCommandLineToScript(escapedArgument_PATH, escapedArgument_Semicolon)
 	if #paths ~= 0 then
-		shellScript:appendCommandLineToScript('PATH', shellScript.shellLanguage:toPathsString(paths, true))
+		shellScript:appendCommandLineToScript(escapedArgument_PATH, shellScript.shellLanguage:escapeToPathsStringShellArgument(paths, true))
 	end
 end

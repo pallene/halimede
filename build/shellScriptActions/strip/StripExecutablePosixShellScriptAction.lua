@@ -6,7 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
 
 
@@ -18,12 +17,12 @@ end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
 function module:_execute(shellScript, builder, executableFilePath)
-	assert.parameterTypeIsInstanceOf('executableFilePath', executableFilePath, ShellPath)
+	assert.parameterTypeIsTable('executableFilePath', executableFilePath)
 
 	executableFilePath:assertIsFilePath('executableFilePath')
 
 	local strip = builder.strip
 	if strip then
-		strip:executable(shellScript, executableFilePath:toQuotedShellArgumentX(true))
+		strip:executable(shellScript, executableFilePath:escapeToShellArgument(true, shellScript.shellLanguage))
 	end
 end

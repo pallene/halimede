@@ -8,9 +8,14 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local sibling = halimede.build.shellScriptActions.strip
 local AbstractStrip = sibling.AbstractStrip
+local ShellArgument = halimede.io.shellScript.ShellArgument
+
 
 
 halimede.moduleclass('MksStrip', AbstractStrip)
+
+local escapedArgument_strip = ShellArgument:new('strip')
+local escapedArgument_m = ShellArgument:new('-m')
 
 function module:initialize()
 	AbstractStrip.initialize(self, false)
@@ -19,5 +24,5 @@ end
 function module:_executable(executableFilePathArgument)
 	assert.parameterTypeIsString('executableFilePathArgument', executableFilePathArgument)
 
-	return 'strip', '-m', executableFilePathArgument
+	return escapedArgument_strip, escapedArgument_m, executableFilePathArgument
 end

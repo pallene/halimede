@@ -7,18 +7,25 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local sibling = halimede.build.shellScriptActions.strip
 local AbstractStrip = sibling.AbstractStrip
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('GnuStrip', AbstractStrip)
+
+local escapedArgument_strip = ShellArgument:new('strip')
+local escapedArgument_preservedates= ShellArgument:new('--preserve-dates')
+local escapedArgument_enabledeterministicarchives = ShellArgument:new('--enable-deterministic-archives')
+local escapedArgument_stripdebug = ShellArgument:new('--strip-debug')
+local escapedArgument_stripunneeded = ShellArgument:new('--strip-unneeded')
 
 function module:initialize()
 	AbstractStrip.initialize(self, true)
 end
 
 function module:_executable(executableFilePathArgument)
-	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', '--strip-unneeded', executableFilePathArgument
+	return escapedArgument_strip, escapedArgument_preservedates, escapedArgument_enabledeterministicarchives, escapedArgument_stripdebug, escapedArgument_stripunneeded, executableFilePathArgument
 end
 
 function module:_library(libraryFilePathArgument)
-	return 'strip', '--preserve-dates', '--enable-deterministic-archives', '--strip-debug', libraryFilePathArgument
+	return escapedArgument_strip, escapedArgument_preservedates, escapedArgument_enabledeterministicarchives, escapedArgument_stripdebug, libraryFilePathArgument
 end

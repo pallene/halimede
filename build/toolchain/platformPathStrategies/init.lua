@@ -5,10 +5,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local Object = halimede.class.Object
-local isInstanceOf = Object.isInstanceOf
+local assert = halimede.assert
+local sibling = halimede.build.toolchain.platformPathStrategies
 
+local strategies = {
+	'Constant',
+	'Local',
+	'VersionAfter',
+	'VersionBefore'
+}
 
-halimede.modulefunction(function(value)
-	return isInstanceOf(value, Object)
-end)
+assert.globalTypeIsFunctionOrCall('ipairs')
+for _, strategy in ipairs(strategies) do
+	module[strategy] = halimede.require('halimede.build.toolchain.platformPathStrategies.' .. strategy .. 'PlatformPathStrategy'):new()
+end

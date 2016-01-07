@@ -6,19 +6,18 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local sibling = halimede.build.toolchain.platformPathStrategies
+local AbstractPlatformPathStrategy = sibling.AbstractPlatformPathStrategy
 
 
-halimede.moduleclass('CommentCmdShellScriptAction', AbstractShellScriptAction)
+halimede.moduleclass('ConstantPlatformPathStrategy', AbstractPlatformPathStrategy)
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self)
+	AbstractPlatformPathStrategy.initialize(self, false)
 end
 
-function module:_execute(shellScript, builder, comment)
-	assert.parameterTypeIsString('comment', comment)
-
-	local safeComment = comment:gsub('\0', ''):gsub('\r\n', '\r\nREM ')
-
-	shellScript:appendLines('', '', 'REM ' .. safeComment)
+-- eg returns '/opt/bin' if prefixPath == '/opt', perRecipeVersionRelativePathElements == {'package', 'version', 'dependencies'} and folderRelativePathElements == '{bin}'
+assert.globalTypeIsFunctionOrCall('unpack')
+function module:_path(prefixPath, destFolderShellPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
+	return prefixPath:appendFolders(unpack(folderRelativePathElements))
 end

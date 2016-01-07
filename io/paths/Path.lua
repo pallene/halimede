@@ -124,12 +124,12 @@ function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	return self.pathRelativity:toString(self.pathStyle, pathElementsCopy, self.isFile, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
 end
 
-function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
+function module:escapeToShellArgument(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	-- including ShellLanguage here causes a circular dependency
 	--assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 
-	return ShellArgument:new(shellLanguage:toQuotedShellArgument(self:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)))
+	return ShellArgument:new(shellLanguage:escapeToShellSafeString(self:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)))
 end
 
 function module:hasNonEmptyDevice()

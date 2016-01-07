@@ -13,7 +13,7 @@ local exception = halimede.exception
 local Path = halimede.io.paths.Path
 local ShellArgument = sibling.ShellArgument
 local ShellLanguage = sibling.ShellLanguage
-local isInstanceOf = halimede.class.Object.isInstanceOf
+local isInstanceOf = halimede.type.isInstanceOf
 local tabelize = halimede.table.tabelize
 local areInstancesEqual = halimede.table.equality.areInstancesEqual
 
@@ -107,16 +107,13 @@ function module:toString(specifyCurrentDirectoryExplicitlyIfAppropriate)
 	exception.throw('Do not use this method on a ShellPath')
 end
 
-function module:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
+function module:escapeToShellArgument(specifyCurrentDirectoryExplicitlyIfAppropriate, shellLanguage)
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsInstanceOfOrNil('shellLanguage', shellLanguage, ShellLanguage)
 
 	local chosenShellLanguage = shellLanguage or self.shellLanguage
 	return ShellArgument:new(self:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate, chosenShellLanguage))
 end
-
-
-
 
 assert.globalTypeIsFunctionOrCall('tostring')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')
@@ -132,5 +129,5 @@ function module:_toString(specifyCurrentDirectoryExplicitlyIfAppropriate, shellL
 		prefix = ''
 	end
 
-	return prefix .. shellLanguage:toQuotedShellArgument(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
+	return prefix .. shellLanguage:escapeToShellSafeString(self.path:toString(specifyCurrentDirectoryExplicitlyIfAppropriate))
 end

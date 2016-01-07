@@ -38,10 +38,29 @@ function module:_execute(shellScript, builder, configHDefines, filePath)
 
 	self.commentShellScriptAction:execute(shellScript, builder, 'Creation of config.h')
 
-	local quotedStringShellPath = actualFilePath:toQuotedShellArgumentX(true)
+	local quotedStringShellPath = actualFilePath:escapeToShellArgument(true, shellScript.shellLanguage)
 	self:_append(shellScript, quotedStringShellPath, configHDefines)
 end
 
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:_append(shellScript, quotedStringShellPath, configHDefines)
+	local lineSets = configHDefines:toCPreprocessorTextLines()
+	
+	local emptyLine = self:_line(shellScript, '')
+	
+	-- This approach is inefficient, as it involves constantly opening and closing a file handle, but it is simpler to code for and works on Windows where heredocs and multiline strings are very hard to produce
+	local redirectionMethod = 'redirectStandardOutput'
+	for _, lineSet in ipairs(lineSets) do
+		for _, line in ipairs(lineSet) do
+			local arguments = self:_line(shellScript, line)
+			arguments:insert(shellScript[redirectionMethod](shellScript, quotedStringShellPath))
+			shellScript:appendCommandLineToScript(appendLine, redirected)
+			redirectionMethod = 'appendStandardOutput'
+		end
+		shellScript:appendCommandLineToScript(emptyLine, redirected)
+	end
+end
+
+function module:_line(shellScript, line)
 	exception.throw('Abstract method')
 end

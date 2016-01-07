@@ -8,9 +8,12 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('PushdCmdShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_PUSHD = ShellArgument:new('PUSHD')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -19,5 +22,5 @@ end
 function module:_execute(shellScript, builder, path)
 	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
 
-	shellScript:appendCommandLineToScript('PUSHD', path:toQuotedShellArgumentX(true))
+	shellScript:appendCommandLineToScript(escapedArgument_PUSHD, path:escapeToShellArgument(true, shellScript.shellLanguage))
 end

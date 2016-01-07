@@ -9,6 +9,7 @@ local assert = halimede.assert
 local sibling = halimede.build.toolchain
 local Platform = sibling.Platform
 local PlatformPaths = sibling.PlatformPaths
+local ShellPath = halimede.io.shellScript.ShellPath
 
 
 halimede.moduleclass('RecipePaths')
@@ -23,10 +24,23 @@ function module:initialize(platform, platformPaths, versionRelativePathElements)
 	self.versionRelativePathElements = versionRelativePathElements
 end
 
-function module:path(pathName)
+function module:path(destFolderShellPath, pathName)
+	assert.parameterTypeIsInstanceOf('destFolderShellPath', destFolderShellPath, ShellPath)
 	assert.parameterTypeIsString('pathName', pathName)
 
-	return self.platformPaths[pathName](self.platformPaths, self.versionRelativePathElements)
+	return self.platformPaths[pathName](self.platformPaths, destFolderShellPath, self.versionRelativePathElements)
+end
+
+function module:destinationPath(destFolderShellPath, pathName)
+	assert.parameterTypeIsInstanceOf('destFolderShellPath', destFolderShellPath, ShellPath)
+	assert.parameterTypeIsString('pathName', pathName)
+	
+	local path = self:path(destFolderShellPath, pathName)
+	if self.platformPaths:destinationIsInstallation() then
+		return path
+	end
+	
+	return destFolderShellPath:appendAbsolutePathAsRelativePath()
 end
 
 function module:toExecutableRelativeFilePath(...)

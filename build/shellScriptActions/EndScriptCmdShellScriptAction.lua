@@ -17,5 +17,5 @@ end
 
 --noinspection UnusedDef
 function module:_execute(shellScript, builder, useHomebrew)
-	shellScript:appendLinesToScript('ENDLOCAL')
+	shellScript:appendLines('ENDLOCAL')
 end

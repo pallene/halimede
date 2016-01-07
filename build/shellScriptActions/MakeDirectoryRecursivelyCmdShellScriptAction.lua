@@ -8,9 +8,12 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('MakeDirectoryRecursivelyCmdShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_MD = ShellArgument:new('MD')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
@@ -22,5 +25,5 @@ function module:_execute(shellScript, builder, path, mode)
 
 	-- Problems with Windows mkdir if command extensions are not enabled: https://stackoverflow.com/questions/905226/mkdir-p-linux-windows#905239
 	-- We use MD to differentiate from mkdir, which can be present if GNU Utils for Windows are installed
-	shellScript:appendCommandLineToScript('MD', path:toQuotedShellArgumentX(true))
+	shellScript:appendCommandLineToScript(escapedArgument_MD, path:escapeToShellArgument(true, shellScript.shellLanguage))
 end

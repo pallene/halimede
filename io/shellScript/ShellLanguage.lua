@@ -12,13 +12,14 @@ local isNil = type.isNil
 local isBoolean = type.isBoolean
 local isString = type.isString
 local isNumber = type.isNumber
+local isPositiveInteger = type.isPositiveInteger
 local hasPackageChildFieldOfTypeString = type.hasPackageChildFieldOfTypeString
 local tabelize = halimede.table.tabelize
 local unique = halimede.table.unique
 local packageConfiguration = halimede.packageConfiguration
 local getenv = halimede.getenv
 local exception = halimede.exception
-local isInstanceOf = halimede.class.Object.isInstanceOf
+local isInstanceOf = halimede.type.isInstanceOf
 local Path = halimede.io.paths.Path
 local PathStyle = halimede.io.paths.PathStyle
 local ShellArgument = sibling.ShellArgument
@@ -125,7 +126,7 @@ function module:_appendRedirectionsAndCreateCommandString(standardIn, standardOu
 		arguments:insert(self:redirectStandardError(standardError))
 	end
 
-	return self:toShellCommand(unpack(arguments))
+	return self:_toShellCommandStringIncludingRedirections(unpack(arguments))
 end
 
 function module:executeCommand(standardIn, standardOut, standardError, ...)
@@ -211,22 +212,22 @@ function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 	end
 end
 
-function module:toPathsString(paths, specifyCurrentDirectoryExplicitlyIfAppropriate)
+function module:escapeToPathsStringShellArgument(paths, specifyCurrentDirectoryExplicitlyIfAppropriate)
 	assert.parameterTypeIsTable('paths', paths)  -- shell paths
 	assert.parameterTypeIsBoolean('specifyCurrentDirectoryExplicitlyIfAppropriate', specifyCurrentDirectoryExplicitlyIfAppropriate)
 
 	local result = tabelize()
 	local uniquePaths = unique(paths)
 	for _, path in ipairs(uniquePaths) do
-		path:toQuotedShellArgumentX(specifyCurrentDirectoryExplicitlyIfAppropriate, self):insertValue(result)
+		path:escapeToShellArgument(specifyCurrentDirectoryExplicitlyIfAppropriate, self):insertValue(result)
 	end
 
-	return result:concat(self.pathSeparator)
+	return ShellArgument:new(result:concat(self.pathSeparator))
 end
 
-function module:toQuotedShellArgument(argument)
+function module:escapeToShellSafeString(argument)
 	if isString(argument) then
-		return self:_toQuotedShellArgument(argument)
+		return self:_escapeToShellSafeString(argument)
 	end
 
 	assert.parameterTypeIsInstanceOf('argument', argument, ShellArgument)
@@ -239,7 +240,7 @@ function module:quoteEnvironmentVariable(argument)
 	return self:_quoteEnvironmentVariable(argument)
 end
 
-function module:_toQuotedShellArgument(argument)
+function module:_escapeToShellSafeString(argument)
 	exception.throw('Abstract Method')
 end
 
@@ -249,109 +250,98 @@ end
 
 function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
-	if isNumber(filePathOrFileDescriptor) then
+	if isPositiveInteger(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
+	elseif isString(filePathOrFileDescriptor)
+		redirection = self:escapeToShellSafeString(filePathOrFileDescriptor)
 	elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		redirection = filePathOrFileDescriptor.argument
 	else
-		redirection = self:toQuotedShellArgument(filePathOrFileDescriptor)
+		exception.throw("filePathOrFileDescriptor must be a positive integer (or zero), string or ShellArgument")
 	end
 
 	return ShellArgument:new(fileDescriptor .. symbol .. redirection)
 end
 
-local function assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-	if isNumber(filePathOrFileDescriptor) then
-		assert.parameterTypeIsPositiveInteger('filePathOrFileDescriptor', filePathOrFileDescriptor)
-		return
-	end
-
-	if isString(filePathOrFileDescriptor) then
-		return
-	end
-
-	if isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
-		return
-	end
-	exception.throw("The parameter 'filePathOrFileDescriptor' is not a positive integer, string or already escaped argument")
-end
-
 function module:redirectInput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
-	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '<')
 end
 
 function module:redirectOutput(fileDescriptor, filePathOrFileDescriptor)
 	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
-	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
 
 	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>')
 end
 
-function module:redirectStandardInput(filePathOrFileDescriptor)
-	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
+function module:appendOutput(fileDescriptor, filePathOrFileDescriptor)
+	assert.parameterTypeIsPositiveInteger('fileDescriptor', fileDescriptor)
 
+	return self:_redirect(fileDescriptor, filePathOrFileDescriptor, '>>')
+end
+
+function module:redirectStandardInput(filePathOrFileDescriptor)
 	return self:redirectInput(ShellLanguage.standardIn, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardOutput(filePathOrFileDescriptor)
-	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-
 	return self:redirectOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
 end
 
 function module:redirectStandardError(filePathOrFileDescriptor)
-	assertParameterIsAcceptableForRedirection(filePathOrFileDescriptor)
-
 	return self:redirectOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
 end
 
+function module:appendStandardOutput(filePathOrFileDescriptor)
+	return self:appendOutput(ShellLanguage.standardOut, filePathOrFileDescriptor)
+end
+
+function module:appendStandardError(filePathOrFileDescriptor)
+	return self:appendOutput(ShellLanguage.standardError, filePathOrFileDescriptor)
+end
+
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:toShellCommand(...)
+function module:_toShellCommandStringIncludingRedirections(...)
 	local arguments = {...}
 
 	local commandBuffer = tabelize()
 
 	for _, argument in ipairs(arguments) do
 		if argument ~= nil then
-			if isString(argument) then
-				commandBuffer:insert(self:toQuotedShellArgument(argument))
+			local escapedArgumentStringValue
+			if isPositiveInteger(argument) then
+				escapedArgumentStringValue = '' .. argument
+			elseif isString(argument) then
+				escapedArgumentStringValue = self:escapeToShellSafeString(argument)
+			elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
+				escapedArgumentStringValue = argument.argument
 			else
-				commandBuffer:insert(argument.argument)
+				exception.throw("argument must be nil, a positive integer (or zero), string or ShellArgument")
 			end
+			commandBuffer:insert(escapedArgumentStringValue)
 		end
 	end
 
 	return commandBuffer:concat(' ')
 end
 
-function module:toShellCommandLine(...)
-	return self:toShellCommand(...) .. self.newline
-end
-
-assert.globalTypeIsFunctionOrCall('ipairs')
-function module:appendLinesToScript(tabelizedScriptBuffer, ...)
-	assert.parameterTypeIsTable('tabelizedScriptBuffer', tabelizedScriptBuffer)
-
-	local lines = {...}
-	for _, line in ipairs(lines) do
-		assert.parameterTypeIsString('line', line)
-
-		tabelizedScriptBuffer:insert(line .. self.newline)
-	end
-end
-
 function module:appendCommandLineToScript(tabelizedScriptBuffer, ...)
 	assert.parameterTypeIsTable('tabelizedScriptBuffer', tabelizedScriptBuffer)
-
-	tabelizedScriptBuffer:insert(self:toShellCommandLine(...))
-	self:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+	
+	local commandString = self:_toShellCommandStringIncludingRedirections(...)
+	tabelizedScriptBuffer:insert(self:terminateShellCommandString(commandString))
+	self:_appendCommandLineToScript_applyChecksForNonZeroExitCode(tabelizedScriptBuffer)
 end
 
-function module:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+function module:_appendCommandLineToScript_applyChecksForNonZeroExitCode(tabelizedScriptBuffer)
 	exception.throw('Abstract Method')
+end
+
+function module:terminateShellCommandString(commandString)
+	assert.parameterTypeIsString('commandString', commandString)
+	
+	return commandString .. self.newline
 end
 
 function module:parentPaths(count)
@@ -450,7 +440,7 @@ function PosixShellLanguage:initialize()
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find', 'gsub')
-function PosixShellLanguage:_toQuotedShellArgument(argument)
+function PosixShellLanguage:_escapeToShellSafeString(argument)
 	if argument:find('\0') ~= nil then
 		exception.throw("POSIX shell script arguments can not contain ASCII NUL (0x00)")
 	end
@@ -461,7 +451,7 @@ function PosixShellLanguage:_quoteEnvironmentVariable(argument)
 	return '"${' .. argument .. '}"'
 end
 
-function PosixShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
+function PosixShellLanguage:_appendCommandLineToScript_applyChecksForNonZeroExitCode(tabelizedScriptBuffer)
 end
 
 function PosixShellLanguage:_iterateOverBinaryFileExtensions(callback)
@@ -477,6 +467,7 @@ function CmdShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', ';', 'NUL', true, 'cmd')
 
 	self.binaryFileExtensionsCached = nil
+	self.nonZeroExitChecksCommandStringLine = self:terminateShellCommandString('IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
 end
 
 local slash = '\\'
@@ -497,7 +488,7 @@ end
 
 -- Quoting is a mess in Cmd; these rules only work for cmd.exe /C (it's a per-program thing)
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'gsub')
-function CmdShellLanguage:_toQuotedShellArgument(argument)
+function CmdShellLanguage:_escapeToShellSafeString(argument)
 	-- Quote a DIR including any drive or UNC letters, replacing any POSIX-isms
     if argument:match('^[%.a-zA-Z]?:?[\\/]')  then
        argument = argument:gsub('/', slash)
@@ -522,12 +513,12 @@ function CmdShellLanguage:_quoteEnvironmentVariable(argument)
 end
 
 -- http://lua-users.org/lists/lua-l/2013-11/msg00367.html
-function CmdShellLanguage:toShellCommand(...)
-	return ShellLanguage.toShellCommand(self, 'type NUL &&', ...)
+function CmdShellLanguage:_toShellCommandStringIncludingRedirections(...)
+	return 'type NUL && ' .. ShellLanguage._toShellCommandStringIncludingRedirections(self, ...)
 end
 
-function CmdShellLanguage:_appendCommandLineToScript(tabelizedScriptBuffer, ...)
-	self:appendLinesToScript(tabelizedScriptBuffer, 'IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')
+function CmdShellLanguage:_appendCommandLineToScript_applyChecksForNonZeroExitCode(tabelizedScriptBuffer)
+	tabelizedScriptBuffer:insert(self.nonZeroExitChecksCommandStringLine)
 end
 
 local DefaultPathExt = ".com; .exe; .bat; .cmd"

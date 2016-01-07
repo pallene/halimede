@@ -42,12 +42,8 @@ function module:writeToFileAndExecute(scriptFilePath, standardOut, standardError
 	self.shellScriptExecutor:executeScriptExpectingSuccess(scriptFilePath, standardOut, standardError)
 end
 
-
-
-
-
-function module:toQuotedShellArgument(argument)
-	return self.shellLanguage:toQuotedShellArgument(argument)
+function module:escapeToShellSafeString(argument)
+	return self.shellLanguage:escapeToShellSafeString(argument)
 end
 
 function module:quoteEnvironmentVariable(argument)
@@ -58,8 +54,13 @@ function module:redirectStandardOutput(filePathOrFileDescriptor)
 	return self.shellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
 end
 
-function module:appendLinesToScript(...)
-	return self.shellLanguage:appendLinesToScript(self.tabelizedScriptBuffer, ...)
+function module:appendLines(...)
+	local commandStrings = {...}
+	for _, commandString in ipairs(commandStrings) do
+		assert.parameterTypeIsString('commandString', commandString)
+		
+		tabelizedScriptBuffer:insert(self.shellLanguage:terminateShellCommandString(commandString))
+	end
 end
 
 function module:appendCommandLineToScript(...)

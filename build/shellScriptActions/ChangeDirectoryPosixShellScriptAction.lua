@@ -8,16 +8,19 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local ShellPath = halimede.io.shellScript.ShellPath
 local AbstractShellScriptAction = halimede.build.shellScriptActions.AbstractShellScriptAction
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('ChangeDirectoryPosixShellScriptAction', AbstractShellScriptAction)
+
+local escapedArgument_cd = ShellArgument:new('cd')
 
 function module:initialize()
 	AbstractShellScriptAction.initialize(self)
 end
 
 function module:_execute(shellScript, builder, path)
-	assert.parameterTypeIsInstanceOf('path', path, ShellPath)
+	assert.parameterTypeIsTable('path', path)
 
-	shellScript:appendCommandLineToScript('cd', path:toQuotedShellArgumentX(true))
+	shellScript:appendCommandLineToScript(escapedArgument_cd, path:escapeToShellArgument(true, shellScript.shellLanguage))
 end

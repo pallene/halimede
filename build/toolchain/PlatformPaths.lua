@@ -6,42 +6,10 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
---[[
-
-Some non-configure based installations (eg Lua and Shellfire) can only use relative paths for things like libdir. They can probably use '..' but will need patching
-	-- For shellfire applications, though, there isn't really any need to install
-- Homebrew installs to say /usr/local/Cellar/make/4.1, then creates helpful symlinks from /usr/local (the sysroot)
-	- We could do something similar, but with a file listing which version is the 'default' (this can be done using a pattern match, eg 4.1-customs/dep-hashes might be matched by 4.*-*/*; multiple matches result in 'longest' file name winning. Not good for RC1 releases, perhaps, but means dot-releases and debug builds take priority)
-- We might like to explore not having lib, bin, etc inside the package folder, so we can split out a noexec filesystem (and potentially also optional docs, headers, etc)
-	- In essence, only /bin needs to be executable
-	- We could hardlink into an /opt/bin, say, then delete the original /opt/package/version/bin
-		- This works for all applications bar those that do relative discovery of their libraries / files (which is quite rare, but is what shellfire does and is what Lua does)
-	- We could have subfolders under /opt/bin, eg /opt/bin/package/version/bin - that prevents collision
-	- There are a very small number of version-resistant programs that need to be in well-known locations
-		- /usr/bin/env [versioning almost inconsequential, as it never needs to change]
-		- /bin/sh & /usr/bin/sh [a common assumption] [versioning almost inconsequential now if using dash or ash; slight issue if using busybox sh; big issue if using bash in POSIX mode]
-		- /bin/bash [a common assumption]; versioning breaks lots of things
-		- Lua (5.1 vs 5.2 vs 5.3)
-		- Python (2.7 vs 3)
-	- There are also limitations on how complex we can make PATH
-		- Some scripts reset PATH (not unreasonably)
-		- So follow the hombrew approach
-		- We can also install binaries with a version-suffix
-	- So we need a 'default' version of every program
-	- Each package can be given a range of 100 group ids to use (or it could use extended groups)
-		- Programs can belong to one of these groups
-
-
-sysrootPath			eg /  or  /opt/readonly
-perRecipeVersionRelativePathElements	eg package/version-variants/dependencies such as make/4.1-custom/hash
-prefixPath			eg /opt/readonly  (for share, var, etc)
-execPrefixPath		eg /opt/executable  (for bin, sbin and libexec [and potentially lib]); also for any block or character devices (will be mounted nosuid)
-libPrefixPath		defaults to prefixPath; exists because it is debateable whether libraries should go under prefixPath or execPrefixPath (GNU ./configure's preference, but this makes having a readonly /usr/lib, say, impossible. Traditionally .so libs could be executable but in practice never are used this way)
-Note that it is still possible to run scripts from a filesystem mounted noexec
-]]--
-
 local Path = halimede.io.paths.Path
+local ShellPath = halimede.io.shellScript.ShellPath
 local exception = halimede.exception
+local AbstractPlatformPathStrategy = halimede.build.toolchain.platformPathStrategies.AbstractPlatformPathStrategy
 
 
 halimede.moduleclass('PlatformPaths')
@@ -55,15 +23,15 @@ module.static.validatePath = function(path, name, mustBe)
 end
 local validatePath = module.validatePath
 
-function module:initialize(perRecipeVersioningStrategy, sysrootPath, readonlyPrefixPath, execPrefixPath, libPrefixPath)
-	assert.parameterTypeIsFunctionOrCall('perRecipeVersioningStrategy', perRecipeVersioningStrategy)
+function module:initialize(platformPathStrategy, sysrootPath, readonlyPrefixPath, execPrefixPath, libPrefixPath)
+	assert.parameterTypeIsInstanceOf('platformPathStrategy', platformPathStrategy, AbstractPlatformPathStrategy)
 	assert.parameterTypeIsInstanceOf('sysrootPath', sysrootPath, Path)
 	assert.parameterTypeIsInstanceOf('readonlyPrefixPath', readonlyPrefixPath, Path)
 
 	validatePath(sysrootPath, 'sysrootPath', 'isEffectivelyAbsolute')
 	validatePath(readonlyPrefixPath, 'readonlyPrefixPath', 'isEffectivelyAbsolute')
 
-	self.perRecipeVersioningStrategy = perRecipeVersioningStrategy
+	self.platformPathStrategy = platformPathStrategy
 	self.sysrootPath = sysrootPath
 	self.readonlyPrefixPath = readonlyPrefixPath
 
@@ -84,24 +52,29 @@ function module:initialize(perRecipeVersioningStrategy, sysrootPath, readonlyPre
 	end
 end
 
-function module:_path(prefixPath, perRecipeVersionRelativePathElements, ...)
+function module:destinationIsInstallation()
+	return self.platformPathStrategy.destinationIsInstallation
+end
+
+function module:_path(prefixPath, destFolderShellPath, perRecipeVersionRelativePathElements, ...)
 	assert.parameterTypeIsInstanceOf('prefixPath', prefixPath, Path)
+	assert.parameterTypeIsInstanceOf('destFolderShellPath', destFolderShellPath, ShellPath)
 	assert.parameterTypeIsTable('perRecipeVersionRelativePathElements', perRecipeVersionRelativePathElements)
 
 	local folderRelativePathElements = {...}
-	return self.perRecipeVersioningStrategy(prefixPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
+	return self.platformPathStrategy:path(prefixPath, destFolderShellPath, folderRelativePathElements, perRecipeVersionRelativePathElements)
 end
 
-function module:_readonlyPrefixPath(perRecipeVersionRelativePathElements, ...)
-	return self:_path(self.readonlyPrefixPath, perRecipeVersionRelativePathElements, ...)
+function module:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, ...)
+	return self:_path(self.readonlyPrefixPath, destFolderShellPath, perRecipeVersionRelativePathElements, ...)
 end
 
-function module:_execPrefixPath(perRecipeVersionRelativePathElements, ...)
-	return self:_path(self.execPrefixPath, perRecipeVersionRelativePathElements, ...)
+function module:_execPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, ...)
+	return self:_path(self.execPrefixPath, destFolderShellPath, perRecipeVersionRelativePathElements, ...)
 end
 
-function module:_libPrefixPath(perRecipeVersionRelativePathElements, ...)
-	return self:_path(self.libPrefixPath, perRecipeVersionRelativePathElements, ...)
+function module:_libPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, ...)
+	return self:_path(self.libPrefixPath, destFolderShellPath, perRecipeVersionRelativePathElements, ...)
 end
 
 function module:sysroot()
@@ -109,101 +82,101 @@ function module:sysroot()
 end
 
 -- User Executables (bindir)
-function module:bin(perRecipeVersionRelativePathElements)
-	return self:_execPrefixPath(perRecipeVersionRelativePathElements, 'bin')
+function module:bin(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_execPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'bin')
 end
 
 -- System Administrator Executables (sbindir)
-function module:sbin(perRecipeVersionRelativePathElements)
-	return self:_execPrefixPath(perRecipeVersionRelativePathElements, 'sbin')
+function module:sbin(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_execPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'sbin')
 end
 
 -- Program Executables (libexecdir)
-function module:libexec(perRecipeVersionRelativePathElements)
-	return self:_execPrefixPath(perRecipeVersionRelativePathElements, 'libexec')
+function module:libexec(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_execPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'libexec')
 end
 
 -- TODO: Needs to go into a per-machine location so it can be modified / mounted independently of build
 -- TODO: Probably some sort of overlay approach using rsync (ie replacements for default config)
 -- Read-only single-machine data (sysconfdir)
-function module:etc(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'etc')
+function module:etc(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'etc')
 end
 
 -- Modifiable architecture-independent data (sharedstatedir)
-function module:com(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'com')
+function module:com(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'com')
 end
 
 -- TODO: Probably needs to go into a per-machine location so can be independently mountained (we will want to retain state)
 -- TODO: We may not want to self.version this
 -- Modifiable single-machine data (localstatedir)
-function module:var(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'var')
+function module:var(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'var')
 end
 
 -- TODO: Consider splitting out .a from .so during installs
 -- Object code libraries (libdir)  (can contain both static .a and dynamic .so libraries as well as pkgconfig .pc cruft; the former is only needed at compile-time)
-function module:lib(perRecipeVersionRelativePathElements)
-	return self:_libPrefixPath(perRecipeVersionRelativePathElements, 'lib')
+function module:lib(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_libPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'lib')
 end
 
 -- C header files (includedir)
-function module:include(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'include')
+function module:include(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'include')
 end
 
 -- C header files for non-gcc (oldincludedir)
-function module:oldinclude(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'oldinclude')  -- GNU configure default is /usr/include
+function module:oldinclude(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'oldinclude')  -- GNU configure default is /usr/include
 end
 
 -- Read-only archictecture-independent data root (datarootdir)
-function module:share(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share')
+function module:share(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share')
 end
 
 -- Read-only idiosyncratic read-only architecture-independent data (datadir)
-function module:data(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'data')  -- GNU configure default is == datarootdir
+function module:data(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'data')  -- GNU configure default is == datarootdir
 end
 
 -- info documentation (infodir)
-function module:info(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'info')
+function module:info(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'info')
 end
 
 -- locale-dependent data (localedir)
-function module:locale(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'locale')
+function module:locale(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'locale')
 end
 
 -- man documentation (mandir)
-function module:man(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'man')
+function module:man(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'man')
 end
 
 -- documentation root (docdir)
-function module:doc(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'doc')
+function module:doc(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'doc')
 end
 
 -- html documentation (htmldir)
-function module:html(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'doc', 'html')
+function module:html(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'doc', 'html')
 end
 
 -- dvi documentation (dvidir)
-function module:dvi(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'doc', 'dvi')
+function module:dvi(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'doc', 'dvi')
 end
 
 -- pdf documentation (pdfdir)
-function module:pdf(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'doc', 'pdf')
+function module:pdf(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'doc', 'pdf')
 end
 
 -- ps documentation (psdir)
-function module:ps(perRecipeVersionRelativePathElements)
-	return self:_readonlyPrefixPath(perRecipeVersionRelativePathElements, 'share', 'doc', 'ps')
+function module:ps(destFolderShellPath, perRecipeVersionRelativePathElements)
+	return self:_readonlyPrefixPath(destFolderShellPath, perRecipeVersionRelativePathElements, 'share', 'doc', 'ps')
 end

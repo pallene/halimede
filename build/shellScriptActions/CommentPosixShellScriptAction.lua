@@ -20,5 +20,5 @@ function module:_execute(shellScript, builder, comment)
 
 	local safeComment = comment:gsub('\0', ''):gsub('\n', '\n# ')
 
-	shellScript:appendLinesToScript('\n\n# ' .. safeComment)
+	shellScript:appendLines('', '', '# ' .. safeComment)
 end

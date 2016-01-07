@@ -8,7 +8,7 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local parameterIsNotMessage = assert.parameterIsNotMessage
 local withLevel = assert.withLevel
-local isInstanceOf = halimede.class.Object.isInstanceOf
+local isInstanceOf = halimede.type.isInstanceOf
 
 
 local function parameterTypeIsInstanceOf(parameterName, value, Class)

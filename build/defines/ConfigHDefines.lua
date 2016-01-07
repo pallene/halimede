@@ -6,9 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local isInstanceOf = halimede.type.isInstanceOf
 local tabelize = halimede.table.tabelize
 local sibling = halimede.build.defines
 local Defines = sibling.Defines
+local ShellArgument
 
 
 halimede.moduleclass('ConfigHDefines', Defines)
@@ -16,6 +18,14 @@ halimede.moduleclass('ConfigHDefines', Defines)
 function module:initialize()
 	Defines.initialize(self)
 	self.ensureDefinitions = {}
+end
+
+function module:_toStringDefineValue(defineValue)
+	if type.isString(defineValue) then
+		return defineValue
+	end
+	-- also CommandLineDefines, too
+	if isInstanceOf(defineValue, )
 end
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
@@ -46,12 +56,6 @@ function module:toCPreprocessorTextLines()
 		buffer:insert(index[defineName])
 	end
 	return buffer
-end
-
-function module:toCPreprocessorText(newline)
-	assert.parameterTypeIsString('newline', newline)
-	
-	return self:toCPreprocessorTextLines(newline):concat(newline)
 end
 
 function module:_ensureDefinition(defineName, enable, defineValue)
