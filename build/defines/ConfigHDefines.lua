@@ -10,69 +10,35 @@ local isInstanceOf = halimede.type.isInstanceOf
 local tabelize = halimede.table.tabelize
 local sibling = halimede.build.defines
 local Defines = sibling.Defines
-local ShellArgument
+local defineValues = sibling.defineValues
+local AbstractDefineValue = defineValues.AbstractDefineValue
+local StringDefineValue = defineValues.StringDefineValue
 
+
+local One = StringDefineValue:new('1')
 
 halimede.moduleclass('ConfigHDefines', Defines)
 
 function module:initialize()
 	Defines.initialize(self)
-	self.ensureDefinitions = {}
 end
 
-function module:_toStringDefineValue(defineValue)
-	if type.isString(defineValue) then
-		return defineValue
-	end
-end
-
-assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs')
 function module:toCPreprocessorTextLines()
-	local defineNames = tabelize()
-	local index = {}
-	local buffer = tabelize()
-	for defineName, _ in pairs(self.explicitlyUndefine) do
-		defineNames:insert(defineName)
-		index[defineName] = {'#undef ' .. defineName}
-	end
-	for defineName, defineValue in pairs(self.defines) do
-		defineNames:insert(defineName)
-		index[defineName] = {'#define ' .. defineName .. ' ' .. defineValue}
-	end
-	for defineName, defineValue in pairs(self.ensureDefinitions) do
-		defineNames:insert(defineName)
-		
-		index[defineName] = {
-			'#ifndef ' .. defineName,
-			'\t#define ' .. defineName .. ' ' .. defineValue,
-			'#endif'
-		}
+	local lineSets = tabelize()
+	
+	for _, action in ipairs(self.actions) do
+		lineSets:insert(action:toCPreprocessorTextLines())
 	end
 	
-	defineNames:sort()
-	for _, defineName in ipairs(defineNames) do
-		buffer:insert(index[defineName])
-	end
-	return buffer
+	return lineSets
 end
 
-function module:_ensureDefinition(defineName, enable, defineValue)
-	if defineValue ~= nil then
-		assert.parameterTypeIsString('defineValue', defineValue)
-	end
-	self.ensureDefinitions[defineName] = defineValue
-end
 
--- TODO: Build Variant
 -- Define to 1 if translation of program messages to the user's native language is requested.
 function module:ENABLE_NLS(enable)
 	self:boolean('ENABLE_NLS', enable)
 end
-
-
-
-
-
 
 
 -- Name of package
@@ -552,12 +518,7 @@ end
 -- Mandatory
 -- Define to the character that separates directories in PATH.
 function module:PATH_SEPARATOR_CHAR(character)
-	assert.parameterTypeIsString('character', character)
-	if #character ~= 1 then
-		exception.throw("The path separator character must be exactly one character, it can not be '%s'", character)
-	end
-
-	self.defines.PATH_SEPARATOR_CHAR = "'" .. character .. "'"
+	self:quotedCharacter('PATH_SEPARATOR_CHAR', character)
 end
 
 -- Mandatory
@@ -611,7 +572,7 @@ end
 -- AC_SYS_LARGEFILE  (Large file support; Irix 6.2+ CC needs '-n32')
 -- Enable large inode numbers on Mac OS X 10.5.
 function module:_DARWIN_USE_64_BIT_INODE(enable)
-	self:_ensureDefinition('_DARWIN_USE_64_BIT_INODE', enable, '1')
+	self:_ensureDefinition('_DARWIN_USE_64_BIT_INODE', enable, One)
 end
 
 -- AC_SYS_LARGEFILE
@@ -632,11 +593,7 @@ end
 -- Define to 2 if the system does not provide POSIX.1 features except with this defined.
 -- MINIX only
 function module:_POSIX_1_SOURCE(enable)
-	if enable then
-		self.definitions['_POSIX_1_SOURCE'] = '2'
-	else
-		self:undefine('_POSIX_1_SOURCE')
-	end
+	self:booleanAsTwo('_POSIX_1_SOURCE', enable)
 end
 
 -- AC_USE_SYSTEM_EXTENSIONS
@@ -654,42 +611,44 @@ end
 
 -- Enable extensions on AIX 3, Interix.
 function module:_ALL_SOURCE(enable)
-	self:_ensureDefinition('_ALL_SOURCE', enable, '1')
+	self:_ensureDefinition('_ALL_SOURCE', enable, One)
 end
 
 -- Enable GNU extensions on systems that have them.
 function module:_GNU_SOURCE(enable)
-	self:_ensureDefinition('_GNU_SOURCE', enable, '1')
+	self:_ensureDefinition('_GNU_SOURCE', enable, One)
 end
 
 -- Enable threading extensions on Solaris.
 function module:_POSIX_PTHREAD_SEMANTICS(enable)
-	self:_ensureDefinition('_POSIX_PTHREAD_SEMANTICS', enable, '1')
+	self:_ensureDefinition('_POSIX_PTHREAD_SEMANTICS', enable, One)
 end
 
 -- Enable extensions on HP NonStop.
 function module:_TANDEM_SOURCE(enable)
-	self:_ensureDefinition('_TANDEM_SOURCE', enable, '1')
+	self:_ensureDefinition('_TANDEM_SOURCE', enable, One)
 end
 
 -- Enable general extensions on Solaris.
 function module:__EXTENSIONS__(enable)
-	self:_ensureDefinition('__EXTENSIONS__', enable, '1')
+	self:_ensureDefinition('__EXTENSIONS__', enable, One)
 end
 
 -- Define to empty if `const' does not conform to ANSI C.
+local Empty = StringDefineValue:new('')
 function module:const(enable)
-	self:defineIfMissing('const', enable, '')
+	self:defineIfMissing('const', enable, Empty)
 end
 
 -- Define to `int' if <sys/types.h> doesn't define.
+local int = StringDefineValue:new('int')
 function module:uid_t(enable)
-	self:defineIfMissing('uid_t', enable, 'int')
+	self:defineIfMissing('uid_t', enable, int)
 end
 
 -- Define to `int' if <sys/types.h> doesn't define.
 function module:gid_t(enable)
-	self:defineIfMissing('gid_t', enable, 'int')
+	self:defineIfMissing('gid_t', enable, int)
 end
 
 function module:WITH_DMALLOC(enable)

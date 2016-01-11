@@ -7,31 +7,21 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments
-local sibling = halimede.build.defines
-local Defines = sibling.Defines
+local exception = halimede.exception
 
 
-halimede.moduleclass('CommandLineDefines', Defines)
+halimede.moduleclass('AbstractDefineValue')
 
-function module:initialize(doNotPredefineSystemOrCompilerDriverMacros)
-	assert.parameterTypeIsBoolean('doNotPredefineSystemOrCompilerDriverMacros', doNotPredefineSystemOrCompilerDriverMacros)
-
-	Defines.initialize(self)
-
-	self.doNotPredefineSystemOrCompilerDriverMacros = doNotPredefineSystemOrCompilerDriverMacros
+function module:initialize()
 end
 
-assert.globalTypeIsFunctionOrCall('pairs')
-function module:appendToCompilerDriverArguments(compilerDriverArguments)
+function module:appendToCompilerDriverArguments(defineName, compilerDriverArguments)
+	assert.parameterTypeIsString('defineName', defineName)
 	assert.parameterTypeIsInstanceOf('compilerDriverArguments', compilerDriverArguments, CompilerDriverArguments)
+	
+	self:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
+end
 
-	if self.doNotPredefineSystemOrCompilerDriverMacros then
-		compilerDriverArguments:doNotPredefineSystemOrCompilerDriverMacros()
-	end
-	
-	for _, action in ipairs(self.actions) do
-		action:appendToCompilerDriverArguments(compilerDriverArguments)
-	end
-	
-	return compilerDriverArguments
+function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
+	exception.throw('Abstract Method')
 end
