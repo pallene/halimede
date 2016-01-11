@@ -7,18 +7,17 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
-halimede.moduleclass('QuotedStringDefineValue', AbstractDefineValue)
+halimede.moduleclass('AbstractSimpleDefineValue', AbstractDefineValue)
 
-function module:initialize(stringValue)
-	assert.parameterTypeIsString('stringValue', stringValue)
+function module:initialize(value)
+	assert.parameterTypeIsString('value', value)
 	
-	AbstractDefineValue.initialize(self)
-	
-	self.stringValue = stringValue
+	self.value = value
 end
 
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-	compilerDriverArguments:definePreprocessorMacro(defineName, '"' .. defineValue .. '"')
+function module:_toShellArgument(shellLanguage)
+	return ShellArgument:new(shellLanguage:escapeToShellSafeString(self.value))
 end

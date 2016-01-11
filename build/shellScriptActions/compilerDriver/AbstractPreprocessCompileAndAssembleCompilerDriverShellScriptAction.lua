@@ -36,7 +36,7 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	compilerDriverArguments:addCStandard(cStandard)
 	compilerDriverArguments:useFileExtensionsToDetermineLanguage()
 	compilerDriverArguments:append(preprocessorFlags)
-	defines:appendToCompilerDriverArguments(compilerDriverArguments)
+	defines:appendToCompilerDriverArguments(shellScript.shellLanguage, compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
 	compilerDriverArguments:addIncludePaths(shellScript.shellLanguage.currentPath, sources)
 	if combinedOutputFilePath ~= nil then

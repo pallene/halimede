@@ -7,18 +7,19 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local exception = halimede.exception
-local AbstractDefineValue = halimede.builddefines.defineValues.AbstractDefineValue
+local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 function module.ExplicitlyUndefine(defineName)
 	assert.parameterTypeIsString('defineName', defineName)
 	
 	return {
-		toCPreprocessorTextLines = function()
-			return {'#undef ' .. defineName}
+		toShellArgumentLines = function(shellLanguage)
+			return {ShellArgument:new(shellLanguage:escapeToShellSafeString('#undef ' .. defineName))}
 		end,
 		
-		appendToCompilerDriverArguments = function(compilerDriverArguments)
+		appendToCompilerDriverArguments = function(shellLanguage, compilerDriverArguments)
 			compilerDriverArguments:undefinePreprocessorMacro(defineName)
 		end
 	}
@@ -28,13 +29,18 @@ function module.Undefine(defineName)
 	assert.parameterTypeIsString('defineName', defineName)
 	
 	return {
-		toCPreprocessorTextLines = function()
-			return {'/* #undef ' .. defineName .. ' */'}
+		toShellArgumentLines = function(shellLanguage)
+			return {ShellArgument:new(shellLanguage:escapeToShellSafeString('/* #undef ' .. defineName .. ' */'))}
 		end,
 		
-		appendToCompilerDriverArguments = function(compilerDriverArguments)
+		appendToCompilerDriverArguments = function(shellLanguage, compilerDriverArguments)
 		end
 	}
+end
+
+local function toShellArgument(prefix, defineName, defineValue, shellLanguage)
+	local prepend = prefix .. '#define ' .. defineName .. ' '
+	return defineValue:toShellArgument(prepend, shellLanguage)
 end
 
 function module.Define(defineName, defineValue)
@@ -42,12 +48,13 @@ function module.Define(defineName, defineValue)
 	assert.parameterTypeIsInstanceOf('defineValue', defineValue, AbstractDefineValue)
 	
 	return {
-		toCPreprocessorTextLines = function()
-			return {'#define ' .. defineName .. ' ' .. defineValue}
+		toShellArgumentLines = function(shellLanguage)
+			return {toShellArgument('', defineName, defineValue, shellLanguage)}
 		end,
 		
-		appendToCompilerDriverArguments = function(compilerDriverArguments)
-			defineValue:appendToCompilerDriverArguments(defineName, compilerDriverArguments)
+		appendToCompilerDriverArguments = function(shellLanguage, compilerDriverArguments)
+			local defineValueShellArgument = defineValue:toShellArgument('', shellLanguage)
+			compilerDriverArguments:definePreprocessorMacro(defineName, defineValueShellArgument)
 		end
 	}
 end
@@ -57,15 +64,15 @@ function module.IfndefDefine(defineName, defineValue)
 	assert.parameterTypeIsInstanceOf('defineValue', defineValue, AbstractDefineValue)
 	
 	return {
-		toCPreprocessorTextLines = function()
+		toShellArgumentLines = function(shellLanguage)
 			return {
-				'#ifndef ' .. defineName,
-				'\t#define ' .. defineName .. ' ' .. defineValue,
-				'#endif'
+				ShellArgument:new(shellLanguage:escapeToShellSafeString('#ifndef ' .. defineName)),
+				toShellArgument('\t', defineName, defineValue, shellLanguage),
+				ShellArgument:new(shellLanguage:escapeToShellSafeString('#endif'))
 			}
 		end,
 		
-		appendToCompilerDriverArguments = function(compilerDriverArguments)
+		appendToCompilerDriverArguments = function(shellLanguage, compilerDriverArguments)
 			exception.throw("#ifndef style definitions are not supported for the compiler driver command line")
 		end
 	}

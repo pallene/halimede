@@ -8,19 +8,10 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentPosixShellScriptAction
-local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('WriteConfigHPosixShellScriptAction', AbstractWriteConfigHShellScriptAction)
 
-local escapedArgument_printf = ShellArgument:new('printf')
-local escapedArgument_printfTemplate = ShellArgument:new("'%s\\n'")
-
 function module:initialize()
-	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction)
-end
-
-function module:_line(shellScript, line)
-	-- We use 'print' over 'echo' because the latter escapes certain argument sequences
-	return {escapedArgument_printf, escapedArgument_printfTemplate, ShellArgument:new(shellScript:escapeToShellSafeString(line))}
+	AbstractWriteConfigHShellScriptAction.initialize(self, CommentPosixShellScriptAction, 'printf', "'%s\\n'")
 end

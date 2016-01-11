@@ -12,6 +12,7 @@ local Arguments = sibling.Arguments
 local CStandard = sibling.CStandard
 local Path = halimede.io.paths.Path
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
+local ShellArgument = halimede.io.shellScript.ShellArgument
 local ShellScript = halimede.io.shellScript.ShellScript
 
 
@@ -71,11 +72,11 @@ function module:undefinePreprocessorMacro(defineName)
 	self.compilerDriver:undefinePreprocessorMacro(self.arguments, defineName)
 end
 
-function module:definePreprocessorMacro(defineName, defineValue)
+function module:definePreprocessorMacro(defineName, defineValueShellArgument)
 	assert.parameterTypeIsString('defineName', defineName)
-	assert.parameterTypeIsString('defineValue', defineValue)
+	assert.parameterTypeIsInstanceOf('defineValueShellArgument', defineValueShellArgument, ShellArgument)
 
-	self.compilerDriver:definePreprocessorMacro(self.arguments, defineName, defineValue)
+	self.compilerDriver:definePreprocessorMacro(self.arguments, defineName, defineValueShellArgument)
 end
 
 function module:addSystemIncludePaths(dependenciesSystemIncludePaths, buildVariantSystemIncludePaths)

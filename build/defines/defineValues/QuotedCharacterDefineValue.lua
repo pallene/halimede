@@ -6,11 +6,11 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
+local AbstractSimpleDefineValue = halimede.build.defines.defineValues.AbstractSimpleDefineValue
 local exception = halimede.exception
 
 
-halimede.moduleclass('QuotedCharacterDefineValue', AbstractDefineValue)
+halimede.moduleclass('QuotedCharacterDefineValue', AbstractSimpleDefineValue)
 
 function module:initialize(character)
 	assert.parameterTypeIsString('character', character)
@@ -19,11 +19,5 @@ function module:initialize(character)
 		exception.throw("character '%s' is not exactly one character", character)
 	end
 	
-	AbstractDefineValue.initialize(self)
-	
-	self.character = character
-end
-
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-	compilerDriverArguments:definePreprocessorMacro(defineName, "'" .. self.character .. "'")
+	AbstractSimpleDefineValue.initialize(self, "'" .. character .. "'")
 end

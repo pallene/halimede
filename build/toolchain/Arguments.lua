@@ -9,6 +9,7 @@ local assert = halimede.assert
 local tabelize = halimede.table.tabelize
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 local ShellScript = halimede.io.shellScript.ShellScript
+local ShellArgument = halimede.io.shellScript.ShellArgument
 local isTable = halimede.type.isTable
 
 
@@ -38,6 +39,13 @@ function module:append(...)
 			self:_append(argument)
 		end
 	end
+end
+
+function module:appendShellArgumentAndEscapePrepend(prepend, shellArgument)
+	assert.parameterTypeIsString('prepend', prepend)
+	assert.parameterTypeIsInstanceOf('shellArgument', shellArgument, ShellArgument)
+	
+	return shellArgument:prepend(self.shellLanguage:escapeToShellSafeString(prepend))
 end
 
 function module:appendQuotedArgumentXWithPrepend(text, pathLike, specifyCurrentDirectoryExplicitlyIfAppropriate)

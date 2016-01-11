@@ -8,6 +8,7 @@ local halimede = require('halimede')
 local assert = halimede.assert
 local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
 local ShellPath = halimede.io.shellScript.ShellPath
+local ShellArgument = halimede.io.shellScript.ShellArgument
 
 
 halimede.moduleclass('QuotedShellPathDefineValue', AbstractDefineValue)
@@ -20,9 +21,10 @@ function module:initialize(shellPath)
 	self.shellPath = shellPath
 end
 
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-
-xxxx
-
-	compilerDriverArguments:definePreprocessorMacro(defineName, enumeratedConstant.value)
+function module:_toShellArgument(shellLanguage)
+	local escapedDoubleQuote = shellLanguage:escapeToShellSafeString('"')
+	
+	local argument = self.shellPath:escapeToShellArgument(true, shellLanguage).argument
+	
+	return ShellArgument:new(escapedDoubleQuote .. argument .. escapedDoubleQuote)
 end

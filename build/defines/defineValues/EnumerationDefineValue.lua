@@ -6,20 +6,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
+local AbstractSimpleDefineValue = halimede.build.defines.defineValues.AbstractSimpleDefineValue
 
 
-halimede.moduleclass('EnumerationDefineValue', AbstractDefineValue)
+halimede.moduleclass('EnumerationDefineValue', AbstractSimpleDefineValue)
 
 function module:initialize(enumeratedConstant, enumerationClass)
 	assert.parameterTypeIsTable('enumerationClass', enumerationClass)
 	assert.parameterTypeIsInstanceOf('enumeratedConstant', enumeratedConstant, enumerationClass)
 	
-	AbstractDefineValue.initialize(self)
-	
-	self.enumeratedConstant = enumeratedConstant
-end
-
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-	compilerDriverArguments:definePreprocessorMacro(defineName, self.enumeratedConstant.value)
+	AbstractSimpleDefineValue.initialize(self, enumeratedConstant.value)
 end

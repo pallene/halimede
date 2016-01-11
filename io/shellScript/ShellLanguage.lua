@@ -231,7 +231,7 @@ function module:escapeToShellSafeString(argument)
 	end
 
 	assert.parameterTypeIsInstanceOf('argument', argument, ShellArgument)
-	return argument
+	return argument.argument
 end
 
 function module:quoteEnvironmentVariable(argument)

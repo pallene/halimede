@@ -76,7 +76,7 @@ function module:_ensureDefinition(defineName, enable, defineValue)
 	end
 end
 
-local DefaultPrefix = sibling .. '.'
+local DefaultPrefix = 'halimede.build.defines.'
 assert.globalTypeIsFunctionOrCall('require')
 function module:enumeration(defineName, enumeratedConstant, prefix)
 	assert.parameterTypeIsString('defineName', defineName)
@@ -142,7 +142,7 @@ function module:quotedCharacter(defineName, value)
 		self:_undefineIfPreviouslyDefined(defineName)
 	else
 		if #value ~= 1 then
-			exception.throw("The '%s' define must be exactly one character, it can not be '%s'", defineName value)
+			exception.throw("The '%s' define must be exactly one character, it can not be '%s'", defineName, value)
 		end
 		self:_define(defineName, QuotedCharacterDefineValue:new(value))
 	end
@@ -170,10 +170,11 @@ function module:quotedPathString(defineName, value)
 		self:_undefineIfPreviouslyDefined(defineName)
 		return
 	end
+	
 	local defineValue
-	if isInstanceOf('value', value, Path)
+	if isInstanceOf(value, Path) then
 		defineValue = QuotedPathDefineValue:new(value)
-	elseif isInstanceOf('value', value, ShellPath)
+	elseif isInstanceOf(value, ShellPath) then
 		defineValue = QuotedShellPathDefineValue:new(value)
 	else
 		exception.throw("value '%s' is not nil, a Path or a ShellPath", value)

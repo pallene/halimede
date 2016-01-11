@@ -14,6 +14,7 @@ local CompilerMetadata = sibling.CompilerMetadata
 local CStandard = sibling.CStandard
 local Path = halimede.io.paths.Path
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
+local ShellArgument = halimede.io.shellScript.ShellArgument
 local Arguments = sibling.Arguments
 local CompilerDriverArguments = sibling.CompilerDriverArguments
 local isTable = halimede.type.isTable
@@ -133,12 +134,12 @@ function module:undefinePreprocessorMacro(arguments, defineName)
 	arguments:append(self.undefineOption .. defineName)
 end
 
-function module:definePreprocessorMacro(arguments, defineName, defineValue)
+function module:definePreprocessorMacro(arguments, defineName, defineValueShellArgument)
 	assert.parameterTypeIsInstanceOf('arguments', arguments, Arguments)
 	assert.parameterTypeIsString('defineName', defineName)
-	assert.parameterTypeIsString('defineValue', defineValue)
-
-	arguments:append(self.defineOption .. defineName .. '=' .. defineValue)
+	assert.parameterTypeIsInstanceOf('defineValueShellArgument', defineValueShellArgument, ShellArgument)
+	
+	arguments:appendShellArgumentAndEscapePrepend(self.defineOption .. defineName .. '=', defineValueShellArgument)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'pairs')

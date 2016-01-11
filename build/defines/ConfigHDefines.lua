@@ -11,8 +11,8 @@ local tabelize = halimede.table.tabelize
 local sibling = halimede.build.defines
 local Defines = sibling.Defines
 local defineValues = sibling.defineValues
-local AbstractDefineValue = defineValues.AbstractDefineValue
 local StringDefineValue = defineValues.StringDefineValue
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
 local One = StringDefineValue:new('1')
@@ -24,16 +24,17 @@ function module:initialize()
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
-function module:toCPreprocessorTextLines()
-	local lineSets = tabelize()
+function module:toCPreprocessorTextLines(shellLanguage)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
+	
+	local lineShellArgumentLists = tabelize()
 	
 	for _, action in ipairs(self.actions) do
-		lineSets:insert(action:toCPreprocessorTextLines())
+		lineShellArgumentLists:insert(action.toShellArgumentLines(shellLanguage))
 	end
 	
-	return lineSets
+	return lineShellArgumentLists
 end
-
 
 -- Define to 1 if translation of program messages to the user's native language is requested.
 function module:ENABLE_NLS(enable)

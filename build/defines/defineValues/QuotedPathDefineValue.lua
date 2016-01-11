@@ -6,20 +6,14 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
+local AbstractSimpleDefineValue = halimede.build.defines.defineValues.AbstractSimpleDefineValue
 local Path = halimede.io.paths.Path
 
 
-halimede.moduleclass('QuotedPathDefineValue', AbstractDefineValue)
+halimede.moduleclass('QuotedPathDefineValue', AbstractSimpleDefineValue)
 
 function module:initialize(path)
 	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
-	AbstractDefineValue.initialize(self)
-	
-	self.path = path
-end
-
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-	compilerDriverArguments:definePreprocessorMacro(defineName, '"' .. path:toString(true) .. '"')
+	AbstractSimpleDefineValue.initialize(self, '"' .. path:toString(true) .. '"')
 end

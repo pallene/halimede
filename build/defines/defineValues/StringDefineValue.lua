@@ -6,19 +6,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractDefineValue = halimede.build.defines.defineValues.AbstractDefineValue
+local AbstractSimpleDefineValue = halimede.build.defines.defineValues.AbstractSimpleDefineValue
 
 
-halimede.moduleclass('StringDefineValue', AbstractDefineValue)
+halimede.moduleclass('StringDefineValue', AbstractSimpleDefineValue)
 
 function module:initialize(stringValue)
 	assert.parameterTypeIsString('stringValue', stringValue)
 	
-	AbstractDefineValue.initialize(self)
-	
-	self.stringValue = stringValue
-end
-
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-	compilerDriverArguments:definePreprocessorMacro(defineName, self.stringValue)
+	AbstractSimpleDefineValue.initialize(self, stringValue)
 end

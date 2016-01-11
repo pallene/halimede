@@ -6,8 +6,9 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments
 local exception = halimede.exception
+local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
 halimede.moduleclass('AbstractDefineValue')
@@ -15,13 +16,15 @@ halimede.moduleclass('AbstractDefineValue')
 function module:initialize()
 end
 
-function module:appendToCompilerDriverArguments(defineName, compilerDriverArguments)
-	assert.parameterTypeIsString('defineName', defineName)
-	assert.parameterTypeIsInstanceOf('compilerDriverArguments', compilerDriverArguments, CompilerDriverArguments)
+function module:toShellArgument(prepend, shellLanguage)
+	assert.parameterTypeIsString('prepend', prepend)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	
-	self:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
+	local escapedPrepend = shellLanguage:escapeToShellSafeString(prepend)
+	
+	return self:_toShellArgument(shellLanguage):prepend(escapedPrepend)
 end
 
-function module:_appendToCompilerDriverArguments(defineName, compilerDriverArguments)
+function module:_toShellArgument(shellLanguage)
 	exception.throw('Abstract Method')
 end

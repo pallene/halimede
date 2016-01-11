@@ -9,6 +9,7 @@ local assert = halimede.assert
 local CompilerDriverArguments = halimede.build.toolchain.CompilerDriverArguments
 local sibling = halimede.build.defines
 local Defines = sibling.Defines
+local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
 halimede.moduleclass('CommandLineDefines', Defines)
@@ -22,7 +23,8 @@ function module:initialize(doNotPredefineSystemOrCompilerDriverMacros)
 end
 
 assert.globalTypeIsFunctionOrCall('pairs')
-function module:appendToCompilerDriverArguments(compilerDriverArguments)
+function module:appendToCompilerDriverArguments(shellLanguage, compilerDriverArguments)
+	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	assert.parameterTypeIsInstanceOf('compilerDriverArguments', compilerDriverArguments, CompilerDriverArguments)
 
 	if self.doNotPredefineSystemOrCompilerDriverMacros then
@@ -30,7 +32,7 @@ function module:appendToCompilerDriverArguments(compilerDriverArguments)
 	end
 	
 	for _, action in ipairs(self.actions) do
-		action:appendToCompilerDriverArguments(compilerDriverArguments)
+		action.appendToCompilerDriverArguments(shellLanguage, compilerDriverArguments)
 	end
 	
 	return compilerDriverArguments

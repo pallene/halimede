@@ -6,13 +6,13 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
-local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmdShellScriptAction
+local AbstractSimpleDefineValue = halimede.build.defines.defineValues.AbstractSimpleDefineValue
 
 
-halimede.moduleclass('WriteConfigHCmdShellScriptAction', AbstractWriteConfigHShellScriptAction)
+halimede.moduleclass('QuotedStringDefineValue', AbstractSimpleDefineValue)
 
--- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
-function module:initialize()
-	AbstractWriteConfigHShellScriptAction.initialize(self, CommentCmdShellScriptAction, 'ECHO')
+function module:initialize(stringValue)
+	assert.parameterTypeIsString('stringValue', stringValue)
+	
+	AbstractSimpleDefineValue.initialize(self, '"' .. stringValue .. '"')
 end
