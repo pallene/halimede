@@ -45,7 +45,8 @@ function module:appendShellArgumentAndEscapePrepend(prepend, shellArgument)
 	assert.parameterTypeIsString('prepend', prepend)
 	assert.parameterTypeIsInstanceOf('shellArgument', shellArgument, ShellArgument)
 	
-	return shellArgument:prepend(self.shellLanguage:escapeToShellSafeString(prepend))
+	local x = shellArgument:prepend(self.shellLanguage:escapeToShellSafeString(prepend))
+	self:_append(x)
 end
 
 function module:appendQuotedArgumentXWithPrepend(text, pathLike, specifyCurrentDirectoryExplicitlyIfAppropriate)

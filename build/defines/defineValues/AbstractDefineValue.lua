@@ -16,13 +16,18 @@ halimede.moduleclass('AbstractDefineValue')
 function module:initialize()
 end
 
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
 function module:toShellArgument(prepend, shellLanguage)
 	assert.parameterTypeIsString('prepend', prepend)
 	assert.parameterTypeIsInstanceOf('shellLanguage', shellLanguage, ShellLanguage)
 	
-	local escapedPrepend = shellLanguage:escapeToShellSafeString(prepend)
+	local shellArgument = self:_toShellArgument(shellLanguage)
+	if prepend:isEmpty() then
+		return shellArgument
+	end
 	
-	return self:_toShellArgument(shellLanguage):prepend(escapedPrepend)
+	local escapedPrepend = shellLanguage:escapeToShellSafeString(prepend)
+	return shellArgument:prepend(escapedPrepend)
 end
 
 function module:_toShellArgument(shellLanguage)

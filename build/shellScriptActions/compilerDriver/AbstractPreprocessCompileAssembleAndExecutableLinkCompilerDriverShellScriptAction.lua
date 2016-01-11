@@ -20,12 +20,12 @@ function module:initialize(dependencies, buildVariant, unsetEnvironmentVariableA
 	AbstractCompilerDriverShellScriptAction.initialize(self, dependencies, buildVariant, unsetEnvironmentVariableActionClass, exportEnvironmentVariableActionClass)
 end
 
-function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, defines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
+function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, legacyCandCPlusPlusStringLiteralEncoding, preprocessorFlags, commandLineDefines, sources, linkerFlags, linkedLibraries, executableFilePathWithoutExtension)
 	assert.parameterTypeIsTable('compilerDriverFlags', compilerDriverFlags)
 	assert.parameterTypeIsInstanceOf('cStandard', cStandard, CStandard)
 	assert.parameterTypeIsInstanceOf('legacyCandCPlusPlusStringLiteralEncoding', legacyCandCPlusPlusStringLiteralEncoding, LegacyCandCPlusPlusStringLiteralEncoding)
 	assert.parameterTypeIsTable('preprocessorFlags', preprocessorFlags)
-	assert.parameterTypeIsInstanceOf('defines', defines, CommandLineDefines)
+	assert.parameterTypeIsInstanceOf('commandLineDefines', commandLineDefines, CommandLineDefines)
 	assert.parameterTypeIsTable('sources', sources)
 	assert.parameterTypeIsTable('linkerFlags', linkerFlags)
 	assert.parameterTypeIsTable('linkedLibraries', linkedLibraries)
@@ -40,7 +40,7 @@ function module:_execute(shellScript, builder, compilerDriverFlags, cStandard, l
 	compilerDriverArguments:addCStandard(cStandard)
 	compilerDriverArguments:useFileExtensionsToDetermineLanguage()
 	compilerDriverArguments:append(preprocessorFlags)
-	defines:appendToCompilerDriverArguments(shellScript.shellLanguage, compilerDriverArguments)
+	commandLineDefines:appendToCompilerDriverArguments(shellScript.shellLanguage, compilerDriverArguments)
 	compilerDriverArguments:addSystemIncludePaths(self.dependencies.systemIncludePaths, self.buildVariant.systemIncludePaths)
 	compilerDriverArguments:addIncludePaths(shellScript.shellLanguage.currentPath, sources)
 	compilerDriverArguments:addLinkerFlags(self.dependencies.linkerFlags, self.buildVariant.linkerFlags, linkerFlags)

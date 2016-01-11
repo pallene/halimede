@@ -34,6 +34,5 @@ function module:appendToCompilerDriverArguments(shellLanguage, compilerDriverArg
 	for _, action in ipairs(self.actions) do
 		action.appendToCompilerDriverArguments(shellLanguage, compilerDriverArguments)
 	end
-	
 	return compilerDriverArguments
 end
