@@ -58,7 +58,7 @@ function module:appendStandardOutput(filePathOrFileDescriptor)
 	return self.shellLanguage:appendStandardOutput(filePathOrFileDescriptor)
 end
 
-function module:appendLines(tabelizedScriptBuffer, ...)
+function module:appendLines(...)
 	local commandStrings = {...}
 	for _, commandString in ipairs(commandStrings) do
 		assert.parameterTypeIsString('commandString', commandString)
