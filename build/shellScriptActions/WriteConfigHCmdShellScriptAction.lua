@@ -6,7 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local tabelize = halimede.table.tabelize
 local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentCmdShellScriptAction = halimede.build.shellScriptActions.CommentCmdShellScriptAction
 local ShellArgument = halimede.io.shellScript.ShellArgument
@@ -22,5 +21,5 @@ end
 
 -- https://stackoverflow.com/questions/7105433/windows-batch-echo-without-new-line
 function module:_line(shellScript, line)
-	return tabelize({escapedArgument_ECHO, ShellArgument:new(shellScript:escapeToShellSafeString(line))})
+	return {escapedArgument_ECHO, ShellArgument:new(shellScript:escapeToShellSafeString(line))}
 end

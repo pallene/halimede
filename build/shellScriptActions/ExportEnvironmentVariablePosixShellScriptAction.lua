@@ -15,5 +15,5 @@ halimede.moduleclass('ExportEnvironmentVariablePosixShellScriptAction', Abstract
 local escapedArgument_export = ShellArgument:new('export')
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self, 'export')
+	AbstractExportEnvironmentVariableShellScriptAction.initialize(self, 'export')
 end

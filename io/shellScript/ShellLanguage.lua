@@ -252,7 +252,7 @@ function module:_redirect(fileDescriptor, filePathOrFileDescriptor, symbol)
 	local redirection
 	if isPositiveInteger(filePathOrFileDescriptor) then
 		redirection = '&' .. filePathOrFileDescriptor
-	elseif isString(filePathOrFileDescriptor)
+	elseif isString(filePathOrFileDescriptor) then
 		redirection = self:escapeToShellSafeString(filePathOrFileDescriptor)
 	elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
 		redirection = filePathOrFileDescriptor.argument
@@ -314,10 +314,10 @@ function module:_toShellCommandStringIncludingRedirections(...)
 				escapedArgumentStringValue = '' .. argument
 			elseif isString(argument) then
 				escapedArgumentStringValue = self:escapeToShellSafeString(argument)
-			elseif isInstanceOf(filePathOrFileDescriptor, ShellArgument) then
+			elseif isInstanceOf(argument, ShellArgument) then
 				escapedArgumentStringValue = argument.argument
 			else
-				exception.throw("argument must be nil, a positive integer (or zero), string or ShellArgument")
+				exception.throw("argument must be nil (in which case it is ignored), a positive integer (including zero), string or ShellArgument")
 			end
 			commandBuffer:insert(escapedArgumentStringValue)
 		end

@@ -24,8 +24,6 @@ function module:_toStringDefineValue(defineValue)
 	if type.isString(defineValue) then
 		return defineValue
 	end
-	-- also CommandLineDefines, too
-	if isInstanceOf(defineValue, )
 end
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')

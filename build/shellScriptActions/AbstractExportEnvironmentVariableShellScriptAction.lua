@@ -14,11 +14,14 @@ local ShellArgument = halimede.io.shellScript.ShellArgument
 
 halimede.moduleclass('AbstractExportEnvironmentVariableShellScriptAction', AbstractShellScriptAction)
 
-AbstractExportEnvironmentVariableShellScriptAction.static.validateEnvironmentVariableName = function(variableName)
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find')
+local function validateEnvironmentVariableName(variableName)
 	if variableName:find('[A-Z_][A-Z0-9_]+') ~= 1 then
 		exception.throw("Environment variableName must be A-Z, _ or 0-9, and start with A-Z or _ for maximum compatibility between shells")
 	end
 end
+
+module.static.validateEnvironmentVariableName = validateEnvironmentVariableName
 
 function module:initialize(escapedArgument)
 	assert.parameterTypeIsString('escapedArgument', escapedArgument)
@@ -28,17 +31,16 @@ function module:initialize(escapedArgument)
 	self.escapedArgument = ShellArgument:new(escapedArgument)
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find')
 function module:_execute(shellScript, builder, variableName, variableValue)
 	assert.parameterTypeIsString('variableName', variableName)
 	
-	AbstractExportEnvironmentVariableShellScriptAction.validateEnvironmentVariableName(variableName)
+	validateEnvironmentVariableName(variableName)
 	
 	local prefix = variableName .. '='
 	local setting
 	if isString(variableValue) then
 		setting = ShellArgument:new(prefix .. shellScript.shellLanguage:escapeToShellSafeString(variableValue))
-	elseif isInstanceOf(variableValue, ShellPath) or isInstanceOf(variableValue, Path)
+	elseif isInstanceOf(variableValue, ShellPath) or isInstanceOf(variableValue, Path) then
 		setting = variableValue:escapeToShellArgument(true, shellScript.shellLanguage):prepend(prefix)
 	else
 		setting = variableValue:prepend(prefix)

@@ -54,12 +54,16 @@ function module:redirectStandardOutput(filePathOrFileDescriptor)
 	return self.shellLanguage:redirectStandardOutput(filePathOrFileDescriptor)
 end
 
-function module:appendLines(...)
+function module:appendStandardOutput(filePathOrFileDescriptor)
+	return self.shellLanguage:appendStandardOutput(filePathOrFileDescriptor)
+end
+
+function module:appendLines(tabelizedScriptBuffer, ...)
 	local commandStrings = {...}
 	for _, commandString in ipairs(commandStrings) do
 		assert.parameterTypeIsString('commandString', commandString)
 		
-		tabelizedScriptBuffer:insert(self.shellLanguage:terminateShellCommandString(commandString))
+		self.tabelizedScriptBuffer:insert(self.shellLanguage:terminateShellCommandString(commandString))
 	end
 end
 

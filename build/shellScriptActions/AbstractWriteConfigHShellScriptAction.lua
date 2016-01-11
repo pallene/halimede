@@ -6,6 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local tabelize = halimede.table.tabelize
 local sibling = halimede.build.shellScriptActions
 local AbstractShellScriptAction = sibling.AbstractShellScriptAction
 local ShellPath = halimede.io.shellScript.ShellPath
@@ -42,22 +43,32 @@ function module:_execute(shellScript, builder, configHDefines, filePath)
 	self:_append(shellScript, quotedStringShellPath, configHDefines)
 end
 
-assert.globalTypeIsFunctionOrCall('ipairs')
+assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'find')
 function module:_append(shellScript, quotedStringShellPath, configHDefines)
 	local lineSets = configHDefines:toCPreprocessorTextLines()
 	
-	local emptyLine = self:_line(shellScript, '')
+	-- This approach is inefficient, as it involves constantly opening and closing a file handle, but it is simpler to code for and works on Windows (where heredocs and multiline strings are very hard to use)
+	local function outputLine(line, redirection)
+		if line:find('\0') ~= nil then
+			exception.throw("We can not easily support embedded ASCII NUL characters when writing shell scripts")
+		end
+		
+		local arguments = tabelize(self:_line(shellScript, line))
+		arguments:insert(redirection)
+		shellScript:appendCommandLineToScript(unpack(arguments))
+	end
 	
-	-- This approach is inefficient, as it involves constantly opening and closing a file handle, but it is simpler to code for and works on Windows where heredocs and multiline strings are very hard to produce
-	local redirectionMethod = 'redirectStandardOutput'
+	local redirect = shellScript:redirectStandardOutput(quotedStringShellPath)
+	local append = shellScript:appendStandardOutput(quotedStringShellPath)
+	
+	local redirection = redirect
 	for _, lineSet in ipairs(lineSets) do
 		for _, line in ipairs(lineSet) do
-			local arguments = self:_line(shellScript, line)
-			arguments:insert(shellScript[redirectionMethod](shellScript, quotedStringShellPath))
-			shellScript:appendCommandLineToScript(appendLine, redirected)
-			redirectionMethod = 'appendStandardOutput'
+			outputLine(line, redirection)
+			redirection = append
 		end
-		shellScript:appendCommandLineToScript(emptyLine, redirected)
+		outputLine('', redirection)
 	end
 end
 

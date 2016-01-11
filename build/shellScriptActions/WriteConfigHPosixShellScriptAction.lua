@@ -6,7 +6,6 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local tabelize = halimede.table.tabelize
 local AbstractWriteConfigHShellScriptAction = halimede.build.shellScriptActions.AbstractWriteConfigHShellScriptAction
 local CommentPosixShellScriptAction = halimede.build.shellScriptActions.CommentPosixShellScriptAction
 local ShellArgument = halimede.io.shellScript.ShellArgument
@@ -22,5 +21,6 @@ function module:initialize()
 end
 
 function module:_line(shellScript, line)
-	return tabelize({escapedArgument_printf, escapedArgument_printfTemplate, ShellArgument:new(shellScript:escapeToShellSafeString(line))})
+	-- We use 'print' over 'echo' because the latter escapes certain argument sequences
+	return {escapedArgument_printf, escapedArgument_printfTemplate, ShellArgument:new(shellScript:escapeToShellSafeString(line))}
 end

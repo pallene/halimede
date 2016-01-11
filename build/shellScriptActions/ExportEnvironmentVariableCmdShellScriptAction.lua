@@ -12,5 +12,5 @@ local AbstractExportEnvironmentVariableShellScriptAction = halimede.build.shellS
 halimede.moduleclass('ExportEnvironmentVariableCmdShellScriptAction', AbstractExportEnvironmentVariableShellScriptAction)
 
 function module:initialize()
-	AbstractShellScriptAction.initialize(self, 'SET')
+	AbstractExportEnvironmentVariableShellScriptAction.initialize(self, 'SET')
 end
