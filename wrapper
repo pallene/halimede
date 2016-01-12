@@ -7,7 +7,7 @@
 set -e
 set -u
 set -f
-	
+
 # pdksh / mksh have problems with unsetting a variable that was never set...
 if [ "${CDPATH+set}" = 'set' ]; then
 	unset CDPATH
@@ -75,7 +75,7 @@ _program_path="$(_program_path_find)"
 _program_rootPath_find()
 {
 	# Assumes we are in lib/pallene/modules/<moduleName>
-	cd "${_program_path}/../../../.." 1>/dev/null 2>/dev/null
+	cd "${_program_path}/../../.." 1>/dev/null 2>/dev/null
 		pwd -P
 	cd - 1>/dev/null 2>/dev/null
 }
@@ -130,7 +130,7 @@ _program_luaScript_find()
 	local relativePath
 	for relativePath in "$@"
 	do
-		local absoluteScriptPath="$_program_rootPath"/lib/pallene/modules/"$relativePath"
+		local absoluteScriptPath="$_program_rootPath"/lib/pallene/"$relativePath"
 		if [ -r "$absoluteScriptPath" ]; then
 			_program_luaScript="$absoluteScriptPath"
 			return 0

@@ -5,15 +5,15 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 
 local halimede = require('halimede')
-local PathStyle = halimede.moduleclass('PathStyle')
 local assert = halimede.assert
-local sibling = halimede.io.paths
 local shallowCopy = halimede.table.shallowCopy
 local exception = halimede.exception
 local windowsPathMultisplitter = halimede.string.multisplitter('\\/')
-local Path = sibling.Path
-local PathRelativity = sibling.PathRelativity
+local Path = halimede.io.paths.Path
+local PathRelativity = halimede.io.paths.PathRelativity
 
+
+local PathStyle = halimede.moduleclass('PathStyle')
 
 assert.globalTypeIsFunctionOrCall('pairs', 'ipairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
@@ -59,17 +59,6 @@ function module:initialize(name, folderSeparator, deviceSeparator, currentDirect
 
 	self.doesNotSupportAlternateStreams = alternateStreamSeparator == nil
 	PathStyle.static[name] = self
-
-	self:_initializeSpecialDirectory('parentPath', parentDirectory)
-	self:_initializeSpecialDirectory('currentPath', currentDirectory)
-end
-
-function module:_initializeSpecialDirectory(name, value)
-	if value and not value:isEmpty() then
-		self[name] = self:relativeFolderPath(value)
-	else
-		self[name] = nil
-	end
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'isEmpty')
@@ -87,14 +76,6 @@ end
 --noinspection UnusedDef
 function module:_parse(stringPath, isFile)
 	exception.throw('Abstract Method')
-end
-
-function module:relativeFolderPath(...)
-	return Path:new(self, PathRelativity.Relative, nil, {...}, false, nil)
-end
-
-function module:relativeFilePath(...)
-	return Path:new(self, PathRelativity.Relative, nil, {...}, true, nil)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')

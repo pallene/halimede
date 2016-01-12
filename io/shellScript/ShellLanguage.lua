@@ -22,6 +22,7 @@ local exception = halimede.exception
 local isInstanceOf = halimede.type.isInstanceOf
 local Path = halimede.io.paths.Path
 local PathStyle = halimede.io.paths.PathStyle
+local Relative = halimede.io.paths.PathRelativity.Relative
 local ShellArgument = sibling.ShellArgument
 local FileHandleStream = halimede.io.FileHandleStream
 
@@ -95,9 +96,9 @@ function module:initialize(lowerCasedName, titleCasedName, pathStyle, newline, s
 	self.commandInterpreterName = commandInterpreterName
 
 	self.binarySearchPathCached = nil
-
-	self.parentPath = pathStyle.parentPath
-	self.currentPath = pathStyle.currentPath
+	
+	self:_initializeSpecialDirectory('parentPath', pathStyle.parentDirectory)
+	self:_initializeSpecialDirectory('currentPath', pathStyle.currentDirectory)
 end
 
 function module:appendShellScriptExtension(filePathWithoutFileExtension)
@@ -375,12 +376,20 @@ function module:parsePath(pathString, isFile)
 	return self.pathStyle:parse(pathString, isFile)
 end
 
+function module:_initializeSpecialDirectory(name, value)
+	if value and not value:isEmpty() then
+		self[name] = self:relativeFolderPath(value)
+	else
+		self[name] = nil
+	end
+end
+
 function module:relativeFolderPath(...)
-	return self.pathStyle:relativeFolderPath(...)
+	return Path:new(self.pathStyle, Relative, nil, {...}, false, nil)
 end
 
 function module:relativeFilePath(...)
-	return self.pathStyle:relativeFilePath(...)
+	return Path:new(self.pathStyle, Relative, nil, {...}, true, nil)
 end
 
 function module:appendFileExtension(fileName, fileExtension)
