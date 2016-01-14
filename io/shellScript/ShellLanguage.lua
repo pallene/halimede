@@ -170,6 +170,8 @@ end
 assert.globalTypeIsFunctionOrCall('pcall', 'ipairs')
 function module:commandIsOnPath(command)
 	assert.parameterTypeIsString('command', command)
+	
+	module:_guardCommandIsValid(command)
 
 	for _, path in ipairs(self:binarySearchPath()) do
 
@@ -193,6 +195,12 @@ function module:commandIsOnPath(command)
 	return false, nil
 end
 
+function module:_guardCommandIsValid(command)
+	if self.pathStyle:isReservedPathElement(command) then
+		exception.throw("%s shell script commands such as '%s' are not valid", self.titleCasedName, command)
+	end
+end
+
 function module:iterateOverBinaryFileExtensions(callback)
 	assert.parameterTypeIsFunctionOrCall('callback', callback)
 
@@ -205,6 +213,8 @@ end
 
 function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
 	assert.parameterTypeIsString('command', command)
+	
+	module:_guardCommandIsValid(command)
 
 	if ShellLanguage.shellIsAvailable then
 		return self:commandIsOnPath(command)
@@ -444,6 +454,7 @@ end
 
 local PosixShellLanguage = halimede.class('PosixShellLanguage', ShellLanguage)
 
+-- We really should look at trying to obtain '$SHELL' for commandInterpeterName / Path
 function PosixShellLanguage:initialize()
 	ShellLanguage.initialize(self, 'posix', 'Posix', PathStyle.Posix, '\n', nil, ':', '/dev/null', false, 'sh')
 end
@@ -472,8 +483,9 @@ ShellLanguage.static.Posix = PosixShellLanguage:new()
 
 local CmdShellLanguage = halimede.class('CmdShellLanguage', ShellLanguage)
 
+-- We really should look at trying to obtain '%COMSPEC%' for commandInterpeterName / Path
 function CmdShellLanguage:initialize()
-	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', ';', 'NUL', true, 'cmd')
+	ShellLanguage.initialize(self, 'cmd', 'Cmd', PathStyle.Cmd, '\r\n', 'cmd', ';', 'NUL', true, 'CMD')
 
 	self.binaryFileExtensionsCached = nil
 	self.nonZeroExitChecksCommandStringLine = self:terminateShellCommandString('IF %ERRORLEVEL% NEQ 0 EXIT %ERRORLEVEL%')

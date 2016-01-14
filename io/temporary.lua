@@ -13,17 +13,17 @@ local FileHandleStream = halimede.io.FileHandleStream
 local packageConfiguration = halimede.packageConfiguration
 
 
--- HOME is also probably writable as an alternative to /tmp
 local PosixTemporaryDefaults = {
 	defaultTemporaryPath = '/tmp',
-	environmentVariables = { 'TMPDIR' }
+	environmentVariables = { 'TMPDIR', 'HOME' }
 }
 
 --noinspection UnusedDef
 local WindowsTemporaryDefaults = {
-	-- Probably wrong: https://en.wikipedia.org/wiki/Temporary_folder
+	-- Almost certainly wrong
 	defaultTemporaryPath = 'C:\\temp',
-	environmentVariables = { 'TEMP', 'TMP' }
+	-- Note that the last three variables will dump stuff in unwanted locations
+	environmentVariables = { 'TEMP', 'TMP', 'LOCALAPPDATA', 'HOMEPATH', 'USERPROFILE' }
 }
 
 -- Poor man's check of running on Windows; ignores OpenVMS' SYS$SCRATCH, AmigaDOS T: and Symbian
@@ -40,7 +40,7 @@ if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'tmpname') then
 	tmpnameFunction = os.tmpname
 else
 	-- Insecure but usable temporary file function
-	if type.hasPackageChildFieldOfTypeFunctionOrCall('math', 'random') then
+	if type.hasPackageChildFieldOfTypeFunctionOrCall('math', 'random') and type.hasGlobalOfTypeFunctionOrCall('tostring') then
 
 		local defaults = operatingSystemTemporaryDefaults()
 
@@ -54,13 +54,13 @@ else
 		end
 
 		tmpnameFunction = function()
-			local temporaryFileName = math.random(0, 999999999999999)
+			local temporaryFileName = 'lua-halimede-' .. tostring(math.random(0, 999999999999999))
 			return shellLanguage:parsePath(temporaryPath, false):appendFile(temporaryFileName):toString(true)
 		end
 		-- We can also use mktemp (not POSIX!), awk, etc but we're starting to clutch at straws, and shelling out isn't a great idea
 	else
 		tmpnameFunction = function()
-			exception.throw('os.tmpname and math.random do not exist')
+			exception.throw('os.tmpname and math.random and tostring do not exist')
 		end
 	end
 end
