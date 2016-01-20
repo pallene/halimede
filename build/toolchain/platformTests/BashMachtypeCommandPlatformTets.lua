@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractCommandPlatformTest = halimede.build.toolchain.platformTests
+local AbstractCommandPlatformTest = halimede.build.toolchain.platformTests.AbstractCommandPlatformTest
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
@@ -39,6 +39,9 @@ function module:_interpret(rawData)
 	-- NetBSD 5.2.2: bash not installed by default
 	-- OpenBSD 5.6: bash not installed by default; when present, x86_64-unknown-openbsd5.6
 	-- Cygwin/32bit: i686-pc-cygwin
+	-- Debian Wheezy kFreeBSD: x86_64-pc-kfreebsd-gnu
+	-- MSYS2/32bit: i686-pc-msys
+	-- Haiku: i586-pc-haiku
 	
 	-- This is a kind of tuple, but it lacks SOME of the revision
 	-- On Linux, it includes the C library as a fourth field; on ARM systems, this can also have a suffix of eabi or eabihf

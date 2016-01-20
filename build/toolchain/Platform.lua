@@ -102,28 +102,10 @@ function module:relativeFilePath(...)
 end
 
 
--- MinGW is a toolchain, but 32-bit
--- MSYS is a colleciton of Unix utilities but with a toolchain for their creation
--- See here for a Mac OS X / MinGW-w64 toolchain script for inspiration: https://gist.github.com/Drakulix/9881160
--- DJGPP is legacy but active; v2.05 Released in Nov 2015
-
---[[
-Unix utilities on Windows:-
-	MSYS (no functional FIFO)
-	GnuWin32 (no functional FIFO)
-	UnxUtils
-	UWIN (Korn)
-
-Unix POSIX platforms:-
-	Cygwin
-	Interix (Dead) (Last released for Windows 8) (Uses GCC 3.3, includes a GCC frontend compatible wrapper for MSVC)
-	MKS Toolkit
-]]--
-
 -- We really ned a MacOSX / Linux check, too
 --local shellLanguage = halimede.io.shellScript.ShellLanguage.default()
 --local macOsXShellScriptExecutor
---if shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt('brew') then
+--if shellLanguage:commandIsOnPathAndShellIsAvailableToUseIt('brew') then
 --	macOsXShellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.MacOsXHomebrewShellScriptExecutor.MacOsXHomebrewShellScriptExecutor
 --else
 --	macOsXShellScriptExecutor =
@@ -133,7 +115,23 @@ local shellScriptExecutor = halimede.io.shellScript.shellScriptExecutors.Ordinar
 local macOsXStrip = MacOsXStrip:new()
 
 Platform:new(
-	'Mac OS X Mavericks GCC 4.9 Homebrew',
+	'Mac OS X Yosemite GCC-Clang Homebrew',
+	true,
+	shellScriptExecutor,
+	'o',
+	nil,
+	'lib',
+	'a',
+	'lib',
+	'dylib',
+	GnuTuple['x86_64-apple-darwin14.5.0'],
+	CompilerDriver.gcc49_systemNativeHostX86_64,
+	CompilerDriver.gccxx49_systemNativeHostX86_64,
+	macOsXStrip
+)
+
+Platform:new(
+	'Mac OS X Mavericks GCC-Clang Homebrew',
 	true,
 	shellScriptExecutor,
 	'o',
@@ -143,22 +141,6 @@ Platform:new(
 	'lib',
 	'dylib',
 	GnuTuple['x86_64-apple-darwin13.4.0'],
-	CompilerDriver.gcc49_systemNativeHostX86_64,
-	CompilerDriver.gccxx49_systemNativeHostX86_64,
-	macOsXStrip
-)
-
-Platform:new(
-	'Mac OS X Yosemite GCC 4.9 Homebrew',
-	true,
-	shellScriptExecutor,
-	'o',
-	nil,
-	'lib',
-	'a',
-	'lib',
-	'dylib',
-	GnuTuple['x86_64-apple-darwin14'],
 	CompilerDriver.gcc49_systemNativeHostX86_64,
 	CompilerDriver.gccxx49_systemNativeHostX86_64,
 	macOsXStrip

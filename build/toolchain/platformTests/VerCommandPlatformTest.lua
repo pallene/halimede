@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractCommandPlatformTest = halimede.build.toolchain.platformTests
+local AbstractCommandPlatformTest = halimede.build.toolchain.platformTests.AbstractCommandPlatformTest
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
@@ -21,7 +21,7 @@ function module:initialize()
 	AbstractCommandPlatformTest.initialize(self, validShellLanguages, 'VER')
 end
 
-assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split')
+assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'split')
 function module:_interpret(rawData)
 	
 	-- See https://en.wikipedia.org/wiki/Ver_%28command%29 for known versions (note that they are not always logical; 3.1 is internally 3.10)

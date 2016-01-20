@@ -42,6 +42,7 @@ else
 		return nil, 'exit', 126
 	end
 end
+module.static.execute = executeFunction
 module.static.shellIsAvailable = executeFunction() == true
 
 -- other things returning (read) file handles are io.open(file) and io.tmpfile()
@@ -167,28 +168,42 @@ end
 
 -- NOTE: This approach is slow, as it opens the executable for reading
 -- NOTE: This approach can not determine if a binary is +x (executable) or not
-assert.globalTypeIsFunctionOrCall('pcall', 'ipairs')
-function module:commandIsOnPath(command)
+local openBinaryFileForReading = FileHandleStream.openBinaryFileForReading
+assert.globalTypeIsFunctionOrCall('pcall')
+function module:commandExistsAt(command, path)
 	assert.parameterTypeIsString('command', command)
+	assert.parameterTypeIsInstanceOf('path', path, Path)
 	
-	module:_guardCommandIsValid(command)
+	path:assertIsFolderPath('path')
+	
+	self:_guardCommandIsValid(command)
 
-	for _, path in ipairs(self:binarySearchPath()) do
+	local function callback(binaryFileExtensionOrNil)
+		local pathToBinary = path:appendFile(command, binaryFileExtensionOrNil)
 
-		local function callback(fileExtension)
-			local pathToBinary = path:appendFile(command, fileExtension)
-
-			local ok, fileHandleStreamOrError = pcall(FileHandleStream.openBinaryFileForReading, pathToBinary, command)
-			if ok then
-				fileHandleStreamOrError:close()
-				return true, pathToBinary
-			end
-			return false, nil
-		end
-
-		local ok, result = self:iterateOverBinaryFileExtensions(callback)
+		local ok, fileHandleStreamOrError = pcall(openBinaryFileForReading, pathToBinary, command)
 		if ok then
-			return ok, result
+			fileHandleStreamOrError:close()
+			return true, pathToBinary
+		end
+		return false, nil
+	end
+
+	local ok, pathToBinary = self:iterateOverBinaryFileExtensions(callback)
+	if ok then
+		return ok, pathToBinary
+	end
+
+	return false, nil
+end
+
+assert.globalTypeIsFunctionOrCall('ipairs')
+function module:commandIsOnPath(command)
+	for _, path in ipairs(self:binarySearchPath()) do
+		
+		local ok, pathToBinary = self:commandExistsAt(command, path)
+		if ok then
+			return ok, pathToBinary
 		end
 	end
 
@@ -211,7 +226,7 @@ function module:_iterateOverBinaryFileExtensions(callback)
 	exception.throw('Abstract Method')
 end
 
-function module:commandIsOnPathAndShellIsAvaiableToUseIt(command)
+function module:commandIsOnPathAndShellIsAvailableToUseIt(command)
 	assert.parameterTypeIsString('command', command)
 	
 	module:_guardCommandIsValid(command)
@@ -584,23 +599,22 @@ ShellLanguage.static.default = function()
 	end
 
 	local function determineDefault()
-		if hasPackageChildFieldOfTypeString('jit', 'os') then
-
-			local name = jit.os
+		if hasPackageChildFieldOfTypeString('ffi', 'os') then
+			local name = ffi.os
 			local shellLanguage = operatingSystemNamesToShellLanguages[name]
 			if shellLanguage ~= nil then
 				return shellLanguage
 			end
 		end
 
-		-- Not the best test; doesn't work for Symbian, can't distinguish OpenVms from RISC OS
-		-- Running uname on the PATH works on POSIX systems, but that rules out Windows... and the shell isn't available on Unikernels like RumpKernel
+		-- Not the best test; doesn't work for Symbian (which doesn't have a shell), can't distinguish OpenVms from RISC OS
+		-- Running uname on the PATH works on POSIX systems, as does ver on Windows (which is a builtin of cmd)... and the shell isn't available on Unikernels like RumpKernel
 		local folderSeparator = packageConfiguration.folderSeparator
 		if folderSeparator == '/' then
 			return ShellLanguage.Posix
 		elseif folderSeparator == '\\' then
-			return ShellLanguage.Cmd
 			-- Might be Symbian, too, but that's dead
+			return ShellLanguage.Cmd
 		elseif folderSeparator == '.' then
 			-- Could be OpenVMS, Could be Risc OS
 			local ok, result = pcall(require, 'riscos')

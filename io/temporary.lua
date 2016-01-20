@@ -13,28 +13,6 @@ local FileHandleStream = halimede.io.FileHandleStream
 local packageConfiguration = halimede.packageConfiguration
 
 
-local PosixTemporaryDefaults = {
-	defaultTemporaryPath = '/tmp',
-	environmentVariables = { 'TMPDIR', 'HOME' }
-}
-
---noinspection UnusedDef
-local WindowsTemporaryDefaults = {
-	-- Almost certainly wrong
-	defaultTemporaryPath = 'C:\\temp',
-	-- Note that the last three variables will dump stuff in unwanted locations
-	environmentVariables = { 'TEMP', 'TMP', 'LOCALAPPDATA', 'HOMEPATH', 'USERPROFILE' }
-}
-
--- Poor man's check of running on Windows; ignores OpenVMS' SYS$SCRATCH, AmigaDOS T: and Symbian
-local function operatingSystemTemporaryDefaults()
-	if packageConfiguration.folderSeparator == '/' then
-		return PosixTemporaryDefaults
-	else
-		return WindowsTemporaryDefaults
-	end
-end
-
 local tmpnameFunction
 if type.hasPackageChildFieldOfTypeFunctionOrCall('os', 'tmpname') then
 	tmpnameFunction = os.tmpname
@@ -42,7 +20,22 @@ else
 	-- Insecure but usable temporary file function
 	if type.hasPackageChildFieldOfTypeFunctionOrCall('math', 'random') and type.hasGlobalOfTypeFunctionOrCall('tostring') then
 
-		local defaults = operatingSystemTemporaryDefaults()
+		local PosixTemporaryDefaults = {
+			defaultTemporaryPath = '/tmp',
+			-- Note that HOME will dump stuff in the User's home. Too bad; it's a failsafe.
+			environmentVariables = { 'TMPDIR', 'HOME' }
+		}
+
+		--noinspection UnusedDef
+		local WindowsTemporaryDefaults = {
+			-- Almost certainly wrong
+			defaultTemporaryPath = 'C:\\temp',
+			-- Note that the last three variables will dump stuff in unwanted locations.
+			environmentVariables = { 'TEMP', 'TMP', 'LOCALAPPDATA', 'HOMEPATH', 'USERPROFILE' }
+		}
+
+		-- Poor man's check of running on Windows; ignores OpenVMS' SYS$SCRATCH, AmigaDOS T: and Symbian
+		local defaults = packageConfiguration:isProbablyWindows() and WindowsTemporaryDefaults or PosixTemporaryDefaults
 
 		local temporaryPath = defaults.defaultTemporaryPath
 		for _, environmentVariableName in ipairs(defaults.environmentVariables) do

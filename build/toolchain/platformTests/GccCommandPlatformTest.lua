@@ -6,7 +6,7 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
-local AbstractCommandPlatformTest = halimede.build.toolchain.platformTests
+local AbstractCommandPlatformTest = halimede.build.toolchain.platformTests.AbstractCommandPlatformTest
 local ShellLanguage = halimede.io.shellScript.ShellLanguage
 
 
@@ -21,6 +21,7 @@ function module:initialize()
 	AbstractCommandPlatformTest.initialize(self, validShellLanguages, 'gcc', '-v')
 end
 
+-- ? switch to gcc -dumpmachine ?
 local lineStartsWith = 'Target: '
 local lineStartsWithLength = #lineStartsWith
 local remainderOfLineStartsAt = lineStartsWithLength + 1
@@ -41,6 +42,11 @@ function module:_interpret(rawData)
 	-- NetBSD 5.2.2: 
 	-- OpenBSD 5.6: amd64-unknown-openbsd5.6 [gcc 4.2.1]
 	-- Cygwin/32bit: i686-pc-cygwin (not installed by default, several choices, used gcc-core)
+	-- Debian Wheezy kFreeBSD: x86_64-kfreebsd-gnu (not installed by default - also sudo isn't, either; gcc 4.7.2)
+		-- But clang reports x86_64-pc-kfreebsd-gnu
+	-- Solaris 11.3: i386-pc-solaris2.11
+	-- Haiku: doesn't work, -dumpmachine produces i586-pc-haiku
+	-- DJGPP: djgpp (no hyphens) [only 32-bit Windows, gcc 5.3.0]
 	
 	-- Note that this test isn't as good
 	-- For example, on a Yosemite machine with Homebrew installed, gcc-4.9 produces a target 'x86_64-apple-darwin14.4.0' even thought the target ought to be 'x86_64-apple-darwin14.5.0', due to the fact that this is a homebrew bottle built on a different machine [potential gotcha]

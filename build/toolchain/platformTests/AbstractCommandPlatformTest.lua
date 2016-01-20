@@ -7,10 +7,32 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 local halimede = require('halimede')
 local assert = halimede.assert
 local exception = halimede.exception
+local tabelize = halimede.table.tabelize
 local shellLanguage = halimede.io.shellScript.ShellLanguage.default()
 
 
-halimede.moduleclass('AbstractCommandPlatformTest')
+local AbstractCommandPlatformTest = halimede.moduleclass('AbstractCommandPlatformTest')
+
+assert.globalTypeIsFunctionOrCall('pcall')
+AbstractCommandPlatformTest.static.executeCommand = function(...)
+	local function popen()
+		return shellLanguage:popenReadingFromSubprocess(shellLanguage.silenced, shellLanguage.silenced, ...)
+	end
+	local ok, errorOrFileHandleStream = pcall(popen)
+	if not ok then
+		return false, errorOrFileHandleStream
+	end
+	
+	local function readAll()
+		return fileHandleStream:readAllRemainingContentsAndClose()
+	end
+	ok, errorOrRawData = pcall(readAll)
+	if not ok then
+		return false, errorOrRawData
+	end
+	
+	return true, errorOrRawData
+end
 
 function module:initialize(validShellLanguages, command, ...)
 	assert.parameterTypeIsTable('validShellLanguages', validShellLanguages)
@@ -23,10 +45,14 @@ function module:initialize(validShellLanguages, command, ...)
 	self.validShellLanguages = validShellLanguages
 	self.command = command
 	self.parameters = {...}
+	
+	local commandLine = tabelize({...})
+	commandLine:insert(1, commnd)
+	self.commandLine = commandLine
 end
 
 function module:isTestValid()
-	return self:isValidOnCurrentShell() and shellLanguage:commandIsOnPathAndShellIsAvaiableToUseIt(self.command)
+	return self:isValidOnCurrentShell() and shellLanguage:commandIsOnPathAndShellIsAvailableToUseIt(self.command)
 end
 
 assert.globalTypeIsFunctionOrCall('ipairs')
@@ -41,23 +67,12 @@ end
 
 assert.globalTypeIsFunctionOrCall('unpack', 'pcall')
 function module:executeTest()
-	local function popen()
-		return shellLanguage:popenReadingFromSubprocess(shellLanguage.silenced, shellLanguage.silenced, unpack(parameters))
+	local ok, errorOrRawData = AbstractCommandPlatformTest.executeComand(unpack(self.commandLine))
+	if ok then
+		return ok, self:interpret(errorOrRawData)
+	else
+		return false, errorOrRawData
 	end
-	local ok, errorOrFileHandleStream = pcall(popen)
-	if not ok then
-		return false, errorOrFileHandleStream, {}
-	end
-	
-	local function readAll()
-		return fileHandleStream:readAllRemainingContentsAndClose()
-	end
-	ok, errorOrRawData = pcall(readAll)
-	if not ok then
-		return false, errorOrRawData, {}
-	end
-	
-	return true, nil, self:interpret(errorOrRawData)
 end
 
 function module:_interpret(rawData)

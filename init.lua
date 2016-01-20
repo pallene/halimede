@@ -167,6 +167,35 @@ if package.loaded == nil then
 	package.loaded = {}
 end
 
+if package.preload = nil then
+	package.preload = {}
+end
+
+-- A default that should work even on Windows (note we use a POSIX separator)
+-- Lua 5.2 / 5.3 have an extra line!
+if package.config = nil then
+	local config
+	if _VERSION == 'Lua 5.1' then
+		config = [[
+/
+;
+?
+!
+-
+]]
+	else
+		config = [[
+/
+;
+?
+!
+-
+
+]]
+	end
+	package.config = config
+end
+
 -- Is overridden by our require logic
 if package.path == nil then
 	package.path = ''
@@ -186,14 +215,15 @@ end
 -- Is not used
 -- package.seeall
 
-if package.preload == nil then
-	package.preload = {}
-end
-
 if package.loadlib == nil then
 	package.loadlib = function(libname, funcname)
 		error('loadlib is not supported')
 	end
+end
+
+-- Install ffi if at all possible
+if ffi == nil and package.preload('ffi') then
+	ffi = require('ffi')
 end
 
 -- Based on http://www.lua.org/extras/5.1/strict.lua but doesn't use the debug library
@@ -688,8 +718,6 @@ function string.isEmpty(value)
 	return #value == 0
 end
 
-
-
 local packageConfigurationMapping = {
 	'folderSeparator', -- eg '/' on POSIX
 	'luaPathSeparator', -- usually ';' (even on POSIX)
@@ -698,75 +726,113 @@ local packageConfigurationMapping = {
 	'markToIgnoreTestWhenBuildLuaOpen' -- usually '-'
 }
 
--- Will work OK-ish even on Windows, as '/' is a valid folder separator. However, this is not ideal
-local defaultConfigurationIfMissing = {
-	folderSeparator = '/',
-	luaPathSeparator = ';',
-	substitutionPoint = '?',
-	executableDirectory = '!',
-	markToIgnoreTestWhenBuildLuaOpen = '-'
-}
+assert.globalTypeIsFunctionOrCall('rawget')
+local function addAbiInformationToPackageConfiguration(ffi)
+	local abi = rawget(ffi, 'abi')
+	if abi == nil then
+		abi = function(param)
+			return nil
+		end
+	end
+	
+	return {
+		operatingSystemName = rawget(ffi, 'os'),
+		architecture = rawget(ffi, 'arch'),
+		is32Bit = abi('32bit'),
+		is64Bit = abi('64bit'),
+		isLittleEndian = abi('le'),
+		isBigEndian = abi('be'),
+		hasHardwareFloatingPointUnit = abi('fpu'),
+		usesSoftFloatingPointConventions = abi('softfp'),
+		usesHardFloatingPointConventions = abi('hardfp'),
+		usesEabi = abi('eabi'),
+		usesWindowsAbi = abi('win')  -- true for Windows or Cygwin (incl derivatives)
+	}
+end
 
 assert.globalTypeIsFunctionOrCall('pairs')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gmatch')
 local function initialisePackageConfiguration()
 	local configuration = {}
 
-	local packageConfigurationString
-	if hasPackageChildFieldOfTypeString('package', 'config') then
-		-- Lua 5.2 / 5.3 have an extra line!
-		local maximumKnownLines = #packageConfigurationMapping
-		local index = 1
-		for line in package.config:gmatch('([^\n]+)') do
-			if index > maximumKnownLines then
-				break
-			end
-			configuration[packageConfigurationMapping[index]] = line
-			index = index + 1
+	-- Lua 5.2 / 5.3 have an extra line!
+	local maximumKnownLines = #packageConfigurationMapping
+	local index = 1
+	for line in package.config:gmatch('([^\n]+)') do
+		if index > maximumKnownLines then
+			break
 		end
-	else
-		for name, value in pairs(defaultConfigurationIfMissing) do
-			configuration[name] = value
-		end
+		configuration[packageConfigurationMapping[index]] = line
+		index = index + 1
 	end
-
+	
+	if hasGlobalOfTypeTableOrUserdata('ffi') then
+		packageConfiguration.abi = addAbiInformationToPackageConfiguration(ffi)
+	else
+		packageConfiguration.abi = {}
+	end
+	
 	local luaSharedLibraryExtension
 	local newline
-	if hasPackageChildFieldOfTypeString('jit', 'os') then
+	local parentFolderExceptForMoreObscureFileSystems = '..'
+	local currentFolderExceptForMoreObscureFileSystems = '.'
+	local ffiOperatingSystemName = packageConfiguration.abi.operatingSystemName
+	if ffiOperatingSystemName ~= nil then
 		-- Windows, Linux, OSX, BSD, POSIX, Other
-		local name = jit.os
-		if name == 'Windows' then
+		if ffiOperatingSystemName == 'Windows' then
 			luaSharedLibraryExtension = 'dll'
 			newline = '\r\n'
 		else
-			-- True even on Mac OS X? (not dylib)
+			-- True even on Mac OS X? (ie is not dylib)
 			luaSharedLibraryExtension = 'so'
 			newline = '\n'
+		end
+		
+		-- Consoles?
+		if ffiOperatingSystemName == 'Other' then
+			parentFolderExceptForMoreObscureFileSystems = nil
+			currentFolderExceptForMoreObscureFileSystems = nil
 		end
 	else
-		-- Doesn't work on Symbian
-		if packageConfiguration.folderSeparator == '\\' then
+		if configuration.folderSeparator == '\\' then
+			-- Could be Windows or Symbian; Symbian is effectively dead as of Jan 2016 but is Windows-alike (dll, \r\n, ., .., DOS paths)
 			luaSharedLibraryExtension = 'dll'
 			newline = '\r\n'
-		else
+		elseif configuration.folderSeparator == '/' then
 			luaSharedLibraryExtension = 'so'
 			newline = '\n'
+		elseif configuration.folderSeparator == '.' then
+			-- Could be OpenVMS, Could be Risc OS
+			luaSharedLibraryExtension = nil
+			newline = '\n'  -- Strictly speaking OpenVMS doesn't have a newline and RiscOS uses both \n and \r\n
+			parentFolderExceptForMoreObscureFileSystems = nil
+			currentFolderExceptForMoreObscureFileSystems = nil
+		else
+			luaSharedLibraryExtension = nil
+			newline = '\n'
+			parentFolderExceptForMoreObscureFileSystems = nil
+			currentFolderExceptForMoreObscureFileSystems = nil
 		end
 	end
+	
 	configuration.luaSharedLibraryExtension = luaSharedLibraryExtension
 	configuration.newline = newline
-
-	-- True for all bar RISC OS
-	configuration.fileExtensionSeparator = '.'
-
-	-- Not true for more obscure File Systems
-	configuration.parentFolder = '..'
-	configuration.currentFolder = '.'
-
+	
+	configuration.parentFolderExceptForMoreObscureFileSystems = parentFolderExceptForMoreObscureFileSystems
+	configuration.currentFolderExceptForMoreObscureFileSystems = currentFolderExceptForMoreObscureFileSystems
+	
+	local function configuration:isProbablyWindows()
+		local operatingSystemName = self.abi.operatingSystemName
+		if operatingSystem ~= nil then
+			return operatingSystemName == 'Windows'
+		end
+		
+		return self.folderSeparator == '\\'
+	end
+	
 	return configuration
 end
 local packageConfiguration = initialisePackageConfiguration()
-
 
 
 local requireOriginalGlobalFunction = require
@@ -799,21 +865,25 @@ local function appendFoldersToPath(...)
 	return path
 end
 
-local parentFolder = packageConfiguration.parentFolder
-local currentFolder = packageConfiguration.currentFolder
+local parentFolderExceptForMoreObscureFileSystems = packageConfiguration.parentFolderExceptForMoreObscureFileSystems
+local currentFolderExceptForMoreObscureFileSystems = packageConfiguration.currentFolderExceptForMoreObscureFileSystems
 local folderSeparator = packageConfiguration.folderSeparator
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'match', 'gsub', 'sub', 'isEmpty')
 local function findModulesRootPath()
 	if _G.modulesRootPathString ~= nil then
 		return _G.modulesRootPathString
 	end
-
+	
+	if parentFolderExceptForMoreObscureFileSystems == nil or currentFolderExceptForMoreObscureFileSystems == nil then
+		error("Please specify the global 'modulesRootPathString' in 'lua -e' or your code before require('halimede'), as we can't work out your file system kind")
+	end
+	
 	-- The following logic does not resolve symlinks, unlike the realpath binary
 	-- It may rely on the location of halimede/init.lua and the presence of debug.getinfo
 	-- It may rely on arg0 being an actual path (this is usually the case, but not necessarily)
 	-- It won't work unless we're running on Windows or Posix
 	local function dirname(path)
-		local currentFolderPath = currentFolder .. folderSeparator
+		local currentFolderPath = currentFolderExceptForMoreObscureFileSystems .. folderSeparator
 
 		if path == nil then
 			return currentFolderPath
@@ -854,7 +924,7 @@ local function findModulesRootPath()
 	end
 
 	local ourFolderPath = dirname(findArg0())
-	return appendFoldersToPath(ourFolderPath, parentFolder)
+	return appendFoldersToPath(ourFolderPath, parentFolderExceptForMoreObscureFileSystems)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'gmatch')

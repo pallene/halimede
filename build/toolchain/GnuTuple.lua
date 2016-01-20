@@ -11,8 +11,8 @@ local exception = halimede.exception
 local ConfigHDefines = halimede.build.defines.ConfigHDefines
 local InstructionSet = sibling.InstructionSet
 local ARC = InstructionSet.ARC
-local ARM64 = InstructionSet.ARM64
 --local ARM = InstructionSet.ARM
+local ARM64 = InstructionSet.ARM64
 local Alpha = InstructionSet.Alpha
 local CRIS = InstructionSet.CRIS
 --local PARISC = InstructionSet['PA-RISC']
@@ -183,6 +183,9 @@ end
 
 GnuTuple:new('aarch64-linux-gnu', 'unknown', 'linux', 'glibc', ARM64, LittleEndian, 64, 'aarch64 Linux Platform (Little Endian)', unknownConfigHDefines)
 GnuTuple:new('aarch64_be-linux-gnu', 'unknown', 'linux', 'glibc', ARM64, BigEndian, 64, 'aarch64 Linux Platform (Big Endian)', unknownConfigHDefines)
+
+-- With Alpha and IA-32, more detail about the processor than should have been used is in the tuple; it is effectively revision of processor or tuning
+-- Also PA-RISC: hppa1.1-unknown-linux- and hppa2.0-unknown-linux- (fortunately dead)
 
 -- These effectively represent Alpha instruction set variants that GCC understands
 GnuTuple:new('alphaev5-unknown-linux-gnu', 'unknown', 'linux', 'glibc', Alpha, LittleEndian, 64, 'glibc, Tru64 calling standard', unknownConfigHDefines)
