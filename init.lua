@@ -221,11 +221,6 @@ if package.loadlib == nil then
 	end
 end
 
--- Install ffi for LuaJIT
-if ffi == nil then
-	ffi = require('ffi')
-end
-
 -- Based on http://www.lua.org/extras/5.1/strict.lua but doesn't use the debug library
 -- Late detection, but better than no detection at all
 -- See also http://lua-users.org/wiki/DetectingUndefinedVariables
@@ -252,7 +247,7 @@ local function createNamedCallableFunction(functionName, actualFunction, module,
 	if module == nil then
 		module = {}
 	end
-
+	
 	if rawget(module, 'name') == nil then
 		rawset(module, 'name', functionName)
 	end
@@ -765,11 +760,15 @@ local function initialisePackageConfiguration()
 		configuration[packageConfigurationMapping[index]] = line
 		index = index + 1
 	end
-	
-	if hasGlobalOfTypeTableOrUserdata('ffi') then
-		configuration.abi = addAbiInformationToPackageConfiguration(ffi)
-	else
-		configuration.abi = {}
+
+	-- Should always be in the preload table if using LuaJIT
+	-- If using regular Lua, then if https://github.com/jmckaskill/luaffi is compiled with Lua then maybe in preload
+	configuration.abi = {}
+	if not hasGlobalOfTypeTableOrUserdata('ffi') then
+		if package.preload['ffi'] ~= nil then
+			ffi = require('ffi')
+			configuration.abi = addAbiInformationToPackageConfiguration(ffi)
+		end
 	end
 	
 	local luaSharedLibraryExtension
@@ -955,6 +954,26 @@ local searchPathFileExtensions = {
 	cpath = packageConfiguration.luaSharedLibraryExtension
 }
 
+-- Should work for lustache, lua_cliargs, lua-set and others
+local function luaRocksSearchPathGenerator(moduleName, prefix, lookForInit)
+	-- eg lua_cliargs/src/cliargs.lua
+	-- eg lua_cliargs/src/cliargs/printer.lua
+	-- eg lua_cliargs/src/cliargs/utils/filter.lua
+	-- In the above cases, the prefix is 'lua_'
+	
+	local subFolders = moduleName:split('.')
+	
+	-- luaRocksModuleFolderName can be prefixed with lua- and lua_, too
+	local luaRocksModuleFolderName = subFolders[1]
+	
+	if lookForInit then
+		return {prefix .. luaRocksModuleFolderName, 'src', packageConfiguration.substitutionPoint}
+	else
+		-- eg for lua-set (https://github.com/wscherphof/lua-set)
+		return {prefix .. luaRocksModuleFolderName, 'src', packageConfiguration.substitutionPoint, 'init'}
+	end
+end
+
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'split')
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('table', 'insert')
 local searchPathGenerators = {
@@ -972,6 +991,28 @@ local searchPathGenerators = {
 		table.insert(subFolders, subFolders[#subFolders])
 		return subFolders
 	end,
+	
+	-- LuaRocks variants (note: does not for for SLAXML - some luarocks variants are just odd)
+	function(moduleName)
+		return luaRocksSearchPathGenerator(moduleName, '', false)
+	end,
+	function(moduleName)
+		return luaRocksSearchPathGenerator(moduleName, 'lua-', false)
+	end,
+	function(moduleName)
+		return luaRocksSearchPathGenerator(moduleName, 'lua_', false)
+	end,
+	function(moduleName)
+		return luaRocksSearchPathGenerator(moduleName, '', true)
+	end,
+	function(moduleName)
+		return luaRocksSearchPathGenerator(moduleName, 'lua-', true)
+	end,
+	function(moduleName)
+		return luaRocksSearchPathGenerator(moduleName, 'lua_', true)
+	end,
+	
+	-- ljsyscall ?
 	function(moduleName)
 		-- eg for ljsyscall, checked out as a git submodule 'syscall', require('syscall') => syscall/syscall.lua but also require('syscall.helpers') => syscall/syscall/helpers.lua
 		-- This is because ljsyscall is designed to be 'installed' by LuaRocks even though it's pure Lua code...
@@ -979,10 +1020,6 @@ local searchPathGenerators = {
 		local subFolders = moduleName:split('.')
 		table.insert(subFolders, 1, subFolders[1])
 		return subFolders
-	end,
-	function(moduleName)
-		-- eg Set => src/Set/init.lua; required for luarocks' install of pure lua https://github.com/wscherphof/lua-set
-		return {'src', packageConfiguration.substitutionPoint, 'init'}
 	end
 }
 
@@ -1163,8 +1200,9 @@ requireFunction = function(modname)
 	module = moduleLocal
 	moduleName = moduleNameLocal
 	parentModuleName = moduleNameLocal
-
+	
 	initialiseSearchPaths(moduleNameLocal)
+	
 	local failures = {}
 	for index, searcher in ipairs(searchers) do
 		-- filePath only in Lua 5.2+, and not set by the preload searcher
@@ -1181,7 +1219,7 @@ requireFunction = function(modname)
 				elseif isFunction(result) then
 					ourResult = createNamedCallableFunction(moduleNameLocal, function(self, ...)
 						return result(...)
-					end, moduleNameLocal, 'modulefunction')
+					end, {}, 'modulefunction')
 				else
 					ourResult = result
 				end
@@ -1204,7 +1242,7 @@ requireFunction = function(modname)
 	error(("Could not load module '%s' because of failures:-%s"):format(moduleNameLocal, table.concat(failures, newline .. '\tor')))
 end
 
-local require = createNamedCallableFunction('require', requireFunction, {}, 'modulefunction')
+require = createNamedCallableFunction('require', requireFunction, {}, 'modulefunction')
 
 
 assert.globalTypeIsFunctionOrCall('require')
