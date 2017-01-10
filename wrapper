@@ -73,8 +73,8 @@ _program_path="$(_program_path_find)"
 
 _program_rootPath_find()
 {
-	# Assumes we are in lib/pallene/modules/<moduleName>
-	cd "${_program_path}/../../.." 1>/dev/null 2>/dev/null
+	# Assumes we are in /path/to/moduleNamedAsPerProgram/halimede, and that the actual runtime program is in /path/to
+	cd "${_program_path}"/.. 1>/dev/null 2>/dev/null
 		pwd -P
 	cd - 1>/dev/null 2>/dev/null
 }
@@ -129,7 +129,7 @@ _program_luaScript_find()
 	local relativePath
 	for relativePath in "$@"
 	do
-		local absoluteScriptPath="$_program_rootPath"/lib/pallene/"$relativePath"
+		local absoluteScriptPath="$_program_rootPath"/"$relativePath"
 		if [ -r "$absoluteScriptPath" ]; then
 			_program_luaScript="$absoluteScriptPath"
 			return 0
@@ -249,6 +249,11 @@ if os then
 end
 
 require("halimede")
+
+-- Workaround Lua not being able to require(_program_name) in _program_luaScript
+local moduleNameLocal = "'"$_program_name"'"
+local module = halimede.setUpModule(moduleNameLocal)
+package.loaded[moduleNameLocal] = module
 '
 
 exec "$_program_lua_interpreter" -e "$_program_prepareScript" "$_program_luaScript" "$@"

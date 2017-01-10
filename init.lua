@@ -160,20 +160,20 @@ if string.len == nil then
 	end
 end
 
--- table.concat, table.insert, table.maxn, table.remove, table.sort are all implementable in pure Lua but tricky to right
+-- table.concat, table.insert, table.maxn, table.remove, table.sort are all implementable in pure Lua but tricky to get right
 
 
 if package.loaded == nil then
 	package.loaded = {}
 end
 
-if package.preload = nil then
+if package.preload == nil then
 	package.preload = {}
 end
 
 -- A default that should work even on Windows (note we use a POSIX separator)
 -- Lua 5.2 / 5.3 have an extra line!
-if package.config = nil then
+if package.config == nil then
 	local config
 	if _VERSION == 'Lua 5.1' then
 		config = [[
@@ -221,8 +221,8 @@ if package.loadlib == nil then
 	end
 end
 
--- Install ffi if at all possible
-if ffi == nil and package.preload('ffi') then
+-- Install ffi for LuaJIT
+if ffi == nil then
 	ffi = require('ffi')
 end
 
@@ -767,16 +767,16 @@ local function initialisePackageConfiguration()
 	end
 	
 	if hasGlobalOfTypeTableOrUserdata('ffi') then
-		packageConfiguration.abi = addAbiInformationToPackageConfiguration(ffi)
+		configuration.abi = addAbiInformationToPackageConfiguration(ffi)
 	else
-		packageConfiguration.abi = {}
+		configuration.abi = {}
 	end
 	
 	local luaSharedLibraryExtension
 	local newline
 	local parentFolderExceptForMoreObscureFileSystems = '..'
 	local currentFolderExceptForMoreObscureFileSystems = '.'
-	local ffiOperatingSystemName = packageConfiguration.abi.operatingSystemName
+	local ffiOperatingSystemName = configuration.abi.operatingSystemName
 	if ffiOperatingSystemName ~= nil then
 		-- Windows, Linux, OSX, BSD, POSIX, Other
 		if ffiOperatingSystemName == 'Windows' then
@@ -820,14 +820,15 @@ local function initialisePackageConfiguration()
 	
 	configuration.parentFolderExceptForMoreObscureFileSystems = parentFolderExceptForMoreObscureFileSystems
 	configuration.currentFolderExceptForMoreObscureFileSystems = currentFolderExceptForMoreObscureFileSystems
+	configuration.fileExtensionSeparator = '.'
 	
-	local function configuration:isProbablyWindows()
-		local operatingSystemName = self.abi.operatingSystemName
+	configuration.isProbablyWindows = function()
+		local operatingSystemName = configuration.abi.operatingSystemName
 		if operatingSystem ~= nil then
 			return operatingSystemName == 'Windows'
 		end
 		
-		return self.folderSeparator == '\\'
+		return configuration.folderSeparator == '\\'
 	end
 	
 	return configuration
@@ -1022,7 +1023,7 @@ local function setUpModule(moduleName, module)
 	if metatable.__index == nil then
 		metatable.__index = function(self, childModuleName)
 			assert.parameterTypeIsTable('self', self)
-			assert.parameterTypeIsString('moduleName', moduleName)
+			assert.parameterTypeIsString('childModuleName', childModuleName)
 
 			local fullModuleName = moduleName .. '.' .. childModuleName
 			local moduleLoaded = requireFunction(fullModuleName)
@@ -1360,6 +1361,8 @@ halimede.modulesRootPathString = modulesRootPathString
 halimede.allowExplicityNilFields = allowExplicityNilFields
 
 halimede.internal = {}
+
+halimede.setUpModule = setUpModule
 
 augment('getenv')
 
