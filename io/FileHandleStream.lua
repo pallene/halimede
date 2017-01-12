@@ -59,7 +59,7 @@ local function openFile(filePath, fileDescription, mode, modeDescription)
 	if fileHandle == nil then
 		exception.throw("Could not open %s '%s' in mode %s for %s because of error '%s'", fileDescription, filePath, mode, modeDescription, errorMessage)
 	end
-	return FileHandleStream:new(fileHandle, filePathString .. '(' .. modeDescription .. ')')
+	return FileHandleStream:new(fileHandle, 'mode ' .. modeDescription .. " for '" .. filePathString .. "'")
 end
 
 module.static.openTextFileForReading = function(filePath, fileDescription)
@@ -76,6 +76,10 @@ end
 
 module.static.openBinaryFileForWriting = function(filePath, fileDescription)
 	return openFile(filePath, fileDescription, 'wb', 'binary-mode writing')
+end
+
+module.static.openBinaryFileForUpdatingWithPreviousDataErased = function(filePath, fileDescription)
+	return openFile(filePath, fileDescription, 'w+b', 'binary-mode updating / erasing')
 end
 
 local tmpfileFunction
@@ -172,6 +176,10 @@ function module:readAllRemainingContentsAndClose()
 		exception.throw('Can not read from fileHandle')
 	end
 	return contents
+end
+
+function module:writeNewLine()
+	self:write(newline)
 end
 
 assert.globalTableHasChieldFieldOfTypeFunctionOrCall('string', 'format')

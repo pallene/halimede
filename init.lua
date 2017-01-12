@@ -713,6 +713,22 @@ function string.isEmpty(value)
 	return #value == 0
 end
 
+function string.startsWith(value, startsWith)
+	assert.parameterTypeIsString('value', value)
+	assert.parameterTypeIsString('startsWith', startsWith)
+	
+	return value:sub(1, startsWith:len()) == startsWith
+end
+
+function string.endsWith(value, endsWith)
+	assert.parameterTypeIsString('value', value)
+	assert.parameterTypeIsString('endsWith', endsWith)
+	
+	return endsWith == '' or value:sub(-endsWith:len()) == endsWith
+end
+
+
+
 local packageConfigurationMapping = {
 	'folderSeparator', -- eg '/' on POSIX
 	'luaPathSeparator', -- usually ';' (even on POSIX)
@@ -1079,6 +1095,11 @@ local function setUpModule(moduleName, module)
 		rawset(module, 'name', moduleName)
 	end
 
+	if rawget(module, 'leafName') == nil then
+		local namePieces = moduleName:split('.')
+		rawset(module, 'leafName', namePieces[#namePieces])
+	end
+	
 	return module
 end
 
@@ -1214,15 +1235,7 @@ requireFunction = function(modname)
 			if result == nil then
 				ourResult = module
 			else
-				if isTable(result) then
-					ourResult = result
-				elseif isFunction(result) then
-					ourResult = createNamedCallableFunction(moduleNameLocal, function(self, ...)
-						return result(...)
-					end, {}, 'modulefunction')
-				else
-					ourResult = result
-				end
+				ourResult = result
 			end
 			loaded[moduleNameLocal] = ourResult
 			resetModuleGlobals()
