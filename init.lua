@@ -488,6 +488,38 @@ local function hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
 end
 type.hasPackageChildFieldOfTypeTableOrUserdata = hasPackageChildFieldOfTypeTableOrUserdata
 
+-- Should always be in the preload table if using LuaJIT, and normally in the global namespace
+-- If using regular Lua, then if https://github.com/jmckaskill/luaffi is compiled with Lua then maybe in preload or maybe on disk
+local function retrieveFfiIfGloballyPresentOrInPreload()
+	if hasGlobalOfTypeTableOrUserdata('ffi') then
+		return ffi
+	end
+
+	if package.preload['ffi'] ~= nil then
+		ffi = require('ffi')
+		return ffi
+	end
+	
+	local status, ffiOrError = pcall(function()
+		return require('ffi')
+	end)
+	
+	if status == true then
+		ffi = ffiOrError
+		return ffi
+	end
+	
+	return nil
+end
+type.retrieveFfiIfGloballyPresentOrInPreload = retrieveFfiIfGloballyPresentOrInPreload
+
+local function useFfiIfPresent(callback)
+	local ffi = type.retrieveFfiIfGloballyPresentOrInPreload()
+	if ffi ~= nil then
+		callback(ffi)
+	end
+end
+type.useFfiIfPresent = useFfiIfPresent
 
 
 -- WARN: Lua's random number generator is not cryptographically secure
@@ -777,15 +809,11 @@ local function initialisePackageConfiguration()
 		index = index + 1
 	end
 
-	-- Should always be in the preload table if using LuaJIT
-	-- If using regular Lua, then if https://github.com/jmckaskill/luaffi is compiled with Lua then maybe in preload
 	configuration.abi = {}
-	if not hasGlobalOfTypeTableOrUserdata('ffi') then
-		if package.preload['ffi'] ~= nil then
-			ffi = require('ffi')
-			configuration.abi = addAbiInformationToPackageConfiguration(ffi)
-		end
-	end
+	
+	useFfiIfPresent(function(ffi)
+		configuration.abi = addAbiInformationToPackageConfiguration(ffi)
+	end)
 	
 	local luaSharedLibraryExtension
 	local newline

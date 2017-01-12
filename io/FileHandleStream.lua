@@ -221,3 +221,21 @@ function module:close()
 	self.fileHandle = nil
 	self.isOpen = false
 end
+
+type.useFfiIfPresent(function(ffi)
+	
+	ffi.cdef([[
+		int fileno(void * stream);
+	]])
+	
+	local C = ffi.C
+	
+	function module:fileDescriptor()
+		if not self.isOpen then
+			exception.throw('Closed')
+		end
+	
+		return C.fileno(self.fileHandle)
+	end
+	
+end)
