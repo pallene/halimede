@@ -1055,16 +1055,6 @@ local searchPathGenerators = {
 	function(moduleName)
 		return luaRocksSearchPathGenerator(moduleName, 'lua_', true)
 	end,
-	
-	-- ljsyscall ?
-	function(moduleName)
-		-- eg for ljsyscall, checked out as a git submodule 'syscall', require('syscall') => syscall/syscall.lua but also require('syscall.helpers') => syscall/syscall/helpers.lua
-		-- This is because ljsyscall is designed to be 'installed' by LuaRocks even though it's pure Lua code...
-		-- eg syscall.helpers => syscall/syscall/helpers.lua
-		local subFolders = moduleName:split('.')
-		table.insert(subFolders, 1, subFolders[1])
-		return subFolders
-	end
 }
 
 assert.globalTypeIsFunctionOrCall('ipairs', 'unpack')
