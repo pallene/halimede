@@ -6,14 +6,21 @@ Copyright © 2015 The developers of halimede. See the COPYRIGHT file in the top-
 
 local halimede = require('halimede')
 local assert = halimede.assert
+local exception = halimede.exception
+local utf8CodePointInString = halimede.string.utf8CodePointInString
 
 
-halimede.modulefunction(function(decimal)
-	assert.parameterTypeIsNumber('decimal', decimal)
+halimede.modulefunction(function(value, callback)
 	
-	if decimal >= 0 then
-		return math.floor(decimal + 0.5)
-	else
-		return math.ceil(decimal - 0.5)
+	local index = 1
+	local byteLength = #value
+	
+	while index <= byteLength do
+		
+		local sizeOfCodePoint, codePoint = utf8CodePointInString(value, index)
+		callback(value, index, sizeOfCodePoint, codePoint)
+		
+		index = index + sizeOfCodePoint
 	end
+	
 end)
