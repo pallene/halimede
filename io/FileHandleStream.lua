@@ -62,6 +62,20 @@ local function openFile(filePath, fileDescription, mode, modeDescription)
 	return FileHandleStream:new(fileHandle, 'mode ' .. modeDescription .. " for '" .. filePathString .. "'")
 end
 
+module.static.readEitherStandardInOrFileContentsIntoString = function(stringPathOrHyphen, description)
+	-- internal to avoid a circular initialisation problem
+	local DefaultShellLanguage = halimede.io.shellScript.ShellLanguage.default()
+	local fileHandleStream
+	if stringPathOrHyphen == '' or stringPathOrHyphen == '-' then
+		fileHandleStream = FileHandleStream.StandardIn
+	else
+		local xmlFilePath = DefaultShellLanguage:parsePath(stringPathOrHyphen, true)
+		fileHandleStream = FileHandleStream.openBinaryFileForReading(xmlFilePath, description)
+	end
+	
+	return fileHandleStream:readAllRemainingContentsAndClose()
+end
+
 module.static.openTextFileForReading = function(filePath, fileDescription)
 	return openFile(filePath, fileDescription, 'r', 'text-mode reading')
 end
