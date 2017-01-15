@@ -1,4 +1,4 @@
 init.empty.lua
-middleclass/performance/
-middleclass/rockspecs/
-middleclass/spec/
+middleclass/performance
+middleclass/rockspecs
+middleclass/spec
