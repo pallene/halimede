@@ -66,6 +66,31 @@ function module:initialize(pathStyle, pathRelativity, device, pathElements, isFi
 	self.numberOfPathElements = #self.pathElements
 end
 
+function module:isCurrentDirectory()
+	if #self.pathElements == 1 then
+		return self.pathElements[1] == self.pathStyle.currentDirectory
+	end
+	return false
+end
+
+function module:mkdirs(mkdirFunctionCallback)
+	self:assertIsFolderPath('self')
+	
+	local specifyCurrentDirectoryExplicitlyIfAppropriate = false
+	local index = 1
+	local numberOfParentPaths = #self.pathElements
+	local currentPathElements = {}
+	while index <= numberOfParentPaths do
+		
+		currentPathElements[#currentPathElements + 1] = self.pathElements[index]
+
+		local parentPath = self.pathRelativity:toString(self.pathStyle, currentPathElements, false, specifyCurrentDirectoryExplicitlyIfAppropriate, self.device)
+		mkdirFunctionCallback(parentPath)
+		
+		index = index + 1
+	end
+end
+
 local simpleEqualityFieldNames = {'pathStyle', 'pathRelativity', 'isFile'}
 local shallowArrayFieldNames = {'pathElements'}
 local potentiallyNilFieldNames = {'device', 'alternateStreamName'}
