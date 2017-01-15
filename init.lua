@@ -867,7 +867,7 @@ local function initialisePackageConfiguration()
 	
 	configuration.isProbablyWindows = function()
 		local operatingSystemName = configuration.abi.operatingSystemName
-		if operatingSystem ~= nil then
+		if operatingSystemName ~= nil then
 			return operatingSystemName == 'Windows'
 		end
 		
