@@ -78,7 +78,7 @@ _compile_luajit_cleanUp()
 	make clean 1>&2 || true
 }
 
-_compile_luajit_forATarget()
+compile_luajit_forATarget()
 {
 	local crossCompile="$1"
 	
@@ -87,22 +87,48 @@ _compile_luajit_forATarget()
 	
 	set --
 	if [ -z "$crossCompile" ]; then
-		local prefixFolderPath="$sysrootPath"/native
+		local prefixFolderPath="$sysrootsFolderPath"/native
 		local target='native'
 		set -- "$@" CC=cc DEFAULT_CC=cc HOST_CC=cc
 	else
-		local prefixFolderPath="$sysrootPath"/"$crossCompile"
+		local prefixFolderPath="$sysrootsFolderPath"/"$crossCompile"
 		local target="$crossCompile"
-		set -- "$@" DEFAULT_CC=cc HOST_CC=cc CROSS="$crossCompile"
+		
+		local targetSystem
+		case "$crossCompile" in
+			
+			*-apple-*|-darwin*)
+				targetSystem=Darwin
+			;;
+			
+			*mingw*)
+				targetSystem=Windows
+			;;
+			
+			*-linux-*)
+				targetSystem=Linux
+			;;
+			
+			*sun*|*solaris*)
+				targetSystem=SunOS
+			;;
+			
+			*)
+				targetSystem=Linux
+			;;
+			
+		esac
+		
+		set -- "$@" CC=cc DEFAULT_CC=cc HOST_CC=cc CROSS="$crossCompile" TARGET_SYS="$targetSystem"
 	fi
 	
 	rm -rf "$prefixFolderPath"
 	mkdir -m 0700 -p "$prefixFolderPath"
 	
-	cd "$sourcePath"/LuaJIT 1>/dev/null 2>/dev/null
+	cd "$sourceFolderPath"/LuaJIT 1>/dev/null 2>/dev/null
 		_compile_luajit_cleanUp
 		set +e
-			make -j $parallelismJobCount amalg PREFIX="$prefixFolderPath" "$@" 1>&2
+			make -j $parallelismJobCount amalg Q='' PREFIX="$prefixFolderPath" "$@" 1>&2
 			local exitCode=$?
 		set -e
 		if [ $exitCode -ne 0 ]; then
@@ -122,19 +148,75 @@ _compile_luajit_forATarget()
 	cd - 1>/dev/null 2>/dev/null
 }
 
-compile_luajit_native()
+_compile_luajit_printHelp()
 {
-	_compile_luajit_forATarget ''
+	cat <<-EOF
+		Usage: compile-luajit TARGET
+		Usage: compile-luajit -h|--help
+		
+		Options:
+		  TARGET  Either 'native' or a CROSS_COMPILE prefix (including hyphen), eg 'x86_64-linux-musl-'
+		
+		Example
+		  ./compile-luajit x86_64-linux-musl-
+	EOF
+}
+
+compile_luajit_showHelp()
+{
+	_compile_luajit_printHelp
+	
+	exit 0
+}
+
+compile_luajit_showError()
+{
+	local errorMessage="$1"
+	
+	{
+		printf 'Error: %s\n' "$errorMessage"
+		_compile_luajit_printHelp
+	} 1>&2
+	
+	exit 1
+}
+
+compile_luajit_parseCommandLineArguments()
+{
+	case "$#" in
+		
+		1)
+			if [ "$1" = '-h' ]; then
+				compile_luajit_showHelp
+			elif [ "$1" = '--help' ]; then
+				compile_luajit_showHelp
+			else
+				compile_luajit_target="$1"
+			fi
+		;;
+		
+		*)
+			compile_luajit_showHelp "Please specify only TARGET"
+		;;
+		
+	esac
 }
 
 compile_luajit_main()
 {
 	local _program_path="$(_program_path_find)"
 	cd "$_program_path" 1>/dev/null 2>/dev/null
-		local sourcePath="$(pwd)"/source
-		local sysrootPath="$(pwd)"/sysroot
+		local sourceFolderPath="$(pwd)"/source
+		local sysrootsFolderPath="$(pwd)"/sysroots
 	cd - 1>/dev/null 2>/dev/null
 	
-	compile_luajit_native
+	local compile_luajit_target
+	compile_luajit_parseCommandLineArguments "$@"
+	
+	if [ "$compile_luajit_target" = 'native' ]; then
+		compile_luajit_forATarget ''
+	else
+		compile_luajit_forATarget "$compile_luajit_target"
+	fi
 }
 compile_luajit_main "$@"

@@ -1,5 +1,3 @@
 init.empty.lua
 init.luajit.lua
-middleclass/performance
-middleclass/rockspecs
-middleclass/spec
+middleclass

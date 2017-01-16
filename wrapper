@@ -145,7 +145,7 @@ _program_lua_interpreter=''
 _program_lua_interpreter_find()
 {
 	local halimedeDependenciesFolderPath="$_program_modulesPath"/halimede/.dependencies
-	local halimedeProvidedLuaJitFolderPath="$halimedeDependenciesFolderPath"/sysroot/native/bin/luajit
+	local halimedeProvidedLuaJitFolderPath="$halimedeDependenciesFolderPath"/sysroots/native/bin/luajit
 	if [ -x "$halimedeProvidedLuaJitFolderPath" ]; then
 		_program_lua_interpreter="$halimedeProvidedLuaJitFolderPath"
 		return 0

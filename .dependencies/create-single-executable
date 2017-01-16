@@ -70,22 +70,6 @@ _program_path_find()
 	fi
 }
 
-create_single_executable_findLuajitBinaryFilePath()
-{
-	# Also kahlua.sh, luaj
-	local luajitBinary
-	for luajitBinary in luajit-2.0.4 luajit
-	do
-		if command -v "$luajitBinary" 1>/dev/null 2>/dev/null; then
-			create_single_executable_luajitBinaryFilePath="$(command -v "$luajitBinary")"
-			return 0
-		fi
-	done
-	
-	printf '%s\n' "Could not find a LuaJIT binary on the PATH ('$PATH')" 1>&2
-	exit 1
-}
-
 _create_single_executable_processModules_fileOrFolderIsIgnored()
 {
 	local withoutModuleName="$1"
@@ -104,13 +88,21 @@ _create_single_executable_createByteCodeObject()
 	local requireName="$2"
 	local outputFolderPath="$3"
 	
-	"$create_single_executable_luajitBinaryFilePath" -b -s \
-		-n "$requireName" \
-		-t "$create_single_executable_objectFileExtension" \
-		-a "$create_single_executable_architecture" \
-		-o "$create_single_executable_operatingSystem" \
-		"$sourceLuaFilePath" \
-		"$outputFolderPath"/"$requireName"."$create_single_executable_objectFileExtension"
+	if [ "$create_single_executable_architecture" = 'native' ]; then
+		"$create_single_executable_luajitBinaryFilePath" -b -s \
+			-n "$requireName" \
+			-t "$create_single_executable_objectFileExtension" \
+			"$sourceLuaFilePath" \
+			"$outputFolderPath"/"$requireName"."$create_single_executable_objectFileExtension"
+	else
+		"$create_single_executable_luajitBinaryFilePath" -b -s \
+			-n "$requireName" \
+			-t "$create_single_executable_objectFileExtension" \
+			-a "$create_single_executable_architecture" \
+			-o "$create_single_executable_operatingSystem" \
+			"$sourceLuaFilePath" \
+			"$outputFolderPath"/"$requireName"."$create_single_executable_objectFileExtension"
+	fi
 }
 
 _create_single_executable_processModules_files()
@@ -225,7 +217,7 @@ create_single_executable_processModules()
 					"$outputFolderPath"/*."$create_single_executable_objectFileExtension"
 			set -f
 			
-			set -- "$@" -L"$modulesPath"/"$outputFolderPath" -Wl,--whole-archive -lluajit_${moduleName} -Wl,--no-whole-archive
+			set -- "$@" -L"$modulesPath"/"$outputFolderPath" -lluajit_${moduleName}
 			
 			# Add extra things, eg link libz with -lz
 			local extraLibsToLink="$moduleName"/.luajit-libs
@@ -233,21 +225,20 @@ create_single_executable_processModules()
 				local lib
 				while IFS='' read -r lib
 				do
-					set -- "$@" -Wl,--whole-archive -l"${lib}" -Wl,--no-whole-archive
+					set -- "$@" -l"${lib}"
 				done <"$extraLibsToLink"
 			fi
 		done
 		
 	cd - 1>/dev/null 2>/dev/null
 	
-	create_single_executable_processModules_createExecutable '.' '.' "$@"
+	create_single_executable_processModules_createExecutable "$@"
 }
 
 create_single_executable_processModules_createExecutable()
 {
 	local luajitInstallPath="$1"
 	local luajitLibraryPath="$2"
-	shift 2
 	
 	local outputFolderPath="$modulesPath"/"$create_single_executable_name"/.luajit
 	local wrapperLuaFilePath="$outputFolderPath"/"$create_single_executable_generatedWrapperCodeModuleName".lua
@@ -255,6 +246,7 @@ create_single_executable_processModules_createExecutable()
 	
 	# Create wrapper code
 	cat >"$wrapperLuaFilePath" <<-EOF
+		_G.modulesRootPathString = '.'
 		package.path = ''
 		package.cpath = ''
 		
@@ -271,35 +263,62 @@ create_single_executable_processModules_createExecutable()
 
 	_create_single_executable_createByteCodeObject "$wrapperLuaFilePath" "$create_single_executable_generatedWrapperCodeModuleName" "$outputFolderPath"
 	
-	# static linking does not work on Mac OS X
-	"$create_single_executable_cc" -pipe \
-		-I"$luajitInstallPath" -g0 -O2 -Wall \
-		-static -Wl,-Bstatic \
-		-o "$outputFolderPath"/"$create_single_executable_name" \
-		-Wl,--export-dynamic "$modulesPath"/halimede/runtime.c "$wrapperLuaObjectFilePath" \
-		"$@" \
-		-L"$luajitLibraryPath" -Wl,--whole-archive -lluajit-5.1 -Wl,--no-whole-archive \
-		 -Wl,--whole-archive -lc -lm -ldl -Wl,--no-whole-archive
+	local singleExecutableBinaryFilePath
+	if [ -n "${CROSS_COMPILE+set}" ]; then
+		singleExecutableBinaryFilePath="$outputFolderPath"/"${CROSS_COMPILE}${create_single_executable_name}"
+	else
+		singleExecutableBinaryFilePath="$outputFolderPath"/"$create_single_executable_name"
+	fi
+
+	if [ "$create_single_executable_setIsMacOsX" ]; then
+		set -- -pipe \
+			-pagezero_size 10000 -image_base 100000000 \
+			-g0 -O2 -Wall \
+			-I"$crossSysrootFolderPath"/include/luajit-2.0 \
+			-L"$crossSysrootFolderPath"/lib \
+			-o "$singleExecutableBinaryFilePath" \
+			"$sourceFolderPath"/runtime.c "$wrapperLuaObjectFilePath" \
+			-lm -ldl \
+			-Wl,-all_load \
+			-lluajit-5.1 "$@"
+	else
+		set -- -pipe \
+			-g0 -O2 -Wall \
+			-I"$crossSysrootFolderPath"/include/luajit-2.0 \
+			-L"$crossSysrootFolderPath"/lib \
+			-o "$singleExecutableBinaryFilePath" \
+			-static -Wl,-Bstatic \
+			"$sourceFolderPath"/runtime.c "$wrapperLuaObjectFilePath" \
+			-Wl,--whole-archive -lluajit-5.1 "$@" -lc -lm -ldl -Wl,--no-whole-archive -Wl,--export-dynamic
+	fi
 	
-	"$create_single_executable_strip" --strip-all "$outputFolderPath"/"$create_single_executable_name"
+	"$create_single_executable_cc" "$@"
+	
+	if [ "$create_single_executable_setIsMacOsX" ]; then
+		:
+	else
+		"$create_single_executable_strip" --strip-all "$singleExecutableBinaryFilePath" 2>/dev/null || true
+	fi
 }
 
 _create_single_executable_printHelp()
 {
 	cat <<-EOF
-		Usage: luajit-compile OPERATING_SYSTEM ARCHITECTURE NAME
-		Usage: luajit-compile -h|--help
+		Usage: create-single-executable NAME [OPERATING_SYSTEM ARCHITECTURE]
+		Usage: create-single-executable -h|--help
 		
 		Options:
-		  OPERATING_SYSTEM  One of linux, windows, osx, freebsd, netbsd, openbsd, dragonfly or solaris
-		  ARCHITECTURE      One of x86, x64, arm, arm64 (LuaJIT 2.1 only), ppc, mips or mipsel
 		  NAME              A module with a init.lua file to run as the first piece of code
+		  OPERATING_SYSTEM  One of linux, windows, osx, freebsd, netbsd, openbsd, dragonfly or solaris
+		                    If omitted the native system is used
+		  ARCHITECTURE      One of x86, x64, arm, arm64 (LuaJIT 2.1 only), ppc, mips or mipsel
+		                    If omitted the native system is used
 		
 		Environment Variables:
 		  CROSS_COMPILE     If specified, used as a prefix to the 'ar' program
 		
 		Example
-		  CROSS_COMPILE='x86_64-linux-musl-' ./luajit-compile linux x64
+		  CROSS_COMPILE='x86_64-linux-musl-' ./create-single-executable cvetool linux x64
 	EOF
 }
 
@@ -322,6 +341,25 @@ create_single_executable_showError()
 	exit 1
 }
 
+create_single_executable_compileNativeLuaJitIfMissing()
+{
+	if [ ! -x "$create_single_executable_luajitBinaryFilePath" ]; then
+		"$halimedeDependenciesFolderPath"/compile-luajit 'native'
+	fi
+}
+
+create_single_executable_compileCrossLuaJitIfMissing()
+{
+	if [ -n "${CROSS_COMPILE+set}" ]; then
+		crossSysrootFolderPath="$sysrootsFolderPath"/"$CROSS_COMPILE"
+		if [ ! -x "$crossSysrootFolderPath"/bin/luajit ]; then
+			"$halimedeDependenciesFolderPath"/compile-luajit "$CROSS_COMPILE"
+		fi
+	else
+		crossSysrootFolderPath="$nativeSysrootFolderPath"
+	fi
+}
+
 create_single_executable_locateCrossCompileBinary()
 {
 	local binaryName="$1"
@@ -336,6 +374,14 @@ create_single_executable_locateCrossCompileBinary()
 	fi
 }
 
+_create_single_executable_parseCommandLineArguments_checkName()
+{
+	local firstModule="$modulesPath"/"$create_single_executable_name"/init.lua
+	if [ ! -s "$firstModule" ]; then
+		create_single_executable_showError "Please specify a NAME for a module that exists - '$firstModule' does not"
+	fi
+}
+
 create_single_executable_parseCommandLineArguments()
 {
 	case "$#" in
@@ -346,12 +392,19 @@ create_single_executable_parseCommandLineArguments()
 			elif [ "$1" = '--help' ]; then
 				create_single_executable_showHelp
 			else
-				create_single_executable_showError "Please specify OPERATING_SYSTEM and ARCHITECTURE"
+				create_single_executable_name="$1"
+				_create_single_executable_parseCommandLineArguments_checkName
+				create_single_executable_operatingSystem='native'
+				create_single_executable_architecture='native'
+				create_single_executable_objectFileExtension='o'
 			fi
 		;;
 		
 		3)
-			create_single_executable_operatingSystem="$1"
+			create_single_executable_name="$1"
+			_create_single_executable_parseCommandLineArguments_checkName
+			
+			create_single_executable_operatingSystem="$2"
 			case "$create_single_executable_operatingSystem" in
 				
 				linux|windows|osx|freebsd|netbsd|openbsd|dragonfly|solaris)
@@ -368,7 +421,7 @@ create_single_executable_parseCommandLineArguments()
 				
 			esac
 			
-			create_single_executable_architecture="$2"
+			create_single_executable_architecture="$3"
 			case "$create_single_executable_architecture" in
 				
 				x86|x64|arm|arm64)
@@ -387,16 +440,33 @@ create_single_executable_parseCommandLineArguments()
 				;;
 				
 			esac
-			
-			create_single_executable_name="$3"
-			local firstModule="$modulesPath"/"$create_single_executable_name"/init.lua
-			if [ ! -s "$firstModule" ]; then
-				create_single_executable_showError "Please specify a NAME for a module that exists - '$firstModule' does not"
-			fi
 		;;
 		
 		*)
-			create_single_executable_showError "Please specify only OPERATING_SYSTEM, ARCHITECTURE and NAME"
+			create_single_executable_showError "Please specify only NAME, OPERATING_SYSTEM and ARCHITECTURE"
+		;;
+		
+	esac
+}
+
+create_single_executable_setIsMacOsX()
+{
+	create_single_executable_setIsMacOsX=false
+	
+	case "$create_single_executable_operatingSystem" in
+		
+		osx)
+			create_single_executable_setIsMacOsX=true
+		;;
+		
+		native)
+			case "$(uname)" in
+				
+				Darwin)
+					create_single_executable_setIsMacOsX=true
+				;;
+				
+			esac
 		;;
 		
 	esac
@@ -405,14 +475,18 @@ create_single_executable_parseCommandLineArguments()
 create_single_executable_main()
 {
 	local _program_path="$(_program_path_find)"
-	cd "$_program_path"/.. 1>/dev/null 2>/dev/null
+	cd "$_program_path"/../.. 1>/dev/null 2>/dev/null
 		local modulesPath="$(pwd)"
 	cd - 1>/dev/null 2>/dev/null
 	
+	local create_single_executable_name
 	local create_single_executable_operatingSystem
 	local create_single_executable_architecture
 	local create_single_executable_objectFileExtension
 	create_single_executable_parseCommandLineArguments "$@"
+	
+	local create_single_executable_isMacOsX
+	create_single_executable_setIsMacOsX
 	
 	local binaryFilePath
 	create_single_executable_locateCrossCompileBinary ar
@@ -422,8 +496,16 @@ create_single_executable_main()
 	create_single_executable_locateCrossCompileBinary strip
 	create_single_executable_strip="$crossCompileBinaryName"
 	
-	local create_single_executable_luajitBinaryFilePath
-	create_single_executable_findLuajitBinaryFilePath
+
+	local halimedeDependenciesFolderPath="$modulesPath"/halimede/.dependencies
+	local sourceFolderPath="$halimedeDependenciesFolderPath"/source
+	local sysrootsFolderPath="$halimedeDependenciesFolderPath"/sysroots
+	local nativeSysrootFolderPath="$sysrootsFolderPath"/native
+	local create_single_executable_luajitBinaryFilePath="$nativeSysrootFolderPath"/bin/luajit
+	create_single_executable_compileNativeLuaJitIfMissing
+	
+	local crossSysrootFolderPath
+	create_single_executable_compileCrossLuaJitIfMissing
 
 	local create_single_executable_generatedWrapperCodeModuleName='__main'
 	
