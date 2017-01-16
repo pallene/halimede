@@ -219,6 +219,18 @@ create_single_executable_processModules()
 			
 			set -- "$@" -L"$modulesPath"/"$outputFolderPath" -lluajit_${moduleName}
 			
+			# Add additional library paths, eg to link zlib
+			# Isn't going to work well for native builds
+			local potentialExtraLibraryPath
+			if [ -n "${CROSS_COMPILE+set}" ]; then
+				potentialExtraLibraryPath="$modulesPath"/"$moduleName"/.dependencies/sysroots/"$CROSS_COMPILE"/lib
+			else
+				potentialExtraLibraryPath="$modulesPath"/"$moduleName"/.dependencies/sysroots/native/lib
+			fi
+			if [ -d "$potentialExtraLibraryPath" ]; then
+				set -- "$@" -L"$potentialExtraLibraryPath"
+			fi
+			
 			# Add extra things, eg link libz with -lz
 			local extraLibsToLink="$moduleName"/.luajit-libs
 			if [ -s "$extraLibsToLink" ]; then
