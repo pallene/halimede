@@ -98,6 +98,17 @@ _luajit_compile_processModules_fileOrFolderIsIgnored()
 	grep -q '^'"$withoutModuleName"'$' "$ignoreFilePath"
 }
 
+_luajit_compile_processModules_compile()
+{	
+	"$luajit_compile_luajitBinaryFilePath" -b -s \
+		-n "$luaJitRequireName" \
+		-t "$luajit_compile_objectFileExtension" \
+		-a "$luajit_compile_architecture" \
+		-o "$luajit_compile_operatingSystem" \
+		"$luaFilePath" \
+		"$outputFolderPath"/"$luaJitRequireName"."$luajit_compile_objectFileExtension"
+}
+
 _luajit_compile_processModules_files()
 {
 	local folderPath="$1"
@@ -127,10 +138,7 @@ _luajit_compile_processModules_files()
 					;;
 					
 				esac
-				echo luajit -b "$luaFilePath" "$luaJitRequireName" "$withoutFileExtension".o
-				# ar rcus libmyluafiles.a *.o
-				# -Wl,--whole-archive -lmyluafiles -Wl,--no-whole-archive -Wl,-E
-				# Let's honour CROSS_COMPILE
+				_luajit_compile_processModules_compile
 			fi
 		fi
 	done
@@ -149,12 +157,25 @@ _luajit_compile_processModules_folders()
 		if [ -d "$luaFolderPath" ]; then
 			local withoutModuleName="${luaFolderPath#*/}"
 			
-			if _luajit_compile_processModules_fileOrFolderIsIgnored "$withoutModuleName"; then
-				:
-			else
-				_luajit_compile_processModules_files "$luaFolderPath"
-				_luajit_compile_processModules_folders "$luaFolderPath"
-			fi
+			local folderName=""${luaFolderPath##*/}""
+			case "$folderName" in
+				
+				'.'*)
+					# Ignore 'hidden' folders (eg .git)
+					:
+				;;
+				
+				*)	
+					if _luajit_compile_processModules_fileOrFolderIsIgnored "$withoutModuleName"; then
+						:
+					else
+						_luajit_compile_processModules_files "$luaFolderPath"
+						_luajit_compile_processModules_folders "$luaFolderPath"
+					fi
+				;;
+				
+			esac
+			
 		fi
 	done
 	set -f
@@ -162,6 +183,16 @@ _luajit_compile_processModules_folders()
 
 luajit_compile_processModules()
 {
+	local arBinaryFilePath
+	if [ -n "${CROSS_COMPILE+set}" ]; then
+		arBinaryFilePath="${CROSS_COMPILE}"ar
+	else
+		arBinaryFilePath='ar'
+	fi
+	if ! command -v "$arBinaryFilePath" 1>/dev/null 2>/dev/null; then
+		printf '%s\n' "Error:Could not locate ar binary '$arBinaryFilePath'"
+	fi
+	
 	cd "$modulesPath" 1>/dev/null 2>/dev/null
 		
 		set +f
@@ -172,21 +203,142 @@ luajit_compile_processModules()
 				continue
 			fi
 			
+			local folderName=""${luaFolderPath##*/}""
+			case "$folderName" in
+				
+				'.'*)
+					# Ignore 'hidden' folders (eg .git) - they are not modules
+					continue
+				;;
+				
+			esac
+	
+			local outputFolderPath="$moduleName"/.luajit
+			rm -rf "$outputFolderPath"
+			mkdir -m 0700 -p "$outputFolderPath"
+			
 			_luajit_compile_processModules_files "$moduleName"
 			_luajit_compile_processModules_folders "$moduleName"
+			
+			set +f
+				"$arBinaryFilePath" rcus \
+					"$outputFolderPath"/"libluajit_${moduleName}".a \
+					"$outputFolderPath"/*."$luajit_compile_objectFileExtension"
+			set -f
+			
+			# TODO: Take into account may need to link libz
+			printf '%s\n' "Link with -Wl,--whole-archive -lluajit_${moduleName} -Wl,--no-whole-archive -Wl,-E"
 		done
-	
+		
 	cd - 1>/dev/null 2>/dev/null
 }
 
-# Based on code at https://stackoverflow.com/questions/11317269/how-to-compile-lua-scripts-into-a-single-executable-while-still-gaining-the-fas
+_luajit_compile_printHelp()
+{
+	cat <<-EOF
+		Usage: luajit-compile OPERATING_SYSTEM ARCHITECTURE
+		Usage: luajit-compile -h|--help
+		
+		Options:
+		  OPERATING_SYSTEM  One of linux, windows, osx, freebsd, netbsd, openbsd, dragonfly or solaris
+		  ARCHITECTURE      One of x86, x64, arm, ppc, ppcspe, mips or mipsel
+		
+		Environment Variables:
+		  CROSS_COMPILE     If specified, used as a prefix to the 'ar' program
+		
+		Example
+		  CROSS_COMPILE='x86_64-linux-musl-' ./luajit-compile linux x64
+	EOF
+}
+
+luajit_compile_showHelp()
+{
+	_luajit_compile_printHelp
+	
+	exit 0
+}
+
+luajit_compile_showError()
+{
+	local errorMessage="$1"
+	
+	{
+		printf 'Error: %s\n' "$errorMessage"
+		_luajit_compile_printHelp
+	} 1>&2
+	
+	exit 1
+}
+
 luajit_compile_main()
 {
+	local luajit_compile_operatingSystem
+	local luajit_compile_architecture
+	local luajit_compile_objectFileExtension
+	case "$#" in
+		
+		0)
+			luajit_compile_showError "Please specify OPERATING_SYSTEM and ARCHITECTURE"
+		;;
+		
+		1)
+			if [ "$1" = '-h' ]; then
+				luajit_compile_showHelp
+			elif [ "$1" = '--help' ]; then
+				luajit_compile_showHelp
+			else
+				luajit_compile_showError "Please specify OPERATING_SYSTEM and ARCHITECTURE"
+			fi
+		;;
+		
+		2)
+			luajit_compile_operatingSystem="$1"
+			case "$luajit_compile_operatingSystem" in
+				
+				linux|windows|osx|freebsd|netbsd|openbsd|dragonfly|solaris)
+					if [ "$luajit_compile_operatingSystem" = 'windows' ]; then
+						luajit_compile_objectFileExtension='obj'
+					else
+						luajit_compile_objectFileExtension='o'
+					fi
+				;;
+				
+				*)
+					luajit_compile_showError "Unrecognised OPERATING_SYSTEM '$luajit_compile_operatingSystem'"
+				;;
+				
+			esac
+			
+			luajit_compile_architecture="$2"
+			case "$luajit_compile_architecture" in
+				
+				x86|x64|arm)
+					:
+				;;
+				
+				ppc|ppcspe|mips|mipsel)
+					if [ "$luajit_compile_operatingSystem" = 'windows' ]; then
+						luajit_compile_showError "Unsupported ARCHITECTURE '$luajit_compile_architecture' for OPERATING_SYSTEM '$luajit_compile_operatingSystem'"
+					fi
+				;;
+				
+				*)
+					luajit_compile_showError "Unrecognised ARCHITECTURE '$luajit_compile_architecture'"
+				;;
+				
+			esac
+		;;
+		
+		*)
+			luajit_compile_showError "Please specify only OPERATING_SYSTEM and ARCHITECTURE"
+		;;
+		
+	esac
+	
 	local _program_path="$(_program_path_find)"
 	
 	local luajit_compile_luajitBinaryFilePath
 	luajit_compile_findLuajitBinaryFilePath
-	
 	
 	cd "$_program_path"/.. 1>/dev/null 2>/dev/null
 		local modulesPath="$(pwd)"
