@@ -194,8 +194,7 @@ create_single_executable_processModules()
 				printf '%s\n' "Ignoring module '$moduleName' as this is auto-generated" 1>&2
 			fi
 			
-			local folderName=""${luaFolderPath##*/}""
-			case "$folderName" in
+			case "$moduleName" in
 				
 				'.'*)
 					# Ignore 'hidden' folders (eg .git) - they are not modules
