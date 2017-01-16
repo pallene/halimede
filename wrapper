@@ -144,9 +144,15 @@ _program_luaScript_find
 _program_lua_interpreter=''
 _program_lua_interpreter_find()
 {
-	# Also kahlua.sh, luaj
+	local halimedeDependenciesFolderPath="$_program_modulesPath"/halimede/.dependencies
+	local halimedeProvidedLuaJitFolderPath="$halimedeDependenciesFolderPath"/sysroot/native/bin/luajit
+	if [ -x "$halimedeProvidedLuaJitFolderPath" ]; then
+		_program_lua_interpreter="$halimedeProvidedLuaJitFolderPath"
+		return 0
+	fi
+	
 	local interpreter
-	for interpreter in luajit-2.0.4 luajit lua-5.3 lua5.3 lua-5.2 lua5.2 lua-5.1 lua5.1 lua
+	for interpreter in luajit-2.0.4 luajit
 	do
 		if command -v "$interpreter" 1>/dev/null 2>/dev/null; then
 			_program_lua_interpreter="$(command -v "$interpreter")"
@@ -154,8 +160,33 @@ _program_lua_interpreter_find()
 		fi
 	done
 	
-	printf '%s\n' "Could not find a Lua interpreter on the PATH ('$PATH')" 1>&2
-	exit 1
+	local message="Could not find a LuaJIT (luajit) interpreter on the PATH ('$PATH') and can't compile one without these on the PATH:"
+	local requiredCommand
+	local failed=false
+	for command in make cc ar ranlib strip install
+	do
+		if ! command -v "$command" 1>/dev/null 2>/dev/null; then
+			message="$message $command"
+			failed=true
+		fi
+	done
+	if $failed; then
+		printf '%s\n' "$message" 1>&2
+		exit 1
+	fi
+		
+	set +e
+		printf '%s\n' "Could not find a LuaJIT (luajit) interpreter on the PATH ('$PATH'); trying to compile one (will take at least 15 seconds)..." 1>&2
+		"$halimedeDependenciesFolderPath"/compile-luajit 2>/dev/null
+		local exitCode=$?
+	set -e
+	if [ $exitCode -ne 0 ]; then
+		printf '%s\n' "Couldn't compile LuaJIT" 1>&2
+		exit 1
+	fi
+	printf '%s\n' "Compiled a local LuaJIT in '$halimedeProvidedLuaJitFolderPath" 1>&2
+
+	_program_lua_interpreter="$halimedeProvidedLuaJitFolderPath"
 }
 _program_lua_interpreter_find
 

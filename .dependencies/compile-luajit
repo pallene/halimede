@@ -75,12 +75,15 @@ _compile_luajit_cleanUp()
 	if command -v git 1>/dev/null 2>/dev/null; then
 		git clean -d --force --quiet -x
 	fi
-	make clean || true
+	make clean 1>&2 || true
 }
 
 _compile_luajit_forATarget()
 {
 	local crossCompile="$1"
+	
+	# LuaJIT compilation isn't particularly parallelisable; this setting on a Mac Pro 8-core shaved about 0.5 seconds off
+	local parallelismJobCount=8
 	
 	set --
 	if [ -z "$crossCompile" ]; then
@@ -99,7 +102,7 @@ _compile_luajit_forATarget()
 	cd "$sourcePath"/LuaJIT 1>/dev/null 2>/dev/null
 		_compile_luajit_cleanUp
 		set +e
-			make amalg PREFIX="$prefixFolderPath" "$@"
+			make -j $parallelismJobCount amalg PREFIX="$prefixFolderPath" "$@" 1>&2
 			local exitCode=$?
 		set -e
 		if [ $exitCode -ne 0 ]; then
@@ -108,7 +111,7 @@ _compile_luajit_forATarget()
 			exit 1
 		fi
 		set +e
-			make install PREFIX="$prefixFolderPath"
+			make -j $parallelismJobCount install PREFIX="$prefixFolderPath" 1>&2
 			local exitCode=$?
 		set -e
 		_compile_luajit_cleanUp
