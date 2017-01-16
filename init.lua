@@ -76,6 +76,8 @@ end
 if os == nil then
 	--noinspection GlobalCreationOutsideO
 	os = {}
+elseif os.setlocale then
+	os.setlocale("C")
 end
 
 if debug == nil then
@@ -196,18 +198,40 @@ if package.config == nil then
 	package.config = config
 end
 
--- Is overridden by our require logic
 if package.path == nil then
 	package.path = ''
 end
 
--- Is overridden by our require logic
 if package.cpath == nil then
 	package.cpath = ''
 end
 
--- Is overridden by our require logic
--- require
+-- We're in a chicken and egg situation with ffi
+-- It's extremely useful and is always in the preload table if using LuaJIT
+-- With regular Lua, it's provided by https://github.com/jmckaskill/luaffi which must be compiled
+-- It's possible this is in the preload table (in an embedded application) or on disk in a known location
+-- We also have to modify it to work with statics
+local function modifyFfiToWorkWithStatics(ffi)
+	local ffiLoadOriginal = ffi.load
+	function ffi.load(...)
+		local ok, C = pcall(ffiLoadOriginal, ...)
+		if ok then
+			return C
+		else
+			return ffi.C
+		end
+	end
+end
+
+local requireOriginal = require
+require = function(modname)
+	local module = requireOriginal(modname)
+	if modname == 'ffi' then
+		modifyFfiToWorkWithStatics(ffi)
+	end
+	return module	
+end
+
 
 -- Is not used
 -- module
@@ -426,6 +450,26 @@ type.isInteger = isInteger
 local isPositiveInteger = isPositiveIntegerType()
 type.isPositiveInteger = isPositiveInteger
 
+local function useFfiIfPresent(callback)
+	local ok, ffiOrError = pcall(function()
+		return require('ffi')
+	end)
+	if ok then
+		return callback(ffiOrError)
+	end
+end
+type.useFfiIfPresent = useFfiIfPresent
+
+local function hasFfi()
+	local hasFfi = false
+	useFfiIfPresent(function(ffi)
+		hasFfi = true
+	end)
+	
+	return hasFfi
+end
+type.hasFfi = hasFfi
+
 local function hasGlobalOfType(isOfTypeFunction, name)
 	local global = rawget(_G, name)
 	return isOfTypeFunction(global), global
@@ -488,38 +532,9 @@ local function hasPackageChildFieldOfTypeTableOrUserdata(name, ...)
 end
 type.hasPackageChildFieldOfTypeTableOrUserdata = hasPackageChildFieldOfTypeTableOrUserdata
 
--- Should always be in the preload table if using LuaJIT, and normally in the global namespace
--- If using regular Lua, then if https://github.com/jmckaskill/luaffi is compiled with Lua then maybe in preload or maybe on disk
-local function retrieveFfiIfGloballyPresentOrInPreload()
-	if hasGlobalOfTypeTableOrUserdata('ffi') then
-		return ffi
-	end
 
-	if package.preload['ffi'] ~= nil then
-		ffi = require('ffi')
-		return ffi
-	end
-	
-	local status, ffiOrError = pcall(function()
-		return require('ffi')
-	end)
-	
-	if status == true then
-		ffi = ffiOrError
-		return ffi
-	end
-	
-	return nil
-end
-type.retrieveFfiIfGloballyPresentOrInPreload = retrieveFfiIfGloballyPresentOrInPreload
 
-local function useFfiIfPresent(callback)
-	local ffi = type.retrieveFfiIfGloballyPresentOrInPreload()
-	if ffi ~= nil then
-		callback(ffi)
-	end
-end
-type.useFfiIfPresent = useFfiIfPresent
+
 
 
 -- WARN: Lua's random number generator is not cryptographically secure
@@ -530,6 +545,8 @@ local function initialiseTheRandomNumberGenerator()
 	end
 end
 initialiseTheRandomNumberGenerator()
+
+
 
 
 

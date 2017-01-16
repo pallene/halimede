@@ -599,11 +599,14 @@ ShellLanguage.static.default = function()
 	end
 
 	local function determineDefault()
-		if hasPackageChildFieldOfTypeString('ffi', 'os') then
+		if type.hasFfi() then
+			local ffi = require('ffi')
 			local name = ffi.os
-			local shellLanguage = operatingSystemNamesToShellLanguages[name]
-			if shellLanguage ~= nil then
-				return shellLanguage
+			if name ~= nil then
+				local shellLanguage = operatingSystemNamesToShellLanguages[name]
+				if shellLanguage ~= nil then
+					return shellLanguage
+				end
 			end
 		end
 

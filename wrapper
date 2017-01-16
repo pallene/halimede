@@ -242,12 +242,6 @@ local paths = {
 package.path = toPaths(paths, "lua")
 package.cpath = toPaths(paths, "so")
 
-if os then
-	if os.setlocale then
-		os.setlocale("C")
-	end
-end
-
 require("halimede")
 
 -- Workaround Lua not being able to require(_program_name) in _program_luaScript

@@ -1,3 +1,7 @@
 [submodule "middleclass"]
 	path = middleclass
 	url = https://github.com/kikito/middleclass.git
+[submodule ".dependencies/source/LuaJIT"]
+	path = .dependencies/source/LuaJIT
+	url = https://github.com/LuaJIT/LuaJIT.git
+	branch = master
