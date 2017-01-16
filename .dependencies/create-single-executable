@@ -237,29 +237,11 @@ create_single_executable_processModules()
 
 create_single_executable_processModules_createExecutable()
 {
-	local luajitInstallPath="$1"
-	local luajitLibraryPath="$2"
-	
 	local outputFolderPath="$modulesPath"/"$create_single_executable_name"/.luajit
 	local wrapperLuaFilePath="$outputFolderPath"/"$create_single_executable_generatedWrapperCodeModuleName".lua
 	local wrapperLuaObjectFilePath="$outputFolderPath"/"$create_single_executable_generatedWrapperCodeModuleName"."$create_single_executable_objectFileExtension"
 	
-	# Create wrapper code
-	cat >"$wrapperLuaFilePath" <<-EOF
-		_G.modulesRootPathString = '.'
-		package.path = ''
-		package.cpath = ''
-		
-		require("halimede")
-		
-		-- Workaround Lua not being able to require(_program_name) in _program_luaScript
-		local moduleNameLocal = '${create_single_executable_name}'
-		local module = halimede.setUpModule(moduleNameLocal)
-		package.loaded[moduleNameLocal] = module
-		
-		-- Now run the real code
-		require(moduleNameLocal)
-	EOF
+	sed -e 's/%MODULE_NAME%/'"${create_single_executable_name}"'/g' "$sourceFolderPath"/__main.lua >"$wrapperLuaFilePath"
 
 	_create_single_executable_createByteCodeObject "$wrapperLuaFilePath" "$create_single_executable_generatedWrapperCodeModuleName" "$outputFolderPath"
 	
@@ -277,7 +259,7 @@ create_single_executable_processModules_createExecutable()
 			-I"$crossSysrootFolderPath"/include/luajit-2.0 \
 			-L"$crossSysrootFolderPath"/lib \
 			-o "$singleExecutableBinaryFilePath" \
-			"$sourceFolderPath"/runtime.c "$wrapperLuaObjectFilePath" \
+			"$sourceFolderPath"/__main.c "$wrapperLuaObjectFilePath" \
 			-lm -ldl \
 			-Wl,-all_load \
 			-lluajit-5.1 "$@"
@@ -288,7 +270,7 @@ create_single_executable_processModules_createExecutable()
 			-L"$crossSysrootFolderPath"/lib \
 			-o "$singleExecutableBinaryFilePath" \
 			-static -Wl,-Bstatic \
-			"$sourceFolderPath"/runtime.c "$wrapperLuaObjectFilePath" \
+			"$sourceFolderPath"/__main.c "$wrapperLuaObjectFilePath" \
 			-Wl,--whole-archive -lluajit-5.1 "$@" -lc -lm -ldl -Wl,--no-whole-archive -Wl,--export-dynamic
 	fi
 	
