@@ -26,7 +26,7 @@ int main(const int argc, char **argv)
 	
 	// Run
 	lua_getglobal(L, "require");
-	lua_pushliteral(L, "__main");
+	lua_pushliteral(L, "main");
 	int status = lua_pcall(L, 1, 0, 0);
 	if (status)
 	{

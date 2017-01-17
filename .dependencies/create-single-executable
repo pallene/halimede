@@ -87,13 +87,45 @@ _create_single_executable_createByteCodeObject()
 	local sourceLuaFilePath="$1"
 	local requireName="$2"
 	local outputFolderPath="$3"
+
+	"$create_single_executable_luajitBinaryFilePath" -b \
+		-t 'c' "$sourceLuaFilePath" \
+		"$outputFolderPath"/"$requireName".lua.c
+	
+	"$create_single_executable_luajitBinaryFilePath" -b \
+		-t 'c' "$sourceLuaFilePath" \
+		"$outputFolderPath"/"$requireName".lua.h
+	
+	"$create_single_executable_luajitBinaryFilePath" -b \
+		-t 'raw' "$sourceLuaFilePath" \
+		"$outputFolderPath"/"$requireName".lua.lub
+	
+	# First sed explanations
+	# - Normalize multiple spaces with a single space (Mac OS X inserts an empty 8-character index column)
+	# - Remove leading space
+	# - Replace trailing space
+	# - Remove any empty lines (Mac OS X od inserts a final empty line)
+	# - Replace spaces between values with a comma for C
+	# First tr explanation
+	# - Convert newlines to commas, creating one simple to insert single line
+	# Second sed explanation
+	# - Remove a final trailing comma
+	# Second tr explanation
+	# - The second sed adds a final linefeed. Remove it. (Not needed if using $() syntaxt to capture the value)
+	"$create_single_executable_luajitBinaryFilePath" -b -t 'raw' "$sourceLuaFilePath" \
+		| od -v -t u1 -A n \
+		| sed -e 's/\ \ */ /g' -e 's/^ //g' -e 's/ $//g' -e '/^$/d' -e 's/ /,/g' \
+		| tr '\n' ',' \
+		| sed -e 's/,$//g' \
+		| tr -d '\n' \
+		> "$outputFolderPath"/"$requireName".lua.comma
 	
 	if [ "$create_single_executable_architecture" = 'native' ]; then
 		"$create_single_executable_luajitBinaryFilePath" -b -s \
 			-n "$requireName" \
 			-t "$create_single_executable_objectFileExtension" \
 			"$sourceLuaFilePath" \
-			"$outputFolderPath"/"$requireName"."$create_single_executable_objectFileExtension"
+			"$outputFolderPath"/"$requireName".lua."$create_single_executable_objectFileExtension"
 	else
 		"$create_single_executable_luajitBinaryFilePath" -b -s \
 			-n "$requireName" \
@@ -101,7 +133,7 @@ _create_single_executable_createByteCodeObject()
 			-a "$create_single_executable_architecture" \
 			-o "$create_single_executable_operatingSystem" \
 			"$sourceLuaFilePath" \
-			"$outputFolderPath"/"$requireName"."$create_single_executable_objectFileExtension"
+			"$outputFolderPath"/"$requireName".lua."$create_single_executable_objectFileExtension"
 	fi
 }
 
@@ -250,7 +282,7 @@ create_single_executable_processModules_createExecutable()
 {
 	local outputFolderPath="$modulesPath"/"$create_single_executable_name"/.luajit
 	local wrapperLuaFilePath="$outputFolderPath"/"$create_single_executable_generatedWrapperCodeModuleName".lua
-	local wrapperLuaObjectFilePath="$outputFolderPath"/"$create_single_executable_generatedWrapperCodeModuleName"."$create_single_executable_objectFileExtension"
+	local wrapperLuaObjectFilePath="$outputFolderPath"/"$create_single_executable_generatedWrapperCodeModuleName".lua."$create_single_executable_objectFileExtension"
 	
 	sed -e 's/%MODULE_NAME%/'"${create_single_executable_name}"'/g' "$sourceFolderPath"/__main.lua >"$wrapperLuaFilePath"
 
@@ -262,6 +294,8 @@ create_single_executable_processModules_createExecutable()
 	else
 		singleExecutableBinaryFilePath="$outputFolderPath"/"$create_single_executable_name"
 	fi
+	
+	local cRuntimeName='__main.dynamic.c'
 
 	if $create_single_executable_setIsMacOsX; then
 		set -- -pipe \
@@ -270,24 +304,39 @@ create_single_executable_processModules_createExecutable()
 			-I"$crossSysrootFolderPath"/include/luajit-2.0 \
 			-L"$crossSysrootFolderPath"/lib \
 			-o "$singleExecutableBinaryFilePath" \
-			"$sourceFolderPath"/__main.c "$wrapperLuaObjectFilePath" \
+			"$sourceFolderPath"/"$cRuntimeName" "$wrapperLuaObjectFilePath" \
 			-lm -ldl \
 			-Wl,-all_load \
 			-lluajit-5.1 "$@"
 	else
+		# Not quite fully static linked. libc is not statically linked as musl's dlsym() does not work in this case
+		# -Wl,-rpath,'\$\$ORIGIN'
+		# -static-libstdc++
+		# It may be possible to create a file with all the constants in, eg combine all *.lua.h files, then add them a la Luvi at load time:-
+		# 		https://github.com/luvit/luvi/blob/master/src/main.c
+		
+		
+		
+		
+		
+		
+		
+		
 		set -- -pipe \
 			-g0 -O2 -Wall \
+			-Wl,--export-dynamic \
 			-I"$crossSysrootFolderPath"/include/luajit-2.0 \
 			-L"$crossSysrootFolderPath"/lib \
 			-o "$singleExecutableBinaryFilePath" \
-			-static -Wl,-Bstatic \
-			"$sourceFolderPath"/__main.c "$wrapperLuaObjectFilePath" \
-			-Wl,--whole-archive -lluajit-5.1 "$@" -lc -lm -ldl -Wl,--no-whole-archive -Wl,--export-dynamic
+			-static-libgcc -Wl,-Bstatic \
+			"$sourceFolderPath"/"$cRuntimeName" "$wrapperLuaObjectFilePath" \
+			-Wl,--whole-archive -lluajit-5.1 "$@" -Wl,--no-whole-archive \
+			-Wl,-Bdynamic -lm -ldl
 	fi
 	
 	"$create_single_executable_cc" "$@"
 	
-	if [ "$create_single_executable_setIsMacOsX" ]; then
+	if $create_single_executable_setIsMacOsX; then
 		:
 	else
 		"$create_single_executable_strip" --strip-all "$singleExecutableBinaryFilePath" 2>/dev/null || true
@@ -500,7 +549,7 @@ create_single_executable_main()
 	local crossSysrootFolderPath
 	create_single_executable_compileCrossLuaJitIfMissing
 
-	local create_single_executable_generatedWrapperCodeModuleName='__main'
+	local create_single_executable_generatedWrapperCodeModuleName='main'
 	
 	create_single_executable_processModules
 }
